@@ -49,7 +49,8 @@ $border-width: 3px;
                                 background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(h + #{$hue-offset}) / 0.5);
                             }
                             .b3-list-item[data-type="navigation-root"] {
-                                .b3-list-item__text {
+                                .b3-list-item__text,
+                                .b3-list-item__icon svg {
                                     color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}));
                                     font-weight: bold;
                                 }
@@ -84,7 +85,8 @@ $border-width: 3px;
                             --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(h + #{$hue-offset}) / 0.15);
                             --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}) / 0.36);
                             .b3-list-item[data-type="navigation-root"] {
-                                .b3-list-item__text {
+                                .b3-list-item__text,
+                                .b3-list-item__icon svg {
                                     color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}));
                                     font-weight: bold;
                                 }
@@ -124,7 +126,8 @@ $border-width: 3px;
                             --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(h + #{$hue-offset}) / 0.15);
                             --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}) / 0.36);
                             .b3-list-item[data-type="navigation-root"] {
-                                .b3-list-item__text {
+                                .b3-list-item__text,
+                                .b3-list-item__icon svg {
                                     color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}));
                                     font-weight: bold;
                                 }
