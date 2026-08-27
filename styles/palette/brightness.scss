@@ -1,0 +1,22 @@
+.b3-menu__item[data-id="neo-brightness-button"] {
+    opacity: 0.38;
+    pointer-events: none;
+    .b3-slider {
+        &::-webkit-slider-runnable-track {
+            background: linear-gradient(in oklch to right, oklch(from var(--b3-theme-surface) 0.55 0 h / 0.3), oklch(from var(--b3-theme-surface) 0.95 0 h / 0.3));
+            .neo-mode-dark & {
+                background: linear-gradient(in oklch to right, oklch(from var(--b3-theme-surface) 0.35 0 h / 0.3), oklch(from var(--b3-theme-surface) 1 0 h / 0.3));
+            }
+        }
+    }
+}
+.neo-palette-custom,
+.neo-palette-followtime,
+.neo-palette-followbanner,
+.neo-palette-followsystem,
+.neo-palette-highcontrast.neo-mode-light body:not(.neo-ide-body.body--toolbar-hide) {
+    .b3-menu__item[data-id="neo-brightness-button"] {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
