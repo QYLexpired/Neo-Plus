@@ -61,6 +61,9 @@ export function getCustomColorKey(mode: ThemeMode): 'custom-color-light' | 'cust
 export function getSaturationKey(mode: ThemeMode): 'saturation-light' | 'saturation-dark' {
   return mode === 'dark' ? 'saturation-dark' : 'saturation-light';
 }
+export function getBrightnessKey(mode: ThemeMode): 'brightness-light' | 'brightness-dark' {
+  return mode === 'dark' ? 'brightness-dark' : 'brightness-light';
+}
 export function getFollowTimeBaseColorKey(mode: ThemeMode): 'followtime-base-color-light' | 'followtime-base-color-dark' {
   return mode === 'dark' ? 'followtime-base-color-dark' : 'followtime-base-color-light';
 }

@@ -1,7 +1,7 @@
 import { Menu } from 'siyuan';
 import { getPlugin } from './guard';
 import { loadConfig } from './data';
-import { createColorPickerHTML, createFollowTimeColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, initPaletteMenuEvents, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
+import { createBrightnessSliderHTML, createColorPickerHTML, createFollowTimeColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, initPaletteMenuEvents, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
 import { getTextureMenuItems } from '../texture/manager';
 import { onSmoothCaretClick, createSmoothCaretLabelHTML } from '../visual/smoothcaret';
 import { onFluidCursorClick, createFluidCursorLabelHTML } from '../visual/fluidcursor';
@@ -107,6 +107,12 @@ export function buildMenu(
     id: 'neo-saturation-button',
     icon: 'iconNeoSaturation',
     label: createSliderHTML(i18n),
+    type: 'readonly',
+  });
+  menu.addItem({
+    id: 'neo-brightness-button',
+    icon: 'iconNeoBrightness',
+    label: createBrightnessSliderHTML(i18n),
     type: 'readonly',
   });
   menu.addItem({

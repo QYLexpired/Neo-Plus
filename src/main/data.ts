@@ -5,6 +5,8 @@ export interface Config {
   'custom-color-dark'?: string;
   'saturation-light'?: number;
   'saturation-dark'?: number;
+  'brightness-light'?: number;
+  'brightness-dark'?: number;
   'invert-light'?: boolean;
   'invert-dark'?: boolean;
   'highcontrast-light'?: boolean;

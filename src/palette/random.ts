@@ -5,6 +5,7 @@ interface LastRandomState {
   presetKey?: string;
   color?: string;
   saturation?: number;
+  brightness?: number;
   inverted?: boolean;
   highContrast?: boolean;
 }
@@ -43,6 +44,27 @@ function randomSaturationDifferentFrom(previous: number): number {
   } while (saturation === previous && attempts < 20);
   return saturation;
 }
+function randomBrightness(): number {
+  const r = Math.random();
+  if (r < 0.6) {
+    return Math.round((Math.random() * 0.6 - 0.3) * 100) / 100;
+  } else if (r < 0.9) {
+    const sign = Math.random() < 0.5 ? -1 : 1;
+    return Math.round((sign * (0.3 + Math.random() * 0.3)) * 100) / 100;
+  } else {
+    const sign = Math.random() < 0.5 ? -1 : 1;
+    return Math.round((sign * (0.6 + Math.random() * 0.4)) * 100) / 100;
+  }
+}
+function randomBrightnessDifferentFrom(previous: number): number {
+  let brightness: number;
+  let attempts = 0;
+  do {
+    brightness = randomBrightness();
+    attempts++;
+  } while (brightness === previous && attempts < 20);
+  return brightness;
+}
 function randomPick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -55,6 +77,7 @@ export function destroyRandom(): void {
   const html = document.documentElement;
   html.style.removeProperty('--neo-custom-base-color');
   html.style.removeProperty('--neo-saturation');
+  html.style.removeProperty('--neo-brightness');
   html.classList.remove('neo-palette-invert', 'neo-palette-highcontrast');
 }
 export function initRandom(): void {
@@ -65,6 +88,7 @@ export function initRandom(): void {
   );
   html.style.removeProperty('--neo-custom-base-color');
   html.style.removeProperty('--neo-saturation');
+  html.style.removeProperty('--neo-brightness');
   html.classList.remove('neo-palette-invert', 'neo-palette-highcontrast');
   const choosePreset = Math.random() < 0.3;
   if (choosePreset) {
@@ -84,10 +108,14 @@ export function initRandom(): void {
     const saturation = lastState?.type === 'custom' && lastState.saturation !== undefined
       ? randomSaturationDifferentFrom(lastState.saturation)
       : randomSaturation();
+    const brightness = lastState?.type === 'custom' && lastState.brightness !== undefined
+      ? randomBrightnessDifferentFrom(lastState.brightness)
+      : randomBrightness();
     const inverted = Math.random() < 0.5;
     const finalInverted = lastState?.type === 'custom'
       && color === lastState.color
       && saturation === lastState.saturation
+      && brightness === lastState.brightness
       && inverted === lastState.inverted
       ? !inverted
       : inverted;
@@ -95,17 +123,19 @@ export function initRandom(): void {
     const finalHighContrast = lastState?.type === 'custom'
       && color === lastState.color
       && saturation === lastState.saturation
+      && brightness === lastState.brightness
       && highContrast === lastState.highContrast
       ? !highContrast
       : highContrast;
     html.style.setProperty('--neo-custom-base-color', color);
     html.style.setProperty('--neo-saturation', String(saturation));
+    html.style.setProperty('--neo-brightness', String(brightness));
     if (finalInverted) {
       html.classList.add('neo-palette-invert');
     }
     if (finalHighContrast) {
       html.classList.add('neo-palette-highcontrast');
     }
-    lastState = { type: 'custom', color, saturation, inverted: finalInverted, highContrast: finalHighContrast };
+    lastState = { type: 'custom', color, saturation, brightness, inverted: finalInverted, highContrast: finalHighContrast };
   }
 }

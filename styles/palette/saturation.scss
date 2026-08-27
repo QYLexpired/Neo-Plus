@@ -1,4 +1,5 @@
-.b3-menu__item[data-id="neo-saturation-button"] {
+.b3-menu__item[data-id="neo-saturation-button"],
+.b3-menu__item[data-id="neo-brightness-button"] {
     opacity: 0.38;
     pointer-events: none;
     filter: saturate(0);
@@ -13,7 +14,8 @@
 .neo-palette-followbanner,
 .neo-palette-followsystem,
 .neo-palette-highcontrast.neo-mode-light body:not(.neo-ide-body.body--toolbar-hide) {
-    .b3-menu__item[data-id="neo-saturation-button"] {
+    .b3-menu__item[data-id="neo-saturation-button"],
+    .b3-menu__item[data-id="neo-brightness-button"] {
         opacity: 1;
         pointer-events: auto;
         filter: unset;
