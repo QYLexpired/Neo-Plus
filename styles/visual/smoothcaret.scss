@@ -76,6 +76,12 @@
         &.neo-visual-smooth-caret-style-rainbow #neo-smooth-caret-item {
             animation: neo-smooth-caret-rainbow-hue 6s linear infinite, neo-smooth-caret-stretch 0.8s ease infinite;
         }
+        &.neo-visual-smooth-caret-style-underline #neo-smooth-caret-item {
+            animation-name: neo-smooth-caret-stretch-x;
+        }
+        &.neo-visual-smooth-caret-style-rainbow.neo-visual-smooth-caret-style-underline #neo-smooth-caret-item {
+            animation: neo-smooth-caret-rainbow-hue 6s linear infinite, neo-smooth-caret-stretch-x 0.8s ease infinite;
+        }
     }
 }
 @keyframes neo-smooth-caret-rainbow-hue {
@@ -106,4 +112,19 @@
         animation-timing-function: ease-in;
     }
     100% { transform: scaleY(0.3); }
+}
+@keyframes neo-smooth-caret-stretch-x {
+    0% {
+        transform: scaleX(0.3);
+        animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    35% {
+        transform: scaleX(1.1);
+        animation-timing-function: ease;
+    }
+    65% {
+        transform: scaleX(1.1);
+        animation-timing-function: ease-in;
+    }
+    100% { transform: scaleX(0.3); }
 }
