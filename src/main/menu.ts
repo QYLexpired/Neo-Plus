@@ -2,6 +2,7 @@ import { Menu } from 'siyuan';
 import { getPlugin } from './guard';
 import { loadConfig } from './data';
 import { createBrightnessSliderHTML, createColorPickerHTML, createFollowTimeColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, initPaletteMenuEvents, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
+import { createRandomLabelHTML } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
 import { onSmoothCaretClick, createSmoothCaretLabelHTML } from '../visual/smoothcaret';
 import { onFluidCursorClick, createFluidCursorLabelHTML } from '../visual/fluidcursor';
@@ -38,7 +39,7 @@ export function buildMenu(
   menu.addItem({
     id: 'neo-random-button',
     icon: 'iconDices',
-    label: i18n.random,
+    label: createRandomLabelHTML(i18n),
     click: () => {
       switchToPlan('random');
       return true;

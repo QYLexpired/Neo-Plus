@@ -15,6 +15,13 @@ export interface Config {
   'preset-dark'?: string;
   'color-plan-light'?: 'preset' | 'custom' | 'followtime' | 'followbanner' | 'followsystem' | 'random';
   'color-plan-dark'?: 'preset' | 'custom' | 'followtime' | 'followbanner' | 'followsystem' | 'random';
+  'random-scope'?: 'all' | 'preset' | 'custom';
+  'random-highcontrast'?: 'random' | 'on' | 'off';
+  'random-invert'?: 'random' | 'on' | 'off';
+  'random-saturation-min'?: number;
+  'random-saturation-max'?: number;
+  'random-brightness-min'?: number;
+  'random-brightness-max'?: number;
   'followtime-base-color-light'?: string;
   'followtime-base-color-dark'?: string;
   'texture-light'?: string;

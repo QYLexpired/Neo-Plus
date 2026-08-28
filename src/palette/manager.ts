@@ -24,7 +24,7 @@ import { initSaturation, destroySaturation } from './saturation';
 import { initBrightness, destroyBrightness } from './brightness';
 import { initInvert, destroyInvert } from './invert';
 import { initHighContrast, destroyHighContrast } from './highcontrast';
-import { initRandom, destroyRandom } from './random';
+import { initRandom, destroyRandom, initRandomSettings } from './random';
 export type { ThemeMode, Preset, Config };
 type Plan = 'custom' | 'followtime' | 'followbanner' | 'followsystem' | 'random';
 function withViewTransition(callback: () => void): void {
@@ -40,7 +40,7 @@ function initPlan(plan: Plan, config: Config): void {
     case 'followtime': initFollowTime(config); break;
     case 'followbanner': initFollowBanner(config); break;
     case 'followsystem': initFollowSystem(config); break;
-    case 'random': initRandom(); break;
+    case 'random': initRandom(config); break;
   }
 }
 function restorePalette(config: Config): void {
@@ -250,6 +250,7 @@ let _lastThemeMode: string | null = null;
 export function initPalette(): void {
   const plugin = getPlugin();
   if (!plugin) return;
+  initRandomSettings();
   loadConfig().then((config) => {
     restorePalette(config);
     _lastThemeMode = document.documentElement.getAttribute('data-theme-mode');
