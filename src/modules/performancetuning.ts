@@ -168,6 +168,25 @@ const _ruleFilters: RuleFilterEntry[] = [
       cssMatch: (c) => c.includes('vertical-align'),
     },
   },
+  {
+    filter: {
+      selectorMatch: (s) => s.includes('.toolbar') && s.includes(':not(#drag)'),
+      cssMatch: (c) => c.includes('z-index: 7'),
+    },
+    dynamic: true,
+  },
+  {
+    filter: {
+      selectorMatch: (s) => /table\s+thead\s*>\s*tr:first-child/.test(s) || /table\s+tbody:last-of-type\s*>\s*tr:last-child/.test(s),
+      cssMatch: (c) => c.includes('border-top-left-radius') || c.includes('border-top-right-radius') || c.includes('border-bottom-left-radius') || c.includes('border-bottom-right-radius'),
+    },
+  },
+  {
+    filter: {
+      selectorMatch: (s) => /\.textLayer\s+:is\(span\s*,\s*br\)/.test(s),
+      cssMatch: (c) => /white-space\s*:\s*pre/.test(c),
+    },
+  },
 ];
 function processAllRules(
   rules: CSSRuleList,
@@ -210,6 +229,10 @@ function removeMatchingRules(entries?: RuleFilterEntry[]): void {
   const targets = entries ?? _ruleFilters;
   for (let i = 0; i < document.styleSheets.length; i++) {
     const ss = document.styleSheets[i];
+    const ownerNode = ss.ownerNode as HTMLElement | null;
+    if (ownerNode && (ownerNode.dataset.neoCss || ownerNode.id === 'themeStyle')) {
+      continue;
+    }
     try {
       processAllRules(ss.cssRules, targets, null, null);
     } catch (_e) {}
