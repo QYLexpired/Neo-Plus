@@ -2,7 +2,7 @@ import { saveConfig, loadConfig } from '../main/data';
 import type { Config } from '../main/data';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
-import { getCurrentThemeMode, getPresetsByMode } from './presets';
+import { getCurrentThemeMode, getPresetsByMode, getCurrentPlan } from './presets';
 import type { Preset } from './presets';
 let randomScope: 'all' | 'preset' | 'custom' = 'all';
 let randomHighContrast: 'random' | 'on' | 'off' = 'random';
@@ -216,6 +216,42 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <button class="b3-button b3-button--text" id="neo-random-confirm">${i18n.confirm}</button>
   </div>`;
 }
+function showCurrentStateDialog(): void {
+  const plugin = getPlugin();
+  if (!plugin) return;
+  const i18n = plugin.i18n;
+  const mode = getCurrentThemeMode();
+  const swatch = (color: string): string =>
+    `<span style="display:inline-block;width:13px;height:13px;border-radius:50%;background-color:${color};outline:0.5px solid var(--b3-border-color-trans);outline-offset:-0.5px;vertical-align:-1px"></span>`;
+  const lines: string[] = [];
+  if (!lastState) {
+    lines.push(i18n.randomNoState);
+  } else {
+    if (lastState.type === 'preset' && lastState.presetKey) {
+      const nameKey = `colorScheme${lastState.presetKey.charAt(0).toUpperCase()}${lastState.presetKey.slice(1)}`;
+      lines.push(`${i18n.colorScheme}：${i18n[nameKey] ?? lastState.presetKey}`);
+    } else if (lastState.type === 'custom') {
+      lines.push(`${i18n.customThemeColor}：${swatch(lastState.color ?? '')} ${lastState.color}`);
+      if (lastState.saturation !== undefined) {
+        lines.push(`${i18n.saturation}：${lastState.saturation}`);
+      }
+      if (lastState.brightness !== undefined) {
+        lines.push(`${i18n.brightness}：${lastState.brightness}`);
+      }
+    }
+    if (mode === 'light') {
+      lines.push(`${i18n.highContrast}：${lastState.highContrast ? i18n.on : i18n.off}`);
+    } else {
+      lines.push(`${i18n.invertColor}：${lastState.inverted ? i18n.on : i18n.off}`);
+    }
+  }
+  new Dialog({
+    title: `<div class="fn__flex">
+    <div class="fn__ellipsis" style="white-space: nowrap">${i18n.randomCurrentState}</div>
+  </div>`,
+    content: `<div class="b3-dialog__content"><div class="b3-label__text">${lines.join('<br>')}</div></div>`,
+  });
+}
 export function showRandomSettings(): void {
   const plugin = getPlugin();
   if (!plugin) return;
@@ -224,11 +260,14 @@ export function showRandomSettings(): void {
     <div class="fn__ellipsis" style="white-space: nowrap">${plugin.i18n.randomSettings}</div>
     <div class="fn__space"></div>
     <button class="b3-button b3-button--small fn__flex-center" id="neo-random-reset-default">${plugin.i18n.randomResetDefault}</button>
+    <span class="fn__space" style="width:8px"></span>
+    <button class="b3-button b3-button--small fn__flex-center" id="neo-random-view-current">${plugin.i18n.randomViewCurrent}</button>
   </div>`,
     content: buildSettingsHTML(plugin.i18n),
   });
   dialog.element.setAttribute('data-key', 'dialog-neo-random-settings');
   dialog.element.classList.add('neo-settings-dialog');
+  dialog.element.querySelector('#neo-random-view-current')?.addEventListener('click', showCurrentStateDialog);
   const scopeSelect = dialog.element.querySelector('#neo-random-scope') as HTMLSelectElement;
   if (scopeSelect) scopeSelect.value = randomScope;
   const highContrastSelect = dialog.element.querySelector('#neo-random-highcontrast') as HTMLSelectElement;
@@ -353,9 +392,12 @@ export function showRandomSettings(): void {
     }
     dialog.destroy();
     loadConfig().then((config) => {
-      withViewTransition(() => {
-        initRandom(config);
-      });
+      const plan = getCurrentPlan(config, getCurrentThemeMode());
+      if (plan === 'random') {
+        withViewTransition(() => {
+          initRandom(config);
+        });
+      }
     });
   });
 }
@@ -379,6 +421,7 @@ export function destroyRandom(): void {
   html.style.removeProperty('--neo-saturation');
   html.style.removeProperty('--neo-brightness');
   html.classList.remove('neo-palette-invert', 'neo-palette-highcontrast');
+  lastState = null;
 }
 export function initRandom(config: Config): void {
   const html = document.documentElement;

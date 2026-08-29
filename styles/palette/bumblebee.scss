@@ -2,7 +2,7 @@
 .neo-palette-bumblebee {
     @include palette-common("[data-id=\"neo-palette-bumblebee-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #17181c;
+        --b3-base-color: #ffdd00;
         --b3-theme-primary: #17181c;
         --b3-theme-accent: #c67313;
         --b3-theme-background: #fff7c2;
