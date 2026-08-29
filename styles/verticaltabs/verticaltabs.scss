@@ -54,6 +54,9 @@
                                 visibility: hidden;
                                 pointer-events: none;
                             }
+                            & + .item:not(.item--pin) {
+                                margin-top: 16px !important;
+                            }
                         }
                         &:hover {
                             .item__text {
