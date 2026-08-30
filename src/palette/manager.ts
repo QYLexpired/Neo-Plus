@@ -197,9 +197,12 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
   };
   _clickHandler = (e: Event) => {
     const target = e.target as HTMLElement;
-    if (target instanceof HTMLInputElement && target.type === 'color') {
-      e.stopPropagation();
-    }
+    if (!(target instanceof HTMLInputElement && target.type === 'color')) return;
+    const menuItem = target.closest('[data-id]') as HTMLElement | null;
+    if (!menuItem) return;
+    const dataId = menuItem.getAttribute('data-id');
+    if (dataId !== 'neo-custom-color-button' && dataId !== 'neo-followtime-button') return;
+    e.stopPropagation();
   };
   _dblclickHandler = (e: Event) => {
     const target = e.target as HTMLElement;
