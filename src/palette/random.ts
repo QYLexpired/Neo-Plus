@@ -2,6 +2,7 @@ import { saveConfig, loadConfig } from '../main/data';
 import type { Config } from '../main/data';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
+import { isMobile } from '../modules/env';
 import { getCurrentThemeMode, getPresetsByMode, getCurrentPlan } from './presets';
 import type { Preset } from './presets';
 let randomScope: 'all' | 'preset' | 'custom' = 'all';
@@ -16,6 +17,12 @@ function clampSaturation(value: number): number {
 }
 function clampBrightness(value: number): number {
   return Math.min(1, Math.max(-1, value));
+}
+function normalizeRandomScope(value: Config['random-scope']): 'all' | 'preset' | 'custom' {
+  return value === 'preset' || value === 'custom' ? value : 'all';
+}
+function normalizeRandomTristate(value: Config['random-highcontrast']): 'random' | 'on' | 'off' {
+  return value === 'on' || value === 'off' ? value : 'random';
 }
 function readConfigRange(config: Config): { min: number; max: number } {
   const rawMin = config['random-saturation-min'];
@@ -95,6 +102,7 @@ function randomPickDifferentPreset(arr: Preset[], previousKey: string): Preset {
   return randomPick(filtered);
 }
 function pickHighContrast(sameAsLast: boolean): boolean {
+  if (isMobile() || getCurrentThemeMode() !== 'light') return false;
   const highContrast = randomHighContrast === 'on' || (randomHighContrast === 'random' && Math.random() < 0.15);
   if (randomHighContrast === 'random' && sameAsLast && highContrast === lastState?.highContrast) {
     return !highContrast;
@@ -102,6 +110,7 @@ function pickHighContrast(sameAsLast: boolean): boolean {
   return highContrast;
 }
 function pickInvert(sameAsLast: boolean): boolean {
+  if (getCurrentThemeMode() !== 'dark') return false;
   const inverted = randomInvert === 'on' || (randomInvert === 'random' && Math.random() < 0.5);
   if (randomInvert === 'random' && sameAsLast && inverted === lastState?.inverted) {
     return !inverted;
@@ -239,10 +248,21 @@ function showCurrentStateDialog(): void {
         lines.push(`${i18n.brightness}：${lastState.brightness}`);
       }
     }
-    if (mode === 'light') {
-      lines.push(`${i18n.highContrast}：${lastState.highContrast ? i18n.on : i18n.off}`);
+    if (lastState.highContrast) {
+      lines.push(`${i18n.highContrast}：${i18n.on}`);
+    } else if (randomHighContrast === 'on' && isMobile()) {
+      lines.push(`${i18n.highContrast}：${i18n.randomHighContrastMobileOff}`);
+    } else if (mode === 'dark') {
+      lines.push(`${i18n.highContrast}：${i18n.randomHighContrastDarkOff}`);
     } else {
-      lines.push(`${i18n.invertColor}：${lastState.inverted ? i18n.on : i18n.off}`);
+      lines.push(`${i18n.highContrast}：${i18n.off}`);
+    }
+    if (lastState.inverted) {
+      lines.push(`${i18n.invertColor}：${i18n.on}`);
+    } else if (mode === 'light') {
+      lines.push(`${i18n.invertColor}：${i18n.randomInvertLightOff}`);
+    } else {
+      lines.push(`${i18n.invertColor}：${i18n.off}`);
     }
   }
   new Dialog({
@@ -404,9 +424,9 @@ export function showRandomSettings(): void {
 export function initRandomSettings(): void {
   (window as any).__neoOpenRandomSettings = showRandomSettings;
   loadConfig().then((config) => {
-    randomScope = config['random-scope'] || 'all';
-    randomHighContrast = config['random-highcontrast'] || 'random';
-    randomInvert = config['random-invert'] || 'random';
+    randomScope = normalizeRandomScope(config['random-scope']);
+    randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
+    randomInvert = normalizeRandomTristate(config['random-invert']);
     const saturationRange = readConfigRange(config);
     randomSaturationMin = saturationRange.min;
     randomSaturationMax = saturationRange.max;
@@ -426,9 +446,9 @@ export function destroyRandom(): void {
 export function initRandom(config: Config): void {
   const html = document.documentElement;
   const mode = getCurrentThemeMode();
-  randomScope = config['random-scope'] || 'all';
-  randomHighContrast = config['random-highcontrast'] || 'random';
-  randomInvert = config['random-invert'] || 'random';
+  randomScope = normalizeRandomScope(config['random-scope']);
+  randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
+  randomInvert = normalizeRandomTristate(config['random-invert']);
   const saturationRange = readConfigRange(config);
   randomSaturationMin = saturationRange.min;
   randomSaturationMax = saturationRange.max;
@@ -443,24 +463,22 @@ export function initRandom(config: Config): void {
   html.style.removeProperty('--neo-brightness');
   html.classList.remove('neo-palette-invert', 'neo-palette-highcontrast');
   const choosePreset = randomScope === 'preset' || (randomScope === 'all' && Math.random() < 0.3);
-  if (choosePreset) {
-    const available = getPresetsByMode(mode);
-    if (available.length > 0) {
-      const preset = lastState?.type === 'preset' && lastState.presetKey
-        ? randomPickDifferentPreset(available, lastState.presetKey)
-        : randomPick(available);
-      html.classList.add(`neo-palette-${preset.key}`);
-      const sameAsLast = lastState?.type === 'preset' && lastState.presetKey === preset.key;
-      const finalInverted = pickInvert(sameAsLast);
-      if (finalInverted) {
-        html.classList.add('neo-palette-invert');
-      }
-      const finalHighContrast = pickHighContrast(sameAsLast);
-      if (finalHighContrast) {
-        html.classList.add('neo-palette-highcontrast');
-      }
-      lastState = { type: 'preset', presetKey: preset.key, inverted: finalInverted, highContrast: finalHighContrast };
+  const available = getPresetsByMode(mode);
+  if (choosePreset && available.length > 0) {
+    const preset = lastState?.type === 'preset' && lastState.presetKey
+      ? randomPickDifferentPreset(available, lastState.presetKey)
+      : randomPick(available);
+    html.classList.add(`neo-palette-${preset.key}`);
+    const sameAsLast = lastState?.type === 'preset' && lastState.presetKey === preset.key;
+    const finalInverted = pickInvert(sameAsLast);
+    if (finalInverted) {
+      html.classList.add('neo-palette-invert');
     }
+    const finalHighContrast = pickHighContrast(sameAsLast);
+    if (finalHighContrast) {
+      html.classList.add('neo-palette-highcontrast');
+    }
+    lastState = { type: 'preset', presetKey: preset.key, inverted: finalInverted, highContrast: finalHighContrast };
   } else {
     html.classList.add('neo-palette-custom');
     const color = lastState?.type === 'custom' && lastState.color
