@@ -4,14 +4,8 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
+import { withViewTransition } from '../modules/viewtransition';
 let frostedGlassScope: 'light' | 'global' = 'light';
-function withViewTransition(callback: () => void): void {
-    if (document.startViewTransition) {
-        document.startViewTransition(callback);
-    } else {
-        callback();
-    }
-}
 function applyScopeClass(): void {
     const htmlEl = document.documentElement;
     htmlEl.classList.add('neo-visual-frostedglass');

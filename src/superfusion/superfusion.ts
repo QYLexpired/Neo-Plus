@@ -5,14 +5,8 @@ import { featureCss } from '../modules/csschunks';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
 import { isMobile } from '../modules/env';
+import { withViewTransition } from '../modules/viewtransition';
 let superFusionMode: 'blur' | 'frostedGlass' | 'liquidGlass' = 'blur';
-function withViewTransition(callback: () => void): void {
-  if (document.startViewTransition) {
-    document.startViewTransition(callback);
-  } else {
-    callback();
-  }
-}
 export function createSuperFusionLabelHTML(i18n: Record<string, string>): string {
   return `<span class="fn__flex fn__pointer">
     <span>${i18n.superFusion}</span>

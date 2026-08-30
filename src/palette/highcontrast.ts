@@ -1,6 +1,7 @@
 import { isMobile } from '../modules/env';
 import { saveConfig } from '../main/data';
 import type { Config } from '../main/data';
+import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getHighContrastKey } from './presets';
 export function onHighContrastClick(): void {
   if (isMobile()) return;
@@ -13,11 +14,7 @@ export function onHighContrastClick(): void {
       html.classList.add('neo-palette-highcontrast');
     }
   };
-  if (document.startViewTransition) {
-    document.startViewTransition(callback);
-  } else {
-    callback();
-  }
+  withViewTransition(callback);
   const mode = getCurrentThemeMode();
   const key = getHighContrastKey(mode);
   saveConfig({ [key]: !enabled } as Partial<Config>);

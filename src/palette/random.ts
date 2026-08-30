@@ -3,6 +3,7 @@ import type { Config } from '../main/data';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
 import { isMobile } from '../modules/env';
+import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getPresetsByMode, getCurrentPlan } from './presets';
 import type { Preset } from './presets';
 let randomScope: 'all' | 'preset' | 'custom' = 'all';
@@ -116,13 +117,6 @@ function pickInvert(sameAsLast: boolean): boolean {
     return !inverted;
   }
   return inverted;
-}
-function withViewTransition(callback: () => void): void {
-  if (document.startViewTransition) {
-    document.startViewTransition(callback);
-  } else {
-    callback();
-  }
 }
 export function createRandomLabelHTML(i18n: Record<string, string>): string {
   return `<span class="fn__flex fn__pointer">

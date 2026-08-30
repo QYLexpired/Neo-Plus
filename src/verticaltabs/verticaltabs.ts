@@ -4,6 +4,7 @@ import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig } from '../main/data';
 import type { Config } from '../main/data';
 import { fetchListener } from '../modules/fetchmonitor';
+import { withViewTransition } from '../modules/viewtransition';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
 let destroyed = false;
@@ -264,13 +265,6 @@ export function showVerticalTabsSettings(): void {
     }
     dialog.destroy();
   });
-}
-function withViewTransition(callback: () => void): void {
-  if (document.startViewTransition) {
-    document.startViewTransition(callback);
-  } else {
-    callback();
-  }
 }
 const _fetchListener = fetchListener();
 _fetchListener.on('setUILayout', () => { doUpdate(); });

@@ -2,13 +2,7 @@ import { saveConfig, loadConfig } from '../main/data';
 import type { Config } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-function withViewTransition(callback: () => void): void {
-  if (document.startViewTransition) {
-    document.startViewTransition(callback);
-  } else {
-    callback();
-  }
-}
+import { withViewTransition } from '../modules/viewtransition';
 export function initScrollEffect(): void {
   loadConfig().then((config) => {
     if (config['scroll-effect'] === true) {

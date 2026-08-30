@@ -1,5 +1,6 @@
 import { saveConfig } from '../main/data';
 import type { Config } from '../main/data';
+import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getInvertKey } from './presets';
 export async function onInvertClick(): Promise<void> {
   const html = document.documentElement;
@@ -11,11 +12,7 @@ export async function onInvertClick(): Promise<void> {
       html.classList.add('neo-palette-invert');
     }
   };
-  if (document.startViewTransition) {
-    document.startViewTransition(callback);
-  } else {
-    callback();
-  }
+  withViewTransition(callback);
   const mode = getCurrentThemeMode();
   const key = getInvertKey(mode);
   await saveConfig({ [key]: !enabled } as Partial<Config>);

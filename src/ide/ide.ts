@@ -1,4 +1,5 @@
 import { isMobile } from '../modules/env';
+import { withViewTransition } from '../modules/viewtransition';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig } from '../main/data';
@@ -83,13 +84,6 @@ function detachEvents(): void {
   document.removeEventListener('keyup', onInteractionUp);
 }
 let _fallbackTimer: ReturnType<typeof setTimeout> | null = null;
-function withViewTransition(callback: () => void): void {
-  if (document.startViewTransition) {
-    document.startViewTransition(callback);
-  } else {
-    callback();
-  }
-}
 export function initIde(): void {
   if (isMobile()) return;
   loadConfig().then((config) => {

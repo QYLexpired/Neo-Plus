@@ -25,15 +25,9 @@ import { initBrightness, destroyBrightness } from './brightness';
 import { initInvert, destroyInvert } from './invert';
 import { initHighContrast, destroyHighContrast } from './highcontrast';
 import { initRandom, destroyRandom, initRandomSettings } from './random';
+import { withViewTransition } from '../modules/viewtransition';
 export type { ThemeMode, Preset, Config };
 type Plan = 'custom' | 'followtime' | 'followbanner' | 'followsystem' | 'random';
-function withViewTransition(callback: () => void): void {
-  if (document.startViewTransition) {
-    document.startViewTransition(callback);
-  } else {
-    callback();
-  }
-}
 function initPlan(plan: Plan, config: Config): void {
   switch (plan) {
     case 'custom': initCustomColor(config); break;
