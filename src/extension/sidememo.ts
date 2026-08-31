@@ -34,7 +34,7 @@ function scheduleSync(): void {
     requestAnimationFrame(() => {
       _rafPending = false;
       if (_destroyed) return;
-      try { syncSidememoState(); } catch (_e) {}
+      try { syncSidememoState(); } catch {}
     });
   }, 500);
 }
@@ -98,7 +98,7 @@ function applySyntaxHighlighting(container: HTMLElement) {
         }
       }
     });
-  } catch (_e) {}
+  } catch {}
 }
 function renderKatexInContainer(container: HTMLElement) {
   try {
@@ -110,7 +110,7 @@ function renderKatexInContainer(container: HTMLElement) {
         if (text) {
           globalKatex.render(text, el, { throwOnError: false, displayMode: false });
         }
-      } catch (_e) {}
+      } catch {}
     });
     container.querySelectorAll('div.language-math').forEach((el) => {
       try {
@@ -118,9 +118,9 @@ function renderKatexInContainer(container: HTMLElement) {
         if (text) {
           globalKatex.render(text, el, { throwOnError: false, displayMode: true });
         }
-      } catch (_e) {}
+      } catch {}
     });
-  } catch (_e) {}
+  } catch {}
 }
 let _connectorState: { sourceEl: HTMLElement; targetEl: HTMLElement; container: HTMLElement; targetEdge?: 'top' } | null = null;
 let _scrollHandler: (() => void) | null = null;
@@ -251,8 +251,8 @@ function renderMemoContent(contentDiv: HTMLElement, contentText: string): void {
     contentDiv.innerHTML = mdHtml;
     try {
       applySyntaxHighlighting(contentDiv);
-    } catch (_e) {}
-  } catch (_e) {
+    } catch {}
+  } catch {
     contentDiv.textContent = contentText;
   }
 }
@@ -262,7 +262,7 @@ function ensureMemoUid(memoEl: HTMLElement): string {
     uid = `${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
     try {
       setUidToElement(memoEl, uid);
-    } catch (_e) {}
+    } catch {}
   }
   return uid;
 }
@@ -350,7 +350,7 @@ async function initSidememoRely(): Promise<boolean> {
         link.type = 'text/css';
         link.href = href;
         head.appendChild(link);
-      } catch (_e) {}
+      } catch {}
     };
     const createScript = (id: string, src: string, async = true) =>
       new Promise<void>((resolve, reject) => {
@@ -379,7 +379,7 @@ async function initSidememoRely(): Promise<boolean> {
       try {
         await createScript('protyleKatexScript', '/stage/protyle/js/katex/katex.min.js?v=0.16.9', false);
         await createScript('protyleKatexMhchemScript', '/stage/protyle/js/katex/mhchem.min.js?v=0.16.9', false);
-      } catch (_e) {}
+      } catch {}
     }
     if (needHljs) {
       resources.push({ type: 'link', id: 'protyleHljsStyle', href: '/stage/protyle/js/highlight.js/styles/github.min.css?v=11.11.2' });
@@ -392,9 +392,9 @@ async function initSidememoRely(): Promise<boolean> {
         } else {
           await createScript(r.id, r.src!);
         }
-      } catch (_e) {}
+      } catch {}
     }
-  } catch (_e) {}
+  } catch {}
   return ((window as any).katex !== undefined) || ((window as any).hljs !== undefined);
 }
 let sideMemoPosition: 'left' | 'right' = 'right';
@@ -457,11 +457,11 @@ function syncBreadcrumbButton(protyleContent: HTMLElement, show: boolean): void 
       }
       syncSidememoState();
       if (currentlyHidden) {
-        setTimeout(() => { try { syncSidememoState(); } catch (_e) {} }, 500);
+        setTimeout(() => { try { syncSidememoState(); } catch {} }, 500);
       }
     });
     space.after(btn);
-  } catch (_e) {}
+  } catch {}
 }
 function syncSidememoState(): void {
   const htmlEl = document.documentElement;
@@ -484,15 +484,15 @@ function syncSidememoState(): void {
         el.classList.remove('neo-sidememo-protyle');
         syncBreadcrumbButton(el, false);
       }
-    } catch (_e) {}
+    } catch {}
   });
   if (isActive) {
     refreshSidememoContainers();
   } else {
     try {
       const leftover = Array.from(document.querySelectorAll<HTMLElement>('.neo-sidememo-container'));
-      leftover.forEach((c) => { try { c.remove(); } catch (_e) {} });
-    } catch (_e) {}
+      leftover.forEach((c) => { try { c.remove(); } catch {} });
+    } catch {}
   }
 }
 async function refreshSidememoContainers(): Promise<void> {
@@ -510,9 +510,9 @@ async function refreshSidememoContainers(): Promise<void> {
       const protyleContent = titleEl.closest('.protyle-content') as HTMLElement | null;
       if (protyleContent) {
         await populateSidememoContainer(container, protyleContent);
-        try { attachNoRightClick(container); } catch (_e) {}
+        try { attachNoRightClick(container); } catch {}
       }
-    } catch (_e) {}
+    } catch {}
   }
   const allContainers = Array.from(
     document.querySelectorAll<HTMLElement>('.protyle-top .protyle-title > .neo-sidememo-container'),
@@ -521,9 +521,9 @@ async function refreshSidememoContainers(): Promise<void> {
     const titleParent = container.parentElement;
     if (!titleParent) return;
     if (!titleParent.closest('.neo-sidememo-protyle')) {
-      try { container.remove(); } catch (_e) {}
+      try { container.remove(); } catch {}
     } else {
-      try { attachNoRightClick(container); } catch (_e) {}
+      try { attachNoRightClick(container); } catch {}
     }
   });
 }
@@ -537,7 +537,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
         if (handlers.leave) m.removeEventListener('mouseleave', handlers.leave);
         _sidememoState.delete(m);
       }
-    } catch (_e) {}
+    } catch {}
   });
   try {
     const titleMemoAttr = container.closest('.protyle-top')?.querySelector<HTMLElement>('.protyle-title .protyle-attr--memo');
@@ -550,7 +550,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
       }
       titleMemoAttr.removeAttribute('neo-sidememo-highlight');
     }
-  } catch (_e) {}
+  } catch {}
   while (container.firstChild) {
     const child = container.firstChild as HTMLElement;
     try {
@@ -568,10 +568,10 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
         try {
           if (handlers._neoContainer) handlers._neoContainer.classList.remove('neo-sidememo-container-resize');
           if (handlers._neoParent) handlers._neoParent.classList.remove('neo-sidememo-container-resize');
-        } catch (_e) {}
+        } catch {}
         _sidememoState.delete(child);
       }
-    } catch (_e) {}
+    } catch {}
     container.removeChild(child);
   }
   const memoElements = queryMemoElementsInWysiwyg(protyleContent);
@@ -654,14 +654,14 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
               const titleInput = protyleTop.querySelector<HTMLElement>('.protyle-title .protyle-title__input');
               if (titleInput) titleText = (titleInput.textContent || '').trim();
             }
-          } catch (_e) {}
+          } catch {}
           if (!titleText) titleText = (memoEl.textContent || '').trim();
         } else {
           titleText = (memoEl.textContent || '').trim();
         }
       }
       const uid = (isInline ? getUidFromElement(memoEl) : null) || ensureMemoUid(memoEl);
-      if (isInline) sourceEls.forEach(el => { try { setUidToElement(el, uid); } catch (_e) {} });
+      if (isInline) sourceEls.forEach(el => { try { setUidToElement(el, uid); } catch {} });
       const top = calcMemoTop(memoEl, container, protyleContent);
       const prefix = `neo-sidememo-${type === 'inline' ? 'inlinememo' : type === 'file' ? 'filememo' : 'blockmemo'}`;
       const item = createMemoItem({
@@ -676,7 +676,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
         type,
       });
       items.push({ el: item, top, height: 0, uid, sourceEls, sourceEl: sourceEls[0], index: groupIndex, type });
-    } catch (_e) {}
+    } catch {}
   });
   const frag = document.createDocumentFragment();
   items.forEach((it) => frag.appendChild(it.el));
@@ -685,7 +685,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
   items.forEach((it) => {
     try {
       it.height = Math.ceil(it.el.getBoundingClientRect().height);
-    } catch (_e) {
+    } catch {
       it.height = 0;
     }
   });
@@ -714,13 +714,13 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
       try {
         if (add) tooltip.classList.add('neo-sidememo-tooltip-memo-none');
         else tooltip.classList.remove('neo-sidememo-tooltip-memo-none');
-      } catch (_e) {}
-    } catch (_e) {}
+      } catch {}
+    } catch {}
   };
   const findMemoIconElement = (memoEl: HTMLElement): HTMLElement | null => {
     try {
       return memoEl.querySelector<HTMLElement>('.protyle-attr .protyle-attr--memo');
-    } catch (_e) {
+    } catch {
       return null;
     }
   };
@@ -759,7 +759,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
         if (it.type !== 'file') {
           it.el.setAttribute('neo-sidememo-highlight', '');
         }
-        try { relatedEls.forEach(el => toggleTooltipMemoNoneFor(el, true)); } catch (_e) {}
+        try { relatedEls.forEach(el => toggleTooltipMemoNoneFor(el, true)); } catch {}
         if (shouldDrawConnector && relatedEls[0] && it.el && it.type !== 'file') {
           const anchor = getConnectorAnchor();
           if (anchor) {
@@ -776,7 +776,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
           const anchor = getConnectorAnchor();
           if (anchor) anchor.removeAttribute('neo-sidememo-highlight');
         }
-        try { relatedEls.forEach(el => toggleTooltipMemoNoneFor(el, false)); } catch (_e) {}
+        try { relatedEls.forEach(el => toggleTooltipMemoNoneFor(el, false)); } catch {}
         if (it.type !== 'file') {
           clearConnector(container);
         }
@@ -796,7 +796,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
               if (old.enter) titleMemoAttr.removeEventListener('mouseenter', old.enter);
               if (old.leave) titleMemoAttr.removeEventListener('mouseleave', old.leave);
             }
-          } catch (_e) {}
+          } catch {}
           const onTitleMemoEnter = () => {
             it.el.setAttribute('neo-sidememo-highlight', '');
             if (shouldDrawConnector && it.el) {
@@ -843,7 +843,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
           const neoParent = relatedEls[0]?.closest('.neo-sidememo-protyle') as HTMLElement | null;
           if (!neoParent) return;
           const containerEl = container;
-          try { containerEl.classList.add('neo-sidememo-container-resize'); } catch (_e) {}
+          try { containerEl.classList.add('neo-sidememo-container-resize'); } catch {}
           clearConnector(container);
           const widthStr = getComputedStyle(neoParent).getPropertyValue('--neo-sidememo-container-width') || '';
           const initialWidth = Math.max(50, Math.min(600, Math.round(parseFloat(widthStr) || 200)));
@@ -858,24 +858,24 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
               _pendingWidth = clamped;
               if (_dragRafId === null) {
                 _dragRafId = requestAnimationFrame(() => {
-                  try { if (_pendingWidth !== null) neoParent.style.setProperty('--neo-sidememo-container-width', `${_pendingWidth}px`); } catch (_e) {}
+                  try { if (_pendingWidth !== null) neoParent.style.setProperty('--neo-sidememo-container-width', `${_pendingWidth}px`); } catch {}
                   _dragRafId = null; _pendingWidth = null;
                 });
               }
-            } catch (_e) {}
+            } catch {}
           };
           const dragUp = () => {
             try {
               document.removeEventListener('mousemove', dragMove);
               document.removeEventListener('mouseup', dragUp);
-            } catch (_e) {}
-            try { if (_dragRafId !== null) { cancelAnimationFrame(_dragRafId); _dragRafId = null; _pendingWidth = null; } } catch (_e) {}
+            } catch {}
+            try { if (_dragRafId !== null) { cancelAnimationFrame(_dragRafId); _dragRafId = null; _pendingWidth = null; } } catch {}
             const handlers = _sidememoState.get(it.el);
             if (handlers) {
               try {
                 if (handlers._neoContainer) handlers._neoContainer.classList.remove('neo-sidememo-container-resize');
                 if (handlers._neoParent) handlers._neoParent.classList.remove('neo-sidememo-container-resize');
-              } catch (_e) {}
+              } catch {}
               handlers._dragMove = null;
               handlers._dragUp = null;
               handlers._neoParent = null;
@@ -883,7 +883,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
             }
             try {
               setTimeout(() => { syncSidememoState(); }, 200);
-            } catch (_e) {}
+            } catch {}
           };
           const handlers = _sidememoState.get(it.el) || {};
           handlers._dragMove = dragMove;
@@ -907,7 +907,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
         let onTitleLeftClick: ((ev: MouseEvent) => void) | undefined;
         if (titleEl) {
           onTitleLeftClick = (ev: MouseEvent) => {
-            try { ev.preventDefault(); ev.stopPropagation(); } catch (_e) {}
+            try { ev.preventDefault(); ev.stopPropagation(); } catch {}
             try {
               if (relatedEls.some(el => el.closest('.av__gallery-content'))) {
                 showGalleryMemoTip();
@@ -929,7 +929,7 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
                       return;
                     }
                   }
-                } catch (_e) {}
+                } catch {}
               }
               const firstRelated = relatedEls[0];
               const isMergedInlineMemo = relatedEls.length > 1;
@@ -938,14 +938,14 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
                 try {
                   const protyleAttr = firstRelated.querySelector<HTMLElement>(':scope > .protyle-attr');
                   if (protyleAttr) targetEl = protyleAttr.querySelector<HTMLElement>('.protyle-attr--memo');
-                } catch (_e) { targetEl = null; }
+                } catch { targetEl = null; }
                 const rect = (targetEl ?? firstRelated).getBoundingClientRect();
                 const clickEvent = new MouseEvent('click', {
                   bubbles: true, cancelable: true, view: window, button: 0,
                   clientX: Math.round(rect.left + rect.width / 2),
                   clientY: Math.round(rect.top + rect.height / 2),
                 });
-                try { (targetEl ?? firstRelated).dispatchEvent(clickEvent); } catch (_e) {}
+                try { (targetEl ?? firstRelated).dispatchEvent(clickEvent); } catch {}
               } else if (isMergedInlineMemo) {
                 showMergeMemoTip();
               } else {
@@ -955,9 +955,9 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
                   clientX: Math.round(targetRect.left + targetRect.width / 2),
                   clientY: Math.round(targetRect.top + targetRect.height / 2),
                 });
-                try { firstRelated.dispatchEvent(ctxEvent); } catch (_e) {}
+                try { firstRelated.dispatchEvent(ctxEvent); } catch {}
               }
-            } catch (_e) {}
+            } catch {}
           };
           titleEl.addEventListener('click', onTitleLeftClick);
         }
@@ -969,13 +969,13 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
         });
         _sidememoState.set(it.el, merged);
         it.el.addEventListener('mousedown', onItemMouseDown);
-      } catch (_e) {}
+      } catch {}
       try {
         relatedEls.forEach(related => {
           _sidememoState.set(related, { enter: onMemoEnter, leave: onMemoLeave });
         });
-      } catch (_e) {}
-    } catch (_e) {}
+      } catch {}
+    } catch {}
   });
 }
 function showMergeMemoTip(): void {
@@ -986,7 +986,7 @@ function showMergeMemoTip(): void {
       msg: plugin.i18n?.mergedSideMemoEditTip || '',
       timeout: 3000
     }, () => {});
-  } catch (_e) {}
+  } catch {}
 }
 function showGalleryMemoTip(): void {
   try {
@@ -996,7 +996,7 @@ function showGalleryMemoTip(): void {
       msg: plugin.i18n?.galleryMemoEditTip || '',
       timeout: 3000
     }, () => {});
-  } catch (_e) {}
+  } catch {}
 }
 function showEmbedMemoTip(): void {
   try {
@@ -1006,7 +1006,7 @@ function showEmbedMemoTip(): void {
       msg: plugin.i18n?.embedMemoEditTip || '',
       timeout: 3000
     }, () => {});
-  } catch (_e) {}
+  } catch {}
 }
 export function cleanupSideMemo(): void {
   try {
@@ -1020,9 +1020,9 @@ export function cleanupSideMemo(): void {
     }
     _connectorState = null;
     document.querySelectorAll('.neo-sidememo-connector').forEach(el => {
-      try { el.remove(); } catch (_e) {}
+      try { el.remove(); } catch {}
     });
-  } catch (_e) {}
+  } catch {}
   try {
     const containers = Array.from(document.querySelectorAll<HTMLElement>('.neo-sidememo-container'));
     containers.forEach((container) => {
@@ -1041,14 +1041,14 @@ export function cleanupSideMemo(): void {
               if (handlers._dragMove) document.removeEventListener('mousemove', handlers._dragMove);
               if (handlers._dragUp) document.removeEventListener('mouseup', handlers._dragUp);
               if (handlers._timer) clearTimeout(handlers._timer);
-              try { if (handlers._neoContainer) handlers._neoContainer.classList.remove('neo-sidememo-container-resize'); } catch (_e) {}
-              try { if (handlers._neoParent) handlers._neoParent.classList.remove('neo-sidememo-container-resize'); } catch (_e) {}
+              try { if (handlers._neoContainer) handlers._neoContainer.classList.remove('neo-sidememo-container-resize'); } catch {}
+              try { if (handlers._neoParent) handlers._neoParent.classList.remove('neo-sidememo-container-resize'); } catch {}
               _sidememoState.delete(htmlChild);
             }
-          } catch (_e) {}
+          } catch {}
         });
-        try { container.remove(); } catch (_e) {}
-      } catch (_e) {}
+        try { container.remove(); } catch {}
+      } catch {}
     });
     document.querySelectorAll<HTMLElement>('.protyle-title .protyle-attr--memo').forEach((attr) => {
       try {
@@ -1059,7 +1059,7 @@ export function cleanupSideMemo(): void {
           _sidememoState.delete(attr);
         }
         attr.removeAttribute('neo-sidememo-highlight');
-      } catch (_e) {}
+      } catch {}
     });
     const protyles = Array.from(document.querySelectorAll<HTMLElement>('.protyle-content'));
     protyles.forEach((el) => {
@@ -1077,28 +1077,28 @@ export function cleanupSideMemo(): void {
             try {
               const uid = getUidFromElement(m);
               if (uid) removeUidFromElement(m, uid);
-            } catch (_e) {}
-            try { m.removeAttribute('neo-sidememo-highlight'); } catch (_e) {}
-          } catch (_e) {}
+            } catch {}
+            try { m.removeAttribute('neo-sidememo-highlight'); } catch {}
+          } catch {}
         });
-      } catch (_e) {}
+      } catch {}
     });
     document.querySelectorAll('.neo-sidememo-container-resize').forEach(el => {
-      try { (el as HTMLElement).classList.remove('neo-sidememo-container-resize'); } catch (_e) {}
+      try { (el as HTMLElement).classList.remove('neo-sidememo-container-resize'); } catch {}
     });
     document.querySelectorAll('.neo-sidememo-protyle').forEach(el => {
       try {
         (el as HTMLElement).style.removeProperty('--neo-sidememo-container-width');
         (el as HTMLElement).classList.remove('neo-sidememo-protyle');
-      } catch (_e) {}
+      } catch {}
     });
     document.querySelectorAll('.neo-sidememo-btn').forEach(el => {
-      try { el.remove(); } catch (_e) {}
+      try { el.remove(); } catch {}
     });
     document.querySelectorAll('.tooltip--memo#tooltip').forEach(el => {
-      try { (el as HTMLElement).classList.remove('neo-sidememo-tooltip-memo-none'); } catch (_e) {}
+      try { (el as HTMLElement).classList.remove('neo-sidememo-tooltip-memo-none'); } catch {}
     });
-  } catch (_e) {}
+  } catch {}
 }
 export function onSideMemoClick(): void {
   if (isMobile()) return;
@@ -1165,7 +1165,6 @@ export function showSideMemoSettings(): void {
     title: plugin.i18n.sidememoSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  const container = dialog.element.querySelector('.b3-dialog__container') as HTMLElement;
   dialog.element.setAttribute('data-key', 'dialog-neo-sidememo-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const positionSelect = dialog.element.querySelector('#neo-sidememo-position') as HTMLSelectElement;

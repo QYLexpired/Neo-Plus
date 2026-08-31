@@ -235,7 +235,7 @@ function removeMatchingRules(entries?: RuleFilterEntry[]): void {
     }
     try {
       processAllRules(ss.cssRules, targets, null, null);
-    } catch (_e) {}
+    } catch {}
   }
 }
 const _fetchListener = fetchListener();

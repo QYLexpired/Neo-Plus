@@ -423,7 +423,6 @@ export function showCustomImageSettings(): void {
   </div>`,
     content: buildSettingsHTML(plugin.i18n),
   });
-  const container = dialog.element.querySelector('.b3-dialog__container') as HTMLElement;
   dialog.element.setAttribute('data-key', 'dialog-neo-customimage-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const presetSelect = dialog.element.querySelector('#neo-customimage-preset-select') as HTMLSelectElement | null;

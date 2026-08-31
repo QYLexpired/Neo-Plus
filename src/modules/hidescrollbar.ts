@@ -17,7 +17,7 @@ function removeScrollbarStyles(): void {
           }
         }
       }
-    } catch (_e) {}
+    } catch {}
   }
   if (!document.getElementById(styleId)) {
     const style = document.createElement('style');
@@ -32,7 +32,7 @@ function restoreScrollbarStyles(): void {
     if (ss) {
       try {
         ss.insertRule(saved.cssText, ss.cssRules.length);
-      } catch (_e) {}
+      } catch {}
     }
   }
   _savedScrollbarRules = [];

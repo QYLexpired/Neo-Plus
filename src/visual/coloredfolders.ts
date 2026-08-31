@@ -69,7 +69,6 @@ export function showColoredFoldersSettings(): void {
     title: plugin.i18n.coloredFoldersSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  const container = dialog.element.querySelector('.b3-dialog__container') as HTMLElement;
   dialog.element.setAttribute('data-key', 'dialog-neo-colored-folders-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const styleSelect = dialog.element.querySelector('#neo-colored-folders-style') as HTMLSelectElement;

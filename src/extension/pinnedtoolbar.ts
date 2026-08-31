@@ -101,14 +101,14 @@ function scheduleApply(): void {
     requestAnimationFrame(() => {
       _rafPending = false;
       if (_destroyed) return;
-      try { applyPosition(); } catch (_e) {}
+      try { applyPosition(); } catch {}
     });
   }, 200);
 }
 function startObserving(): void {
   _destroyed = false;
-  try { applyPosition(); } catch (_e) {}
-  try { applyStyle(); } catch (_e) {}
+  try { applyPosition(); } catch {}
+  try { applyStyle(); } catch {}
   _observer = new MutationObserver(() => {
     scheduleApply();
   });
@@ -183,7 +183,6 @@ export function showPinnedToolbarSettings(): void {
     title: plugin.i18n.pinnedToolbarSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  const container = dialog.element.querySelector('.b3-dialog__container') as HTMLElement;
   dialog.element.setAttribute('data-key', 'dialog-neo-pinned-toolbar-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const positionSelect = dialog.element.querySelector('#neo-pinned-toolbar-position') as HTMLSelectElement;

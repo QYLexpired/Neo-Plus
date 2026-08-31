@@ -144,7 +144,7 @@ export class NeoPlusController {
       ['modeTransition', initModeTransition],
     ];
     for (const [name, fn] of modules) {
-      try { fn(); } catch { }
+      try { fn(); } catch {}
     }
   }
   private destroyNeoPlus(): void {
@@ -185,7 +185,7 @@ export class NeoPlusController {
       ['baseCss', destroyBaseCss],
     ];
     for (const [name, fn] of modules) {
-      try { fn(); } catch { }
+      try { fn(); } catch {}
     }
   }
 }

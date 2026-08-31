@@ -290,7 +290,6 @@ export function showImmersiveModeSettings(): void {
     title: plugin.i18n.immersiveModeSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  const container = dialog.element.querySelector('.b3-dialog__container') as HTMLElement;
   dialog.element.setAttribute('data-key', 'dialog-neo-immersive-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const typewriterSwitch = dialog.element.querySelector('#neo-immersive-typewriter') as HTMLInputElement;

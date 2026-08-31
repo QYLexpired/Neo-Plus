@@ -212,7 +212,6 @@ export function showVerticalTabsSettings(): void {
     title: plugin.i18n.verticaltabsSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  const container = dialog.element.querySelector('.b3-dialog__container') as HTMLElement;
   dialog.element.setAttribute('data-key', 'dialog-neo-verticaltabs-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const modeSelect = dialog.element.querySelector('#neo-verticaltabs-mode') as HTMLSelectElement;

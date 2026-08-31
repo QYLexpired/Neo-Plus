@@ -18,9 +18,9 @@ function updateCardSearchListClass(): void {
           ? firstChild.matches('[data-type="search-item"]')
           : false;
         (el as Element).classList.toggle('neo-cardsearchlist', isCard);
-      } catch (_e) {}
+      } catch {}
     });
-  } catch (_e) {}
+  } catch {}
 }
 _fetchListener.on('fullTextSearchBlock', updateCardSearchListClass);
 _fetchListener.on('getCriteria', updateCardSearchListClass);
@@ -33,7 +33,7 @@ export function initCardSearchList(): void {
       document.documentElement.classList.add('neo-visual-cardsearchlist');
       _fetchListener.attach();
       requestAnimationFrame(() => {
-        try { updateCardSearchListClass(); } catch (_e) {}
+        try { updateCardSearchListClass(); } catch {}
       });
     }
   });
@@ -50,7 +50,7 @@ export function onCardSearchListClick(): void {
     saveConfig({ 'card-searchlist': true } as Partial<Config>);
     _fetchListener.attach();
     requestAnimationFrame(() => {
-      try { updateCardSearchListClass(); } catch (_e) {}
+      try { updateCardSearchListClass(); } catch {}
     });
   }
 }
@@ -62,7 +62,7 @@ export function destroyCardSearchList(): void {
     _searchListSelectors.forEach(selector => {
       try {
         document.querySelector(selector)?.classList.remove('neo-cardsearchlist');
-      } catch (_e) {}
+      } catch {}
     });
-  } catch (_e) {}
+  } catch {}
 }

@@ -14,7 +14,7 @@ function scheduleExtract(): void {
   _extractTimer = setTimeout(() => {
     _extractTimer = null;
     requestAnimationFrame(() => {
-      try { extractBannerAverageColor(); } catch (_e) {}
+      try { extractBannerAverageColor(); } catch {}
     });
   }, 200);
 }
@@ -238,7 +238,7 @@ export function initFollowBanner(config: Config): void {
   _initTimer = setTimeout(() => {
     _initTimer = null;
     requestAnimationFrame(() => {
-      try { extractBannerAverageColor(); } catch (_e) {}
+      try { extractBannerAverageColor(); } catch {}
     });
   }, 500);
 }

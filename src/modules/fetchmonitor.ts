@@ -24,7 +24,7 @@ function flushPendingQueue(): void {
   pendingQueue = [];
   pendingCbs.clear();
   for (const { cb, response, url, init } of batch) {
-    try { cb(response, url, init); } catch (_e) {}
+    try { cb(response, url, init); } catch {}
   }
 }
 function schedulePendingFlush(): void {
@@ -113,7 +113,7 @@ export function initFetchMonitor(): void {
               });
             }
             schedulePendingFlush();
-          } catch (_e) {}
+          } catch {}
         }).catch(() => {});
       }
       return fetchPromise;

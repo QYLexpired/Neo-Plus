@@ -318,7 +318,7 @@ function startFluidCursor(_trail = true, _wave = true): void {
         c.globalAlpha = 1;
         return true;
       });
-      } catch (_) {  }
+      } catch {}
       if (hadWaves && waves.length === 0 && trailOn && !isShrinking && !isMouseDown) {
         hideCursorTimeout = window.setTimeout(() => {
           hideCursorTimeout = null;

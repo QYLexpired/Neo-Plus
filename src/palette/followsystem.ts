@@ -7,8 +7,7 @@ function getSystemAccentColor(): string | null {
     if (color && typeof color === 'string') {
       return `#${color}`;
     }
-  } catch (e) {
-  }
+  } catch {}
   return null;
 }
 function applySystemAccentColor(): void {
