@@ -317,7 +317,6 @@ export function showMulticolumnSlashMenuSettings(): void {
     title: plugin.i18n.multicolumnSlashMenuSettings,
     content: buildMulticolumnSlashMenuSettingsHTML(plugin.i18n),
   });
-  dialog.element.setAttribute('data-key', 'dialog-neo-multicolumn-slash-menu-settings');
   dialog.element.classList.add('neo-settings-dialog');
   loadConfig().then((config) => {
     const arrowKeysCheckbox = dialog.element.querySelector('#neo-multicolumn-slash-menu-arrowkeys') as HTMLInputElement;

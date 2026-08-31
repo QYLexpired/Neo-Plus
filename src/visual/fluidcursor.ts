@@ -472,7 +472,6 @@ export function showFluidCursorSettings(): void {
     title: plugin.i18n.fluidCursorSettings,
     content: buildFluidCursorSettingsHTML(plugin.i18n),
   });
-  dialog.element.setAttribute('data-key', 'dialog-neo-fluid-cursor-settings');
   dialog.element.classList.add('neo-settings-dialog');
   loadConfig().then((config) => {
     const trailCheckbox = dialog.element.querySelector('#neo-fluid-cursor-trail') as HTMLInputElement;

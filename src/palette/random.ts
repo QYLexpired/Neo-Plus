@@ -279,7 +279,6 @@ export function showRandomSettings(): void {
   </div>`,
     content: buildSettingsHTML(plugin.i18n),
   });
-  dialog.element.setAttribute('data-key', 'dialog-neo-random-settings');
   dialog.element.classList.add('neo-settings-dialog');
   dialog.element.querySelector('#neo-random-view-current')?.addEventListener('click', showCurrentStateDialog);
   const scopeSelect = dialog.element.querySelector('#neo-random-scope') as HTMLSelectElement;

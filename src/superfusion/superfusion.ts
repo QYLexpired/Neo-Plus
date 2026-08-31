@@ -55,7 +55,6 @@ export function showSuperFusionSettings(): void {
     title: plugin.i18n.superFusionSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  dialog.element.setAttribute('data-key', 'dialog-neo-superfusion-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const modeSelect = dialog.element.querySelector('#neo-superfusion-mode') as HTMLSelectElement;
   if (modeSelect) modeSelect.value = superFusionMode;

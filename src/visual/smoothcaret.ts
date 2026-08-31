@@ -234,7 +234,6 @@ export function showSmoothCaretSettings(): void {
     title: plugin.i18n.smoothCaretSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  dialog.element.setAttribute('data-key', 'dialog-neo-smooth-caret-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const easeSelect = dialog.element.querySelector('#neo-smooth-caret-ease') as HTMLSelectElement;
   const motionSelect = dialog.element.querySelector('#neo-smooth-caret-motion') as HTMLSelectElement;

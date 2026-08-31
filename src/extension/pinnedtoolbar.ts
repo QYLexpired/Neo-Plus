@@ -183,7 +183,6 @@ export function showPinnedToolbarSettings(): void {
     title: plugin.i18n.pinnedToolbarSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  dialog.element.setAttribute('data-key', 'dialog-neo-pinned-toolbar-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const positionSelect = dialog.element.querySelector('#neo-pinned-toolbar-position') as HTMLSelectElement;
   if (positionSelect) positionSelect.value = pinnedToolbarPosition;

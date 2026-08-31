@@ -134,7 +134,6 @@ export function showFocusBlockIndicatorSettings(): void {
     title: plugin.i18n.focusBlockIndicatorSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  dialog.element.setAttribute('data-key', 'dialog-neo-focus-block-indicator-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const effectSelect = dialog.element.querySelector('#neo-focus-block-effect') as HTMLSelectElement;
   if (effectSelect) effectSelect.value = focusBlockEffect;

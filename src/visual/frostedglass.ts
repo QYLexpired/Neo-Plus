@@ -53,7 +53,6 @@ export function showFrostedGlassSettings(): void {
     title: plugin.i18n.frostedGlassSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  dialog.element.setAttribute('data-key', 'dialog-neo-frosted-glass-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const scopeSelect = dialog.element.querySelector('#neo-frosted-glass-scope') as HTMLSelectElement;
   if (scopeSelect) scopeSelect.value = frostedGlassScope;

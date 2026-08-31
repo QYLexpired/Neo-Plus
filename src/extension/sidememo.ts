@@ -1165,7 +1165,6 @@ export function showSideMemoSettings(): void {
     title: plugin.i18n.sidememoSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
-  dialog.element.setAttribute('data-key', 'dialog-neo-sidememo-settings');
   dialog.element.classList.add('neo-settings-dialog');
   const positionSelect = dialog.element.querySelector('#neo-sidememo-position') as HTMLSelectElement;
   const connectorSwitch = dialog.element.querySelector('#neo-sidememo-connector') as HTMLInputElement;
