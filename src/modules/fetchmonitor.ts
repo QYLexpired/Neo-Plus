@@ -1,8 +1,11 @@
 type FetchCallback = (response: Response, url: string, init?: RequestInit) => void;
 let rules: Map<string, Set<FetchCallback>> = new Map();
-let patchedFetch: (typeof window.fetch) | null = null;
-let downstreamFetch: (typeof window.fetch) | null = null;
-let isPatched = false;
+interface FetchPatch {
+  wrapper: typeof window.fetch;
+  downstream: typeof window.fetch;
+  state: { active: boolean };
+}
+let currentPatch: FetchPatch | null = null;
 interface PendingItem {
   cb: FetchCallback;
   response: Response;
@@ -66,63 +69,56 @@ export function fetchListener() {
   };
 }
 export function initFetchMonitor(): void {
-  if (isPatched) return;
+  if (currentPatch) return;
   isDestroyed = false;
-  downstreamFetch = window.fetch;
-  patchedFetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    const currentDownstream = downstreamFetch;
-    if (!currentDownstream) {
-      return window.fetch(input, init);
+  const downstream = window.fetch;
+  const state = { active: true };
+  const wrapper = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    if (!state.active || rules.size === 0) {
+      return downstream.call(window, input, init);
     }
-    window.fetch = currentDownstream;
-    try {
-      if (rules.size === 0) {
-        return currentDownstream.call(window, input, init);
+    const url =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url;
+    const fetchPromise = downstream.call(window, input, init);
+    const matchedCallbacks: FetchCallback[] = [];
+    rules.forEach((callbacks, name) => {
+      if (url.includes(name)) {
+        callbacks.forEach((cb) => matchedCallbacks.push(cb));
       }
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      const fetchPromise = currentDownstream.call(window, input, init);
-      const matchedCallbacks: FetchCallback[] = [];
-      rules.forEach((callbacks, name) => {
-        if (url.includes(name)) {
-          callbacks.forEach((cb) => matchedCallbacks.push(cb));
-        }
-      });
-      if (matchedCallbacks.length > 0) {
-        fetchPromise.catch(() => {});
-        const needsResponse = matchedCallbacks.some(cb => cb.length >= 1);
-        fetchPromise.then((response) => {
-          try {
-            if (needsResponse) {
-              if (response.bodyUsed) return;
-              const clonedResponse = response.clone();
-              matchedCallbacks.forEach((cb) => {
-                if (pendingCbs.has(cb)) return;
-                pendingCbs.add(cb);
-                pendingQueue.push({ cb, response: clonedResponse, url, init });
-              });
-            } else {
-              matchedCallbacks.forEach((cb) => {
-                if (pendingCbs.has(cb)) return;
-                pendingCbs.add(cb);
-                pendingQueue.push({ cb, response: undefined as any, url, init });
-              });
-            }
-            schedulePendingFlush();
-          } catch {}
-        }).catch(() => {});
-      }
-      return fetchPromise;
-    } finally {
-      window.fetch = patchedFetch!;
+    });
+    if (matchedCallbacks.length > 0 && state.active) {
+      fetchPromise.catch(() => {});
+      const needsResponse = matchedCallbacks.some(cb => cb.length >= 1);
+      fetchPromise.then((response) => {
+        if (!state.active) return;
+        try {
+          if (needsResponse) {
+            if (response.bodyUsed) return;
+            const clonedResponse = response.clone();
+            matchedCallbacks.forEach((cb) => {
+              if (pendingCbs.has(cb)) return;
+              pendingCbs.add(cb);
+              pendingQueue.push({ cb, response: clonedResponse, url, init });
+            });
+          } else {
+            matchedCallbacks.forEach((cb) => {
+              if (pendingCbs.has(cb)) return;
+              pendingCbs.add(cb);
+              pendingQueue.push({ cb, response: undefined as any, url, init });
+            });
+          }
+          schedulePendingFlush();
+        } catch {}
+      }).catch(() => {});
     }
+    return fetchPromise;
   };
-  window.fetch = patchedFetch;
-  isPatched = true;
+  currentPatch = { wrapper, downstream, state };
+  window.fetch = wrapper;
 }
 export function triggerFetchEvent(name: string): void {
     const callbacks = rules.get(name);
@@ -135,10 +131,12 @@ export function triggerFetchEvent(name: string): void {
     schedulePendingFlush();
 }
 export function destroyFetchMonitor(): void {
-  if (!isPatched) return;
+  const patch = currentPatch;
+  if (!patch) return;
   isDestroyed = true;
-  if (window.fetch === patchedFetch) {
-    window.fetch = downstreamFetch!;
+  patch.state.active = false;
+  if (window.fetch === patch.wrapper) {
+    window.fetch = patch.downstream;
   }
   if (rafId) {
     cancelAnimationFrame(rafId);
@@ -147,7 +145,5 @@ export function destroyFetchMonitor(): void {
   pendingQueue = [];
   pendingCbs.clear();
   rules.clear();
-  patchedFetch = null;
-  downstreamFetch = null;
-  isPatched = false;
+  currentPatch = null;
 }
