@@ -1,8 +1,7 @@
 import { fetchListener } from '../modules/fetchmonitor';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, loadConfig, type Config } from '../main/data';
 const _fetchListener = fetchListener();
 const _searchListSelectors = ['#searchList', '#searchAssetList', '#searchUnRefList'];
 function updateCardSearchListClass(): void {

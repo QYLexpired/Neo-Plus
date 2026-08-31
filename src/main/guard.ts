@@ -1,5 +1,6 @@
 import { Plugin } from 'siyuan';
 import { initEnv, destroyEnv } from '../modules/env';
+import { getCurrentThemeMode } from '../modules/thememode';
 import { initNeoIcons, destroyNeoIcons } from './icons';
 import { initTopBarButton, destroyTopBarButton } from './topbar';
 import { initShortcuts, destroyShortcuts } from './shortcut';
@@ -34,17 +35,15 @@ import { initModeTransition, destroyModeTransition } from '../modules/modetransi
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { baseCss } from '../modules/csschunks';
 function isNeoTheme(): boolean {
-  const mode = document.documentElement.getAttribute('data-theme-mode');
-  if (mode === 'dark') {
+  if (getCurrentThemeMode() === 'dark') {
     return document.documentElement.getAttribute('data-dark-theme') === 'Neo';
   }
   return document.documentElement.getAttribute('data-light-theme') === 'Neo';
 }
 function initNeoRootClass(): void {
   document.documentElement.classList.add('neo-enabled');
-  const mode = document.documentElement.getAttribute('data-theme-mode');
   document.documentElement.classList.remove('neo-mode-light', 'neo-mode-dark');
-  if (mode === 'dark') {
+  if (getCurrentThemeMode() === 'dark') {
     document.documentElement.classList.add('neo-mode-dark');
   } else {
     document.documentElement.classList.add('neo-mode-light');
@@ -96,9 +95,8 @@ export class NeoPlusController {
     } else if (!isNowNeo && this.isNeoTheme) {
       this.destroyNeoPlus();
     } else if (isNowNeo && this.isNeoTheme) {
-      const mode = document.documentElement.getAttribute('data-theme-mode');
       document.documentElement.classList.remove('neo-mode-light', 'neo-mode-dark');
-      if (mode === 'dark') {
+      if (getCurrentThemeMode() === 'dark') {
         document.documentElement.classList.add('neo-mode-dark');
       } else {
         document.documentElement.classList.add('neo-mode-light');

@@ -1,7 +1,7 @@
 import { Dialog, showMessage } from 'siyuan';
 import { getPlugin } from '../main/guard';
-import { saveConfig, loadConfig, deleteConfigKeys } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, loadConfig, deleteConfigKeys, type Config } from '../main/data';
+import { getCurrentThemeMode } from '../modules/thememode';
 import { ensureCss, removeCssByPrefix } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { ensureTextureLayer, removeTextureLayer } from './layer';
@@ -127,10 +127,6 @@ function getPreset(config: Partial<Config> | null | undefined, name: string): Re
   if (!config || !name) return {};
   const raw = (config as Record<string, any>)[`customimage-preset-${name}`];
   return (raw && typeof raw === 'object') ? raw : {};
-}
-function getCurrentThemeMode(): 'light' | 'dark' {
-  const mode = document.documentElement.getAttribute('data-theme-mode');
-  return mode === 'dark' ? 'dark' : 'light';
 }
 function getCurrentPresetKey(): 'customimage-preset-current-light' | 'customimage-preset-current-dark' {
   return getCurrentThemeMode() === 'dark' ? currentPresetKeyDark : currentPresetKeyLight;

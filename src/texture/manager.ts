@@ -1,5 +1,5 @@
-import { saveConfig, loadConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, loadConfig, type Config } from '../main/data';
+import { getCurrentThemeMode } from '../modules/thememode';
 import { ensureCss, removeCssByPrefix } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { toggleCustomImage, showCustomImageSettings, applyCustomImageCss, clearCustomImageCss } from './customimage';
@@ -24,10 +24,6 @@ const textures: Texture[] = [
   { key: 'customimage', nameKey: 'textureCustomImage' },
 ];
 export { textures };
-function getCurrentThemeMode(): 'light' | 'dark' {
-  const mode = document.documentElement.getAttribute('data-theme-mode');
-  return mode === 'dark' ? 'dark' : 'light';
-}
 export function getTextureKey(mode: 'light' | 'dark'): 'texture-light' | 'texture-dark' {
   return mode === 'dark' ? 'texture-dark' : 'texture-light';
 }

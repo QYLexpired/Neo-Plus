@@ -2,8 +2,7 @@ import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/guard';
 function debounce(cb: () => void, delay: number): () => void {
   let timer: ReturnType<typeof setTimeout> | null = null;

@@ -1,5 +1,5 @@
-import { saveConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, type Config } from '../main/data';
+import { getCurrentThemeMode } from '../modules/thememode';
 export type ThemeMode = 'light' | 'dark';
 export type PresetMode = ThemeMode | 'all';
 export type PresetGroup = 'neuebrutalism';
@@ -51,10 +51,7 @@ const presets: Preset[] = [
 export function getPresetsByMode(mode: ThemeMode): Preset[] {
   return presets.filter((p) => p.mode === 'all' || p.mode === mode);
 }
-export function getCurrentThemeMode(): ThemeMode {
-  const mode = document.documentElement.getAttribute('data-theme-mode');
-  return mode === 'dark' ? 'dark' : 'light';
-}
+export { getCurrentThemeMode };
 export function getCustomColorKey(mode: ThemeMode): 'custom-color-light' | 'custom-color-dark' {
   return mode === 'dark' ? 'custom-color-dark' : 'custom-color-light';
 }

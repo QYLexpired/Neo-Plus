@@ -1,6 +1,5 @@
 import { isMobile } from '../modules/env';
-import { saveConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, type Config } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getHighContrastKey } from './presets';
 export function onHighContrastClick(): void {

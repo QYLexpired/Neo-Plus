@@ -1,5 +1,4 @@
-import { saveConfig, loadConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, loadConfig, type Config } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 let selectionChangeHandler: (() => void) | null = null;

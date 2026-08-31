@@ -1,5 +1,4 @@
-import { saveConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, type Config } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getInvertKey } from './presets';
 export async function onInvertClick(): Promise<void> {

@@ -1,7 +1,6 @@
 import { Dialog, fetchPost } from 'siyuan';
 import { getPlugin } from '../main/guard';
-import { saveConfig, loadConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, loadConfig, type Config } from '../main/data';
 import { isMobile } from '../modules/env';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';

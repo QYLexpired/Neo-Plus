@@ -1,6 +1,5 @@
 import { getPlugin } from '../main/guard';
-import { loadConfig, saveConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { loadConfig, saveConfig, type Config } from '../main/data';
 import {
   type ThemeMode,
   type Preset,

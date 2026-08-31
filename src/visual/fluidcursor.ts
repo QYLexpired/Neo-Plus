@@ -1,10 +1,9 @@
 import { isMobile } from '../modules/env';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig } from '../main/data';
+import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/guard';
 import { Dialog } from 'siyuan';
-import type { Config } from '../main/data';
 let animationFrameId: number | null = null;
 let resizeHandler: (() => void) | null = null;
 let mouseMoveHandler: ((e: MouseEvent) => void) | null = null;

@@ -1,5 +1,4 @@
-import { saveConfig, loadConfig } from '../main/data';
-import type { Config } from '../main/data';
+import { saveConfig, loadConfig, type Config } from '../main/data';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
 import { isMobile } from '../modules/env';
