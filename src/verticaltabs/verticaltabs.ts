@@ -158,13 +158,6 @@ function destroyResizeHandle(): void {
     dblClickHandler = null;
   }
 }
-function createVerticalTabsLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.verticalTabs}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.verticaltabsSettings}" onclick="event.stopPropagation();__neoOpenVerticalTabsSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
-}
 function buildSettingsHTML(i18n: Record<string, string>): string {
   const modeOptions = ['topLeftOnly', 'all']
     .map(v => `<option value="${v}">${i18n[`verticaltabsMode${v.charAt(0).toUpperCase() + v.slice(1)}`]}</option>`)
@@ -265,10 +258,8 @@ export function showVerticalTabsSettings(): void {
 }
 const _fetchListener = fetchListener();
 _fetchListener.on('setUILayout', () => { doUpdate(); });
-export { createVerticalTabsLabelHTML };
 export function initVerticalTabs(): void {
   if (isMobile()) return;
-  (window as any).__neoOpenVerticalTabsSettings = showVerticalTabsSettings;
   loadConfig().then((config) => {
     if (config['vertical-tabs'] === true) {
       ensureCss('verticaltabs', featureCss['verticaltabs']);

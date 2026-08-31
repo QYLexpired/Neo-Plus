@@ -57,7 +57,6 @@ function cyclePosition(el: HTMLElement): void {
 }
 export function initPinnedToolbar(): void {
   if (isMobile()) return;
-  (window as any).__neoOpenPinnedToolbarSettings = showPinnedToolbarSettings;
   loadConfig().then((config) => {
     pinnedToolbarPosition = config['pinned-toolbar-position'] || 'top';
     pinnedToolbarLiquidGlass = config['pinned-toolbar-liquid-glass'] === true;
@@ -81,13 +80,6 @@ export function onPinnedToolbarClick(): void {
     saveConfig({ 'pinned-toolbar': true } as Partial<Config>);
     startObserving();
   }
-}
-export function createPinnedToolbarLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.pinnedToolbar}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.pinnedToolbarSettings}" onclick="event.stopPropagation();__neoOpenPinnedToolbarSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
 }
 function scheduleApply(): void {
   if (_debounceTimer !== null) {

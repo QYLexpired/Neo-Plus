@@ -4,6 +4,7 @@ import { ensureCss, removeCssByPrefix } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { toggleCustomImage, showCustomImageSettings, applyCustomImageCss, clearCustomImageCss } from './customimage';
 import { ensureTextureLayer, removeTextureLayer } from './layer';
+import { createSettingsMenuLabel } from '../modules/menusettings';
 export interface Texture {
   key: string;
   nameKey: string;
@@ -27,13 +28,6 @@ export { textures };
 export function getTextureKey(mode: 'light' | 'dark'): 'texture-light' | 'texture-dark' {
   return mode === 'dark' ? 'texture-dark' : 'texture-light';
 }
-function createCustomImageLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.textureCustomImage}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.customimageSettings}" onclick="event.stopPropagation();__neoOpenCustomImageSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
-}
 function buildTextureMenuItem(texture: Texture, i18n: Record<string, string>): any {
   const html = document.documentElement;
   const className = `neo-texture-${texture.key}`;
@@ -41,7 +35,12 @@ function buildTextureMenuItem(texture: Texture, i18n: Record<string, string>): a
     return {
       id: `neo-texture-${texture.key}-button`,
       icon: 'iconNeoCustomImage',
-      label: createCustomImageLabelHTML(i18n),
+      label: createSettingsMenuLabel(
+        'customImage',
+        i18n.textureCustomImage,
+        i18n.customimageSettings,
+        showCustomImageSettings,
+      ),
       click: () => {
         const isCurrentlyActive = document.documentElement.classList.contains('neo-texture-customimage');
         toggleCustomImage(!isCurrentlyActive);
@@ -132,7 +131,6 @@ export function applyTexture(config: Config): void {
 }
 let _mutationObserver: MutationObserver | null = null;
 export function initTexture(): void {
-  (window as any).__neoOpenCustomImageSettings = showCustomImageSettings;
   loadConfig().then((config) => {
     applyTexture(config);
     _mutationObserver = new MutationObserver(() => {

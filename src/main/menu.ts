@@ -1,30 +1,31 @@
 import { Menu } from 'siyuan';
 import { getPlugin } from './guard';
 import { loadConfig } from './data';
-import { createBrightnessSliderHTML, createColorPickerHTML, createFollowTimeColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, initPaletteMenuEvents, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
-import { createRandomLabelHTML } from '../palette/random';
+import { createBrightnessSliderHTML, createColorPickerHTML, createFollowTimeColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
+import { showRandomSettings } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
-import { onSmoothCaretClick, createSmoothCaretLabelHTML } from '../visual/smoothcaret';
-import { onFluidCursorClick, createFluidCursorLabelHTML } from '../visual/fluidcursor';
+import { onSmoothCaretClick, showSmoothCaretSettings } from '../visual/smoothcaret';
+import { onFluidCursorClick, showFluidCursorSettings } from '../visual/fluidcursor';
 import { onListBulletLineClick } from '../extension/listbulletline';
-import { onFocusBlockIndicatorClick, createFocusBlockIndicatorLabelHTML } from '../extension/focusblockindicator';
-import { onFrostedGlassClick, createFrostedGlassLabelHTML } from '../visual/frostedglass';
+import { onFocusBlockIndicatorClick, showFocusBlockIndicatorSettings } from '../extension/focusblockindicator';
+import { onFrostedGlassClick, showFrostedGlassSettings } from '../visual/frostedglass';
 import { onScrollEffectClick } from '../visual/scrolleffect';
 import { onIdeClick } from '../ide/ide';
-import { onColoredFoldersClick, createColoredFoldersLabelHTML } from '../visual/coloredfolders';
-import { onVerticalTabsClick, createVerticalTabsLabelHTML } from '../verticaltabs/verticaltabs';
-import { onImmersiveModeClick, createImmersiveModeLabelHTML } from '../extension/immersivemode';
-import { onSuperFusionClick, createSuperFusionLabelHTML } from '../superfusion/superfusion';
+import { onColoredFoldersClick, showColoredFoldersSettings } from '../visual/coloredfolders';
+import { onVerticalTabsClick, showVerticalTabsSettings } from '../verticaltabs/verticaltabs';
+import { onImmersiveModeClick, showImmersiveModeSettings } from '../extension/immersivemode';
+import { onSuperFusionClick, showSuperFusionSettings } from '../superfusion/superfusion';
 import { isMobile } from '../modules/env';
 import { onSidebarMuteClick } from '../sidebarmute/sidebarmute';
 import { onCardSearchListClick } from '../visual/cardsearchlist';
-import { onMulticolumnSlashMenuClick, createMulticolumnSlashMenuLabelHTML } from '../visual/multicolumnslashmenu';
+import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../visual/multicolumnslashmenu';
 import { onColoredListsClick } from '../element/coloredlists';
-import { onPinnedToolbarClick, createPinnedToolbarLabelHTML } from '../extension/pinnedtoolbar';
-import { onSideMemoClick, createSideMemoLabelHTML } from '../extension/sidememo';
+import { onPinnedToolbarClick, showPinnedToolbarSettings } from '../extension/pinnedtoolbar';
+import { onSideMemoClick, showSideMemoSettings } from '../extension/sidememo';
 import { onColoredHeadingsClick } from '../element/coloredheadings';
 import { onColorfulSelectionClick } from '../element/colorfulselection';
 import { onHideToolbarClick } from '../modules/hidetoolbar';
+import { createSettingsMenuLabel } from '../modules/menusettings';
 export function buildMenu(
   onClose?: () => void,
 ): Menu {
@@ -39,7 +40,12 @@ export function buildMenu(
   menu.addItem({
     id: 'neo-random-button',
     icon: 'iconDices',
-    label: createRandomLabelHTML(i18n),
+    label: createSettingsMenuLabel(
+      'random',
+      i18n.random,
+      i18n.randomSettings,
+      showRandomSettings,
+    ),
     click: () => {
       switchToPlan('random');
       return true;
@@ -152,7 +158,12 @@ export function buildMenu(
     menu.addItem({
       id: 'neo-super-fusion-button',
       icon: 'iconNeoSuperFusion',
-      label: createSuperFusionLabelHTML(i18n),
+      label: createSettingsMenuLabel(
+        'superFusion',
+        i18n.superFusion,
+        i18n.superFusionSettings,
+        showSuperFusionSettings,
+      ),
       click: () => {
         onSuperFusionClick();
         return true;
@@ -172,7 +183,12 @@ export function buildMenu(
     menu.addItem({
       id: 'neo-vertical-tabs-button',
       icon: 'iconNeoVerticalTabs',
-      label: createVerticalTabsLabelHTML(i18n),
+      label: createSettingsMenuLabel(
+        'verticalTabs',
+        i18n.verticalTabs,
+        i18n.verticaltabsSettings,
+        showVerticalTabsSettings,
+      ),
       click: () => {
         onVerticalTabsClick();
         return true;
@@ -197,7 +213,12 @@ export function buildMenu(
       {
         id: 'neo-frosted-glass-button',
         icon: 'iconNeoFrostedGlass',
-        label: createFrostedGlassLabelHTML(i18n),
+        label: createSettingsMenuLabel(
+          'frostedGlass',
+          i18n.frostedGlass,
+          i18n.frostedGlassSettings,
+          showFrostedGlassSettings,
+        ),
         click: () => {
           onFrostedGlassClick();
           return true;
@@ -215,7 +236,12 @@ export function buildMenu(
       {
         id: 'neo-colored-folders-button',
         icon: 'iconFiles',
-        label: createColoredFoldersLabelHTML(i18n),
+        label: createSettingsMenuLabel(
+          'coloredFolders',
+          i18n.coloredFolders,
+          i18n.coloredFoldersSettings,
+          showColoredFoldersSettings,
+        ),
         click: () => {
           onColoredFoldersClick();
           return true;
@@ -225,7 +251,12 @@ export function buildMenu(
         {
           id: 'neo-multicolumn-slash-menu-button',
           icon: 'iconNeoMulticolumnSlashMenu',
-          label: createMulticolumnSlashMenuLabelHTML(i18n),
+          label: createSettingsMenuLabel(
+            'multicolumnSlashMenu',
+            i18n.multicolumnSlashMenu,
+            i18n.multicolumnSlashMenuSettings,
+            showMulticolumnSlashMenuSettings,
+          ),
           click: () => {
             onMulticolumnSlashMenuClick();
             return true;
@@ -244,7 +275,12 @@ export function buildMenu(
       {
         id: 'neo-smooth-caret-button',
         icon: 'iconNeoSmoothCaret',
-        label: createSmoothCaretLabelHTML(i18n),
+        label: createSettingsMenuLabel(
+          'smoothCaret',
+          i18n.smoothCaret,
+          i18n.smoothCaretSettings,
+          showSmoothCaretSettings,
+        ),
         click: () => {
           onSmoothCaretClick();
           return true;
@@ -254,7 +290,12 @@ export function buildMenu(
         {
           id: 'neo-fluid-cursor-button',
           icon: 'iconNeoFluidCursor',
-          label: createFluidCursorLabelHTML(i18n),
+          label: createSettingsMenuLabel(
+            'fluidCursor',
+            i18n.fluidCursor,
+            i18n.fluidCursorSettings,
+            showFluidCursorSettings,
+          ),
           click: () => {
             onFluidCursorClick();
             return true;
@@ -311,7 +352,12 @@ export function buildMenu(
       {
         id: 'neo-immersive-mode-button',
         icon: 'iconNeoImmersiveMode',
-        label: createImmersiveModeLabelHTML(i18n),
+        label: createSettingsMenuLabel(
+          'immersiveMode',
+          i18n.immersiveMode,
+          i18n.immersiveModeSettings,
+          showImmersiveModeSettings,
+        ),
         click: () => {
           onImmersiveModeClick();
           return true;
@@ -329,7 +375,12 @@ export function buildMenu(
       {
         id: 'neo-focus-block-indicator-button',
         icon: 'iconNeoFocusBlockIndicator',
-        label: createFocusBlockIndicatorLabelHTML(i18n),
+        label: createSettingsMenuLabel(
+          'focusBlockIndicator',
+          i18n.focusBlockIndicator,
+          i18n.focusBlockIndicatorSettings,
+          showFocusBlockIndicatorSettings,
+        ),
         click: () => {
           onFocusBlockIndicatorClick();
           return true;
@@ -339,7 +390,12 @@ export function buildMenu(
         {
           id: 'neo-pinned-toolbar-button',
           icon: 'iconNeoPinnedToolbar',
-          label: createPinnedToolbarLabelHTML(i18n),
+          label: createSettingsMenuLabel(
+            'pinnedToolbar',
+            i18n.pinnedToolbar,
+            i18n.pinnedToolbarSettings,
+            showPinnedToolbarSettings,
+          ),
           click: () => {
             onPinnedToolbarClick();
             return true;
@@ -350,7 +406,12 @@ export function buildMenu(
         {
           id: 'neo-sidememo-button',
           icon: 'iconNeoSideMemo',
-          label: createSideMemoLabelHTML(i18n),
+          label: createSettingsMenuLabel(
+            'sideMemo',
+            i18n.sideMemo,
+            i18n.sidememoSettings,
+            showSideMemoSettings,
+          ),
           click: () => {
             onSideMemoClick();
             return true;
@@ -359,6 +420,5 @@ export function buildMenu(
       ] : []),
     ],
   });
-  initPaletteMenuEvents(i18n);
   return menu;
 }

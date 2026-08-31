@@ -261,7 +261,6 @@ function ensureKeydownHandler(enable: boolean): void {
   }
 }
 export function initMulticolumnSlashMenu(): void {
-  (window as any).__neoOpenMulticolumnSlashMenuSettings = showMulticolumnSlashMenuSettings;
   if (isMobile()) return;
   loadConfig().then((config) => {
     arrowKeysOn = config['multicolumn-slash-menu-arrowkeys'] !== false;
@@ -334,13 +333,6 @@ export function showMulticolumnSlashMenuSettings(): void {
     }
     dialog.destroy();
   });
-}
-export function createMulticolumnSlashMenuLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.multicolumnSlashMenu}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.multicolumnSlashMenuSettings}" onclick="event.stopPropagation();__neoOpenMulticolumnSlashMenuSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
 }
 export function destroyMulticolumnSlashMenu(): void {
   removeCss('visual-multicolumnslashmenu');

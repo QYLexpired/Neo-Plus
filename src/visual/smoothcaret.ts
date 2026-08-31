@@ -165,13 +165,6 @@ function startSmoothCaret(): void {
   document.addEventListener('mouseup', handleThrottledCaretUpdate);
   updateCaretPosition();
 }
-export function createSmoothCaretLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.smoothCaret}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.smoothCaretSettings}" onclick="event.stopPropagation();__neoOpenSmoothCaretSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
-}
 function buildSettingsHTML(i18n: Record<string, string>): string {
   const easeOptions = ['elegant', 'shuttle', 'drift', 'spring']
     .map(v => `<option value="${v}">${i18n[`smoothCaretEase${v.charAt(0).toUpperCase() + v.slice(1)}`]}</option>`)
@@ -307,7 +300,6 @@ export function destroySmoothCaret(): void {
   }
 }
 export function initSmoothCaret(): void {
-  (window as any).__neoOpenSmoothCaretSettings = showSmoothCaretSettings;
   loadConfig().then((config) => {
     smoothCaretMotion = config['smooth-caret-motion'] || 'static';
     smoothCaretEase = config['smooth-caret-ease'] || 'elegant';

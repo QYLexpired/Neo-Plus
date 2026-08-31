@@ -6,13 +6,6 @@ import { getPlugin } from '../main/guard';
 import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
 let superFusionMode: 'blur' | 'frostedGlass' | 'liquidGlass' = 'blur';
-export function createSuperFusionLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.superFusion}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.superFusionSettings}" onclick="event.stopPropagation();__neoOpenSuperFusionSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
-}
 function applyModeClass(): void {
   document.body.classList.toggle('neo-visual-superfusion-blur', superFusionMode === 'blur');
   document.body.classList.toggle('neo-visual-superfusion-frosted-glass', superFusionMode === 'frostedGlass');
@@ -72,7 +65,6 @@ export function showSuperFusionSettings(): void {
 }
 export function initSuperFusion(): void {
   if (isMobile()) return;
-  (window as any).__neoOpenSuperFusionSettings = showSuperFusionSettings;
   loadConfig().then((config) => {
     superFusionMode = config['super-fusion-mode'] || 'blur';
     if (config['super-fusion'] === true) {

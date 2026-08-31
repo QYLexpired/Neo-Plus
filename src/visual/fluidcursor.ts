@@ -426,13 +426,6 @@ export function destroyFluidCursor(): void {
     htmlEl.classList.remove('neo-visual-fluid-cursor');
   }
 }
-export function createFluidCursorLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.fluidCursor}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.fluidCursorSettings}" onclick="event.stopPropagation();__neoOpenFluidCursorSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
-}
 function buildFluidCursorSettingsHTML(i18n: Record<string, string>): string {
   return `<div class="b3-dialog__content">
     <div class="config__tab-container">
@@ -496,7 +489,6 @@ export function showFluidCursorSettings(): void {
   });
 }
 export function initFluidCursor(): void {
-  (window as any).__neoOpenFluidCursorSettings = showFluidCursorSettings;
   if (isMobile()) return;
   loadConfig().then((config) => {
     if (config['fluid-cursor'] === true) {

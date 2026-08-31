@@ -246,6 +246,7 @@ let _lastThemeMode: string | null = null;
 export function initPalette(): void {
   const plugin = getPlugin();
   if (!plugin) return;
+  initPaletteMenuEvents(plugin.i18n);
   initRandomSettings();
   loadConfig().then((config) => {
     restorePalette(config);

@@ -10,7 +10,6 @@ function applyStyle(): void {
   document.body.classList.toggle('neo-visual-coloredfolders-card', coloredFoldersStyle === 'card');
 }
 export function initColoredFolders(): void {
-  (window as any).__neoOpenColoredFoldersSettings = showColoredFoldersSettings;
   loadConfig().then((config) => {
     coloredFoldersStyle = config['colored-folders-style'] || 'partition';
     if (config['colored-folders'] === true) {
@@ -83,13 +82,6 @@ export function showColoredFoldersSettings(): void {
     }
     dialog.destroy();
   });
-}
-export function createColoredFoldersLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.coloredFolders}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.coloredFoldersSettings}" onclick="event.stopPropagation();__neoOpenColoredFoldersSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
 }
 export function destroyColoredFolders(): void {
   removeCss('visual-coloredfolders');

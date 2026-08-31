@@ -34,6 +34,7 @@ import { initSideMemo, destroySideMemo } from '../extension/sidememo';
 import { initModeTransition, destroyModeTransition } from '../modules/modetransition';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { baseCss } from '../modules/csschunks';
+import { initMenuSettings, destroyMenuSettings } from '../modules/menusettings';
 function isNeoTheme(): boolean {
   if (getCurrentThemeMode() === 'dark') {
     return document.documentElement.getAttribute('data-dark-theme') === 'Neo';
@@ -110,6 +111,7 @@ export class NeoPlusController {
       ['rootClass', initNeoRootClass],
       ['env', initEnv],
       ['icons', initNeoIcons],
+      ['menuSettings', initMenuSettings],
       ['topbar', initTopBarButton],
       ['shortcuts', initShortcuts],
       ['statusHidden', initStatusHidden],
@@ -176,6 +178,7 @@ export class NeoPlusController {
       ['statusHidden', destroyStatusHidden],
       ['shortcuts', destroyShortcuts],
       ['topbar', destroyTopBarButton],
+      ['menuSettings', destroyMenuSettings],
       ['icons', destroyNeoIcons],
       ['env', destroyEnv],
       ['rootClass', destroyNeoRootClass],

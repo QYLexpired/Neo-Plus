@@ -117,13 +117,6 @@ function pickInvert(sameAsLast: boolean): boolean {
   }
   return inverted;
 }
-export function createRandomLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.random}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.randomSettings}" onclick="event.stopPropagation();__neoOpenRandomSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
-}
 function buildSettingsHTML(i18n: Record<string, string>): string {
   const scopeOptions = ['all', 'preset', 'custom']
     .map(v => `<option value="${v}">${i18n[`randomScope${v.charAt(0).toUpperCase() + v.slice(1)}`]}</option>`)
@@ -414,7 +407,6 @@ export function showRandomSettings(): void {
   });
 }
 export function initRandomSettings(): void {
-  (window as any).__neoOpenRandomSettings = showRandomSettings;
   loadConfig().then((config) => {
     randomScope = normalizeRandomScope(config['random-scope']);
     randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);

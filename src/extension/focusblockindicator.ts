@@ -73,7 +73,6 @@ function stopObserving(): void {
   document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
 }
 export function initFocusBlockIndicator(): void {
-  (window as any).__neoOpenFocusBlockIndicatorSettings = showFocusBlockIndicatorSettings;
   loadConfig().then((config) => {
     focusBlockEffect = config['focus-block-effect'] || 'vertical-line';
     if (config['focus-block-indicator'] === true) {
@@ -148,13 +147,6 @@ export function showFocusBlockIndicatorSettings(): void {
     }
     dialog.destroy();
   });
-}
-export function createFocusBlockIndicatorLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.focusBlockIndicator}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.focusBlockIndicatorSettings}" onclick="event.stopPropagation();__neoOpenFocusBlockIndicatorSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
 }
 export function destroyFocusBlockIndicator(): void {
   removeCss('extension-focusblockindicator');

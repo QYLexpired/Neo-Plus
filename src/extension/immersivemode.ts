@@ -233,13 +233,6 @@ function stopObserving(): void {
   lastMaskUpdateTime = 0;
   clearHighlightCss();
 }
-export function createImmersiveModeLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.immersiveMode}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.immersiveModeSettings}" onclick="event.stopPropagation();__neoOpenImmersiveModeSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
-}
 function buildSettingsHTML(i18n: Record<string, string>): string {
   return `<div class="b3-dialog__content">
     <div class="config__tab-container">
@@ -309,7 +302,6 @@ export function showImmersiveModeSettings(): void {
   });
 }
 export function initImmersiveMode(): void {
-  (window as any).__neoOpenImmersiveModeSettings = showImmersiveModeSettings;
   loadConfig().then((config) => {
     if (config['immersive-typewriter'] !== undefined) typewriterEnabled = config['immersive-typewriter'];
     if (config['immersive-highlight'] !== undefined) highlightEnabled = config['immersive-highlight'];

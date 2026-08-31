@@ -1187,16 +1187,8 @@ export function showSideMemoSettings(): void {
     dialog.destroy();
   });
 }
-export function createSideMemoLabelHTML(i18n: Record<string, string>): string {
-  return `<span class="fn__flex fn__pointer">
-    <span>${i18n.sideMemo}</span>
-    <span class="fn__space fn__flex-1 neo-menu-item-second-icon-space"></span>
-    <svg class="b3-menu__icon neo-menu-item-second-icon ariaLabel" aria-label="${i18n.sidememoSettings}" onclick="event.stopPropagation();__neoOpenSideMemoSettings()"><use xlink:href="#iconSettings"></use></svg>
-  </span>`;
-}
 export function initSideMemo(): void {
   if (isMobile()) return;
-  (window as any).__neoOpenSideMemoSettings = showSideMemoSettings;
   loadConfig().then((config) => {
     const savedPosition = (config?.['sidememo-position'] as 'left' | 'right') || 'right';
     const savedConnector = config?.['sidememo-connector'] !== false;
