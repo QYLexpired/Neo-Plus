@@ -40,6 +40,7 @@ const presets: Preset[] = [
   { key: 'violet', nameKey: 'colorSchemeViolet', mode: 'all' },
   { key: 'firefly',  nameKey: 'colorSchemeFirefly',  mode: 'all' },
   { key: 'songyan', nameKey: 'colorSchemeSongyan', mode: 'all' },
+  { key: 'oldmagazine', nameKey: 'colorSchemeOldmagazine', mode: 'all' },
   { key: 'lakeside', nameKey: 'colorSchemeLakeside', mode: 'all' },
   { key: 'voyage', nameKey: 'colorSchemeVoyage', mode: 'all' },
   { key: 'zine', nameKey: 'colorSchemeZine', mode: 'all', group: 'neuebrutalism' },
