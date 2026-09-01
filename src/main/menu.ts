@@ -1,7 +1,7 @@
 import { Menu } from 'siyuan';
 import { getPlugin } from './guard';
 import { loadConfig } from './data';
-import { createBrightnessSliderHTML, createColorPickerHTML, createFollowTimeColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
+import { createBrightnessSliderHTML, createColorPickerHTML, createFollowTimeColorPickerHTML, createSliderHTML, getFollowTimeColor, getPresetMenuItems, getThemeColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
 import { showRandomSettings } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
 import { onSmoothCaretClick, showSmoothCaretSettings } from '../visual/smoothcaret';
@@ -35,7 +35,9 @@ export function buildMenu(
     throw new Error('Neo+ plugin not available');
   }
   const { i18n } = plugin;
+  let menuActive = true;
   const menu = new Menu('topBarNeoPlus', () => {
+    menuActive = false;
     onClose?.();
   });
   menu.addItem({
@@ -83,16 +85,16 @@ export function buildMenu(
     },
   });
   configPromise.then((config) => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || !menuActive) return;
     requestAnimationFrame(() => {
-      if (!isCurrent()) return;
+      if (!isCurrent() || !menuActive) return;
       const customPicker = document.querySelector<HTMLInputElement>('[data-id="neo-custom-color-button"] input[type="color"]');
       if (customPicker) {
         customPicker.value = getThemeColor(config);
       }
       const followtimePicker = document.querySelector<HTMLInputElement>('[data-id="neo-followtime-button"] input[type="color"]');
       if (followtimePicker) {
-        followtimePicker.value = createFollowTimeColorPickerHTML(config).match(/value="([^"]+)"/)?.[1] || followtimePicker.value;
+        followtimePicker.value = getFollowTimeColor(config);
       }
     });
   });

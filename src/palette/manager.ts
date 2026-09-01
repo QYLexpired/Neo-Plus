@@ -239,7 +239,7 @@ export function destroyPaletteMenuEvents(): void {
 export { createColorPickerHTML, getThemeColor } from './customcolor';
 export { createSliderHTML } from './saturation';
 export { createBrightnessSliderHTML } from './brightness';
-export { createFollowTimeColorPickerHTML } from './followtime';
+export { createFollowTimeColorPickerHTML, getFollowTimeColor } from './followtime';
 export { onInvertClick } from './invert';
 export { onHighContrastClick } from './highcontrast';
 let _mutationObserver: MutationObserver | null = null;
