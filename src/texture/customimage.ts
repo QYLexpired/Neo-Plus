@@ -3,9 +3,6 @@ import { getPlugin } from '../main/guard';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { saveConfig, loadConfig, deleteConfigKeys, type Config } from '../main/data';
 import { getCurrentThemeMode } from '../modules/thememode';
-import { ensureCss, removeCssByPrefix } from '../modules/cssloader';
-import { featureCss } from '../modules/csschunks';
-import { ensureTextureLayer, removeTextureLayer } from './layer';
 export type CustomImageConfigKey =
   | 'customimage-info'
   | 'customimage-blur'
@@ -497,7 +494,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   <button class="b3-button b3-button--text" id="neo-customimage-update-preset">${t(i18n, 'customimageUpdateApply')}</button>
 </div>`;
 }
-export function showCustomImageSettings(): void {
+export function showCustomImageSettings(restoreTexture: () => Promise<void>): void {
   const plugin = getPlugin();
   if (!plugin) return;
   const dialog = new Dialog({
@@ -595,44 +592,8 @@ export function showCustomImageSettings(): void {
   const originalDestroy = dialog.destroy.bind(dialog);
   const doDestroy = (): void => { originalDestroy(); };
   const performDestroyWithRestore = async (): Promise<void> => {
-    const isCurrent = createNeoLifecycleGuard();
     try {
-      const c = await loadConfig();
-      if (!isCurrent()) {
-        doDestroy();
-        return;
-      }
-      const mode = getCurrentThemeMode();
-      const texKey = mode === 'dark' ? 'texture-dark' : 'texture-light';
-      const textureKey = c?.[texKey as keyof Config] as string | undefined;
-      const html = document.documentElement;
-      destroyCustomImage();
-      html.classList.remove(
-        ...Array.from(html.classList).filter(cls => cls.startsWith('neo-texture-'))
-      );
-      removeCssByPrefix('texture-');
-      if (textureKey && textureKey !== 'none') {
-        ensureTextureLayer();
-        ensureCss(`texture-${textureKey}`, featureCss[`texture-${textureKey}`]);
-        if (textureKey === 'customimage') {
-          const currentKey = getPresetKeyForMode(mode);
-          const presetName = c?.[currentKey as keyof Config] as string | undefined;
-          if (presetName) {
-            const preset = getPreset(c, presetName);
-            if (preset && typeof preset === 'object') {
-              enableCustomImage(preset);
-            } else {
-              enableCustomImage();
-            }
-          } else {
-            enableCustomImage();
-          }
-        } else {
-          html.classList.add(`neo-texture-${textureKey}`);
-        }
-      } else {
-        removeTextureLayer();
-      }
+      await restoreTexture();
     } catch {}
     doDestroy();
   };

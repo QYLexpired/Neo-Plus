@@ -40,7 +40,7 @@ function buildTextureMenuItem(texture: Texture, i18n: Record<string, string>): a
         'customImage',
         i18n.textureCustomImage,
         i18n.customimageSettings,
-        showCustomImageSettings,
+        () => showCustomImageSettings(restoreTextureFromConfig),
       ),
       click: () => {
         const revision = ++textureActionRevision;
@@ -134,26 +134,24 @@ export function applyTexture(config: Config): void {
     enableTexture(textureKey, config);
   }
 }
+function restoreTextureFromConfig(): Promise<void> {
+  const isCurrent = createNeoLifecycleGuard();
+  const revision = ++textureActionRevision;
+  return loadConfig().then((config) => {
+    if (!isCurrent() || revision !== textureActionRevision) return;
+    applyTexture(config);
+  });
+}
 let _mutationObserver: MutationObserver | null = null;
 export function initTexture(): void {
-  const isCurrent = createNeoLifecycleGuard();
   _mutationObserver = new MutationObserver(() => {
-    if (!isCurrent()) return;
-    const revision = ++textureActionRevision;
-    loadConfig().then((config) => {
-      if (!isCurrent() || revision !== textureActionRevision) return;
-      applyTexture(config);
-    }).catch(() => {});
+    restoreTextureFromConfig().catch(() => {});
   });
   _mutationObserver.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['data-theme-mode'],
   });
-  const revision = textureActionRevision;
-  loadConfig().then((config) => {
-    if (!isCurrent() || revision !== textureActionRevision) return;
-    applyTexture(config);
-  }).catch(() => {});
+  restoreTextureFromConfig().catch(() => {});
 }
 export function destroyTexture(): void {
   textureActionRevision++;
