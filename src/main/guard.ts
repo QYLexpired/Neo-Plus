@@ -35,6 +35,7 @@ import { initModeTransition, destroyModeTransition } from '../modules/modetransi
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { baseCss } from '../modules/csschunks';
 import { initMenuSettings, destroyMenuSettings } from '../modules/menusettings';
+import { beginNeoLifecycle, endNeoLifecycle } from './lifecycle';
 function isNeoTheme(): boolean {
   if (getCurrentThemeMode() === 'dark') {
     return document.documentElement.getAttribute('data-dark-theme') === 'Neo';
@@ -106,6 +107,7 @@ export class NeoPlusController {
     this.isNeoTheme = isNowNeo;
   }
   private initNeoPlus(): void {
+    beginNeoLifecycle();
     const modules: Array<[string, () => void]> = [
       ['baseCss', initBaseCss],
       ['rootClass', initNeoRootClass],
@@ -148,6 +150,7 @@ export class NeoPlusController {
     }
   }
   private destroyNeoPlus(): void {
+    endNeoLifecycle();
     const modules: Array<[string, () => void]> = [
       ['pinnedToolbar', destroyPinnedToolbar],
       ['sideMemo', destroySideMemo],

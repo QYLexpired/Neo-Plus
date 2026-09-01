@@ -4,6 +4,7 @@ import { getCursorRect, getTextColor, getScrollContainer } from '../modules/gets
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from 'siyuan';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 const scrollDurationTiers = [180, 260, 360, 480, 600];
 const maskMoveThreshold = 3;
 const maskUpdateInterval = 100;
@@ -302,7 +303,9 @@ export function showImmersiveModeSettings(): void {
   });
 }
 export function initImmersiveMode(): void {
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     if (config['immersive-typewriter'] !== undefined) typewriterEnabled = config['immersive-typewriter'];
     if (config['immersive-highlight'] !== undefined) highlightEnabled = config['immersive-highlight'];
     if (config['immersive-mode'] === true) {

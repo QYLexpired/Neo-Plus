@@ -3,9 +3,12 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 export function initSidebarMute(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     if (config['sidebar-mute'] === true) {
       ensureCss('sidebarmute', featureCss['sidebarmute']);
       document.documentElement.classList.add('neo-sidebar-mute');

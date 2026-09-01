@@ -4,6 +4,7 @@ import { featureCss } from '../modules/csschunks';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
 import { withViewTransition } from '../modules/viewtransition';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 let frostedGlassScope: 'light' | 'global' = 'light';
 function applyScopeClass(): void {
   const htmlEl = document.documentElement;
@@ -62,7 +63,9 @@ export function showFrostedGlassSettings(): void {
   });
 }
 export function initFrostedGlass(): void {
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     frostedGlassScope = config['frosted-glass-scope'] || 'light';
     if (config['frosted-glass'] === true) {
       ensureCss('visual-frostedglass', featureCss['visual-frostedglass']);

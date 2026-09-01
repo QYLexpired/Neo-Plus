@@ -4,6 +4,7 @@ import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/guard';
 import { Dialog } from 'siyuan';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 const positionCycle: Array<'top' | 'bottom' | 'left' | 'right'> = ['top', 'left', 'bottom', 'right'];
 let _observer: MutationObserver | null = null;
 let _rafPending = false;
@@ -57,7 +58,9 @@ function cyclePosition(el: HTMLElement): void {
 }
 export function initPinnedToolbar(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     pinnedToolbarPosition = config['pinned-toolbar-position'] || 'top';
     pinnedToolbarLiquidGlass = config['pinned-toolbar-liquid-glass'] === true;
     if (config['pinned-toolbar'] === true) {

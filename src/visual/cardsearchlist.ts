@@ -2,6 +2,7 @@ import { fetchListener } from '../modules/fetchmonitor';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 const _fetchListener = fetchListener();
 const _searchListSelectors = ['#searchList', '#searchAssetList', '#searchUnRefList'];
 function updateCardSearchListClass(): void {
@@ -26,12 +27,15 @@ _fetchListener.on('getCriteria', updateCardSearchListClass);
 _fetchListener.on('fullTextSearchAssetContent', updateCardSearchListClass);
 _fetchListener.on('getRecentUpdatedBlocks', updateCardSearchListClass);
 export function initCardSearchList(): void {
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     if (config['card-searchlist'] === true) {
       ensureCss('visual-cardsearchlist', featureCss['visual-cardsearchlist']);
       document.documentElement.classList.add('neo-visual-cardsearchlist');
       _fetchListener.attach();
       requestAnimationFrame(() => {
+        if (!isCurrent()) return;
         try { updateCardSearchListClass(); } catch {}
       });
     }

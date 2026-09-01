@@ -26,6 +26,7 @@ import { onColoredHeadingsClick } from '../element/coloredheadings';
 import { onColorfulSelectionClick } from '../element/colorfulselection';
 import { onHideToolbarClick } from '../modules/hidetoolbar';
 import { createSettingsMenuLabel } from '../modules/menusettings';
+import { createNeoLifecycleGuard } from './lifecycle';
 export function buildMenu(
   onClose?: () => void,
 ): Menu {
@@ -58,6 +59,7 @@ export function buildMenu(
     submenu: getPresetMenuItems(i18n),
   });
   const configPromise = loadConfig();
+  const isCurrent = createNeoLifecycleGuard();
   menu.addItem({
     id: 'neo-custom-color-button',
     iconHTML: createColorPickerHTML(),
@@ -81,7 +83,9 @@ export function buildMenu(
     },
   });
   configPromise.then((config) => {
+    if (!isCurrent()) return;
     requestAnimationFrame(() => {
+      if (!isCurrent()) return;
       const customPicker = document.querySelector<HTMLInputElement>('[data-id="neo-custom-color-button"] input[type="color"]');
       if (customPicker) {
         customPicker.value = getThemeColor(config);

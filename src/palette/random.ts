@@ -5,6 +5,7 @@ import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getPresetsByMode, getCurrentPlan } from './presets';
 import type { Preset } from './presets';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 let randomScope: 'all' | 'preset' | 'custom' = 'all';
 let randomHighContrast: 'random' | 'on' | 'off' = 'random';
 let randomInvert: 'random' | 'on' | 'off' = 'random';
@@ -396,10 +397,13 @@ export function showRandomSettings(): void {
       }
     }
     dialog.destroy();
+    const isCurrent = createNeoLifecycleGuard();
     loadConfig().then((config) => {
+      if (!isCurrent()) return;
       const plan = getCurrentPlan(config, getCurrentThemeMode());
       if (plan === 'random') {
         withViewTransition(() => {
+          if (!isCurrent()) return;
           initRandom(config);
         });
       }
@@ -407,7 +411,9 @@ export function showRandomSettings(): void {
   });
 }
 export function initRandomSettings(): void {
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     randomScope = normalizeRandomScope(config['random-scope']);
     randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
     randomInvert = normalizeRandomTristate(config['random-invert']);

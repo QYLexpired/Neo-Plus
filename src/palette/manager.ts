@@ -25,6 +25,7 @@ import { initInvert, destroyInvert } from './invert';
 import { initHighContrast, destroyHighContrast } from './highcontrast';
 import { initRandom, destroyRandom, initRandomSettings } from './random';
 import { withViewTransition } from '../modules/viewtransition';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 export type { ThemeMode, Preset, Config };
 type Plan = 'custom' | 'followtime' | 'followbanner' | 'followsystem' | 'random';
 function initPlan(plan: Plan, config: Config): void {
@@ -60,8 +61,10 @@ function restorePalette(config: Config): void {
   }
 }
 export function switchToPreset(key: string): void {
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     withViewTransition(() => {
+      if (!isCurrent()) return;
       destroyRandom();
       destroyCustomColor();
       destroyFollowTime();
@@ -80,11 +83,14 @@ export function switchToPreset(key: string): void {
   }).catch(() => {});
 }
 export function switchToPlan(plan: Plan): void {
+  const isCurrent = createNeoLifecycleGuard();
   const mode = getCurrentThemeMode();
   const configKey: 'color-plan-light' | 'color-plan-dark' = mode === 'dark' ? 'color-plan-dark' : 'color-plan-light';
   saveConfig({ [configKey]: plan }).then(() => {
+    if (!isCurrent()) return;
     loadConfig().then((config) => {
       withViewTransition(() => {
+        if (!isCurrent()) return;
         restorePalette(config);
       });
     });
@@ -246,16 +252,20 @@ let _lastThemeMode: string | null = null;
 export function initPalette(): void {
   const plugin = getPlugin();
   if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
   initPaletteMenuEvents(plugin.i18n);
   initRandomSettings();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     restorePalette(config);
     _lastThemeMode = document.documentElement.getAttribute('data-theme-mode');
     _mutationObserver = new MutationObserver(() => {
+      if (!isCurrent()) return;
       const current = document.documentElement.getAttribute('data-theme-mode');
       if (current === _lastThemeMode) return;
       _lastThemeMode = current;
       loadConfig().then((config) => {
+        if (!isCurrent()) return;
         restorePalette(config);
       });
     });

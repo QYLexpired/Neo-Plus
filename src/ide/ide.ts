@@ -4,6 +4,7 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/guard';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 function debounce(cb: () => void, delay: number): () => void {
   let timer: ReturnType<typeof setTimeout> | null = null;
   return () => {
@@ -85,7 +86,9 @@ function detachEvents(): void {
 let _fallbackTimer: ReturnType<typeof setTimeout> | null = null;
 export function initIde(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     if (config['ide'] === true) {
       ensureCss('ide', featureCss['ide']);
       document.documentElement.classList.add('neo-ide');

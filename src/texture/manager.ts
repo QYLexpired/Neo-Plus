@@ -5,6 +5,7 @@ import { featureCss } from '../modules/csschunks';
 import { toggleCustomImage, showCustomImageSettings, applyCustomImageCss, clearCustomImageCss } from './customimage';
 import { ensureTextureLayer, removeTextureLayer } from './layer';
 import { createSettingsMenuLabel } from '../modules/menusettings';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 export interface Texture {
   key: string;
   nameKey: string;
@@ -131,10 +132,14 @@ export function applyTexture(config: Config): void {
 }
 let _mutationObserver: MutationObserver | null = null;
 export function initTexture(): void {
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     applyTexture(config);
     _mutationObserver = new MutationObserver(() => {
+      if (!isCurrent()) return;
       loadConfig().then((config) => {
+        if (!isCurrent()) return;
         applyTexture(config);
       });
     });

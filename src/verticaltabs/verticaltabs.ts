@@ -6,6 +6,7 @@ import { fetchListener } from '../modules/fetchmonitor';
 import { withViewTransition } from '../modules/viewtransition';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 let destroyed = false;
 let mouseDownHandler: ((e: MouseEvent) => void) | null = null;
 let dblClickHandler: ((e: MouseEvent) => void) | null = null;
@@ -260,7 +261,9 @@ const _fetchListener = fetchListener();
 _fetchListener.on('setUILayout', () => { doUpdate(); });
 export function initVerticalTabs(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     if (config['vertical-tabs'] === true) {
       ensureCss('verticaltabs', featureCss['verticaltabs']);
       document.documentElement.classList.add('neo-verticaltabs');
@@ -289,7 +292,9 @@ export function onVerticalTabsClick(): void {
       destroyed = false;
       topLeftOnlyLastWidth = null;
       configWidth = null;
+      const isCurrent = createNeoLifecycleGuard();
       loadConfig().then((config) => {
+        if (!isCurrent()) return;
         configWidth = readConfigWidth(config);
         if (document.documentElement.classList.contains('neo-verticaltabs')) {
           doUpdate();

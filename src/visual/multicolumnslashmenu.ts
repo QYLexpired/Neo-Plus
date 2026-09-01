@@ -4,6 +4,7 @@ import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/guard';
 import { Dialog } from 'siyuan';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 type Direction = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 let arrowKeysOn = true;
 interface CenterPoint {
@@ -262,7 +263,9 @@ function ensureKeydownHandler(enable: boolean): void {
 }
 export function initMulticolumnSlashMenu(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     arrowKeysOn = config['multicolumn-slash-menu-arrowkeys'] !== false;
     if (config['multicolumn-slash-menu'] === true) {
       ensureCss('visual-multicolumnslashmenu', featureCss['visual-multicolumnslashmenu']);

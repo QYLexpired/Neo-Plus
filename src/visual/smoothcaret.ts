@@ -4,6 +4,7 @@ import { getCursorRect, getTextColor, getScrollContainer, getCharWidthAtCursor }
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from 'siyuan';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 let smoothCaretEventHandler: (() => void) | null = null;
 let throttledCaretEventHandler: (() => void) | null = null;
 let _throttleTimer: number | null = null;
@@ -300,7 +301,9 @@ export function destroySmoothCaret(): void {
   }
 }
 export function initSmoothCaret(): void {
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     smoothCaretMotion = config['smooth-caret-motion'] || 'static';
     smoothCaretEase = config['smooth-caret-ease'] || 'elegant';
     smoothCaretStyle = config['smooth-caret-style'] || 'default';

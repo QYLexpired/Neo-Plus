@@ -4,6 +4,7 @@ import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/guard';
 import { Dialog } from 'siyuan';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 let animationFrameId: number | null = null;
 let resizeHandler: (() => void) | null = null;
 let mouseMoveHandler: ((e: MouseEvent) => void) | null = null;
@@ -490,7 +491,9 @@ export function showFluidCursorSettings(): void {
 }
 export function initFluidCursor(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     if (config['fluid-cursor'] === true) {
       ensureCss('visual-fluidcursor', featureCss['visual-fluidcursor']);
       document.documentElement.classList.add('neo-visual-fluid-cursor');

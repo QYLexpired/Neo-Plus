@@ -3,6 +3,7 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { getPlugin } from '../main/guard';
 import { Dialog } from 'siyuan';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 let coloredFoldersStyle: 'partition' | 'simple' | 'card' = 'partition';
 function applyStyle(): void {
   document.body.classList.toggle('neo-visual-coloredfolders-partition', coloredFoldersStyle === 'partition');
@@ -10,7 +11,9 @@ function applyStyle(): void {
   document.body.classList.toggle('neo-visual-coloredfolders-card', coloredFoldersStyle === 'card');
 }
 export function initColoredFolders(): void {
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     coloredFoldersStyle = config['colored-folders-style'] || 'partition';
     if (config['colored-folders'] === true) {
       ensureCss('visual-coloredfolders', featureCss['visual-coloredfolders']);

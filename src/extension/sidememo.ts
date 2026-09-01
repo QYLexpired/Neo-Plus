@@ -5,6 +5,7 @@ import { isMobile } from '../modules/env';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { fetchListener } from '../modules/fetchmonitor';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 const _fetchListener = fetchListener();
 interface SidememoState {
   enter?: (() => void);
@@ -1189,7 +1190,9 @@ export function showSideMemoSettings(): void {
 }
 export function initSideMemo(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     const savedPosition = (config?.['sidememo-position'] as 'left' | 'right') || 'right';
     const savedConnector = config?.['sidememo-connector'] !== false;
     sideMemoPosition = savedPosition;

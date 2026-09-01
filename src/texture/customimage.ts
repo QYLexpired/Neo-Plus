@@ -1,5 +1,6 @@
 import { Dialog, showMessage } from 'siyuan';
 import { getPlugin } from '../main/guard';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { saveConfig, loadConfig, deleteConfigKeys, type Config } from '../main/data';
 import { getCurrentThemeMode } from '../modules/thememode';
 import { ensureCss, removeCssByPrefix } from '../modules/cssloader';
@@ -132,7 +133,9 @@ function getCurrentPresetKey(): 'customimage-preset-current-light' | 'customimag
   return getCurrentThemeMode() === 'dark' ? currentPresetKeyDark : currentPresetKeyLight;
 }
 export async function toggleCustomImage(enabled: boolean): Promise<void> {
+  const isCurrent = createNeoLifecycleGuard();
   const config = await loadConfig();
+  if (!isCurrent()) return;
   if (enabled) {
     document.documentElement.classList.add('neo-texture-customimage');
     removeCssByPrefix('texture-');
@@ -562,8 +565,13 @@ export function showCustomImageSettings(): void {
   const originalDestroy = dialog.destroy.bind(dialog);
   const doDestroy = (): void => { originalDestroy(); };
   const performDestroyWithRestore = async (): Promise<void> => {
+    const isCurrent = createNeoLifecycleGuard();
     try {
       const c = await loadConfig();
+      if (!isCurrent()) {
+        doDestroy();
+        return;
+      }
       const mode = document.documentElement.getAttribute('data-theme-mode') === 'dark' ? 'dark' : 'light';
       const texKey = mode === 'dark' ? 'texture-dark' : 'texture-light';
       const textureKey = c?.[texKey as keyof Config] as string | undefined;
@@ -629,6 +637,7 @@ export function showCustomImageSettings(): void {
     cd.element.classList.add('neo-settings-dialog');
     cd.element.querySelector('#ndc-cancel')?.addEventListener('click', () => cd.destroy());
     cd.element.querySelector('#ndc-confirm')?.addEventListener('click', async () => {
+      const isCurrent = createNeoLifecycleGuard();
       try {
         await saveConfig({ [getCurrentPresetKey()]: '' } as Partial<Config>);
         await deleteConfigKeys([`customimage-preset-${name}`]);
@@ -642,12 +651,13 @@ export function showCustomImageSettings(): void {
         if ((updatedCfg as Record<string, any>)?.[otherKey] === name) patch[otherKey] = '';
         if (Object.keys(patch).length) await saveConfig(patch as Partial<Config>);
         populateDialog(updatedCfg, presetSelect, fieldDom, plugin.i18n, customFillWrap, layoutOpacityWrap);
-        applyCustomImageCss({});
+        if (isCurrent()) applyCustomImageCss({});
         showMessage(plugin.i18n.customimagePresetDeleted.replace('${name}', name), 3000);
       } catch {} finally { cd.destroy(); }
     });
   });
   const savePresetToConfig = async (preset: Record<string, any>, presetName: string): Promise<void> => {
+    const isCurrent = createNeoLifecycleGuard();
     const cfg = await loadConfig();
     const currentKey = getCurrentPresetKey();
     const patch: Record<string, any> = {
@@ -655,7 +665,7 @@ export function showCustomImageSettings(): void {
       [currentKey]: presetName,
     };
     await saveConfig(patch as Partial<Config>);
-    if (isCustomImagePreviewOn()) {
+    if (isCurrent() && isCustomImagePreviewOn()) {
       applyCustomImageCss(preset);
     }
   };
@@ -731,6 +741,7 @@ export function showCustomImageSettings(): void {
     const name = presetSelect.value;
     if (!name) return;
     const switchPreset = async (): Promise<void> => {
+      const isCurrent = createNeoLifecycleGuard();
       try {
         const currentKey = getCurrentPresetKey();
         const patch: Record<string, any> = { [currentKey]: name };
@@ -738,7 +749,7 @@ export function showCustomImageSettings(): void {
         const updatedCfg = await loadConfig();
         const preset = getPreset(updatedCfg, name);
         populateDialog(updatedCfg, presetSelect, fieldDom, plugin.i18n, customFillWrap, layoutOpacityWrap);
-        if (isCustomImagePreviewOn()) {
+        if (isCurrent() && isCustomImagePreviewOn()) {
           applyCustomImageCss(preset);
         }
       } catch {}

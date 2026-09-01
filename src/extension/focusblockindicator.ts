@@ -4,6 +4,7 @@ import { getTextColor } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from 'siyuan';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 const debounceDelay = 200;
 let focusBlockEffect: 'vertical-line' | 'shadow' | 'background' = 'vertical-line';
 let pendingUpdate = false;
@@ -73,7 +74,9 @@ function stopObserving(): void {
   document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
 }
 export function initFocusBlockIndicator(): void {
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     focusBlockEffect = config['focus-block-effect'] || 'vertical-line';
     if (config['focus-block-indicator'] === true) {
       ensureCss('extension-focusblockindicator', featureCss['extension-focusblockindicator']);

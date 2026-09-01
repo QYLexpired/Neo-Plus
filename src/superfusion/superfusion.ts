@@ -5,6 +5,7 @@ import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
 import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 let superFusionMode: 'blur' | 'frostedGlass' | 'liquidGlass' = 'blur';
 function applyModeClass(): void {
   document.body.classList.toggle('neo-visual-superfusion-blur', superFusionMode === 'blur');
@@ -65,7 +66,9 @@ export function showSuperFusionSettings(): void {
 }
 export function initSuperFusion(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
+    if (!isCurrent()) return;
     superFusionMode = config['super-fusion-mode'] || 'blur';
     if (config['super-fusion'] === true) {
       ensureCss('superfusion', featureCss['superfusion']);
