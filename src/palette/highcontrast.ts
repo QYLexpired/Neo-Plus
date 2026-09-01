@@ -21,7 +21,9 @@ export function onHighContrastClick(): void {
   withViewTransition(callback);
   const mode = getCurrentThemeMode();
   const key = getHighContrastKey(mode);
-  saveConfig({ [key]: shouldEnable } as Partial<Config>);
+  const patch: Partial<Config> = {};
+  patch[key] = shouldEnable;
+  saveConfig(patch);
 }
 export function initHighContrast(config: Config): void {
   if (isMobile()) return;

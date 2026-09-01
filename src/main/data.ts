@@ -1,7 +1,34 @@
 import type { Plugin } from 'siyuan';
 import { getPlugin } from './guard';
 export const configKey = 'config';
+export type CustomImageConfigKey =
+  | 'customimage-info'
+  | 'customimage-blur'
+  | 'customimage-x'
+  | 'customimage-y'
+  | 'customimage-opacity'
+  | 'customimage-effect'
+  | 'customimage-background-blend-mode'
+  | 'customimage-brightness'
+  | 'customimage-saturation'
+  | 'customimage-contrast'
+  | 'customimage-grayscale'
+  | 'customimage-hue-rotate'
+  | 'customimage-zlevel'
+  | 'customimage-layout-opacity'
+  | 'customimage-fill-mode'
+  | 'customimage-fill-width'
+  | 'customimage-fill-height'
+  | 'customimage-fill-unit'
+  | 'customimage-fill-repeat';
+export type CustomImageValues = Record<CustomImageConfigKey, string>;
+export type CustomImageSource = Partial<Record<CustomImageConfigKey, string | number | boolean | null | undefined>>;
+export type CustomImagePresetConfigKey = `customimage-preset-${string}`;
+export function getCustomImagePresetConfigKey(name: string): CustomImagePresetConfigKey {
+  return `customimage-preset-${name}`;
+}
 export interface Config {
+  [key: CustomImagePresetConfigKey]: CustomImageSource | string | undefined;
   'custom-color-light'?: string;
   'custom-color-dark'?: string;
   'saturation-light'?: number;

@@ -1,4 +1,10 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import {
+  saveConfig,
+  loadConfig,
+  getCustomImagePresetConfigKey,
+  type Config,
+  type CustomImageSource,
+} from '../main/data';
 import { getCurrentThemeMode } from '../modules/thememode';
 import { ensureCss, removeCssByPrefix } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
@@ -96,14 +102,13 @@ function saveTextureSelection(textureKey: string): void {
   const texKey = getTextureKey(getCurrentThemeMode());
   saveConfig({ [texKey]: textureKey } as Partial<Config>);
 }
-function getCustomImagePreset(config: Config): Record<string, any> | undefined {
+function getCustomImagePreset(config: Config): CustomImageSource | undefined {
   const mode = getCurrentThemeMode();
   const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
-  const presetName = config[currentKey as keyof Config] as string | undefined;
+  const presetName = config[currentKey];
   if (!presetName) return undefined;
-  const presetKey = `customimage-preset-${presetName}` as keyof Config;
-  const preset = config[presetKey];
-  return preset && typeof preset === 'object' ? preset as Record<string, any> : undefined;
+  const preset = config[getCustomImagePresetConfigKey(presetName)];
+  return preset && typeof preset === 'object' ? preset : undefined;
 }
 function enableTexture(textureKey: string, config?: Config): void {
   if (neoActiveTextureKey === textureKey) return;

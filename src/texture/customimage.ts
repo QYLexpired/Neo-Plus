@@ -1,30 +1,18 @@
 import { Dialog, showMessage } from 'siyuan';
 import { getPlugin } from '../main/guard';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
-import { saveConfig, loadConfig, deleteConfigKeys, type Config } from '../main/data';
+import {
+  saveConfig,
+  loadConfig,
+  deleteConfigKeys,
+  getCustomImagePresetConfigKey,
+  type Config,
+  type CustomImageConfigKey,
+  type CustomImageValues,
+  type CustomImageSource,
+} from '../main/data';
 import { getCurrentThemeMode } from '../modules/thememode';
-export type CustomImageConfigKey =
-  | 'customimage-info'
-  | 'customimage-blur'
-  | 'customimage-x'
-  | 'customimage-y'
-  | 'customimage-opacity'
-  | 'customimage-effect'
-  | 'customimage-background-blend-mode'
-  | 'customimage-brightness'
-  | 'customimage-saturation'
-  | 'customimage-contrast'
-  | 'customimage-grayscale'
-  | 'customimage-hue-rotate'
-  | 'customimage-zlevel'
-  | 'customimage-layout-opacity'
-  | 'customimage-fill-mode'
-  | 'customimage-fill-width'
-  | 'customimage-fill-height'
-  | 'customimage-fill-unit'
-  | 'customimage-fill-repeat';
-export type CustomImageValues = Record<CustomImageConfigKey, string>;
-export type CustomImageSource = Partial<Record<CustomImageConfigKey, string | number | boolean | null | undefined>>;
+export type { CustomImageConfigKey, CustomImageValues, CustomImageSource };
 interface CustomImageCssBinding {
   cssVar: string;
   toCss: (raw: string, values: Readonly<CustomImageValues>) => string;
@@ -251,8 +239,8 @@ const currentPresetKeyDark  = 'customimage-preset-current-dark';
 type CurrentPresetKey = typeof currentPresetKeyLight | typeof currentPresetKeyDark;
 function getPreset(config: Partial<Config> | null | undefined, name: string): CustomImageSource {
   if (!config || !name) return {};
-  const raw = (config as Record<string, unknown>)[`customimage-preset-${name}`];
-  return (raw && typeof raw === 'object') ? raw as CustomImageSource : {};
+  const raw = config[getCustomImagePresetConfigKey(name)];
+  return raw && typeof raw === 'object' ? raw : {};
 }
 function getPresetKeyForMode(mode: 'light' | 'dark'): CurrentPresetKey {
   return mode === 'dark' ? currentPresetKeyDark : currentPresetKeyLight;
@@ -630,16 +618,16 @@ export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<voi
       const currentKey = getCurrentPresetKey();
       try {
         await saveConfig({ [currentKey]: '' } as Partial<Config>);
-        await deleteConfigKeys([`customimage-preset-${name}`]);
+        await deleteConfigKeys([getCustomImagePresetConfigKey(name)]);
         const updatedCfg = await loadConfig();
         if (presetSelect) {
           Array.from(presetSelect.options).find(o => o.value === name)?.remove();
           presetSelect.value = '';
         }
         const otherKey = currentKey === currentPresetKeyLight ? currentPresetKeyDark : currentPresetKeyLight;
-        const patch: Record<string, any> = {};
-        if ((updatedCfg as Record<string, any>)?.[otherKey] === name) patch[otherKey] = '';
-        if (Object.keys(patch).length) await saveConfig(patch as Partial<Config>);
+        const patch: Partial<Config> = {};
+        if (updatedCfg[otherKey] === name) patch[otherKey] = '';
+        if (Object.keys(patch).length) await saveConfig(patch);
         const values = populateDialog(updatedCfg, presetSelect, fieldDom, customFillWrap, layoutOpacityWrap);
         if (isCurrent() && neoFeatureActive) applyCustomImageCss(values);
         showMessage(plugin.i18n.customimagePresetDeleted.replace('${name}', name), 3000);
@@ -649,11 +637,9 @@ export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<voi
   const savePresetToConfig = async (preset: Partial<CustomImageValues>, presetName: string): Promise<void> => {
     const isCurrent = createNeoLifecycleGuard();
     const currentKey = getCurrentPresetKey();
-    const patch: Record<string, any> = {
-      [`customimage-preset-${presetName}`]: preset,
-      [currentKey]: presetName,
-    };
-    await saveConfig(patch as Partial<Config>);
+    const patch: Partial<Config> = { [currentKey]: presetName };
+    patch[getCustomImagePresetConfigKey(presetName)] = preset;
+    await saveConfig(patch);
     if (isCurrent() && neoFeatureActive) {
       applyCustomImageCss(preset);
     }
@@ -688,7 +674,7 @@ export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<voi
   };
   const savePresetAs = async (name: string): Promise<boolean> => {
     const cfg = await loadConfig();
-    const exists = (cfg as Record<string, any>)[`customimage-preset-${name}`] !== undefined;
+    const exists = cfg[getCustomImagePresetConfigKey(name)] !== undefined;
     if (exists) {
       const confirmed = await new Promise<boolean>(resolve => {
         const cd = new Dialog({
@@ -728,8 +714,8 @@ export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<voi
       const isCurrent = createNeoLifecycleGuard();
       try {
         const currentKey = getCurrentPresetKey();
-        const patch: Record<string, any> = { [currentKey]: name };
-        await saveConfig(patch as Partial<Config>);
+        const patch: Partial<Config> = { [currentKey]: name };
+        await saveConfig(patch);
         const updatedCfg = await loadConfig();
         const values = populateDialog(updatedCfg, presetSelect, fieldDom, customFillWrap, layoutOpacityWrap);
         if (isCurrent() && neoFeatureActive) {
@@ -773,10 +759,10 @@ function populateDialog(
   layoutOpacityWrap: HTMLElement | null,
 ): CustomImageValues {
   const currentKey = getCurrentPresetKey();
-  const cpk = (config?.[currentKey] as string) || '';
+  const cpk = config?.[currentKey] || '';
   if (presetSelect) {
     presetSelect.innerHTML = '';
-    if (config) Object.keys(config as Record<string, any>).forEach(k => {
+    if (config) Object.keys(config).forEach(k => {
       if (!k.startsWith('customimage-preset-') || k === currentPresetKeyLight || k === currentPresetKeyDark) return;
       const n = k.replace('customimage-preset-', '');
       if (n) {

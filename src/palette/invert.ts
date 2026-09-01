@@ -19,7 +19,9 @@ export async function onInvertClick(): Promise<void> {
   withViewTransition(callback);
   const mode = getCurrentThemeMode();
   const key = getInvertKey(mode);
-  await saveConfig({ [key]: shouldEnable } as Partial<Config>);
+  const patch: Partial<Config> = {};
+  patch[key] = shouldEnable;
+  await saveConfig(patch);
 }
 export function initInvert(config: Config): void {
   const mode = getCurrentThemeMode();
