@@ -1,5 +1,5 @@
 import { Plugin } from 'siyuan';
-import { NeoPlusController } from './main/guard';
+import { NeoPlusController } from './main/controller';
 import { configKey } from './main/data';
 export default class NeoPlusPlugin extends Plugin {
   private controller: NeoPlusController | null = null;

@@ -1,5 +1,5 @@
 import { saveConfig, loadConfig, type Config } from '../main/data';
-import { getPlugin } from '../main/guard';
+import { getPlugin } from '../main/context';
 import { getCursorRect, getTextColor, getScrollContainer } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';

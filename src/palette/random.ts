@@ -1,6 +1,6 @@
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { Dialog } from 'siyuan';
-import { getPlugin } from '../main/guard';
+import { getPlugin } from '../main/context';
 import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getPresetsByMode } from './presets';

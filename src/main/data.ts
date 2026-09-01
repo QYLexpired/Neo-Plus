@@ -1,5 +1,5 @@
 import type { Plugin } from 'siyuan';
-import { getPlugin } from './guard';
+import { getPlugin } from './context';
 export const configKey = 'config';
 export type CustomImageConfigKey =
   | 'customimage-info'

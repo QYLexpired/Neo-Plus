@@ -1,4 +1,4 @@
-import { getPlugin } from './guard';
+import { getPlugin } from './context';
 import { buildMenu } from './menu';
 let topBarButton: HTMLElement | null = null;
 export function initTopBarButton(): HTMLElement | null {

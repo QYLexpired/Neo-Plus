@@ -2,7 +2,7 @@ import { isMobile } from '../modules/env';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
-import { getPlugin } from '../main/guard';
+import { getPlugin } from '../main/context';
 import { Dialog } from 'siyuan';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let animationFrameId: number | null = null;

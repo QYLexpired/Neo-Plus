@@ -1,5 +1,5 @@
 import { Dialog, showMessage } from 'siyuan';
-import { getPlugin } from '../main/guard';
+import { getPlugin } from '../main/context';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import {
   saveConfig,

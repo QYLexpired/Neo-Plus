@@ -1,4 +1,4 @@
-import { getPlugin } from './guard';
+import { getPlugin } from './context';
 import { switchToPlan } from '../palette/manager';
 import { onImmersiveModeClick } from '../extension/immersivemode';
 import { openNeoMenu } from './topbar';

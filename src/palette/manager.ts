@@ -1,4 +1,4 @@
-import { getPlugin } from '../main/guard';
+import { getPlugin } from '../main/context';
 import { loadConfig, saveConfig, type Config } from '../main/data';
 import {
   type ThemeMode,

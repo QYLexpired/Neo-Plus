@@ -5,7 +5,7 @@ import { saveConfig, loadConfig, type Config } from '../main/data';
 import { fetchListener } from '../modules/fetchmonitor';
 import { withViewTransition } from '../modules/viewtransition';
 import { Dialog } from 'siyuan';
-import { getPlugin } from '../main/guard';
+import { getPlugin } from '../main/context';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let neoFeatureActive = false;
 let pointerDownHandler: ((e: PointerEvent) => void) | null = null;

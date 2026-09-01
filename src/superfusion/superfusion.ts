@@ -2,7 +2,7 @@ import { saveConfig, loadConfig, type Config } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from 'siyuan';
-import { getPlugin } from '../main/guard';
+import { getPlugin } from '../main/context';
 import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';

@@ -1,4 +1,4 @@
-import { getPlugin } from './guard';
+import { getPlugin } from './context';
 export function initNeoIcons(): void {
   const plugin = getPlugin();
   if (!plugin) return;

@@ -1,5 +1,5 @@
 import { Menu } from 'siyuan';
-import { getPlugin } from './guard';
+import { getPlugin } from './context';
 import { loadConfig } from './data';
 import { createBrightnessSliderHTML, createColorPickerHTML, createFollowTimeColorPickerHTML, createSliderHTML, getFollowTimeColor, getPresetMenuItems, getThemeColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
 import { showRandomSettings } from '../palette/random';
