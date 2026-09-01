@@ -8,8 +8,15 @@ import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let neoFeatureActive = false;
-let mouseDownHandler: ((e: MouseEvent) => void) | null = null;
+let pointerDownHandler: ((e: PointerEvent) => void) | null = null;
 let dblClickHandler: ((e: MouseEvent) => void) | null = null;
+interface ActiveResizeSession {
+  controller: AbortController;
+  handle: HTMLElement;
+  flexEl: HTMLElement;
+  pointerId: number;
+}
+let activeResizeSession: ActiveResizeSession | null = null;
 const defaultWidth = 150;
 const minWidth = 100;
 const maxWidth = 400;
@@ -24,6 +31,18 @@ let topLeftOnlyLastWidth: number | null = null;
 let configWidth: number | null = null;
 let currentMode: 'topLeftOnly' | 'all' = 'topLeftOnly';
 const wndSelector = '.layout__center [data-type="wnd"]';
+function finishActiveResize(commitWidth: boolean): void {
+  const session = activeResizeSession;
+  if (!session) return;
+  activeResizeSession = null;
+  if (session.handle.hasPointerCapture(session.pointerId)) {
+    session.handle.releasePointerCapture(session.pointerId);
+  }
+  session.controller.abort();
+  if (commitWidth && neoFeatureActive && currentMode === 'topLeftOnly' && session.flexEl.isConnected) {
+    topLeftOnlyLastWidth = session.flexEl.getBoundingClientRect().width;
+  }
+}
 function applyVerticalTabsConfig(config: Config): void {
   configWidth = readConfigWidth(config);
   currentMode = config['vertical-tabs-mode'] || 'topLeftOnly';
@@ -109,10 +128,11 @@ function doUpdate(): void {
   }
 }
 function initResizeHandle(): void {
-  if (mouseDownHandler || dblClickHandler) return;
-  mouseDownHandler = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (!target.classList.contains('neo-verticaltabs-resize')) return;
+  if (pointerDownHandler || dblClickHandler) return;
+  pointerDownHandler = (e: PointerEvent) => {
+    const target = e.target;
+    if (!(target instanceof HTMLElement) || !target.classList.contains('neo-verticaltabs-resize')) return;
+    if (!e.isPrimary || e.button !== 0) return;
     e.preventDefault();
     const wnd = target.closest<HTMLElement>('.neo-verticaltabs-wnd');
     if (!wnd) return;
@@ -121,21 +141,27 @@ function initResizeHandle(): void {
     const flexEl = firstFlex;
     const startX = e.clientX;
     const currentWidth = flexEl.getBoundingClientRect().width || defaultWidth;
-    function onMouseMove(ev: MouseEvent) {
+    finishActiveResize(true);
+    const controller = new AbortController();
+    const pointerId = e.pointerId;
+    activeResizeSession = { controller, handle: target, flexEl, pointerId };
+    const finish = (): void => finishActiveResize(true);
+    const onPointerMove = (ev: PointerEvent): void => {
+      if (ev.pointerId !== pointerId || activeResizeSession?.controller !== controller) return;
       const diff = ev.clientX - startX;
       let newWidth = currentWidth + diff;
       newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
       flexEl.style.width = `${newWidth}px`;
-    }
-    function onMouseUp() {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-      if (currentMode === 'topLeftOnly' && flexEl) {
-        topLeftOnlyLastWidth = flexEl.getBoundingClientRect().width;
-      }
-    }
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    };
+    const onPointerEnd = (ev: PointerEvent): void => {
+      if (ev.pointerId === pointerId) finish();
+    };
+    document.addEventListener('pointermove', onPointerMove, { signal: controller.signal });
+    document.addEventListener('pointerup', onPointerEnd, { signal: controller.signal });
+    document.addEventListener('pointercancel', onPointerEnd, { signal: controller.signal });
+    target.addEventListener('lostpointercapture', finish, { signal: controller.signal });
+    window.addEventListener('blur', finish, { signal: controller.signal });
+    target.setPointerCapture(pointerId);
   };
   dblClickHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -151,13 +177,14 @@ function initResizeHandle(): void {
       }
     }
   };
-  document.addEventListener('mousedown', mouseDownHandler);
+  document.addEventListener('pointerdown', pointerDownHandler);
   document.addEventListener('dblclick', dblClickHandler);
 }
 function destroyResizeHandle(): void {
-  if (mouseDownHandler) {
-    document.removeEventListener('mousedown', mouseDownHandler);
-    mouseDownHandler = null;
+  finishActiveResize(false);
+  if (pointerDownHandler) {
+    document.removeEventListener('pointerdown', pointerDownHandler);
+    pointerDownHandler = null;
   }
   if (dblClickHandler) {
     document.removeEventListener('dblclick', dblClickHandler);
