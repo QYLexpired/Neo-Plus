@@ -40,7 +40,7 @@ function buildTextureMenuItem(texture: Texture, i18n: Record<string, string>): a
         'customImage',
         i18n.textureCustomImage,
         i18n.customimageSettings,
-        () => showCustomImageSettings(restoreTextureFromConfig),
+        () => showCustomImageSettings(reloadAndApplyTexture),
       ),
       click: () => {
         const revision = ++textureActionRevision;
@@ -134,24 +134,23 @@ export function applyTexture(config: Config): void {
     enableTexture(textureKey, config);
   }
 }
-function restoreTextureFromConfig(): Promise<void> {
+async function reloadAndApplyTexture(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
   const revision = ++textureActionRevision;
-  return loadConfig().then((config) => {
-    if (!isCurrent() || revision !== textureActionRevision) return;
-    applyTexture(config);
-  });
+  const config = await loadConfig();
+  if (!isCurrent() || revision !== textureActionRevision) return;
+  applyTexture(config);
 }
 let _mutationObserver: MutationObserver | null = null;
 export function initTexture(): void {
   _mutationObserver = new MutationObserver(() => {
-    restoreTextureFromConfig().catch(() => {});
+    reloadAndApplyTexture().catch(() => {});
   });
   _mutationObserver.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['data-theme-mode'],
   });
-  restoreTextureFromConfig().catch(() => {});
+  reloadAndApplyTexture().catch(() => {});
 }
 export function destroyTexture(): void {
   textureActionRevision++;

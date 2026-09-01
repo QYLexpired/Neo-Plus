@@ -494,7 +494,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   <button class="b3-button b3-button--text" id="neo-customimage-update-preset">${t(i18n, 'customimageUpdateApply')}</button>
 </div>`;
 }
-export function showCustomImageSettings(restoreTexture: () => Promise<void>): void {
+export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<void>): void {
   const plugin = getPlugin();
   if (!plugin) return;
   const dialog = new Dialog({
@@ -593,7 +593,7 @@ export function showCustomImageSettings(restoreTexture: () => Promise<void>): vo
   const doDestroy = (): void => { originalDestroy(); };
   const performDestroyWithRestore = async (): Promise<void> => {
     try {
-      await restoreTexture();
+      await reloadAndApplyTexture();
     } catch {}
     doDestroy();
   };
