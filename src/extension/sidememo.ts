@@ -38,11 +38,11 @@ function scheduleSync(): void {
     });
   }, 500);
 }
-_fetchListener.on('setUILayout', scheduleSync);
-_fetchListener.on('transactions', scheduleSync);
-_fetchListener.on('setBlockAttrs', scheduleSync);
-_fetchListener.on('getDoc', scheduleSync);
-_fetchListener.on('renameDoc', scheduleSync);
+_fetchListener.onNotify('setUILayout', scheduleSync);
+_fetchListener.onNotify('transactions', scheduleSync);
+_fetchListener.onNotify('setBlockAttrs', scheduleSync);
+_fetchListener.onNotify('getDoc', scheduleSync);
+_fetchListener.onNotify('renameDoc', scheduleSync);
 function getLute() {
   if (!_lute && typeof (window as any).Lute !== 'undefined') {
     _lute = (window as any).Lute.New();

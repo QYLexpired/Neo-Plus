@@ -239,7 +239,7 @@ function removeMatchingRules(entries?: RuleFilterEntry[]): void {
   }
 }
 const _fetchListener = fetchListener();
-_fetchListener.on('setUILayout', () => {
+_fetchListener.onNotify('setUILayout', () => {
   const dynamicEntries = _ruleFilters.filter((e) => e.dynamic);
   if (dynamicEntries.length > 0) {
     if (typeof requestIdleCallback === 'function') {

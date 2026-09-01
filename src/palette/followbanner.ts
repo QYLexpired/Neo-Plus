@@ -19,8 +19,8 @@ function scheduleExtract(): void {
   }, 200);
 }
 const _fetchListener = fetchListener();
-_fetchListener.on('setUILayout', () => { scheduleExtract(); });
-_fetchListener.on('setBlockAttrs', () => { scheduleExtract(); });
+_fetchListener.onNotify('setUILayout', () => { scheduleExtract(); });
+_fetchListener.onNotify('setBlockAttrs', () => { scheduleExtract(); });
 const fallbackHex = 'var(--neo-default-base-color)';
 function parseHex(hex: string): { r: number; g: number; b: number } | null {
   let m = hex.match(/^#?([0-9a-fA-F]{6})$/);
@@ -232,7 +232,7 @@ async function extractBannerAverageColor(): Promise<void> {
 export function initFollowBanner(config: Config): void {
   destroyed = false;
   if (isMobile()) {
-    _fetchListener.on('getDocInfo', () => { scheduleExtract(); });
+    _fetchListener.onNotify('getDocInfo', () => { scheduleExtract(); });
   }
   _fetchListener.attach();
   _initTimer = setTimeout(() => {

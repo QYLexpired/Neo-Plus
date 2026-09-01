@@ -258,7 +258,7 @@ export function showVerticalTabsSettings(): void {
   });
 }
 const _fetchListener = fetchListener();
-_fetchListener.on('setUILayout', () => { doUpdate(); });
+_fetchListener.onNotify('setUILayout', () => { doUpdate(); });
 export function initVerticalTabs(): void {
   if (isMobile()) return;
   const isCurrent = createNeoLifecycleGuard();

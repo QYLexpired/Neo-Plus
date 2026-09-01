@@ -36,7 +36,7 @@ function updateHasWndClass(): void {
     });
   });
 }
-_fetchListener.on('setUILayout', () => { updateHasWndClass(); });
+_fetchListener.onNotify('setUILayout', () => { updateHasWndClass(); });
 let _fallbackTimer: ReturnType<typeof setTimeout> | null = null;
 export function initLayout(): void {
   _fetchListener.attach();

@@ -22,10 +22,10 @@ function updateCardSearchListClass(): void {
     });
   } catch {}
 }
-_fetchListener.on('fullTextSearchBlock', updateCardSearchListClass);
-_fetchListener.on('getCriteria', updateCardSearchListClass);
-_fetchListener.on('fullTextSearchAssetContent', updateCardSearchListClass);
-_fetchListener.on('getRecentUpdatedBlocks', updateCardSearchListClass);
+_fetchListener.onNotify('fullTextSearchBlock', updateCardSearchListClass);
+_fetchListener.onNotify('getCriteria', updateCardSearchListClass);
+_fetchListener.onNotify('fullTextSearchAssetContent', updateCardSearchListClass);
+_fetchListener.onNotify('getRecentUpdatedBlocks', updateCardSearchListClass);
 export function initCardSearchList(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {

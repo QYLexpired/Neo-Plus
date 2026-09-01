@@ -1,3 +1,4 @@
+import type { Plugin } from 'siyuan';
 import { getPlugin } from './guard';
 export const configKey = 'config';
 export interface Config {
@@ -87,14 +88,73 @@ export interface Config {
 }
 let configCache: Config = {};
 let pendingLoadConfig: Promise<Config> | null = null;
+interface ConfigSaveWaiter {
+  revision: number;
+  resolve: () => void;
+  reject: (reason?: unknown) => void;
+}
+let configRevision = 0;
+let persistedConfigRevision = 0;
+let configSaveLoop: Promise<void> | null = null;
+let configSavePlugin: Plugin | null = null;
+let configSaveWaiters: ConfigSaveWaiter[] = [];
 function getPluginOrNull() {
   return getPlugin();
 }
-export async function saveConfig(patch: Partial<Config>): Promise<void> {
+function resolveConfigSaveWaiters(): void {
+  const pendingWaiters: ConfigSaveWaiter[] = [];
+  for (const waiter of configSaveWaiters) {
+    if (waiter.revision <= persistedConfigRevision) {
+      waiter.resolve();
+    } else {
+      pendingWaiters.push(waiter);
+    }
+  }
+  configSaveWaiters = pendingWaiters;
+}
+function rejectConfigSaveWaiters(reason: unknown): void {
+  const waiters = configSaveWaiters;
+  configSaveWaiters = [];
+  waiters.forEach((waiter) => waiter.reject(reason));
+}
+async function flushConfigSaves(): Promise<void> {
+  try {
+    while (persistedConfigRevision < configRevision) {
+      const pendingLoad = pendingLoadConfig;
+      if (pendingLoad) await pendingLoad;
+      const revision = configRevision;
+      const snapshot = { ...configCache };
+      const plugin = configSavePlugin;
+      if (!plugin) throw new Error('Config save plugin unavailable');
+      await plugin.saveData(configKey, snapshot);
+      persistedConfigRevision = revision;
+      resolveConfigSaveWaiters();
+    }
+  } catch (error) {
+    rejectConfigSaveWaiters(error);
+  } finally {
+    configSaveLoop = null;
+  }
+}
+function enqueueConfigSave(plugin: Plugin): Promise<void> {
+  configRevision += 1;
+  const revision = configRevision;
+  configSavePlugin = plugin;
+  const result = new Promise<void>((resolve, reject) => {
+    configSaveWaiters.push({ revision, resolve, reject });
+  });
+  result.catch(() => {});
+  if (!configSaveLoop) {
+    configSaveLoop = Promise.resolve().then(flushConfigSaves);
+    configSaveLoop.catch(() => {});
+  }
+  return result;
+}
+export function saveConfig(patch: Partial<Config>): Promise<void> {
   const plugin = getPluginOrNull();
-  if (!plugin) return;
+  if (!plugin) return Promise.resolve();
   configCache = { ...configCache, ...patch };
-  await plugin.saveData(configKey, configCache);
+  return enqueueConfigSave(plugin);
 }
 export function loadConfig(): Promise<Config> {
   if (pendingLoadConfig) return pendingLoadConfig;
@@ -113,11 +173,13 @@ export function loadConfig(): Promise<Config> {
   pendingLoadConfig.finally(() => { pendingLoadConfig = null; });
   return pendingLoadConfig;
 }
-export async function deleteConfigKeys(keys: string[]): Promise<void> {
+export function deleteConfigKeys(keys: string[]): Promise<void> {
   const plugin = getPluginOrNull();
-  if (!plugin) return;
+  if (!plugin) return Promise.resolve();
+  const nextConfig = { ...configCache } as Record<string, unknown>;
   for (const k of keys) {
-    delete (configCache as Record<string, any>)[k];
+    delete nextConfig[k];
   }
-  await plugin.saveData(configKey, configCache);
+  configCache = nextConfig as Config;
+  return enqueueConfigSave(plugin);
 }

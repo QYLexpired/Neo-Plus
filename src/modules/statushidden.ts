@@ -4,7 +4,7 @@ const targetSelector =
   '.layout__wnd--active > .layout-tab-container > .fn__flex-1:not(.fn__none):not(.protyle)';
 let statusObserver: MutationObserver | null = null;
 const _fetchListener = fetchListener();
-_fetchListener.on('setUILayout', () => { checkAndToggleStatus(); });
+_fetchListener.onNotify('setUILayout', () => { checkAndToggleStatus(); });
 function checkAndToggleStatus(): void {
   const target = document.querySelector<HTMLElement>(targetSelector);
   const statusEl = document.querySelector<HTMLElement>(statusSelector);

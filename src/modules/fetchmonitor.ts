@@ -57,13 +57,13 @@ function registerFetch(name: string, registration: FetchRegistration): void {
   }
   callbacks.set(registration.cb, registration);
 }
-export function onFetch(name: string, callback: FetchNotificationCallback): void {
+function onFetch(name: string, callback: FetchNotificationCallback): void {
   registerFetch(name, { cb: callback, needsResponse: false });
 }
-export function onFetchResponse(name: string, callback: FetchResponseCallback): void {
+function onFetchResponse(name: string, callback: FetchResponseCallback): void {
   registerFetch(name, { cb: callback, needsResponse: true });
 }
-export function offFetch(name: string, callback?: RegisteredFetchCallback): void {
+function offFetch(name: string, callback?: RegisteredFetchCallback): void {
   if (callback) {
     const callbacks = rules.get(name);
     if (callbacks) {
@@ -79,7 +79,7 @@ export function offFetch(name: string, callback?: RegisteredFetchCallback): void
 export function fetchListener() {
   const callbacks: Array<{ name: string } & FetchRegistration> = [];
   return {
-    on(name: string, cb: FetchNotificationCallback): void {
+    onNotify(name: string, cb: FetchNotificationCallback): void {
       callbacks.push({ name, cb, needsResponse: false });
     },
     onResponse(name: string, cb: FetchResponseCallback): void {
