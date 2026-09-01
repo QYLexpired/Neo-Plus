@@ -31,6 +31,11 @@ const colorRefreshInterval = 500;
 let trailOn = true;
 let waveOn = true;
 let neoFeatureActive = false;
+function clearHideCursorTimeout(): void {
+  if (hideCursorTimeout === null) return;
+  clearTimeout(hideCursorTimeout);
+  hideCursorTimeout = null;
+}
 function getCursorColor(): string {
   const computedStyle = getComputedStyle(document.documentElement);
   const color = computedStyle.getPropertyValue('--b3-base-color').trim();
@@ -143,6 +148,19 @@ function startFluidCursor(): void {
     lastTime = performance.now();
     animationFrameId = window.requestAnimationFrame(animate);
   }
+  function scheduleHideCursor(): void {
+    clearHideCursorTimeout();
+    hideCursorTimeout = window.setTimeout(() => {
+      hideCursorTimeout = null;
+      if (isFirstMouseMove || points.length === 0) {
+        isShrinking = false;
+        return;
+      }
+      isShrinking = true;
+      shrinkStartTime = performance.now();
+      resumeAnimation();
+    }, 200);
+  }
   mouseMoveHandler = (e: MouseEvent) => {
     if (trailOn) {
       if (isFirstMouseMove) {
@@ -158,19 +176,7 @@ function startFluidCursor(): void {
       }
       randomCursorColor();
       isShrinking = false;
-      if (hideCursorTimeout !== null) {
-        clearTimeout(hideCursorTimeout);
-      }
-      hideCursorTimeout = window.setTimeout(() => {
-        hideCursorTimeout = null;
-        if (isFirstMouseMove || points.length === 0) {
-          isShrinking = false;
-          return;
-        }
-        isShrinking = true;
-        shrinkStartTime = performance.now();
-        resumeAnimation();
-      }, 200);
+      scheduleHideCursor();
       resumeAnimation();
     }
   };
@@ -194,26 +200,14 @@ function startFluidCursor(): void {
         duration: 0.45 + Math.random() * 0.65,
       });
     }
-    if (hideCursorTimeout !== null) {
-      clearTimeout(hideCursorTimeout);
-      hideCursorTimeout = null;
-    }
+    clearHideCursorTimeout();
     resumeAnimation();
   };
   mouseUpHandler = () => {
     isMouseDown = false;
     targetHueOffset = 0;
     if (trailOn && !isShrinking && waves.length === 0 && hideCursorTimeout === null) {
-      hideCursorTimeout = window.setTimeout(() => {
-        hideCursorTimeout = null;
-        if (isFirstMouseMove || points.length === 0) {
-          isShrinking = false;
-          return;
-        }
-        isShrinking = true;
-        shrinkStartTime = performance.now();
-        resumeAnimation();
-      }, 200);
+      scheduleHideCursor();
     }
   };
   window.addEventListener('mousedown', mouseDownHandler, { passive: true });
@@ -319,16 +313,7 @@ function startFluidCursor(): void {
       });
       } catch {}
       if (hadWaves && waves.length === 0 && trailOn && !isShrinking && !isMouseDown) {
-        hideCursorTimeout = window.setTimeout(() => {
-          hideCursorTimeout = null;
-          if (isFirstMouseMove || points.length === 0) {
-            isShrinking = false;
-            return;
-          }
-          isShrinking = true;
-          shrinkStartTime = performance.now();
-          resumeAnimation();
-        }, 200);
+        scheduleHideCursor();
       }
     }
     if (trailOn) {
@@ -391,10 +376,7 @@ export function destroyFluidCursor(): void {
     window.cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
-  if (hideCursorTimeout !== null) {
-    clearTimeout(hideCursorTimeout);
-    hideCursorTimeout = null;
-  }
+  clearHideCursorTimeout();
   if (resizeHandler) {
     window.removeEventListener('resize', resizeHandler);
     resizeHandler = null;
