@@ -107,10 +107,8 @@ export function applyCurrentPlan(config: Config): void {
   const html = document.documentElement;
   removePaletteClasses(html);
   if (plan === 'preset') {
-    const presetKey = getPresetKey(config, mode);
-    if (presetKey) {
-      html.classList.add(`neo-palette-${presetKey}`);
-    }
+    const presetKey = getPresetKey(config, mode) ?? 'default';
+    html.classList.add(`neo-palette-${presetKey}`);
   } else if (plan === 'followtime') {
     html.classList.add('neo-palette-followtime');
   } else if (plan === 'followbanner') {
