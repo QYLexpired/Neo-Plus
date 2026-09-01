@@ -54,17 +54,17 @@ function getLute() {
     _lute.SetJSRenderers({
       renderers: {
         Md2HTML: {
-          renderTag: (node: any, entering: boolean) => {
+          renderTag: (_node: any, entering: boolean) => {
             if (entering) {
               return [`<span data-type="tag">`, (window as any).Lute.WalkContinue];
             } else {
               return [`</span>`, (window as any).Lute.WalkContinue];
             }
           },
-          renderTagOpenMarker: (node: any, entering: boolean) => {
+          renderTagOpenMarker: (_node: any, _entering: boolean) => {
             return ['', (window as any).Lute.WalkContinue];
           },
-          renderTagCloseMarker: (node: any, entering: boolean) => {
+          renderTagCloseMarker: (_node: any, _entering: boolean) => {
             return ['', (window as any).Lute.WalkContinue];
           }
         }
@@ -815,10 +815,8 @@ async function populateSidememoContainer(container: HTMLElement, protyleContent:
       const onItemMouseDown = (startEvent: MouseEvent) => {
         if (startEvent.button !== 0) return;
         let lastClientX = startEvent.clientX;
-        let lastClientY = startEvent.clientY;
         const preMove = (moveEv: MouseEvent) => {
           lastClientX = moveEv.clientX;
-          lastClientY = moveEv.clientY;
           if (Math.abs(moveEv.clientX - startEvent.clientX) > 6 || Math.abs(moveEv.clientY - startEvent.clientY) > 6) {
             const h = _sidememoState.get(it.el);
             if (h?._timer) { clearTimeout(h._timer); h._timer = null; }

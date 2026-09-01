@@ -84,26 +84,26 @@ const _ruleFilters: RuleFilterEntry[] = [
   {
     filter: {
       selectorMatch: (s) => s.includes('.annotationLayer .textWidgetAnnotation') && s.includes(':is('),
-      cssMatch: (c) => true,
+      cssMatch: () => true,
     },
   },
   {
     filter: {
       selectorMatch: (s) => s.includes('.annotationLayer .richText') && s.includes('> *'),
-      cssMatch: (c) => true,
+      cssMatch: () => true,
     },
   },
   {
     filter: {
       selectorMatch: (s) => s.includes('hljs') && s.includes('::selection'),
-      cssMatch: (c) => true,
+      cssMatch: () => true,
     },
     dynamic: true,
   },
   {
     filter: {
       selectorMatch: (s) => s.includes('.katex *'),
-      cssMatch: (c) => true,
+      cssMatch: () => true,
     },
     dynamic: true,
   },
@@ -122,7 +122,7 @@ const _ruleFilters: RuleFilterEntry[] = [
   {
     filter: {
       selectorMatch: (s) => s.includes('.annotationLayer .popup') && s.includes('*'),
-      cssMatch: (c) => true,
+      cssMatch: () => true,
     },
   },
   {

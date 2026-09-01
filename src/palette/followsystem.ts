@@ -1,4 +1,3 @@
-import type { Config } from '../main/data';
 import { isDesktop } from '../modules/env';
 function getSystemAccentColor(): string | null {
   try {
@@ -17,7 +16,7 @@ function applySystemAccentColor(): void {
   }
 }
 let _focusHandler: (() => void) | null = null;
-export function initFollowSystem(config: Config): void {
+export function initFollowSystem(): void {
   if (!isDesktop()) return;
   applySystemAccentColor();
   _focusHandler = () => {

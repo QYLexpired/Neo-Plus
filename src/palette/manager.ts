@@ -33,7 +33,7 @@ function initPlan(plan: Plan, config: Config): void {
     case 'custom': initCustomColor(config); break;
     case 'followtime': initFollowTime(config); break;
     case 'followbanner': initFollowBanner(config); break;
-    case 'followsystem': initFollowSystem(config); break;
+    case 'followsystem': initFollowSystem(); break;
     case 'random': initRandom(config); break;
   }
 }

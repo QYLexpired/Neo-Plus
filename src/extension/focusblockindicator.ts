@@ -11,6 +11,7 @@ let pendingUpdate = false;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let selectionChangeHandler: (() => void) | null = null;
 let neoFeatureActive = false;
+let activeFocusBlock: Element | null = null;
 function applyFocusBlockEffect(): void {
   document.body.classList.toggle('neo-extension-focusblockindicator-shadow', focusBlockEffect === 'shadow');
   document.body.classList.toggle('neo-extension-focusblockindicator-vertical-line', focusBlockEffect === 'vertical-line');
@@ -20,28 +21,37 @@ function applyFocusBlockEffect(): void {
   }
 }
 function clearAllFocusBlocks(): void {
+  activeFocusBlock?.removeAttribute('neo-focus-block');
+  activeFocusBlock = null;
   document.querySelectorAll('[neo-focus-block]').forEach((el) => {
     el.removeAttribute('neo-focus-block');
   });
+  document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
+}
+function updateFocusBlock(block: Element | null, focusNode: Node | null): void {
+  if (activeFocusBlock !== block) {
+    activeFocusBlock?.removeAttribute('neo-focus-block');
+    activeFocusBlock = block;
+    activeFocusBlock?.setAttribute('neo-focus-block', '');
+  }
+  if (!block || !focusNode || focusBlockEffect !== 'background') {
+    document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
+    return;
+  }
+  const textColor = getTextColor(focusNode, block);
+  if (textColor) {
+    document.documentElement.style.setProperty('--neo-focusblock-text-color', textColor);
+  } else {
+    document.documentElement.style.removeProperty('--neo-focusblock-text-color');
+  }
 }
 function applyFocusBlock(): void {
   pendingUpdate = false;
   const selection = window.getSelection();
-  if (!selection || selection.rangeCount === 0) return;
-  const focusNode = selection.focusNode;
-  if (!focusNode) return;
-  const curBlock = (focusNode.nodeType === Node.ELEMENT_NODE ? focusNode as Element : focusNode.parentElement)?.closest('[data-node-id]');
-  if (!curBlock) return;
-  clearAllFocusBlocks();
-  curBlock.setAttribute('neo-focus-block', '');
-  if (focusBlockEffect === 'background') {
-    const textColor = getTextColor(focusNode, curBlock);
-    if (textColor) {
-      document.documentElement.style.setProperty('--neo-focusblock-text-color', textColor);
-    } else {
-      document.documentElement.style.removeProperty('--neo-focusblock-text-color');
-    }
-  }
+  const focusNode = selection && selection.rangeCount > 0 ? selection.focusNode : null;
+  const focusElement = focusNode?.nodeType === Node.ELEMENT_NODE ? focusNode as Element : focusNode?.parentElement;
+  const curBlock = focusElement?.closest('[data-node-id]');
+  updateFocusBlock(curBlock ?? null, focusNode);
 }
 function handleUpdate(): void {
   if (debounceTimer) {
@@ -80,7 +90,6 @@ function stopObserving(): void {
   }
   pendingUpdate = false;
   clearAllFocusBlocks();
-  document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
 }
 export function initFocusBlockIndicator(): void {
   const isCurrent = createNeoLifecycleGuard();
