@@ -4,33 +4,38 @@ import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+let neoFeatureActive = false;
+function enableSidebarMute(): void {
+  if (neoFeatureActive) return;
+  ensureCss('sidebarmute', featureCss['sidebarmute']);
+  document.documentElement.classList.add('neo-sidebar-mute');
+  neoFeatureActive = true;
+}
 export function initSidebarMute(): void {
   if (isMobile()) return;
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
     if (config['sidebar-mute'] === true) {
-      ensureCss('sidebarmute', featureCss['sidebarmute']);
-      document.documentElement.classList.add('neo-sidebar-mute');
+      enableSidebarMute();
     }
   });
 }
 export function onSidebarMuteClick(): void {
   if (isMobile()) return;
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-sidebar-mute');
+  const shouldEnable = !neoFeatureActive;
   withViewTransition(() => {
-    if (isActive) {
+    if (shouldEnable) {
+      enableSidebarMute();
+      saveConfig({ 'sidebar-mute': true } as Partial<Config>);
+    } else {
       destroySidebarMute();
       saveConfig({ 'sidebar-mute': false } as Partial<Config>);
-    } else {
-      ensureCss('sidebarmute', featureCss['sidebarmute']);
-      htmlEl.classList.add('neo-sidebar-mute');
-      saveConfig({ 'sidebar-mute': true } as Partial<Config>);
     }
   });
 }
 export function destroySidebarMute(): void {
+  neoFeatureActive = false;
   removeCss('sidebarmute');
   document.documentElement?.classList.remove('neo-sidebar-mute');
 }

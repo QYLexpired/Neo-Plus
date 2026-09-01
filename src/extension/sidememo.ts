@@ -23,17 +23,17 @@ interface SidememoState {
 const _sidememoState = new WeakMap<HTMLElement, SidememoState>();
 let _lute: any = null;
 let _debounceTimer: ReturnType<typeof setTimeout> | null = null;
-let _destroyed = false;
+let neoFeatureActive = false;
 let _rafPending = false;
 function scheduleSync(): void {
   if (_debounceTimer) clearTimeout(_debounceTimer);
   _debounceTimer = setTimeout(() => {
     _debounceTimer = null;
-    if (_destroyed || _rafPending) return;
+    if (!neoFeatureActive || _rafPending) return;
     _rafPending = true;
     requestAnimationFrame(() => {
       _rafPending = false;
-      if (_destroyed) return;
+      if (!neoFeatureActive) return;
       try { syncSidememoState(); } catch {}
     });
   }, 500);
@@ -464,8 +464,6 @@ function syncBreadcrumbButton(protyleContent: HTMLElement, show: boolean): void 
   } catch {}
 }
 function syncSidememoState(): void {
-  const htmlEl = document.documentElement;
-  const isActive = !!(htmlEl && htmlEl.classList.contains('neo-extension-sidememo'));
   const protyleContents = Array.from(document.querySelectorAll<HTMLElement>('.protyle-content'));
   protyleContents.forEach((el) => {
     try {
@@ -474,10 +472,10 @@ function syncSidememoState(): void {
       const breadcrumb = findBreadcrumb(el);
       const btn = breadcrumb?.querySelector<HTMLElement>('.neo-sidememo-btn');
       const manuallyHidden = !!(btn && !btn.classList.contains('neo-sidememo-btn-active'));
-      if (isActive && hasInlineOrBlockMemo && hasTitle && !manuallyHidden) {
+      if (neoFeatureActive && hasInlineOrBlockMemo && hasTitle && !manuallyHidden) {
         el.classList.add('neo-sidememo-protyle');
         syncBreadcrumbButton(el, true);
-      } else if (isActive && hasInlineOrBlockMemo && hasTitle && manuallyHidden) {
+      } else if (neoFeatureActive && hasInlineOrBlockMemo && hasTitle && manuallyHidden) {
         el.classList.remove('neo-sidememo-protyle');
         syncBreadcrumbButton(el, true);
       } else {
@@ -486,7 +484,7 @@ function syncSidememoState(): void {
       }
     } catch {}
   });
-  if (isActive) {
+  if (neoFeatureActive) {
     refreshSidememoContainers();
   } else {
     try {
@@ -1100,26 +1098,26 @@ export function cleanupSideMemo(): void {
     });
   } catch {}
 }
+function enableSideMemo(): void {
+  if (neoFeatureActive) return;
+  ensureCss('extension-sidememo', featureCss['extension-sidememo']);
+  document.documentElement.classList.add('neo-extension-sidememo');
+  neoFeatureActive = true;
+  updateSideMemoPositionClass(sideMemoPosition);
+  initSidememoRely();
+  syncSidememoState();
+  _fetchListener.attach();
+}
 export function onSideMemoClick(): void {
   if (isMobile()) return;
-  const htmlEl = document.documentElement;
-  if (!htmlEl) return;
-  const isActive = htmlEl.classList.contains('neo-extension-sidememo');
   const plugin = getPlugin();
   if (!plugin) return;
-  if (isActive) {
+  if (neoFeatureActive) {
     saveConfig({ 'sidememo': false } as Partial<Config>);
     destroySideMemo();
   } else {
-    _destroyed = false;
-    ensureCss('extension-sidememo', featureCss['extension-sidememo']);
-    htmlEl.classList.add('neo-extension-sidememo');
     saveConfig({ 'sidememo': true } as Partial<Config>);
-    initSidememoRely();
-    const position = sideMemoPosition || 'right';
-    updateSideMemoPositionClass(position);
-    syncSidememoState();
-    _fetchListener.attach();
+    enableSideMemo();
   }
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
@@ -1180,8 +1178,7 @@ export function showSideMemoSettings(): void {
       'sidememo-position': newPosition,
       'sidememo-connector': newConnector,
     } as Partial<Config>);
-    const isActive = document.documentElement.classList.contains('neo-extension-sidememo');
-    if (isActive) {
+    if (neoFeatureActive) {
       updateSideMemoPositionClass(sideMemoPosition);
       syncSidememoState();
     }
@@ -1197,20 +1194,17 @@ export function initSideMemo(): void {
     const savedConnector = config?.['sidememo-connector'] !== false;
     sideMemoPosition = savedPosition;
     sideMemoConnector = savedConnector;
-    if (config?.['sidememo'] === true) {
-      _destroyed = false;
-      ensureCss('extension-sidememo', featureCss['extension-sidememo']);
-      document.documentElement.classList.add('neo-extension-sidememo');
-      updateSideMemoPositionClass(savedPosition);
-      initSidememoRely();
+    if (neoFeatureActive) {
+      updateSideMemoPositionClass(sideMemoPosition);
       syncSidememoState();
-      _fetchListener.attach();
+    } else if (config?.['sidememo'] === true) {
+      enableSideMemo();
     }
   });
 }
 export function destroySideMemo(): void {
+  neoFeatureActive = false;
   removeCss('extension-sidememo');
-  _destroyed = true;
   _rafPending = false;
   _lute = null;
   if (_debounceTimer !== null) {

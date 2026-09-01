@@ -5,6 +5,7 @@ import { saveConfig, loadConfig, type Config } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 const _fetchListener = fetchListener();
 const _searchListSelectors = ['#searchList', '#searchAssetList', '#searchUnRefList'];
+let neoFeatureActive = false;
 function updateCardSearchListClass(): void {
   try {
     const results = _searchListSelectors
@@ -26,38 +27,37 @@ _fetchListener.onNotify('fullTextSearchBlock', updateCardSearchListClass);
 _fetchListener.onNotify('getCriteria', updateCardSearchListClass);
 _fetchListener.onNotify('fullTextSearchAssetContent', updateCardSearchListClass);
 _fetchListener.onNotify('getRecentUpdatedBlocks', updateCardSearchListClass);
+function enableCardSearchList(): void {
+  if (neoFeatureActive) return;
+  ensureCss('visual-cardsearchlist', featureCss['visual-cardsearchlist']);
+  document.documentElement.classList.add('neo-visual-cardsearchlist');
+  neoFeatureActive = true;
+  _fetchListener.attach();
+  requestAnimationFrame(() => {
+    if (!neoFeatureActive) return;
+    try { updateCardSearchListClass(); } catch {}
+  });
+}
 export function initCardSearchList(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
     if (config['card-searchlist'] === true) {
-      ensureCss('visual-cardsearchlist', featureCss['visual-cardsearchlist']);
-      document.documentElement.classList.add('neo-visual-cardsearchlist');
-      _fetchListener.attach();
-      requestAnimationFrame(() => {
-        if (!isCurrent()) return;
-        try { updateCardSearchListClass(); } catch {}
-      });
+      enableCardSearchList();
     }
   });
 }
 export function onCardSearchListClick(): void {
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-visual-cardsearchlist');
-  if (isActive) {
+  if (neoFeatureActive) {
     destroyCardSearchList();
     saveConfig({ 'card-searchlist': false } as Partial<Config>);
   } else {
-    ensureCss('visual-cardsearchlist', featureCss['visual-cardsearchlist']);
-    htmlEl.classList.add('neo-visual-cardsearchlist');
+    enableCardSearchList();
     saveConfig({ 'card-searchlist': true } as Partial<Config>);
-    _fetchListener.attach();
-    requestAnimationFrame(() => {
-      try { updateCardSearchListClass(); } catch {}
-    });
   }
 }
 export function destroyCardSearchList(): void {
+  neoFeatureActive = false;
   try {
     removeCss('visual-cardsearchlist');
     _fetchListener.detach();

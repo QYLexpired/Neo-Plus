@@ -2,21 +2,26 @@ import { isMobile } from '../modules/env';
 import { saveConfig, type Config } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getHighContrastKey } from './presets';
+let neoFeatureActive = false;
+export function enableHighContrast(): void {
+  if (neoFeatureActive) return;
+  document.documentElement.classList.add('neo-palette-highcontrast');
+  neoFeatureActive = true;
+}
 export function onHighContrastClick(): void {
   if (isMobile()) return;
-  const html = document.documentElement;
-  const enabled = html.classList.contains('neo-palette-highcontrast');
+  const shouldEnable = !neoFeatureActive;
   const callback = () => {
-    if (enabled) {
-      html.classList.remove('neo-palette-highcontrast');
+    if (shouldEnable) {
+      enableHighContrast();
     } else {
-      html.classList.add('neo-palette-highcontrast');
+      destroyHighContrast();
     }
   };
   withViewTransition(callback);
   const mode = getCurrentThemeMode();
   const key = getHighContrastKey(mode);
-  saveConfig({ [key]: !enabled } as Partial<Config>);
+  saveConfig({ [key]: shouldEnable } as Partial<Config>);
 }
 export function initHighContrast(config: Config): void {
   if (isMobile()) return;
@@ -24,9 +29,10 @@ export function initHighContrast(config: Config): void {
   const key = getHighContrastKey(mode);
   const enabled = config[key] ?? false;
   if (enabled) {
-    document.documentElement.classList.add('neo-palette-highcontrast');
+    enableHighContrast();
   }
 }
 export function destroyHighContrast(): void {
+  neoFeatureActive = false;
   document.documentElement.classList.remove('neo-palette-highcontrast');
 }

@@ -22,6 +22,7 @@ let lastMaskCursorTop = -Infinity;
 let lastMaskUpdateTime = 0;
 let pendingUpdate = false;
 let isAnimationFramePending = false;
+let neoFeatureActive = false;
 const scrollTween = createScrollTween();
 function getCachedTextColor(focusNode: Node | null, fallbackElement: Element): string | null {
   if (lastTextColorKey === null || lastTextColorKey.node !== focusNode || lastTextColorKey.fallback !== fallbackElement) {
@@ -210,6 +211,14 @@ function startObserving(): void {
   document.addEventListener('scroll', scrollHandler, { capture: true, passive: true });
   scheduleUpdate();
 }
+function enableImmersiveMode(): void {
+  if (neoFeatureActive) return;
+  ensureCss('extension-immersivemode', featureCss['extension-immersivemode']);
+  document.documentElement.classList.add('neo-extension-immersivemode');
+  neoFeatureActive = true;
+  applyHighlightState();
+  startObserving();
+}
 function stopObserving(): void {
   scrollTween.cancel();
   if (scrollEndTimer !== null) {
@@ -295,10 +304,12 @@ export function showImmersiveModeSettings(): void {
     typewriterEnabled = newTypewriter;
     highlightEnabled = newHighlight;
     saveConfig({ 'immersive-typewriter': newTypewriter, 'immersive-highlight': newHighlight } as Partial<Config>);
-    if (!newHighlight) {
-      clearHighlightCss();
+    if (neoFeatureActive) {
+      if (!newHighlight) {
+        clearHighlightCss();
+      }
+      applyHighlightState();
     }
-    applyHighlightState();
     dialog.destroy();
   });
 }
@@ -308,29 +319,27 @@ export function initImmersiveMode(): void {
     if (!isCurrent()) return;
     if (config['immersive-typewriter'] !== undefined) typewriterEnabled = config['immersive-typewriter'];
     if (config['immersive-highlight'] !== undefined) highlightEnabled = config['immersive-highlight'];
-    if (config['immersive-mode'] === true) {
-      ensureCss('extension-immersivemode', featureCss['extension-immersivemode']);
-      document.documentElement.classList.add('neo-extension-immersivemode');
+    if (neoFeatureActive) {
+      if (!highlightEnabled) {
+        clearHighlightCss();
+      }
       applyHighlightState();
-      startObserving();
+    } else if (config['immersive-mode'] === true) {
+      enableImmersiveMode();
     }
   });
 }
 export function onImmersiveModeClick(): void {
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-extension-immersivemode');
-  if (isActive) {
+  if (neoFeatureActive) {
     destroyImmersiveMode();
     saveConfig({ 'immersive-mode': false } as Partial<Config>);
   } else {
-    ensureCss('extension-immersivemode', featureCss['extension-immersivemode']);
-    htmlEl.classList.add('neo-extension-immersivemode');
-    applyHighlightState();
+    enableImmersiveMode();
     saveConfig({ 'immersive-mode': true } as Partial<Config>);
-    startObserving();
   }
 }
 export function destroyImmersiveMode(): void {
+  neoFeatureActive = false;
   removeCss('extension-immersivemode');
   document.documentElement?.classList.remove('neo-extension-immersivemode');
   document.body.classList.remove('neo-extension-immersivemode-highlight', 'neo-extension-immersivemode-no-highlight');

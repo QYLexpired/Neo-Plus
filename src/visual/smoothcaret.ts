@@ -15,6 +15,7 @@ let cachedFocusElement: Element | null = null;
 let smoothCaretMotion: 'static' | 'breathing' | 'stretch' = 'static';
 let smoothCaretEase: 'elegant' | 'shuttle' | 'drift' | 'spring' = 'elegant';
 let smoothCaretStyle: 'default' | 'neon' | 'rainbow' | 'block' | 'underline' = 'default';
+let neoFeatureActive = false;
 const scrollListenerOptions: AddEventListenerOptions = { capture: true, passive: true };
 function applySmoothCaretMotion(): void {
   document.body.classList.remove(
@@ -166,6 +167,15 @@ function startSmoothCaret(): void {
   document.addEventListener('mouseup', handleThrottledCaretUpdate);
   updateCaretPosition();
 }
+function enableSmoothCaret(): void {
+  if (neoFeatureActive) return;
+  ensureCss('visual-smoothcaret', featureCss['visual-smoothcaret']);
+  document.documentElement.classList.add('neo-visual-smooth-caret');
+  neoFeatureActive = true;
+  applySmoothCaretMotion();
+  applySmoothCaretStyle();
+  startSmoothCaret();
+}
 function buildSettingsHTML(i18n: Record<string, string>): string {
   const easeOptions = ['elegant', 'shuttle', 'drift', 'spring']
     .map(v => `<option value="${v}">${i18n[`smoothCaretEase${v.charAt(0).toUpperCase() + v.slice(1)}`]}</option>`)
@@ -236,38 +246,41 @@ export function showSmoothCaretSettings(): void {
   if (styleSelect) styleSelect.value = smoothCaretStyle;
   dialog.element.querySelector('#neo-smooth-caret-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-smooth-caret-confirm')?.addEventListener('click', () => {
-    let changed = false;
     if (easeSelect) {
       const newEase = easeSelect.value as 'elegant' | 'shuttle' | 'drift' | 'spring';
       if (newEase !== smoothCaretEase) {
         smoothCaretEase = newEase;
-        applySmoothCaretEase();
         saveConfig({ 'smooth-caret-ease': newEase } as Partial<Config>);
-        changed = true;
+        if (neoFeatureActive) {
+          applySmoothCaretEase();
+        }
       }
     }
     if (motionSelect) {
       const newMotion = motionSelect.value as 'static' | 'breathing' | 'stretch';
       if (newMotion !== smoothCaretMotion) {
         smoothCaretMotion = newMotion;
-        applySmoothCaretMotion();
         saveConfig({ 'smooth-caret-motion': newMotion } as Partial<Config>);
-        changed = true;
+        if (neoFeatureActive) {
+          applySmoothCaretMotion();
+        }
       }
     }
     if (styleSelect) {
       const newStyle = styleSelect.value as 'default' | 'neon' | 'rainbow' | 'block' | 'underline';
       if (newStyle !== smoothCaretStyle) {
         smoothCaretStyle = newStyle;
-        applySmoothCaretStyle();
         saveConfig({ 'smooth-caret-style': newStyle } as Partial<Config>);
-        changed = true;
+        if (neoFeatureActive) {
+          applySmoothCaretStyle();
+        }
       }
     }
     dialog.destroy();
   });
 }
 export function destroySmoothCaret(): void {
+  neoFeatureActive = false;
   removeCss('visual-smoothcaret');
   document.getElementById('neo-smooth-caret-item')?.remove();
   document.documentElement.classList.remove('neo-visual-smooth-caret');
@@ -307,27 +320,21 @@ export function initSmoothCaret(): void {
     smoothCaretMotion = config['smooth-caret-motion'] || 'static';
     smoothCaretEase = config['smooth-caret-ease'] || 'elegant';
     smoothCaretStyle = config['smooth-caret-style'] || 'default';
-    if (config['smooth-caret'] === true) {
-      ensureCss('visual-smoothcaret', featureCss['visual-smoothcaret']);
-      document.documentElement.classList.add('neo-visual-smooth-caret');
+    if (neoFeatureActive) {
       applySmoothCaretMotion();
+      applySmoothCaretEase();
       applySmoothCaretStyle();
-      startSmoothCaret();
+    } else if (config['smooth-caret'] === true) {
+      enableSmoothCaret();
     }
   });
 }
 export function onSmoothCaretClick(): void {
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-visual-smooth-caret');
-  if (isActive) {
+  if (neoFeatureActive) {
     destroySmoothCaret();
     saveConfig({ 'smooth-caret': false } as Partial<Config>);
   } else {
-    ensureCss('visual-smoothcaret', featureCss['visual-smoothcaret']);
-    htmlEl.classList.add('neo-visual-smooth-caret');
-    applySmoothCaretMotion();
-    applySmoothCaretStyle();
+    enableSmoothCaret();
     saveConfig({ 'smooth-caret': true } as Partial<Config>);
-    startSmoothCaret();
   }
 }

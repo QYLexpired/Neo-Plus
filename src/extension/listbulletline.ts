@@ -6,6 +6,7 @@ let selectionChangeHandler: (() => void) | null = null;
 let clickHandler: ((event: MouseEvent) => void) | null = null;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let lastMarkedItems: Set<HTMLElement> = new Set();
+let neoFeatureActive = false;
 function clearBulletLineMarks(): void {
   document.querySelectorAll<HTMLElement>('[neo-listbulletline-node],[neo-listbulletline-current]').forEach((element) => {
     element.removeAttribute('neo-listbulletline-node');
@@ -138,31 +139,33 @@ function unbindSelectionChange(): void {
   selectionChangeHandler = null;
   clearBulletLineMarks();
 }
+function enableListBulletLine(): void {
+  if (neoFeatureActive) return;
+  ensureCss('extension-listbulletline', featureCss['extension-listbulletline']);
+  document.documentElement.classList.add('neo-extension-listbulletline');
+  neoFeatureActive = true;
+  bindSelectionChange();
+}
 export function initListBulletLine(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
     if (config['list-bullet-line'] === true) {
-      ensureCss('extension-listbulletline', featureCss['extension-listbulletline']);
-      document.documentElement.classList.add('neo-extension-listbulletline');
-      bindSelectionChange();
+      enableListBulletLine();
     }
   });
 }
 export function onListBulletLineClick(): void {
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-extension-listbulletline');
-  if (isActive) {
+  if (neoFeatureActive) {
     destroyListBulletLine();
     saveConfig({ 'list-bullet-line': false } as Partial<Config>);
   } else {
-    ensureCss('extension-listbulletline', featureCss['extension-listbulletline']);
-    htmlEl.classList.add('neo-extension-listbulletline');
+    enableListBulletLine();
     saveConfig({ 'list-bullet-line': true } as Partial<Config>);
-    bindSelectionChange();
   }
 }
 export function destroyListBulletLine(): void {
+  neoFeatureActive = false;
   removeCss('extension-listbulletline');
   document.documentElement?.classList.remove('neo-extension-listbulletline');
   unbindSelectionChange();

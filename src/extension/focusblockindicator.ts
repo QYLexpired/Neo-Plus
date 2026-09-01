@@ -10,6 +10,7 @@ let focusBlockEffect: 'vertical-line' | 'shadow' | 'background' = 'vertical-line
 let pendingUpdate = false;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let selectionChangeHandler: (() => void) | null = null;
+let neoFeatureActive = false;
 function applyFocusBlockEffect(): void {
   document.body.classList.toggle('neo-extension-focusblockindicator-shadow', focusBlockEffect === 'shadow');
   document.body.classList.toggle('neo-extension-focusblockindicator-vertical-line', focusBlockEffect === 'vertical-line');
@@ -60,6 +61,14 @@ function startObserving(): void {
   };
   document.addEventListener('selectionchange', selectionChangeHandler);
 }
+function enableFocusBlockIndicator(): void {
+  if (neoFeatureActive) return;
+  ensureCss('extension-focusblockindicator', featureCss['extension-focusblockindicator']);
+  document.documentElement.classList.add('neo-extension-focusblockindicator');
+  neoFeatureActive = true;
+  applyFocusBlockEffect();
+  startObserving();
+}
 function stopObserving(): void {
   if (selectionChangeHandler) {
     document.removeEventListener('selectionchange', selectionChangeHandler);
@@ -78,26 +87,20 @@ export function initFocusBlockIndicator(): void {
   loadConfig().then((config) => {
     if (!isCurrent()) return;
     focusBlockEffect = config['focus-block-effect'] || 'vertical-line';
-    if (config['focus-block-indicator'] === true) {
-      ensureCss('extension-focusblockindicator', featureCss['extension-focusblockindicator']);
-      document.documentElement.classList.add('neo-extension-focusblockindicator');
+    if (neoFeatureActive) {
       applyFocusBlockEffect();
-      startObserving();
+    } else if (config['focus-block-indicator'] === true) {
+      enableFocusBlockIndicator();
     }
   });
 }
 export function onFocusBlockIndicatorClick(): void {
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-extension-focusblockindicator');
-  if (isActive) {
+  if (neoFeatureActive) {
     destroyFocusBlockIndicator();
     saveConfig({ 'focus-block-indicator': false } as Partial<Config>);
   } else {
-    ensureCss('extension-focusblockindicator', featureCss['extension-focusblockindicator']);
-    htmlEl.classList.add('neo-extension-focusblockindicator');
-    applyFocusBlockEffect();
+    enableFocusBlockIndicator();
     saveConfig({ 'focus-block-indicator': true } as Partial<Config>);
-    startObserving();
   }
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
@@ -144,14 +147,17 @@ export function showFocusBlockIndicatorSettings(): void {
       const newEffect = effectSelect.value as 'vertical-line' | 'shadow' | 'background';
       if (newEffect !== focusBlockEffect) {
         focusBlockEffect = newEffect;
-        applyFocusBlockEffect();
         saveConfig({ 'focus-block-effect': newEffect } as Partial<Config>);
+        if (neoFeatureActive) {
+          applyFocusBlockEffect();
+        }
       }
     }
     dialog.destroy();
   });
 }
 export function destroyFocusBlockIndicator(): void {
+  neoFeatureActive = false;
   removeCss('extension-focusblockindicator');
   document.documentElement?.classList.remove('neo-extension-focusblockindicator');
   document.body.classList.remove('neo-extension-focusblockindicator-shadow', 'neo-extension-focusblockindicator-vertical-line', 'neo-extension-focusblockindicator-background');

@@ -102,7 +102,8 @@ const fieldDefs: CustomImageField[] = [
   { configKey: 'customimage-fill-unit',   cssVar: '', toCss: raw => raw ?? 'px', inputId: 'neo-customimage-fill-unit',   tooltipId: '', event: 'change', tooltipSuffix: '' },
   { configKey: 'customimage-fill-repeat', cssVar: '', toCss: raw => raw === 'true' ? 'true' : 'false', inputId: 'neo-customimage-fill-repeat', tooltipId: '', event: 'change', tooltipSuffix: '' },
 ];
-export function applyCustomImageCss(config?: Partial<Config> | null): void {
+let neoFeatureActive = false;
+function applyCustomImageCss(config?: Partial<Config> | null): void {
   const style = document.documentElement.style;
   const zlevel = config?.['customimage-zlevel'] as string | undefined;
   for (const field of fieldDefs) {
@@ -115,12 +116,23 @@ export function applyCustomImageCss(config?: Partial<Config> | null): void {
     style.setProperty(field.cssVar, field.toCss(raw, config as Record<string, any> | undefined));
   }
 }
-export function clearCustomImageCss(): void {
+function clearCustomImageCss(): void {
   const style = document.documentElement.style;
   for (const field of fieldDefs) {
     if (!field.cssVar) continue;
     style.removeProperty(field.cssVar);
   }
+}
+export function enableCustomImage(config?: Partial<Config> | null): void {
+  if (neoFeatureActive) return;
+  document.documentElement.classList.add('neo-texture-customimage');
+  neoFeatureActive = true;
+  applyCustomImageCss(config ?? {});
+}
+export function destroyCustomImage(): void {
+  neoFeatureActive = false;
+  document.documentElement.classList.remove('neo-texture-customimage');
+  clearCustomImageCss();
 }
 const currentPresetKeyLight = 'customimage-preset-current-light';
 const currentPresetKeyDark  = 'customimage-preset-current-dark';
@@ -131,33 +143,6 @@ function getPreset(config: Partial<Config> | null | undefined, name: string): Re
 }
 function getCurrentPresetKey(): 'customimage-preset-current-light' | 'customimage-preset-current-dark' {
   return getCurrentThemeMode() === 'dark' ? currentPresetKeyDark : currentPresetKeyLight;
-}
-export async function toggleCustomImage(enabled: boolean): Promise<void> {
-  const isCurrent = createNeoLifecycleGuard();
-  const config = await loadConfig();
-  if (!isCurrent()) return;
-  if (enabled) {
-    document.documentElement.classList.add('neo-texture-customimage');
-    removeCssByPrefix('texture-');
-    ensureTextureLayer();
-    ensureCss('texture-customimage', featureCss['texture-customimage']);
-    const key = getCurrentPresetKey();
-    const name = (config?.[key] as string) || '';
-    const preset = getPreset(config, name);
-    applyCustomImageCss(preset);
-    const mode = getCurrentThemeMode();
-    await saveConfig({ [mode === 'dark' ? 'texture-dark' : 'texture-light']: 'customimage' } as Partial<Config>);
-    document.documentElement.classList.remove(
-      ...Array.from(document.documentElement.classList).filter(cls => cls.startsWith('neo-texture-') && cls !== 'neo-texture-customimage')
-    );
-  } else {
-    document.documentElement.classList.remove('neo-texture-customimage');
-    removeCssByPrefix('texture-');
-    clearCustomImageCss();
-    removeTextureLayer();
-    const mode = getCurrentThemeMode();
-    await saveConfig({ [mode === 'dark' ? 'texture-dark' : 'texture-light']: 'none' } as Partial<Config>);
-  }
 }
 interface SliderConfig {
   id: string;
@@ -460,8 +445,6 @@ export function showCustomImageSettings(): void {
     populateDialog(c, presetSelect, fieldDom, plugin.i18n, customFillWrap, layoutOpacityWrap);
   }).catch(() => {});
   const style = document.documentElement.style;
-  const isCustomImagePreviewOn = (): boolean =>
-    document.documentElement.classList.contains('neo-texture-customimage');
   let dirty = false;
   const readDomValues = (): Record<string, string> => {
     const values: Record<string, string> = {};
@@ -473,7 +456,7 @@ export function showCustomImageSettings(): void {
     return values;
   };
   const applyCssFromDom = (): void => {
-    if (!isCustomImagePreviewOn()) return;
+    if (!neoFeatureActive) return;
     const values = readDomValues();
     for (const { field } of fieldDom) {
       if (!field.cssVar) continue;
@@ -501,7 +484,7 @@ export function showCustomImageSettings(): void {
   }
   const btn = (id: string) => dialog.element.querySelector(id) as HTMLButtonElement | null;
   const resetFormToDefaults = (): void => {
-    const previewOn = isCustomImagePreviewOn();
+    const previewOn = neoFeatureActive;
     for (const { field, input, tooltip } of fieldDom) {
       if (!input) continue;
       if (field.configKey === 'customimage-info') continue;
@@ -544,7 +527,7 @@ export function showCustomImageSettings(): void {
     const pathInput = dialog.element.querySelector('#neo-customimage-path') as HTMLTextAreaElement | HTMLInputElement | null;
     if (pathInput) {
       pathInput.value = '';
-      if (isCustomImagePreviewOn()) style.setProperty('--neo-customimage-info', 'none');
+      if (neoFeatureActive) style.setProperty('--neo-customimage-info', 'none');
     }
   };
   btn('#neo-customimage-reset-preset')?.addEventListener('click', () => {
@@ -576,6 +559,7 @@ export function showCustomImageSettings(): void {
       const texKey = mode === 'dark' ? 'texture-dark' : 'texture-light';
       const textureKey = c?.[texKey as keyof Config] as string | undefined;
       const html = document.documentElement;
+      destroyCustomImage();
       html.classList.remove(
         ...Array.from(html.classList).filter(cls => cls.startsWith('neo-texture-'))
       );
@@ -584,25 +568,22 @@ export function showCustomImageSettings(): void {
         ensureTextureLayer();
         ensureCss(`texture-${textureKey}`, featureCss[`texture-${textureKey}`]);
         if (textureKey === 'customimage') {
-          html.classList.add('neo-texture-customimage');
           const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
           const presetName = c?.[currentKey as keyof Config] as string | undefined;
           if (presetName) {
             const preset = getPreset(c, presetName);
             if (preset && typeof preset === 'object') {
-              applyCustomImageCss(preset);
+              enableCustomImage(preset);
             } else {
-              clearCustomImageCss();
+              enableCustomImage();
             }
           } else {
-            clearCustomImageCss();
+            enableCustomImage();
           }
         } else {
           html.classList.add(`neo-texture-${textureKey}`);
-          clearCustomImageCss();
         }
       } else {
-        clearCustomImageCss();
         removeTextureLayer();
       }
     } catch {}
@@ -651,7 +632,7 @@ export function showCustomImageSettings(): void {
         if ((updatedCfg as Record<string, any>)?.[otherKey] === name) patch[otherKey] = '';
         if (Object.keys(patch).length) await saveConfig(patch as Partial<Config>);
         populateDialog(updatedCfg, presetSelect, fieldDom, plugin.i18n, customFillWrap, layoutOpacityWrap);
-        if (isCurrent()) applyCustomImageCss({});
+        if (isCurrent() && neoFeatureActive) applyCustomImageCss({});
         showMessage(plugin.i18n.customimagePresetDeleted.replace('${name}', name), 3000);
       } catch {} finally { cd.destroy(); }
     });
@@ -665,7 +646,7 @@ export function showCustomImageSettings(): void {
       [currentKey]: presetName,
     };
     await saveConfig(patch as Partial<Config>);
-    if (isCurrent() && isCustomImagePreviewOn()) {
+    if (isCurrent() && neoFeatureActive) {
       applyCustomImageCss(preset);
     }
   };
@@ -749,7 +730,7 @@ export function showCustomImageSettings(): void {
         const updatedCfg = await loadConfig();
         const preset = getPreset(updatedCfg, name);
         populateDialog(updatedCfg, presetSelect, fieldDom, plugin.i18n, customFillWrap, layoutOpacityWrap);
-        if (isCurrent() && isCustomImagePreviewOn()) {
+        if (isCurrent() && neoFeatureActive) {
           applyCustomImageCss(preset);
         }
       } catch {}

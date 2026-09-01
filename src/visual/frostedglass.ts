@@ -6,10 +6,16 @@ import { getPlugin } from '../main/guard';
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let frostedGlassScope: 'light' | 'global' = 'light';
+let neoFeatureActive = false;
 function applyScopeClass(): void {
-  const htmlEl = document.documentElement;
-  htmlEl.classList.add('neo-visual-frostedglass');
-  htmlEl.classList.toggle('neo-visual-frostedglass-global', frostedGlassScope === 'global');
+  document.documentElement.classList.toggle('neo-visual-frostedglass-global', frostedGlassScope === 'global');
+}
+function enableFrostedGlass(): void {
+  if (neoFeatureActive) return;
+  ensureCss('visual-frostedglass', featureCss['visual-frostedglass']);
+  document.documentElement.classList.add('neo-visual-frostedglass');
+  neoFeatureActive = true;
+  applyScopeClass();
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
   const scopeOptions = ['light', 'global']
@@ -55,8 +61,10 @@ export function showFrostedGlassSettings(): void {
       const newScope = scopeSelect.value as 'light' | 'global';
       if (newScope !== frostedGlassScope) {
         frostedGlassScope = newScope;
-        applyScopeClass();
         saveConfig({ 'frosted-glass-scope': newScope } as Partial<Config>);
+        if (neoFeatureActive) {
+          applyScopeClass();
+        }
       }
     }
     dialog.destroy();
@@ -67,27 +75,27 @@ export function initFrostedGlass(): void {
   loadConfig().then((config) => {
     if (!isCurrent()) return;
     frostedGlassScope = config['frosted-glass-scope'] || 'light';
-    if (config['frosted-glass'] === true) {
-      ensureCss('visual-frostedglass', featureCss['visual-frostedglass']);
+    if (neoFeatureActive) {
       applyScopeClass();
+    } else if (config['frosted-glass'] === true) {
+      enableFrostedGlass();
     }
   });
 }
 export function onFrostedGlassClick(): void {
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-visual-frostedglass');
+  const shouldEnable = !neoFeatureActive;
   withViewTransition(() => {
-    if (isActive) {
+    if (shouldEnable) {
+      enableFrostedGlass();
+      saveConfig({ 'frosted-glass': true } as Partial<Config>);
+    } else {
       destroyFrostedGlass();
       saveConfig({ 'frosted-glass': false } as Partial<Config>);
-    } else {
-      ensureCss('visual-frostedglass', featureCss['visual-frostedglass']);
-      applyScopeClass();
-      saveConfig({ 'frosted-glass': true } as Partial<Config>);
     }
   });
 }
 export function destroyFrostedGlass(): void {
+  neoFeatureActive = false;
   removeCss('visual-frostedglass');
   document.documentElement?.classList.remove('neo-visual-frostedglass', 'neo-visual-frostedglass-global');
 }

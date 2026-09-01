@@ -2,7 +2,7 @@ import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getCurrentThemeMode } from '../modules/thememode';
 import { ensureCss, removeCssByPrefix } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { toggleCustomImage, showCustomImageSettings, applyCustomImageCss, clearCustomImageCss } from './customimage';
+import { showCustomImageSettings, enableCustomImage, destroyCustomImage } from './customimage';
 import { ensureTextureLayer, removeTextureLayer } from './layer';
 import { createSettingsMenuLabel } from '../modules/menusettings';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
@@ -25,13 +25,13 @@ const textures: Texture[] = [
   { key: 'velvet', nameKey: 'textureVelvet' },
   { key: 'customimage', nameKey: 'textureCustomImage' },
 ];
+let neoActiveTextureKey: string | null = null;
+let textureActionRevision = 0;
 export { textures };
 export function getTextureKey(mode: 'light' | 'dark'): 'texture-light' | 'texture-dark' {
   return mode === 'dark' ? 'texture-dark' : 'texture-light';
 }
 function buildTextureMenuItem(texture: Texture, i18n: Record<string, string>): any {
-  const html = document.documentElement;
-  const className = `neo-texture-${texture.key}`;
   if (texture.key === 'customimage') {
     return {
       id: `neo-texture-${texture.key}-button`,
@@ -43,8 +43,19 @@ function buildTextureMenuItem(texture: Texture, i18n: Record<string, string>): a
         showCustomImageSettings,
       ),
       click: () => {
-        const isCurrentlyActive = document.documentElement.classList.contains('neo-texture-customimage');
-        toggleCustomImage(!isCurrentlyActive);
+        const revision = ++textureActionRevision;
+        if (neoActiveTextureKey === texture.key) {
+          disableTexture();
+          saveTextureSelection('none');
+        } else {
+          const isCurrent = createNeoLifecycleGuard();
+          loadConfig().then((config) => {
+            if (!isCurrent() || revision !== textureActionRevision) return;
+            disableTexture();
+            enableTexture(texture.key, config);
+            saveTextureSelection(texture.key);
+          }).catch(() => {});
+        }
         return true;
       },
     };
@@ -54,25 +65,14 @@ function buildTextureMenuItem(texture: Texture, i18n: Record<string, string>): a
     icon: 'iconNeoTexture',
     label: i18n[texture.nameKey],
     click: () => {
-      if (html.classList.contains(className)) {
-        html.classList.remove(className);
-        removeCssByPrefix('texture-');
-        removeTextureLayer();
-        const mode = getCurrentThemeMode();
-        const texKey = getTextureKey(mode);
-        saveConfig({ [texKey]: 'none' } as Partial<Config>);
+      textureActionRevision++;
+      if (neoActiveTextureKey === texture.key) {
+        disableTexture();
+        saveTextureSelection('none');
       } else {
-        html.classList.remove(
-          ...Array.from(html.classList).filter((cls) => cls.startsWith('neo-texture-'))
-        );
-        html.classList.add(className);
-        removeCssByPrefix('texture-');
-        clearCustomImageCss();
-        ensureTextureLayer();
-        ensureCss(`texture-${texture.key}`, featureCss[`texture-${texture.key}`]);
-        const mode = getCurrentThemeMode();
-        const texKey = getTextureKey(mode);
-        saveConfig({ [texKey]: texture.key } as Partial<Config>);
+        disableTexture();
+        enableTexture(texture.key);
+        saveTextureSelection(texture.key);
       }
       return true;
     },
@@ -92,71 +92,72 @@ export function getTextureMenuItems(i18n: Record<string, string>): any[] {
     ...otherItems,
   ];
 }
+function saveTextureSelection(textureKey: string): void {
+  const texKey = getTextureKey(getCurrentThemeMode());
+  saveConfig({ [texKey]: textureKey } as Partial<Config>);
+}
+function getCustomImagePreset(config: Config): Record<string, any> | undefined {
+  const mode = getCurrentThemeMode();
+  const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
+  const presetName = config[currentKey as keyof Config] as string | undefined;
+  if (!presetName) return undefined;
+  const presetKey = `customimage-preset-${presetName}` as keyof Config;
+  const preset = config[presetKey];
+  return preset && typeof preset === 'object' ? preset as Record<string, any> : undefined;
+}
+function enableTexture(textureKey: string, config?: Config): void {
+  if (neoActiveTextureKey === textureKey) return;
+  ensureTextureLayer();
+  ensureCss(`texture-${textureKey}`, featureCss[`texture-${textureKey}`]);
+  if (textureKey === 'customimage') {
+    enableCustomImage(config ? getCustomImagePreset(config) : undefined);
+  } else {
+    document.documentElement.classList.add(`neo-texture-${textureKey}`);
+  }
+  neoActiveTextureKey = textureKey;
+}
+function disableTexture(): void {
+  neoActiveTextureKey = null;
+  destroyCustomImage();
+  removeCssByPrefix('texture-');
+  document.documentElement.classList.remove(
+    ...Array.from(document.documentElement.classList).filter((cls) => cls.startsWith('neo-texture-'))
+  );
+  removeTextureLayer();
+}
 export function applyTexture(config: Config): void {
   const mode = getCurrentThemeMode();
   const texKey = getTextureKey(mode);
   const textureKey = config[texKey];
-  const html = document.documentElement;
-  html.classList.remove(
-    ...Array.from(html.classList).filter((cls) => cls.startsWith('neo-texture-'))
-  );
-  removeCssByPrefix('texture-');
+  disableTexture();
   if (textureKey && textureKey !== 'none') {
-    ensureTextureLayer();
-    ensureCss(`texture-${textureKey}`, featureCss[`texture-${textureKey}`]);
-  }
-  if (textureKey && textureKey !== 'none') {
-    if (textureKey === 'customimage') {
-      html.classList.add('neo-texture-customimage');
-      const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
-      const presetName = config[currentKey as keyof Config] as string | undefined;
-      if (presetName) {
-        const presetKey = `customimage-preset-${presetName}` as keyof Config;
-        const preset = config[presetKey] as Record<string, any> | undefined;
-        if (preset && typeof preset === 'object') {
-          applyCustomImageCss(preset);
-        } else {
-          clearCustomImageCss();
-        }
-      } else {
-        clearCustomImageCss();
-      }
-    } else {
-      html.classList.add(`neo-texture-${textureKey}`);
-      clearCustomImageCss();
-    }
-  } else {
-    clearCustomImageCss();
-    removeTextureLayer();
+    enableTexture(textureKey, config);
   }
 }
 let _mutationObserver: MutationObserver | null = null;
 export function initTexture(): void {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  _mutationObserver = new MutationObserver(() => {
     if (!isCurrent()) return;
-    applyTexture(config);
-    _mutationObserver = new MutationObserver(() => {
-      if (!isCurrent()) return;
-      loadConfig().then((config) => {
-        if (!isCurrent()) return;
-        applyTexture(config);
-      });
-    });
-    _mutationObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme-mode'],
-    });
+    const revision = ++textureActionRevision;
+    loadConfig().then((config) => {
+      if (!isCurrent() || revision !== textureActionRevision) return;
+      applyTexture(config);
+    }).catch(() => {});
   });
+  _mutationObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme-mode'],
+  });
+  const revision = textureActionRevision;
+  loadConfig().then((config) => {
+    if (!isCurrent() || revision !== textureActionRevision) return;
+    applyTexture(config);
+  }).catch(() => {});
 }
 export function destroyTexture(): void {
-  removeCssByPrefix('texture-');
-  const html = document.documentElement;
-  html.classList.remove(
-    ...Array.from(html.classList).filter((cls) => cls.startsWith('neo-texture-'))
-  );
-  clearCustomImageCss();
-  removeTextureLayer();
+  textureActionRevision++;
+  disableTexture();
   if (_mutationObserver) {
     _mutationObserver.disconnect();
     _mutationObserver = null;

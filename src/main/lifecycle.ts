@@ -1,14 +1,14 @@
 let generation = 0;
-let active = false;
+let neoLifecycleActive = false;
 export function beginNeoLifecycle(): void {
   generation += 1;
-  active = true;
+  neoLifecycleActive = true;
 }
 export function endNeoLifecycle(): void {
-  active = false;
+  neoLifecycleActive = false;
   generation += 1;
 }
 export function createNeoLifecycleGuard(): () => boolean {
   const currentGeneration = generation;
-  return () => active && generation === currentGeneration;
+  return () => neoLifecycleActive && generation === currentGeneration;
 }

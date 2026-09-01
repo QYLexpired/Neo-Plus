@@ -30,6 +30,7 @@ let lastColorFetchTime = 0;
 const colorRefreshInterval = 500;
 let trailOn = true;
 let waveOn = true;
+let neoFeatureActive = false;
 function getCursorColor(): string {
   const computedStyle = getComputedStyle(document.documentElement);
   const color = computedStyle.getPropertyValue('--b3-base-color').trim();
@@ -95,9 +96,7 @@ function randomCursorColor(): void {
     targetHueOffset = randomHue;
   }
 }
-function startFluidCursor(_trail = true, _wave = true): void {
-  trailOn = _trail;
-  waveOn = _wave;
+function startFluidCursor(): void {
   if (!trailOn && !waveOn) return;
   const existingCanvas = document.getElementById('neo-fluid-cursor-canvas');
   if (existingCanvas) {
@@ -382,6 +381,7 @@ function startFluidCursor(_trail = true, _wave = true): void {
   animationFrameId = window.requestAnimationFrame(animate);
 }
 export function destroyFluidCursor(): void {
+  neoFeatureActive = false;
   removeCss('visual-fluidcursor');
   const existingCanvas = document.getElementById('neo-fluid-cursor-canvas');
   if (existingCanvas) {
@@ -425,6 +425,25 @@ export function destroyFluidCursor(): void {
   const htmlEl = document.documentElement;
   if (htmlEl) {
     htmlEl.classList.remove('neo-visual-fluid-cursor');
+  }
+}
+function enableFluidCursor(): void {
+  if (neoFeatureActive) return;
+  ensureCss('visual-fluidcursor', featureCss['visual-fluidcursor']);
+  document.documentElement.classList.add('neo-visual-fluid-cursor');
+  neoFeatureActive = true;
+  startFluidCursor();
+}
+function restartFluidCursor(): void {
+  destroyFluidCursor();
+  enableFluidCursor();
+}
+function applyFluidCursorOptions(nextTrailOn: boolean, nextWaveOn: boolean): void {
+  const shouldRestart = neoFeatureActive;
+  trailOn = nextTrailOn;
+  waveOn = nextWaveOn;
+  if (shouldRestart) {
+    restartFluidCursor();
   }
 }
 function buildFluidCursorSettingsHTML(i18n: Record<string, string>): string {
@@ -481,10 +500,7 @@ export function showFluidCursorSettings(): void {
         'fluid-cursor-trail': trailCheckbox.checked,
         'fluid-cursor-wave': waveCheckbox.checked,
       } as Partial<Config>);
-      destroyFluidCursor();
-      ensureCss('visual-fluidcursor', featureCss['visual-fluidcursor']);
-      document.documentElement.classList.add('neo-visual-fluid-cursor');
-      startFluidCursor(trailCheckbox.checked, waveCheckbox.checked);
+      applyFluidCursorOptions(trailCheckbox.checked, waveCheckbox.checked);
     }
     dialog.destroy();
   });
@@ -494,27 +510,20 @@ export function initFluidCursor(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
+    trailOn = config['fluid-cursor-trail'] !== false;
+    waveOn = config['fluid-cursor-wave'] !== false;
     if (config['fluid-cursor'] === true) {
-      ensureCss('visual-fluidcursor', featureCss['visual-fluidcursor']);
-      document.documentElement.classList.add('neo-visual-fluid-cursor');
-      startFluidCursor(
-        config['fluid-cursor-trail'] !== false,
-        config['fluid-cursor-wave'] !== false
-      );
+      enableFluidCursor();
     }
   });
 }
 export function onFluidCursorClick(): void {
   if (isMobile()) return;
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-visual-fluid-cursor');
-  if (isActive) {
+  if (neoFeatureActive) {
     destroyFluidCursor();
     saveConfig({ 'fluid-cursor': false } as Partial<Config>);
   } else {
-    ensureCss('visual-fluidcursor', featureCss['visual-fluidcursor']);
-    htmlEl.classList.add('neo-visual-fluid-cursor');
     saveConfig({ 'fluid-cursor': true } as Partial<Config>);
-    startFluidCursor();
+    enableFluidCursor();
   }
 }

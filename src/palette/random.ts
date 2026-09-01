@@ -3,9 +3,11 @@ import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
 import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
-import { getCurrentThemeMode, getPresetsByMode, getCurrentPlan } from './presets';
+import { getCurrentThemeMode, getPresetsByMode } from './presets';
 import type { Preset } from './presets';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+import { enableInvert, destroyInvert } from './invert';
+import { enableHighContrast, destroyHighContrast } from './highcontrast';
 let randomScope: 'all' | 'preset' | 'custom' = 'all';
 let randomHighContrast: 'random' | 'on' | 'off' = 'random';
 let randomInvert: 'random' | 'on' | 'off' = 'random';
@@ -13,6 +15,7 @@ let randomSaturationMin: number = 0;
 let randomSaturationMax: number = 5;
 let randomBrightnessMin: number = -1;
 let randomBrightnessMax: number = 1;
+let neoFeatureActive = false;
 function clampSaturation(value: number): number {
   return Math.min(5, Math.max(0, value));
 }
@@ -400,11 +403,10 @@ export function showRandomSettings(): void {
     const isCurrent = createNeoLifecycleGuard();
     loadConfig().then((config) => {
       if (!isCurrent()) return;
-      const plan = getCurrentPlan(config, getCurrentThemeMode());
-      if (plan === 'random') {
+      if (neoFeatureActive) {
         withViewTransition(() => {
-          if (!isCurrent()) return;
-          initRandom(config);
+          if (!isCurrent() || !neoFeatureActive) return;
+          applyRandom(config);
         });
       }
     });
@@ -426,14 +428,16 @@ export function initRandomSettings(): void {
   });
 }
 export function destroyRandom(): void {
+  neoFeatureActive = false;
   const html = document.documentElement;
   html.style.removeProperty('--neo-custom-base-color');
   html.style.removeProperty('--neo-saturation');
   html.style.removeProperty('--neo-brightness');
-  html.classList.remove('neo-palette-invert', 'neo-palette-highcontrast');
+  destroyInvert();
+  destroyHighContrast();
   lastState = null;
 }
-export function initRandom(config: Config): void {
+function applyRandom(config: Config): void {
   const html = document.documentElement;
   const mode = getCurrentThemeMode();
   randomScope = normalizeRandomScope(config['random-scope']);
@@ -451,7 +455,8 @@ export function initRandom(config: Config): void {
   html.style.removeProperty('--neo-custom-base-color');
   html.style.removeProperty('--neo-saturation');
   html.style.removeProperty('--neo-brightness');
-  html.classList.remove('neo-palette-invert', 'neo-palette-highcontrast');
+  destroyInvert();
+  destroyHighContrast();
   const choosePreset = randomScope === 'preset' || (randomScope === 'all' && Math.random() < 0.3);
   const available = getPresetsByMode(mode);
   if (choosePreset && available.length > 0) {
@@ -462,11 +467,11 @@ export function initRandom(config: Config): void {
     const sameAsLast = lastState?.type === 'preset' && lastState.presetKey === preset.key;
     const finalInverted = pickInvert(sameAsLast);
     if (finalInverted) {
-      html.classList.add('neo-palette-invert');
+      enableInvert();
     }
     const finalHighContrast = pickHighContrast(sameAsLast);
     if (finalHighContrast) {
-      html.classList.add('neo-palette-highcontrast');
+      enableHighContrast();
     }
     lastState = { type: 'preset', presetKey: preset.key, inverted: finalInverted, highContrast: finalHighContrast };
   } else {
@@ -490,11 +495,19 @@ export function initRandom(config: Config): void {
     html.style.setProperty('--neo-saturation', String(saturation));
     html.style.setProperty('--neo-brightness', String(brightness));
     if (finalInverted) {
-      html.classList.add('neo-palette-invert');
+      enableInvert();
     }
     if (finalHighContrast) {
-      html.classList.add('neo-palette-highcontrast');
+      enableHighContrast();
     }
     lastState = { type: 'custom', color, saturation, brightness, inverted: finalInverted, highContrast: finalHighContrast };
   }
+}
+function enableRandom(config: Config): void {
+  if (neoFeatureActive) return;
+  neoFeatureActive = true;
+  applyRandom(config);
+}
+export function initRandom(config: Config): void {
+  enableRandom(config);
 }

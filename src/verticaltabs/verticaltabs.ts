@@ -7,7 +7,7 @@ import { withViewTransition } from '../modules/viewtransition';
 import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/guard';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
-let destroyed = false;
+let neoFeatureActive = false;
 let mouseDownHandler: ((e: MouseEvent) => void) | null = null;
 let dblClickHandler: ((e: MouseEvent) => void) | null = null;
 const defaultWidth = 150;
@@ -24,6 +24,11 @@ let topLeftOnlyLastWidth: number | null = null;
 let configWidth: number | null = null;
 let currentMode: 'topLeftOnly' | 'all' = 'topLeftOnly';
 const wndSelector = '.layout__center [data-type="wnd"]';
+function applyVerticalTabsConfig(config: Config): void {
+  configWidth = readConfigWidth(config);
+  currentMode = config['vertical-tabs-mode'] || 'topLeftOnly';
+  topLeftOnlyLastWidth = null;
+}
 function queryWnds(): NodeListOf<HTMLElement> {
   return document.querySelectorAll<HTMLElement>(wndSelector);
 }
@@ -87,7 +92,7 @@ function doUpdateAll(): void {
   });
 }
 function doUpdate(): void {
-  if (destroyed) return;
+  if (!neoFeatureActive) return;
   if (document.body?.classList.contains('body--toolbar-hide') || document.body?.classList.contains('body--window')) {
     clearVerticalTabsLayout();
     return;
@@ -221,14 +226,16 @@ export function showVerticalTabsSettings(): void {
     if (modeSelect) {
       const newMode = modeSelect.value as 'topLeftOnly' | 'all';
       if (newMode !== currentMode) {
-        queryWnds().forEach((wnd) => {
-          const firstFlex = wnd.querySelector<HTMLElement>('.fn__flex:first-child');
-          if (firstFlex) firstFlex.style.width = '';
-        });
+        if (neoFeatureActive) {
+          queryWnds().forEach((wnd) => {
+            const firstFlex = wnd.querySelector<HTMLElement>('.fn__flex:first-child');
+            if (firstFlex) firstFlex.style.width = '';
+          });
+        }
         topLeftOnlyLastWidth = null;
         currentMode = newMode;
         saveConfig({ 'vertical-tabs-mode': newMode } as Partial<Config>);
-        if (document.documentElement.classList.contains('neo-verticaltabs')) {
+        if (neoFeatureActive) {
           doUpdate();
         }
       }
@@ -240,7 +247,7 @@ export function showVerticalTabsSettings(): void {
         configWidth = newWidth;
         topLeftOnlyLastWidth = null;
         saveConfig({ 'vertical-tabs-width': newWidth } as Partial<Config>);
-        if (document.documentElement.classList.contains('neo-verticaltabs')) {
+        if (neoFeatureActive) {
           if (currentMode === 'all') {
             queryWnds().forEach((wnd) => {
               const firstFlex = wnd.querySelector<HTMLElement>('.fn__flex:first-child');
@@ -259,56 +266,46 @@ export function showVerticalTabsSettings(): void {
 }
 const _fetchListener = fetchListener();
 _fetchListener.onNotify('setUILayout', () => { doUpdate(); });
+function enableVerticalTabs(): void {
+  if (neoFeatureActive) return;
+  ensureCss('verticaltabs', featureCss['verticaltabs']);
+  document.documentElement.classList.add('neo-verticaltabs');
+  neoFeatureActive = true;
+  topLeftOnlyLastWidth = null;
+  initResizeHandle();
+  _fetchListener.attach();
+  doUpdate();
+}
 export function initVerticalTabs(): void {
   if (isMobile()) return;
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
-    if (config['vertical-tabs'] === true) {
-      ensureCss('verticaltabs', featureCss['verticaltabs']);
-      document.documentElement.classList.add('neo-verticaltabs');
-      destroyed = false;
-      topLeftOnlyLastWidth = null;
-      configWidth = readConfigWidth(config);
-      currentMode = config['vertical-tabs-mode'] || 'topLeftOnly';
-      initResizeHandle();
-      _fetchListener.attach();
+    applyVerticalTabsConfig(config);
+    if (neoFeatureActive) {
+      clearVerticalTabsLayout();
       doUpdate();
+    } else if (config['vertical-tabs'] === true) {
+      enableVerticalTabs();
     }
   });
 }
 export function onVerticalTabsClick(): void {
   if (isMobile()) return;
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-verticaltabs');
+  const shouldEnable = !neoFeatureActive;
   withViewTransition(() => {
-    if (isActive) {
+    if (shouldEnable) {
+      enableVerticalTabs();
+      saveConfig({ 'vertical-tabs': true } as Partial<Config>);
+    } else {
       destroyVerticalTabs();
       saveConfig({ 'vertical-tabs': false } as Partial<Config>);
-    } else {
-      ensureCss('verticaltabs', featureCss['verticaltabs']);
-      htmlEl.classList.add('neo-verticaltabs');
-      saveConfig({ 'vertical-tabs': true } as Partial<Config>);
-      destroyed = false;
-      topLeftOnlyLastWidth = null;
-      configWidth = null;
-      const isCurrent = createNeoLifecycleGuard();
-      loadConfig().then((config) => {
-        if (!isCurrent()) return;
-        configWidth = readConfigWidth(config);
-        if (document.documentElement.classList.contains('neo-verticaltabs')) {
-          doUpdate();
-        }
-      });
-      initResizeHandle();
-      _fetchListener.attach();
-      doUpdate();
     }
   });
 }
 export function destroyVerticalTabs(): void {
+  neoFeatureActive = false;
   removeCss('verticaltabs');
-  destroyed = true;
   _fetchListener.detach();
   destroyResizeHandle();
   document.documentElement?.classList.remove('neo-verticaltabs');

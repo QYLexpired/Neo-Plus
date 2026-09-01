@@ -5,33 +5,37 @@ import { getPlugin } from '../main/guard';
 import { Dialog } from 'siyuan';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let coloredFoldersStyle: 'partition' | 'simple' | 'card' = 'partition';
+let neoFeatureActive = false;
 function applyStyle(): void {
   document.body.classList.toggle('neo-visual-coloredfolders-partition', coloredFoldersStyle === 'partition');
   document.body.classList.toggle('neo-visual-coloredfolders-simple', coloredFoldersStyle === 'simple');
   document.body.classList.toggle('neo-visual-coloredfolders-card', coloredFoldersStyle === 'card');
+}
+function enableColoredFolders(): void {
+  if (neoFeatureActive) return;
+  ensureCss('visual-coloredfolders', featureCss['visual-coloredfolders']);
+  document.documentElement.classList.add('neo-visual-coloredfolders');
+  neoFeatureActive = true;
+  applyStyle();
 }
 export function initColoredFolders(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
     coloredFoldersStyle = config['colored-folders-style'] || 'partition';
-    if (config['colored-folders'] === true) {
-      ensureCss('visual-coloredfolders', featureCss['visual-coloredfolders']);
-      document.documentElement.classList.add('neo-visual-coloredfolders');
+    if (neoFeatureActive) {
       applyStyle();
+    } else if (config['colored-folders'] === true) {
+      enableColoredFolders();
     }
   });
 }
 export function onColoredFoldersClick(): void {
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-visual-coloredfolders');
-  if (isActive) {
+  if (neoFeatureActive) {
     destroyColoredFolders();
     saveConfig({ 'colored-folders': false } as Partial<Config>);
   } else {
-    ensureCss('visual-coloredfolders', featureCss['visual-coloredfolders']);
-    htmlEl.classList.add('neo-visual-coloredfolders');
-    applyStyle();
+    enableColoredFolders();
     saveConfig({ 'colored-folders': true } as Partial<Config>);
   }
 }
@@ -79,14 +83,17 @@ export function showColoredFoldersSettings(): void {
       const newStyle = styleSelect.value as 'partition' | 'simple' | 'card';
       if (newStyle !== coloredFoldersStyle) {
         coloredFoldersStyle = newStyle;
-        applyStyle();
         saveConfig({ 'colored-folders-style': newStyle } as Partial<Config>);
+        if (neoFeatureActive) {
+          applyStyle();
+        }
       }
     }
     dialog.destroy();
   });
 }
 export function destroyColoredFolders(): void {
+  neoFeatureActive = false;
   removeCss('visual-coloredfolders');
   document.documentElement?.classList.remove('neo-visual-coloredfolders');
   document.body.classList.remove('neo-visual-coloredfolders-partition', 'neo-visual-coloredfolders-simple', 'neo-visual-coloredfolders-card');

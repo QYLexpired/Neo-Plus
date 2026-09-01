@@ -1,29 +1,35 @@
 import { saveConfig, type Config } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getInvertKey } from './presets';
+let neoFeatureActive = false;
+export function enableInvert(): void {
+  if (neoFeatureActive) return;
+  document.documentElement.classList.add('neo-palette-invert');
+  neoFeatureActive = true;
+}
 export async function onInvertClick(): Promise<void> {
-  const html = document.documentElement;
-  const enabled = html.classList.contains('neo-palette-invert');
+  const shouldEnable = !neoFeatureActive;
   const callback = () => {
-    if (enabled) {
-      html.classList.remove('neo-palette-invert');
+    if (shouldEnable) {
+      enableInvert();
     } else {
-      html.classList.add('neo-palette-invert');
+      destroyInvert();
     }
   };
   withViewTransition(callback);
   const mode = getCurrentThemeMode();
   const key = getInvertKey(mode);
-  await saveConfig({ [key]: !enabled } as Partial<Config>);
+  await saveConfig({ [key]: shouldEnable } as Partial<Config>);
 }
 export function initInvert(config: Config): void {
   const mode = getCurrentThemeMode();
   const key = getInvertKey(mode);
   const enabled = config[key] ?? false;
   if (enabled) {
-    document.documentElement.classList.add('neo-palette-invert');
+    enableInvert();
   }
 }
 export function destroyInvert(): void {
+  neoFeatureActive = false;
   document.documentElement.classList.remove('neo-palette-invert');
 }

@@ -3,10 +3,11 @@ import { getColor } from 'colorthief';
 import { fetchListener } from '../modules/fetchmonitor';
 import { isMobile } from '../modules/env';
 let lastValidHex: string | null = null;
-let destroyed = false;
+let neoFeatureActive = false;
 let _initTimer: ReturnType<typeof setTimeout> | null = null;
 let _extractTimer: ReturnType<typeof setTimeout> | null = null;
 function scheduleExtract(): void {
+  if (!neoFeatureActive) return;
   if (_extractTimer !== null) {
     clearTimeout(_extractTimer);
     _extractTimer = null;
@@ -21,6 +22,9 @@ function scheduleExtract(): void {
 const _fetchListener = fetchListener();
 _fetchListener.onNotify('setUILayout', () => { scheduleExtract(); });
 _fetchListener.onNotify('setBlockAttrs', () => { scheduleExtract(); });
+_fetchListener.onNotify('getDocInfo', () => {
+  if (isMobile()) scheduleExtract();
+});
 const fallbackHex = 'var(--neo-default-base-color)';
 function parseHex(hex: string): { r: number; g: number; b: number } | null {
   let m = hex.match(/^#?([0-9a-fA-F]{6})$/);
@@ -137,7 +141,7 @@ function checkElementBackgroundForGradient(el: HTMLElement): boolean {
   return false;
 }
 async function extractBannerAverageColor(): Promise<void> {
-  if (destroyed) return;
+  if (!neoFeatureActive) return;
   const selector = isMobile()
     ? '#editor .protyle-background__img'
     : '.layout__wnd--active > .layout-tab-container > .protyle:not(.fn__none) .protyle-background__img';
@@ -200,7 +204,7 @@ async function extractBannerAverageColor(): Promise<void> {
         source!.addEventListener('loadeddata', () => resolve(), { once: true });
       });
     } catch {}
-    if (destroyed) return;
+    if (!neoFeatureActive) return;
   }
   if (source instanceof HTMLImageElement && !source.complete) {
     try {
@@ -208,11 +212,11 @@ async function extractBannerAverageColor(): Promise<void> {
         source!.addEventListener('load', () => resolve(), { once: true });
       });
     } catch {}
-    if (destroyed) return;
+    if (!neoFeatureActive) return;
   }
   try {
     const result = await getColor(source, { ignoreWhite: true, minSaturation: 0.01 });
-    if (destroyed) return;
+    if (!neoFeatureActive) return;
     if (!result) {
       applyFallback();
       return;
@@ -226,14 +230,12 @@ async function extractBannerAverageColor(): Promise<void> {
       applyColor(hex);
     }
   } catch {
-    applyFallback();
+    if (neoFeatureActive) applyFallback();
   }
 }
-export function initFollowBanner(config: Config): void {
-  destroyed = false;
-  if (isMobile()) {
-    _fetchListener.onNotify('getDocInfo', () => { scheduleExtract(); });
-  }
+function enableFollowBanner(): void {
+  if (neoFeatureActive) return;
+  neoFeatureActive = true;
   _fetchListener.attach();
   _initTimer = setTimeout(() => {
     _initTimer = null;
@@ -242,8 +244,11 @@ export function initFollowBanner(config: Config): void {
     });
   }, 500);
 }
+export function initFollowBanner(config: Config): void {
+  enableFollowBanner();
+}
 export function destroyFollowBanner(): void {
-  destroyed = true;
+  neoFeatureActive = false;
   if (_initTimer !== null) {
     clearTimeout(_initTimer);
     _initTimer = null;

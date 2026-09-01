@@ -84,16 +84,23 @@ function detachEvents(): void {
   document.removeEventListener('keyup', onInteractionUp);
 }
 let _fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+let neoFeatureActive = false;
+function enableIde(): void {
+  if (neoFeatureActive) return;
+  ensureCss('ide', featureCss['ide']);
+  document.documentElement.classList.add('neo-ide');
+  document.body.classList.add('neo-ide-body');
+  neoFeatureActive = true;
+  attachEvents();
+}
 export function initIde(): void {
   if (isMobile()) return;
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
     if (config['ide'] === true) {
-      ensureCss('ide', featureCss['ide']);
-      document.documentElement.classList.add('neo-ide');
-      document.body.classList.add('neo-ide-body');
-      attachEvents();
+      if (neoFeatureActive) return;
+      enableIde();
       updateDockExpandState();
       _fallbackTimer = setTimeout(() => {
         updateFloatState();
@@ -104,27 +111,24 @@ export function initIde(): void {
 }
 export function onIdeClick(): void {
   if (isMobile()) return;
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-ide');
+  const shouldEnable = !neoFeatureActive;
   withViewTransition(() => {
-    if (isActive) {
-      destroyIde();
-      saveConfig({ 'ide': false } as Partial<Config>);
-    } else {
-      ensureCss('ide', featureCss['ide']);
-      htmlEl.classList.add('neo-ide');
-      document.body.classList.add('neo-ide-body');
+    if (shouldEnable) {
+      enableIde();
       saveConfig({ 'ide': true } as Partial<Config>);
-      attachEvents();
       updateDockExpandAndFloat();
       _fallbackTimer = setTimeout(() => {
         updateDockExpandAndFloat();
         _fallbackTimer = null;
       }, 200);
+    } else {
+      destroyIde();
+      saveConfig({ 'ide': false } as Partial<Config>);
     }
   });
 }
 export function destroyIde(): void {
+  neoFeatureActive = false;
   removeCss('ide');
   if (_fallbackTimer !== null) {
     clearTimeout(_fallbackTimer);

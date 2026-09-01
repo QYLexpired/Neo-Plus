@@ -9,7 +9,7 @@ const positionCycle: Array<'top' | 'bottom' | 'left' | 'right'> = ['top', 'left'
 let _observer: MutationObserver | null = null;
 let _rafPending = false;
 let _debounceTimer: ReturnType<typeof setTimeout> | null = null;
-let _destroyed = false;
+let neoFeatureActive = false;
 let pinnedToolbarPosition: 'top' | 'bottom' | 'left' | 'right' = 'top';
 let pinnedToolbarLiquidGlass = false;
 let contextMenuHandler: ((e: MouseEvent) => void) | null = null;
@@ -63,25 +63,22 @@ export function initPinnedToolbar(): void {
     if (!isCurrent()) return;
     pinnedToolbarPosition = config['pinned-toolbar-position'] || 'top';
     pinnedToolbarLiquidGlass = config['pinned-toolbar-liquid-glass'] === true;
-    if (config['pinned-toolbar'] === true) {
-      ensureCss('extension-pinnedtoolbar', featureCss['extension-pinnedtoolbar']);
-      document.documentElement.classList.add('neo-extension-pinnedtoolbar');
-      startObserving();
+    if (neoFeatureActive) {
+      try { applyPosition(true); } catch {}
+      try { applyStyle(); } catch {}
+    } else if (config['pinned-toolbar'] === true) {
+      enablePinnedToolbar();
     }
   });
 }
 export function onPinnedToolbarClick(): void {
   if (isMobile()) return;
-  const htmlEl = document.documentElement;
-  const isActive = htmlEl.classList.contains('neo-extension-pinnedtoolbar');
-  if (isActive) {
+  if (neoFeatureActive) {
     destroyPinnedToolbar();
     saveConfig({ 'pinned-toolbar': false } as Partial<Config>);
   } else {
-    ensureCss('extension-pinnedtoolbar', featureCss['extension-pinnedtoolbar']);
-    htmlEl.classList.add('neo-extension-pinnedtoolbar');
+    enablePinnedToolbar();
     saveConfig({ 'pinned-toolbar': true } as Partial<Config>);
-    startObserving();
   }
 }
 function scheduleApply(): void {
@@ -90,17 +87,16 @@ function scheduleApply(): void {
   }
   _debounceTimer = setTimeout(() => {
     _debounceTimer = null;
-    if (_destroyed || _rafPending) return;
+    if (!neoFeatureActive || _rafPending) return;
     _rafPending = true;
     requestAnimationFrame(() => {
       _rafPending = false;
-      if (_destroyed) return;
+      if (!neoFeatureActive) return;
       try { applyPosition(); } catch {}
     });
   }, 200);
 }
 function startObserving(): void {
-  _destroyed = false;
   try { applyPosition(); } catch {}
   try { applyStyle(); } catch {}
   _observer = new MutationObserver(() => {
@@ -118,8 +114,14 @@ function startObserving(): void {
     document.addEventListener('contextmenu', contextMenuHandler);
   }
 }
+function enablePinnedToolbar(): void {
+  if (neoFeatureActive) return;
+  ensureCss('extension-pinnedtoolbar', featureCss['extension-pinnedtoolbar']);
+  document.documentElement.classList.add('neo-extension-pinnedtoolbar');
+  neoFeatureActive = true;
+  startObserving();
+}
 function stopObserving(): void {
-  _destroyed = true;
   _rafPending = false;
   if (_debounceTimer !== null) {
     clearTimeout(_debounceTimer);
@@ -188,24 +190,27 @@ export function showPinnedToolbarSettings(): void {
       const newPosition = positionSelect.value as 'top' | 'bottom' | 'left' | 'right';
       if (newPosition !== pinnedToolbarPosition) {
         pinnedToolbarPosition = newPosition;
-        if (document.documentElement.classList.contains('neo-extension-pinnedtoolbar')) {
+        saveConfig({ 'pinned-toolbar-position': newPosition } as Partial<Config>);
+        if (neoFeatureActive) {
           applyPosition(true);
         }
-        saveConfig({ 'pinned-toolbar-position': newPosition } as Partial<Config>);
       }
     }
     if (liquidGlassSwitch) {
       const newLiquidGlass = liquidGlassSwitch.checked;
       if (newLiquidGlass !== pinnedToolbarLiquidGlass) {
         pinnedToolbarLiquidGlass = newLiquidGlass;
-        applyStyle();
         saveConfig({ 'pinned-toolbar-liquid-glass': newLiquidGlass } as Partial<Config>);
+        if (neoFeatureActive) {
+          applyStyle();
+        }
       }
     }
     dialog.destroy();
   });
 }
 export function destroyPinnedToolbar(): void {
+  neoFeatureActive = false;
   removeCss('extension-pinnedtoolbar');
   document.documentElement?.classList.remove('neo-extension-pinnedtoolbar');
   stopObserving();
