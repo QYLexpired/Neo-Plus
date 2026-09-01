@@ -32,10 +32,16 @@ interface CustomImageCssBinding {
   cssVar: string;
   toCss: (raw: string, values: Readonly<CustomImageValues>) => string;
 }
+interface CustomImageNumericRule {
+  min: number;
+  max?: number;
+  step: number;
+}
 export interface CustomImageField {
   configKey: CustomImageConfigKey;
   defaultRaw: string;
   css: readonly CustomImageCssBinding[];
+  numeric?: CustomImageNumericRule;
   inputId: string;
   tooltipId: string;
   event: 'input' | 'change';
@@ -101,16 +107,16 @@ const fieldDefs: CustomImageField[] = [
   ], inputId: 'neo-customimage-path', tooltipId: '', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-blur', defaultRaw: '0', css: [
     { cssVar: '--neo-customimage-blur', toCss: raw => raw + 'px' },
-  ], inputId: 'neo-customimage-blur', tooltipId: 'neo-customimage-blur-tooltip', event: 'input', tooltipSuffix: 'px' },
+  ], numeric: { min: 0, max: 50, step: 1 }, inputId: 'neo-customimage-blur', tooltipId: 'neo-customimage-blur-tooltip', event: 'input', tooltipSuffix: 'px' },
   { configKey: 'customimage-x', defaultRaw: '50', css: [
     { cssVar: '--neo-customimage-x', toCss: raw => raw + '%' },
-  ], inputId: 'neo-customimage-x', tooltipId: 'neo-customimage-x-tooltip', event: 'input', tooltipSuffix: '%' },
+  ], numeric: { min: 0, max: 100, step: 1 }, inputId: 'neo-customimage-x', tooltipId: 'neo-customimage-x-tooltip', event: 'input', tooltipSuffix: '%' },
   { configKey: 'customimage-y', defaultRaw: '50', css: [
     { cssVar: '--neo-customimage-y', toCss: raw => raw + '%' },
-  ], inputId: 'neo-customimage-y', tooltipId: 'neo-customimage-y-tooltip', event: 'input', tooltipSuffix: '%' },
+  ], numeric: { min: 0, max: 100, step: 1 }, inputId: 'neo-customimage-y', tooltipId: 'neo-customimage-y-tooltip', event: 'input', tooltipSuffix: '%' },
   { configKey: 'customimage-opacity', defaultRaw: '0.12', css: [
     { cssVar: '--neo-customimage-opacity', toCss: raw => raw },
-  ], inputId: 'neo-customimage-opacity', tooltipId: 'neo-customimage-opacity-tooltip', event: 'input', tooltipSuffix: '' },
+  ], numeric: { min: 0, max: 0.8, step: 0.01 }, inputId: 'neo-customimage-opacity', tooltipId: 'neo-customimage-opacity-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-effect', defaultRaw: 'normal', css: [
     { cssVar: '--neo-customimage-effect', toCss: raw => raw },
   ], inputId: 'neo-customimage-effect', tooltipId: '', event: 'change', tooltipSuffix: '' },
@@ -119,25 +125,25 @@ const fieldDefs: CustomImageField[] = [
   ], inputId: 'neo-customimage-background-blend-mode', tooltipId: '', event: 'change', tooltipSuffix: '' },
   { configKey: 'customimage-brightness', defaultRaw: '1', css: [
     { cssVar: '--neo-customimage-brightness', toCss: raw => raw },
-  ], inputId: 'neo-customimage-brightness', tooltipId: 'neo-customimage-brightness-tooltip', event: 'input', tooltipSuffix: '' },
+  ], numeric: { min: 0.5, max: 1.5, step: 0.01 }, inputId: 'neo-customimage-brightness', tooltipId: 'neo-customimage-brightness-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-saturation', defaultRaw: '1', css: [
     { cssVar: '--neo-customimage-saturation', toCss: raw => raw },
-  ], inputId: 'neo-customimage-saturation', tooltipId: 'neo-customimage-saturation-tooltip', event: 'input', tooltipSuffix: '' },
+  ], numeric: { min: 0, max: 2, step: 0.01 }, inputId: 'neo-customimage-saturation', tooltipId: 'neo-customimage-saturation-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-contrast', defaultRaw: '1', css: [
     { cssVar: '--neo-customimage-contrast', toCss: raw => raw },
-  ], inputId: 'neo-customimage-contrast', tooltipId: 'neo-customimage-contrast-tooltip', event: 'input', tooltipSuffix: '' },
+  ], numeric: { min: 0, max: 2, step: 0.01 }, inputId: 'neo-customimage-contrast', tooltipId: 'neo-customimage-contrast-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-grayscale', defaultRaw: '0', css: [
     { cssVar: '--neo-customimage-grayscale', toCss: raw => raw },
-  ], inputId: 'neo-customimage-grayscale', tooltipId: 'neo-customimage-grayscale-tooltip', event: 'input', tooltipSuffix: '' },
+  ], numeric: { min: 0, max: 1, step: 0.01 }, inputId: 'neo-customimage-grayscale', tooltipId: 'neo-customimage-grayscale-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-hue-rotate', defaultRaw: '0', css: [
     { cssVar: '--neo-customimage-hue-rotate', toCss: raw => raw + 'deg' },
-  ], inputId: 'neo-customimage-hue-rotate', tooltipId: 'neo-customimage-hue-rotate-tooltip', event: 'input', tooltipSuffix: 'deg' },
+  ], numeric: { min: 0, max: 360, step: 1 }, inputId: 'neo-customimage-hue-rotate', tooltipId: 'neo-customimage-hue-rotate-tooltip', event: 'input', tooltipSuffix: 'deg' },
   { configKey: 'customimage-zlevel', defaultRaw: 'topmost', css: [
     { cssVar: '--neo-customimage-zlevel', toCss: raw => zlevelMap[raw] ?? zlevelMap.topmost },
   ], inputId: 'neo-customimage-zlevel', tooltipId: '', event: 'change', tooltipSuffix: '' },
   { configKey: 'customimage-layout-opacity', defaultRaw: '0.9', css: [
     { cssVar: '--neo-customimage-layout-opacity', toCss: (raw, values) => values['customimage-zlevel'] === 'backdrop' ? raw : '1' },
-  ], inputId: 'neo-customimage-layout-opacity', tooltipId: 'neo-customimage-layout-opacity-tooltip', event: 'input', tooltipSuffix: '' },
+  ], numeric: { min: 0.5, max: 1, step: 0.01 }, inputId: 'neo-customimage-layout-opacity', tooltipId: 'neo-customimage-layout-opacity-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-fill-mode', defaultRaw: 'scale', css: [
     { cssVar: '--neo-customimage-repeat', toCss: (raw, values) => {
       if (raw === 'tile') return 'repeat';
@@ -155,8 +161,8 @@ const fieldDefs: CustomImageField[] = [
       return 'cover';
     } },
   ], inputId: 'neo-customimage-fill-mode', tooltipId: '', event: 'change', tooltipSuffix: '' },
-  { configKey: 'customimage-fill-width', defaultRaw: '1', css: [], inputId: 'neo-customimage-fill-width', tooltipId: '', event: 'input', tooltipSuffix: '' },
-  { configKey: 'customimage-fill-height', defaultRaw: '1', css: [], inputId: 'neo-customimage-fill-height', tooltipId: '', event: 'input', tooltipSuffix: '' },
+  { configKey: 'customimage-fill-width', defaultRaw: '1', css: [], numeric: { min: 1, step: 1 }, inputId: 'neo-customimage-fill-width', tooltipId: '', event: 'input', tooltipSuffix: '' },
+  { configKey: 'customimage-fill-height', defaultRaw: '1', css: [], numeric: { min: 1, step: 1 }, inputId: 'neo-customimage-fill-height', tooltipId: '', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-fill-unit', defaultRaw: 'px', css: [], inputId: 'neo-customimage-fill-unit', tooltipId: '', event: 'change', tooltipSuffix: '' },
   { configKey: 'customimage-fill-repeat', defaultRaw: 'false', css: [], inputId: 'neo-customimage-fill-repeat', tooltipId: '', event: 'change', tooltipSuffix: '' },
 ];
@@ -167,8 +173,18 @@ function normalizeCustomImageValues(source?: CustomImageSource | null): CustomIm
   const values = { ...defaultCustomImageValues };
   for (const field of fieldDefs) {
     const raw = source?.[field.configKey];
-    if (typeof raw === 'string' && raw !== '') values[field.configKey] = raw;
-    else if (typeof raw === 'number' || typeof raw === 'boolean') values[field.configKey] = String(raw);
+    let value: string | null = null;
+    if (typeof raw === 'string' && raw !== '') value = raw;
+    else if (typeof raw === 'number' && Number.isFinite(raw)) value = String(raw);
+    else if (typeof raw === 'boolean') value = String(raw);
+    if (value === null) continue;
+    if (field.numeric) {
+      const numericValue = Number(value.trim());
+      if (!Number.isFinite(numericValue)) continue;
+      const boundedValue = Math.min(field.numeric.max ?? Number.POSITIVE_INFINITY, Math.max(field.numeric.min, numericValue));
+      value = String(boundedValue);
+    }
+    values[field.configKey] = value;
   }
   return values;
 }
@@ -182,11 +198,11 @@ function writeInputValue(input: CustomImageInput, value: string): void {
   else input.value = value;
 }
 function readFieldDomValues(fieldDom: CustomImageFieldDom[]): CustomImageValues {
-  const values = { ...defaultCustomImageValues };
+  const source: CustomImageSource = {};
   for (const { field, input } of fieldDom) {
-    if (input) values[field.configKey] = readInputValue(input) || field.defaultRaw;
+    if (input) source[field.configKey] = readInputValue(input);
   }
-  return values;
+  return normalizeCustomImageValues(source);
 }
 function writeFieldDomValues(fieldDom: CustomImageFieldDom[], source?: CustomImageSource | null): CustomImageValues {
   const values = normalizeCustomImageValues(source);
@@ -235,13 +251,17 @@ export function destroyCustomImage(): void {
 }
 const currentPresetKeyLight = 'customimage-preset-current-light';
 const currentPresetKeyDark  = 'customimage-preset-current-dark';
+type CurrentPresetKey = typeof currentPresetKeyLight | typeof currentPresetKeyDark;
 function getPreset(config: Partial<Config> | null | undefined, name: string): CustomImageSource {
   if (!config || !name) return {};
   const raw = (config as Record<string, unknown>)[`customimage-preset-${name}`];
   return (raw && typeof raw === 'object') ? raw as CustomImageSource : {};
 }
-function getCurrentPresetKey(): 'customimage-preset-current-light' | 'customimage-preset-current-dark' {
-  return getCurrentThemeMode() === 'dark' ? currentPresetKeyDark : currentPresetKeyLight;
+function getPresetKeyForMode(mode: 'light' | 'dark'): CurrentPresetKey {
+  return mode === 'dark' ? currentPresetKeyDark : currentPresetKeyLight;
+}
+function getCurrentPresetKey(): CurrentPresetKey {
+  return getPresetKeyForMode(getCurrentThemeMode());
 }
 interface SliderConfig {
   id: string;
@@ -254,24 +274,12 @@ interface SliderConfig {
   max: number;
   step: number;
   val: number | string;
-  suffix: string;
   tooltipSuffix: string;
 }
-const sliderDefs = [
-  { key: 'customimage-opacity', min: 0, max: 0.8, step: 0.01, suffix: ''   },
-  { key: 'customimage-blur', min: 0, max: 50, step: 1, suffix: 'px' },
-  { key: 'customimage-x', min: 0, max: 100, step: 1, suffix: '%'  },
-  { key: 'customimage-y', min: 0, max: 100, step: 1, suffix: '%'  },
-  { key: 'customimage-brightness', min: 0.5, max: 1.5, step: 0.01, suffix: ''   },
-  { key: 'customimage-saturation', min: 0, max: 2, step: 0.01, suffix: ''   },
-  { key: 'customimage-contrast', min: 0, max: 2, step: 0.01, suffix: ''   },
-  { key: 'customimage-grayscale', min: 0, max: 1, step: 0.01, suffix: ''   },
-  { key: 'customimage-hue-rotate', min: 0, max: 360, step: 1, suffix: 'deg'},
-  { key: 'customimage-layout-opacity', min: 0.5, max: 1, step: 0.01, suffix: '' },
-];
 function getSliderConfig(key: string): SliderConfig | null {
-  const def = sliderDefs.find(d => d.key === key);
-  if (!def) return null;
+  const field = fieldDefs.find(f => f.configKey === key);
+  const numeric = field?.numeric;
+  if (!field || !numeric || numeric.max === undefined) return null;
   const i18nMap: Record<string, string> = {
     'customimage-x': 'customimagePositionX',
     'customimage-y': 'customimagePositionY',
@@ -279,8 +287,6 @@ function getSliderConfig(key: string): SliderConfig | null {
   const i18nKey = i18nMap[key] || ('customimage' + key.replace('customimage-', '').replace(/(^\w|-\w)/g, s => s.replace('-', '').toUpperCase()));
   const tipKey = key === 'customimage-layout-opacity' ? 'customimageLayoutOpacityTip' : undefined;
   const tipTitleKey = key === 'customimage-layout-opacity' ? 'customimageLayoutOpacity' : undefined;
-  const field = fieldDefs.find(f => f.configKey === key);
-  if (!field) return null;
   const val = field.defaultRaw;
   return {
     id: 'neo-' + key,
@@ -289,8 +295,8 @@ function getSliderConfig(key: string): SliderConfig | null {
     i18nTipKey: 'customDefaultValue',
     tipKey,
     tipTitleKey,
-    min: def.min, max: def.max, step: def.step, val,
-    suffix: def.suffix, tooltipSuffix: def.suffix,
+    min: numeric.min, max: numeric.max, step: numeric.step, val,
+    tooltipSuffix: field.tooltipSuffix,
   };
 }
 function t(i18n: Record<string, string>, key: string): string {
@@ -499,8 +505,6 @@ export function showCustomImageSettings(): void {
     <div class="fn__ellipsis" style="white-space: nowrap">${plugin.i18n.customimageSettings}</div>
     <div class="fn__space"></div>
     <button class="b3-button b3-button--small fn__flex-center" id="neo-customimage-reset-preset">${plugin.i18n.customimageResetPreset}</button>
-    <span class="fn__space" style="width: 8px"></span>
-    <button class="b3-button b3-button--small fn__flex-center" id="neo-customimage-save-preset">${plugin.i18n.customimageSavePreset}</button>
   </div>`,
     content: buildSettingsHTML(plugin.i18n),
   });
@@ -511,6 +515,7 @@ export function showCustomImageSettings(): void {
     input: dialog.element.querySelector('#' + f.inputId) as CustomImageInput | null,
     tooltip: f.tooltipId ? dialog.element.querySelector('#' + f.tooltipId) as HTMLElement | null : null,
   }));
+  const btn = (id: string) => dialog.element.querySelector(id) as HTMLButtonElement | null;
   const buildPresetFromDom = (): Partial<CustomImageValues> => {
     const preset: Partial<CustomImageValues> = readFieldDomValues(fieldDom);
     if (preset['customimage-fill-mode'] !== 'custom') {
@@ -535,9 +540,23 @@ export function showCustomImageSettings(): void {
     if (updatePreview && neoFeatureActive) applyCustomImageCss(values);
     return values;
   };
+  const initializationControls = new Set<CustomImageInput | HTMLButtonElement>();
+  if (presetSelect) initializationControls.add(presetSelect);
+  for (const { input } of fieldDom) {
+    if (input) initializationControls.add(input);
+  }
+  for (const id of ['#neo-customimage-reset-preset', '#neo-customimage-delete-preset', '#neo-customimage-new-preset', '#neo-customimage-update-preset']) {
+    const button = btn(id);
+    if (button) initializationControls.add(button);
+  }
+  initializationControls.forEach(control => { control.disabled = true; });
   loadConfig().then(c => {
+    if (!dialog.element.isConnected) return;
     populateDialog(c, presetSelect, fieldDom, customFillWrap, layoutOpacityWrap);
-  }).catch(() => {});
+  }).catch(() => {}).finally(() => {
+    if (!dialog.element.isConnected) return;
+    initializationControls.forEach(control => { control.disabled = false; });
+  });
   let dirty = false;
   const applyCssFromDom = (): void => {
     if (!neoFeatureActive) return;
@@ -554,13 +573,9 @@ export function showCustomImageSettings(): void {
       applyCssFromDom();
     });
   }
-  const btn = (id: string) => dialog.element.querySelector(id) as HTMLButtonElement | null;
   const resetFormToDefaults = (): void => {
     const currentValues = readFieldDomValues(fieldDom);
     setFormValues({ 'customimage-info': currentValues['customimage-info'] }, true);
-  };
-  const resetFormFully = (): void => {
-    setFormValues(undefined, true);
   };
   btn('#neo-customimage-reset-preset')?.addEventListener('click', () => {
     resetFormToDefaults();
@@ -587,7 +602,7 @@ export function showCustomImageSettings(): void {
         doDestroy();
         return;
       }
-      const mode = document.documentElement.getAttribute('data-theme-mode') === 'dark' ? 'dark' : 'light';
+      const mode = getCurrentThemeMode();
       const texKey = mode === 'dark' ? 'texture-dark' : 'texture-light';
       const textureKey = c?.[texKey as keyof Config] as string | undefined;
       const html = document.documentElement;
@@ -600,7 +615,7 @@ export function showCustomImageSettings(): void {
         ensureTextureLayer();
         ensureCss(`texture-${textureKey}`, featureCss[`texture-${textureKey}`]);
         if (textureKey === 'customimage') {
-          const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
+          const currentKey = getPresetKeyForMode(mode);
           const presetName = c?.[currentKey as keyof Config] as string | undefined;
           if (presetName) {
             const preset = getPreset(c, presetName);
@@ -651,15 +666,16 @@ export function showCustomImageSettings(): void {
     cd.element.querySelector('#ndc-cancel')?.addEventListener('click', () => cd.destroy());
     cd.element.querySelector('#ndc-confirm')?.addEventListener('click', async () => {
       const isCurrent = createNeoLifecycleGuard();
+      const currentKey = getCurrentPresetKey();
       try {
-        await saveConfig({ [getCurrentPresetKey()]: '' } as Partial<Config>);
+        await saveConfig({ [currentKey]: '' } as Partial<Config>);
         await deleteConfigKeys([`customimage-preset-${name}`]);
         const updatedCfg = await loadConfig();
         if (presetSelect) {
           Array.from(presetSelect.options).find(o => o.value === name)?.remove();
           presetSelect.value = '';
         }
-        const otherKey = getCurrentPresetKey() === currentPresetKeyLight ? currentPresetKeyDark : currentPresetKeyLight;
+        const otherKey = currentKey === currentPresetKeyLight ? currentPresetKeyDark : currentPresetKeyLight;
         const patch: Record<string, any> = {};
         if ((updatedCfg as Record<string, any>)?.[otherKey] === name) patch[otherKey] = '';
         if (Object.keys(patch).length) await saveConfig(patch as Partial<Config>);
@@ -732,6 +748,7 @@ export function showCustomImageSettings(): void {
     }
     const preset = buildPresetFromDom();
     await savePresetToConfig(preset, name);
+    setFormValues(preset);
     dirty = false;
     showMessage(plugin.i18n.customimagePresetSaved.replace('${name}', name), 3000);
     if (presetSelect && !Array.from(presetSelect.options).some(o => o.value === name)) {
@@ -740,14 +757,8 @@ export function showCustomImageSettings(): void {
     }
     return true;
   };
-  btn('#neo-customimage-save-preset')?.addEventListener('click', () => {
-    askPresetName(plugin.i18n.customimageSavePresetTitle, savePresetAs);
-  });
   btn('#neo-customimage-new-preset')?.addEventListener('click', () => {
-    askPresetName(plugin.i18n.customimageNewPresetTitle, async (name) => {
-      resetFormFully();
-      return savePresetAs(name);
-    });
+    askPresetName(plugin.i18n.customimageNewPresetTitle, savePresetAs);
   });
   presetSelect?.addEventListener('change', async () => {
     const name = presetSelect.value;
