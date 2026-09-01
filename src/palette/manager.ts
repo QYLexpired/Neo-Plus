@@ -9,14 +9,12 @@ import {
   getCustomColorKey,
   getSaturationKey,
   getBrightnessKey,
-  getFollowTimeBaseColorKey,
   applyPreset,
   applyCurrentPlan,
   destroyPaletteClasses,
   volChunkSize,
 } from './presets';
 import { initCustomColor, destroyCustomColor } from './customcolor';
-import { initFollowTime, destroyFollowTime } from './followtime';
 import { initFollowBanner, destroyFollowBanner } from './followbanner';
 import { initFollowSystem, destroyFollowSystem } from './followsystem';
 import { initSaturation, destroySaturation } from './saturation';
@@ -27,11 +25,10 @@ import { initRandom, destroyRandom, initRandomSettings } from './random';
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 export type { ThemeMode, Preset, Config };
-type Plan = 'custom' | 'followtime' | 'followbanner' | 'followsystem' | 'random';
+type Plan = 'custom' | 'followbanner' | 'followsystem' | 'random';
 function initPlan(plan: Plan, config: Config): void {
   switch (plan) {
     case 'custom': initCustomColor(config); break;
-    case 'followtime': initFollowTime(config); break;
     case 'followbanner': initFollowBanner(config); break;
     case 'followsystem': initFollowSystem(); break;
     case 'random': initRandom(config); break;
@@ -40,7 +37,6 @@ function initPlan(plan: Plan, config: Config): void {
 function destroyPaletteEffects(): void {
   destroyRandom();
   destroyCustomColor();
-  destroyFollowTime();
   destroyFollowBanner();
   destroyFollowSystem();
   destroySaturation();
@@ -187,8 +183,6 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     const dataId = menuItem.getAttribute('data-id');
     if (dataId === 'neo-custom-color-button' && target instanceof HTMLInputElement && target.type === 'color') {
       handleColorInput(target.value, '--neo-custom-base-color', getCustomColorKey(getCurrentThemeMode()), 'custom');
-    } else if (dataId === 'neo-followtime-button' && target instanceof HTMLInputElement && target.type === 'color') {
-      handleColorInput(target.value, '--neo-followtime-base-color', getFollowTimeBaseColorKey(getCurrentThemeMode()), 'followtime');
     } else if (dataId === 'neo-saturation-button' && target instanceof HTMLInputElement && target.type === 'range') {
       handleSliderInput(target, '--neo-saturation', getSaturationKey(getCurrentThemeMode()), i18n.saturation ?? 'Saturation');
     } else if (dataId === 'neo-brightness-button' && target instanceof HTMLInputElement && target.type === 'range') {
@@ -201,7 +195,7 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     const menuItem = target.closest('[data-id]') as HTMLElement | null;
     if (!menuItem) return;
     const dataId = menuItem.getAttribute('data-id');
-    if (dataId !== 'neo-custom-color-button' && dataId !== 'neo-followtime-button') return;
+    if (dataId !== 'neo-custom-color-button') return;
     e.stopPropagation();
   };
   _dblclickHandler = (e: Event) => {
@@ -239,7 +233,6 @@ export function destroyPaletteMenuEvents(): void {
 export { createColorPickerHTML, getThemeColor } from './customcolor';
 export { createSliderHTML } from './saturation';
 export { createBrightnessSliderHTML } from './brightness';
-export { createFollowTimeColorPickerHTML, getFollowTimeColor } from './followtime';
 export { onInvertClick } from './invert';
 export { onHighContrastClick } from './highcontrast';
 let _mutationObserver: MutationObserver | null = null;

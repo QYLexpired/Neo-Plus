@@ -1,7 +1,7 @@
 import { Menu } from 'siyuan';
 import { getPlugin } from './context';
 import { loadConfig } from './data';
-import { createBrightnessSliderHTML, createColorPickerHTML, createFollowTimeColorPickerHTML, createSliderHTML, getFollowTimeColor, getPresetMenuItems, getThemeColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
+import { createBrightnessSliderHTML, createColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
 import { showRandomSettings } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
 import { onSmoothCaretClick, showSmoothCaretSettings } from '../visual/smoothcaret';
@@ -73,17 +73,6 @@ export function buildMenu(
       return true;
     },
   });
-  menu.addItem({
-    id: 'neo-followtime-button',
-    iconHTML: createFollowTimeColorPickerHTML(),
-    label: i18n.followTime,
-    click: () => {
-      switchToPlan('followtime');
-      const colorInput = document.querySelector<HTMLInputElement>('[data-id="neo-followtime-button"] input[type="color"]');
-      colorInput?.click();
-      return true;
-    },
-  });
   configPromise.then((config) => {
     if (!isCurrent() || !menuActive) return;
     requestAnimationFrame(() => {
@@ -91,10 +80,6 @@ export function buildMenu(
       const customPicker = document.querySelector<HTMLInputElement>('[data-id="neo-custom-color-button"] input[type="color"]');
       if (customPicker) {
         customPicker.value = getThemeColor(config);
-      }
-      const followtimePicker = document.querySelector<HTMLInputElement>('[data-id="neo-followtime-button"] input[type="color"]');
-      if (followtimePicker) {
-        followtimePicker.value = getFollowTimeColor(config);
       }
     });
   });

@@ -62,16 +62,13 @@ export function getSaturationKey(mode: ThemeMode): 'saturation-light' | 'saturat
 export function getBrightnessKey(mode: ThemeMode): 'brightness-light' | 'brightness-dark' {
   return mode === 'dark' ? 'brightness-dark' : 'brightness-light';
 }
-export function getFollowTimeBaseColorKey(mode: ThemeMode): 'followtime-base-color-light' | 'followtime-base-color-dark' {
-  return mode === 'dark' ? 'followtime-base-color-dark' : 'followtime-base-color-light';
-}
 export function getInvertKey(mode: ThemeMode): 'invert-light' | 'invert-dark' {
   return mode === 'dark' ? 'invert-dark' : 'invert-light';
 }
 export function getHighContrastKey(mode: ThemeMode): 'highcontrast-light' | 'highcontrast-dark' {
   return mode === 'dark' ? 'highcontrast-dark' : 'highcontrast-light';
 }
-export function getCurrentPlan(config: Config, mode: ThemeMode): 'preset' | 'custom' | 'followtime' | 'followbanner' | 'followsystem' | 'random' {
+export function getCurrentPlan(config: Config, mode: ThemeMode): 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' {
   return mode === 'dark'
     ? (config['color-plan-dark'] ?? 'preset')
     : (config['color-plan-light'] ?? 'preset');
@@ -110,8 +107,6 @@ export function applyCurrentPlan(config: Config): void {
   if (plan === 'preset') {
     const presetKey = getPresetKey(config, mode) ?? 'default';
     html.classList.add(`neo-palette-${presetKey}`);
-  } else if (plan === 'followtime') {
-    html.classList.add('neo-palette-followtime');
   } else if (plan === 'followbanner') {
     html.classList.add('neo-palette-followbanner');
   } else if (plan === 'followsystem') {
