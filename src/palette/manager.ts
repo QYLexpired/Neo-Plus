@@ -37,9 +37,7 @@ function initPlan(plan: Plan, config: Config): void {
     case 'random': initRandom(config); break;
   }
 }
-function restorePalette(config: Config): void {
-  const mode = getCurrentThemeMode();
-  const plan = getCurrentPlan(config, mode);
+function destroyPaletteEffects(): void {
   destroyRandom();
   destroyCustomColor();
   destroyFollowTime();
@@ -49,6 +47,11 @@ function restorePalette(config: Config): void {
   destroyBrightness();
   destroyInvert();
   destroyHighContrast();
+}
+function restorePalette(config: Config): void {
+  const mode = getCurrentThemeMode();
+  const plan = getCurrentPlan(config, mode);
+  destroyPaletteEffects();
   applyCurrentPlan(config);
   if (plan !== 'preset') {
     initPlan(plan as Plan, config);
@@ -65,15 +68,7 @@ export function switchToPreset(key: string): void {
   loadConfig().then((config) => {
     withViewTransition(() => {
       if (!isCurrent()) return;
-      destroyRandom();
-      destroyCustomColor();
-      destroyFollowTime();
-      destroyFollowBanner();
-      destroyFollowSystem();
-      destroySaturation();
-      destroyBrightness();
-      destroyInvert();
-      destroyHighContrast();
+      destroyPaletteEffects();
       applyPreset(key);
       initSaturation(config);
       initBrightness(config);
@@ -276,15 +271,7 @@ export function initPalette(): void {
   });
 }
 export function destroyPalette(): void {
-  destroyRandom();
-  destroyCustomColor();
-  destroyFollowTime();
-  destroyFollowBanner();
-  destroyFollowSystem();
-  destroySaturation();
-  destroyBrightness();
-  destroyInvert();
-  destroyHighContrast();
+  destroyPaletteEffects();
   destroyPaletteClasses();
   destroyPaletteMenuEvents();
   if (_mutationObserver) {
