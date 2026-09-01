@@ -4,14 +4,25 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
-function debounce(cb: () => void, delay: number): () => void {
+interface DebouncedTask {
+  schedule: () => void;
+  cancel: () => void;
+}
+function createDebouncedTask(cb: () => void, delay: number): DebouncedTask {
   let timer: ReturnType<typeof setTimeout> | null = null;
-  return () => {
-    if (timer !== null) clearTimeout(timer);
-    timer = setTimeout(() => {
-      cb();
+  return {
+    schedule: () => {
+      if (timer !== null) clearTimeout(timer);
+      timer = setTimeout(() => {
+        cb();
+        timer = null;
+      }, delay);
+    },
+    cancel: () => {
+      if (timer === null) return;
+      clearTimeout(timer);
       timer = null;
-    }, delay);
+    },
   };
 }
 function hasActiveItemBeforeSpace(container: HTMLElement): boolean {
@@ -24,7 +35,10 @@ function hasActiveItemBeforeSpace(container: HTMLElement): boolean {
 function hasActiveItemAfterSpace(container: HTMLElement): boolean {
   let afterSpace = false;
   for (const child of container.children) {
-    if (child.classList.contains('dock__item--space')) { afterSpace = true; continue; }
+    if (child.classList.contains('dock__item--space')) {
+      afterSpace = true;
+      continue;
+    }
     if (afterSpace && child.classList.contains('dock__items') && child.querySelector('.dock__item--active')) return true;
   }
   return false;
@@ -70,9 +84,9 @@ function updateDockExpandAndFloat(): void {
   updateDockExpandState();
   updateFloatState();
 }
-const _debouncedUpdate = debounce(updateDockExpandAndFloat, 50);
-function onInteractionUp(_e: MouseEvent | KeyboardEvent): void {
-  _debouncedUpdate();
+const _debouncedUpdate = createDebouncedTask(updateDockExpandAndFloat, 50);
+function onInteractionUp(): void {
+  _debouncedUpdate.schedule();
 }
 function attachEvents(): void {
   document.addEventListener('mouseup', onInteractionUp, { passive: true });
@@ -133,8 +147,22 @@ export function destroyIde(): void {
     clearTimeout(_fallbackTimer);
     _fallbackTimer = null;
   }
+  _debouncedUpdate.cancel();
   detachEvents();
-  document.body.classList.remove('neo-dockl-not-expand', 'neo-dockr-not-expand', 'neo-dockl-expand', 'neo-dockr-expand', 'neo-dockb-expand', 'neo-dockb-not-expand', 'neo-dockl-float', 'neo-dockl-not-float', 'neo-dockr-float', 'neo-dockr-not-float', 'neo-dockb-float', 'neo-dockb-not-float');
+  document.body.classList.remove(
+    'neo-dockl-not-expand',
+    'neo-dockr-not-expand',
+    'neo-dockl-expand',
+    'neo-dockr-expand',
+    'neo-dockb-expand',
+    'neo-dockb-not-expand',
+    'neo-dockl-float',
+    'neo-dockl-not-float',
+    'neo-dockr-float',
+    'neo-dockr-not-float',
+    'neo-dockb-float',
+    'neo-dockb-not-float',
+  );
   document.body.classList.remove('neo-ide-body');
   document.documentElement?.classList.remove('neo-ide');
 }
