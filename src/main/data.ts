@@ -113,6 +113,7 @@ export interface Config {
 }
 let configCache: Config = {};
 let pendingLoadConfig: Promise<Config> | null = null;
+let configLoaded = false;
 interface ConfigSaveWaiter {
   revision: number;
   resolve: () => void;
@@ -137,26 +138,44 @@ function resolveConfigSaveWaiters(): void {
   }
   configSaveWaiters = pendingWaiters;
 }
-function rejectConfigSaveWaiters(reason: unknown): void {
-  const waiters = configSaveWaiters;
-  configSaveWaiters = [];
-  waiters.forEach((waiter) => waiter.reject(reason));
+function rejectConfigSaveWaiters(revision: number, reason: unknown): void {
+  const pendingWaiters: ConfigSaveWaiter[] = [];
+  for (const waiter of configSaveWaiters) {
+    if (waiter.revision <= revision) {
+      waiter.reject(reason);
+    } else {
+      pendingWaiters.push(waiter);
+    }
+  }
+  configSaveWaiters = pendingWaiters;
+}
+async function ensureConfigLoaded(): Promise<void> {
+  const pendingLoad = pendingLoadConfig;
+  if (pendingLoad) {
+    await pendingLoad;
+  } else if (!configLoaded) {
+    await loadConfig();
+  }
+  if (!configLoaded) throw new Error('Config load unavailable');
 }
 async function flushConfigSaves(): Promise<void> {
   try {
     while (persistedConfigRevision < configRevision) {
-      const pendingLoad = pendingLoadConfig;
-      if (pendingLoad) await pendingLoad;
-      const revision = configRevision;
-      const snapshot = { ...configCache };
-      const plugin = configSavePlugin;
-      if (!plugin) throw new Error('Config save plugin unavailable');
-      await plugin.saveData(configKey, snapshot);
-      persistedConfigRevision = revision;
-      resolveConfigSaveWaiters();
+      let revision = configRevision;
+      try {
+        await ensureConfigLoaded();
+        revision = configRevision;
+        const snapshot = { ...configCache };
+        const plugin = configSavePlugin;
+        if (!plugin) throw new Error('Config save plugin unavailable');
+        await plugin.saveData(configKey, snapshot);
+        persistedConfigRevision = revision;
+        resolveConfigSaveWaiters();
+      } catch (error) {
+        rejectConfigSaveWaiters(revision, error);
+        if (configRevision <= revision) break;
+      }
     }
-  } catch (error) {
-    rejectConfigSaveWaiters(error);
   } finally {
     configSaveLoop = null;
   }
@@ -191,6 +210,7 @@ export function loadConfig(): Promise<Config> {
   }
   pendingLoadConfig = plugin.loadData(configKey).then((data: Config | null) => {
     configCache = { ...(data || {}), ...configCache };
+    configLoaded = true;
     return configCache;
   }).catch(() => {
     return configCache;

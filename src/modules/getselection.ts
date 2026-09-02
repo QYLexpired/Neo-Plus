@@ -97,8 +97,8 @@ export function getCharWidthAtCursor(): number | null {
         }
       })()
     : range.cloneRange();
-  if (!workRange.collapsed || workRange.endContainer.nodeType !== Node.TEXT_NODE) return null;
-  const textNode = workRange.endContainer as Text;
+  const textNode = workRange.endContainer;
+  if (!workRange.collapsed || !(textNode instanceof Text)) return null;
   const offset = workRange.endOffset;
   const afterRange = workRange.cloneRange();
   try {
