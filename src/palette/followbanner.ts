@@ -281,6 +281,7 @@ function startBannerExtraction(): void {
 function enableFollowBanner(): void {
   if (neoFeatureActive) return;
   neoFeatureActive = true;
+  applyFallback();
   _fetchListener.attach();
   scheduleExtract(500);
 }
