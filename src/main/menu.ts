@@ -19,10 +19,10 @@ import { isMobile } from '../modules/env';
 import { onSidebarMuteClick } from '../sidebarmute/sidebarmute';
 import { onCardSearchListClick } from '../visual/cardsearchlist';
 import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../visual/multicolumnslashmenu';
-import { onColoredListsClick } from '../element/coloredlists';
+import { onColoredListsClick, showColoredListsSettings } from '../element/coloredlists';
 import { onPinnedToolbarClick, showPinnedToolbarSettings } from '../extension/pinnedtoolbar';
 import { onSideMemoClick, showSideMemoSettings } from '../extension/sidememo';
-import { onColoredHeadingsClick } from '../element/coloredheadings';
+import { onColoredHeadingsClick, showColoredHeadingsSettings } from '../element/coloredheadings';
 import { onColorfulSelectionClick } from '../element/colorfulselection';
 import { onHideToolbarClick } from '../modules/hidetoolbar';
 import { createSettingsMenuLabel } from '../modules/menusettings';
@@ -309,7 +309,12 @@ export function buildMenu(
       {
         id: 'neo-colored-lists-button',
         icon: 'iconNeoList',
-        label: i18n.coloredLists,
+        label: createSettingsMenuLabel(
+          'coloredLists',
+          i18n.coloredLists,
+          i18n.coloredListsSettings,
+          showColoredListsSettings,
+        ),
         click: () => {
           onColoredListsClick();
           return true;
@@ -318,7 +323,12 @@ export function buildMenu(
       {
         id: 'neo-colored-headings-button',
         icon: 'iconNeoColoredHeadings',
-        label: i18n.coloredHeadings,
+        label: createSettingsMenuLabel(
+          'coloredHeadings',
+          i18n.coloredHeadings,
+          i18n.coloredHeadingsSettings,
+          showColoredHeadingsSettings,
+        ),
         click: () => {
           onColoredHeadingsClick();
           return true;

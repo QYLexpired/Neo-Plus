@@ -1,11 +1,13 @@
 @use "manager" as *;
 .neo-mode-light {
     --_coloredlists-base: oklch(from var(--b3-base-color) clamp(0.55, l, 0.68) max(c, 0.2) h);
+    --_coloredlists-initial-hue: h;
     --_coloredlists-l: l;
     --_coloredlists-c: 0.08;
 }
 .neo-mode-dark {
     --_coloredlists-base: oklch(from var(--b3-base-color) max(l, 0.68) max(c, 0.18) h);
+    --_coloredlists-initial-hue: h;
     --_coloredlists-l: l;
     --_coloredlists-c: 0.08;
 }
@@ -16,7 +18,7 @@
             @for $i from 0 through 7 {
                 $hue-offset: #{$i * 45};
                 &:nth-child(8n + #{$i + 1}) {
-                    --neo-coloredlists-color: oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) calc(h + #{$hue-offset}));
+                    --neo-coloredlists-color: oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) calc(var(--_coloredlists-initial-hue) + #{$hue-offset}));
                     --neo-kbd-color: var(--neo-coloredlists-color);
                     --neo-inline-code-color: var(--neo-coloredlists-color);
                     --neo-tag-color: var(--neo-coloredlists-color);
@@ -44,5 +46,19 @@
                 }
             }
         }
+    }
+}
+#neo-colored-lists-initial-hue {
+    &::-webkit-slider-runnable-track {
+        background: linear-gradient(
+            in oklch to right,
+            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 0),
+            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 60),
+            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 120),
+            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 180),
+            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 240),
+            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 300),
+            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 360)
+        );
     }
 }

@@ -1,12 +1,14 @@
 @use "manager" as *;
 .neo-mode-light {
     --_coloredheadings-base: oklch(from var(--b3-base-color) clamp(0.55, l, 0.68) max(c, 0.2) h);
+    --_coloredheadings-initial-hue: h;
     --_coloredheadings-l: l;
     --_coloredheadings-c: 0.08;
     --_coloredheadings-outline-l: calc(var(--_coloredheadings-l) - 0.05);
 }
 .neo-mode-dark {
     --_coloredheadings-base: oklch(from var(--b3-base-color) max(l, 0.68) max(c, 0.18) h);
+    --_coloredheadings-initial-hue: h;
     --_coloredheadings-l: l;
     --_coloredheadings-c: 0.08;
     --_coloredheadings-outline-l: calc(var(--_coloredheadings-l) + 0.05);
@@ -16,11 +18,11 @@
     .b3-typography,
     .protyle-wysiwyg {
         @for $i from 1 through 6 {
-            $hue-offset: #{$i * 50};
+            $hue-offset: #{($i - 1) * 50};
             h#{$i},
             [data-type=NodeHeading].h#{$i},
             [data-type=NodeHeading][data-subtype=h#{$i}] [spellcheck] {
-                color: oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) calc(h + #{$hue-offset}));
+                color: oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) calc(var(--_coloredheadings-initial-hue) + #{$hue-offset}));
                 --neo-kbd-color: var(--neo-coloredlists-color);
                 --neo-inline-code-color: var(--neo-coloredlists-color);
                 --neo-tag-color: var(--neo-coloredlists-color);
@@ -30,14 +32,28 @@
     }
     .sy__outline {
         @for $i from 1 through 6 {
-            $hue-offset: #{$i * 50};
+            $hue-offset: #{($i - 1) * 50};
             .b3-list-item[data-type=NodeHeading][data-subtype=h#{$i}] {
                 .b3-list-item__graphic,
                 .b3-list-item__number,
                 .b3-list-item__text {
-                    color: oklch(from var(--_coloredheadings-base) var(--_coloredheadings-outline-l) var(--_coloredheadings-c) calc(h + #{$hue-offset})) !important;
+                    color: oklch(from var(--_coloredheadings-base) var(--_coloredheadings-outline-l) var(--_coloredheadings-c) calc(var(--_coloredheadings-initial-hue) + #{$hue-offset})) !important;
                 }
             }
         }
+    }
+}
+#neo-colored-headings-initial-hue {
+    &::-webkit-slider-runnable-track {
+        background: linear-gradient(
+            in oklch to right,
+            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 0),
+            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 60),
+            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 120),
+            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 180),
+            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 240),
+            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 300),
+            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 360)
+        );
     }
 }

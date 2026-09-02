@@ -86,7 +86,13 @@ export interface Config {
   'colored-folders'?: boolean;
   'colored-folders-style'?: 'partition' | 'simple' | 'card';
   'colored-lists'?: boolean;
+  'colored-lists-style'?: 'default' | 'vivid';
+  'colored-lists-initial-hue-rule'?: 'theme' | 'fixed';
+  'colored-lists-initial-hue'?: number;
   'colored-headings'?: boolean;
+  'colored-headings-style'?: 'default' | 'vivid';
+  'colored-headings-initial-hue-rule'?: 'theme' | 'fixed';
+  'colored-headings-initial-hue'?: number;
   'colorful-selection'?: boolean;
   'frosted-glass'?: boolean;
   'frosted-glass-scope'?: 'light' | 'global';

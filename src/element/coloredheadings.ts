@@ -2,18 +2,62 @@ import { saveConfig, loadConfig, type Config } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+import { getPlugin } from '../main/context';
+import { Dialog } from 'siyuan';
+
+type InitialHueRule = 'theme' | 'fixed';
+type ColoredHeadingsStyle = 'default' | 'vivid';
+
+const defaultInitialHue = 0;
+let coloredHeadingsStyle: ColoredHeadingsStyle = 'default';
+let initialHueRule: InitialHueRule = 'theme';
+let initialHue = defaultInitialHue;
 let neoFeatureActive = false;
+
+function normalizeInitialHue(value: unknown): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return defaultInitialHue;
+  return Math.min(360, Math.max(0, Math.round(parsed)));
+}
+
+function applyInitialHue(): void {
+  if (initialHueRule === 'fixed') {
+    document.documentElement.style.setProperty('--_coloredheadings-initial-hue', String(initialHue));
+  } else {
+    document.documentElement.style.removeProperty('--_coloredheadings-initial-hue');
+  }
+}
+
+function applyStyle(): void {
+  if (coloredHeadingsStyle === 'vivid') {
+    document.documentElement.style.setProperty('--_coloredheadings-c', '0.185');
+  } else {
+    document.documentElement.style.removeProperty('--_coloredheadings-c');
+  }
+}
+
+function applySettings(): void {
+  applyStyle();
+  applyInitialHue();
+}
+
 function enableColoredHeadings(): void {
   if (neoFeatureActive) return;
   ensureCss('element-coloredheadings', featureCss['element-coloredheadings']);
   document.documentElement.classList.add('neo-element-coloredheadings');
   neoFeatureActive = true;
+  applySettings();
 }
 export function initColoredHeadings(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
-    if (config['colored-headings'] === true) {
+    coloredHeadingsStyle = config['colored-headings-style'] === 'vivid' ? 'vivid' : 'default';
+    initialHueRule = config['colored-headings-initial-hue-rule'] === 'fixed' ? 'fixed' : 'theme';
+    initialHue = normalizeInitialHue(config['colored-headings-initial-hue']);
+    if (neoFeatureActive) {
+      applySettings();
+    } else if (config['colored-headings'] === true) {
       enableColoredHeadings();
     }
   });
@@ -27,8 +71,110 @@ export function onColoredHeadingsClick(): void {
     saveConfig({ 'colored-headings': true } as Partial<Config>);
   }
 }
+
+function buildSettingsHTML(i18n: Record<string, string>): string {
+  const styleOptions = ['default', 'vivid']
+    .map(value => `<option value="${value}">${i18n[`coloredHeadingsStyle${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
+    .join('');
+  const ruleOptions = ['theme', 'fixed']
+    .map(value => `<option value="${value}">${i18n[`coloredHeadingsInitialHueRule${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
+    .join('');
+  const fixedHueClass = initialHueRule === 'fixed' ? '' : ' fn__none';
+  return `<div class="b3-dialog__content">
+    <div class="config__tab-container">
+      <div class="config-group">
+        <div class="config-items">
+          <label class="fn__flex b3-label config-item">
+            <div class="fn__flex-1 config-item__main">
+              <div class="config-name">${i18n.coloredHeadingsStyle}</div>
+              <div class="b3-label__text">${i18n.coloredHeadingsStyleTip}</div>
+            </div>
+            <span class="fn__space"></span>
+            <select class="b3-select fn__flex-center fn__size200" id="neo-colored-headings-style">
+              ${styleOptions}
+            </select>
+          </label>
+          <label class="fn__flex b3-label config-item">
+            <div class="fn__flex-1 config-item__main">
+              <div class="config-name">${i18n.coloredHeadingsInitialHueRule}</div>
+              <div class="b3-label__text">${i18n.coloredHeadingsInitialHueRuleTip}</div>
+            </div>
+            <span class="fn__space"></span>
+            <select class="b3-select fn__flex-center fn__size200" id="neo-colored-headings-initial-hue-rule">
+              ${ruleOptions}
+            </select>
+          </label>
+          <label class="fn__flex b3-label config-item${fixedHueClass}" id="neo-colored-headings-initial-hue-item">
+            <div class="fn__flex-1 config-item__main">
+              <div class="config-name">${i18n.coloredHeadingsInitialHue}</div>
+              <div class="b3-label__text">${i18n.coloredHeadingsInitialHueTip}</div>
+            </div>
+            <span class="fn__space"></span>
+            <div class="b3-tooltips b3-tooltips__n fn__flex-center" id="neo-colored-headings-initial-hue-tooltip" aria-label="${initialHue}deg">
+              <input class="b3-slider fn__size200" id="neo-colored-headings-initial-hue" min="0" max="360" step="1" type="range" value="${initialHue}">
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="b3-dialog__action">
+    <button class="b3-button b3-button--cancel" id="neo-colored-headings-cancel">${i18n.cancel}</button>
+    <span class="fn__space"></span>
+    <button class="b3-button b3-button--text" id="neo-colored-headings-confirm">${i18n.confirm}</button>
+  </div>`;
+}
+
+export function showColoredHeadingsSettings(): void {
+  const plugin = getPlugin();
+  if (!plugin) return;
+  const dialog = new Dialog({
+    title: plugin.i18n.coloredHeadingsSettings,
+    content: buildSettingsHTML(plugin.i18n),
+  });
+  dialog.element.classList.add('neo-settings-dialog');
+  const styleSelect = dialog.element.querySelector('#neo-colored-headings-style') as HTMLSelectElement | null;
+  const ruleSelect = dialog.element.querySelector('#neo-colored-headings-initial-hue-rule') as HTMLSelectElement | null;
+  const hueItem = dialog.element.querySelector('#neo-colored-headings-initial-hue-item') as HTMLElement | null;
+  const hueSlider = dialog.element.querySelector('#neo-colored-headings-initial-hue') as HTMLInputElement | null;
+  const hueTooltip = dialog.element.querySelector('#neo-colored-headings-initial-hue-tooltip') as HTMLElement | null;
+  const updateHueVisibility = (): void => {
+    hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
+  };
+  if (styleSelect) styleSelect.value = coloredHeadingsStyle;
+  if (ruleSelect) {
+    ruleSelect.value = initialHueRule;
+    ruleSelect.addEventListener('change', updateHueVisibility);
+  }
+  if (hueSlider) {
+    hueSlider.value = String(initialHue);
+    hueSlider.addEventListener('input', () => {
+      hueTooltip?.setAttribute('aria-label', `${hueSlider.value}deg`);
+    });
+  }
+  updateHueVisibility();
+  dialog.element.querySelector('#neo-colored-headings-cancel')?.addEventListener('click', () => dialog.destroy());
+  dialog.element.querySelector('#neo-colored-headings-confirm')?.addEventListener('click', () => {
+    const newStyle: ColoredHeadingsStyle = styleSelect?.value === 'vivid' ? 'vivid' : 'default';
+    const newRule: InitialHueRule = ruleSelect?.value === 'fixed' ? 'fixed' : 'theme';
+    const newHue = normalizeInitialHue(hueSlider?.value);
+    coloredHeadingsStyle = newStyle;
+    initialHueRule = newRule;
+    initialHue = newHue;
+    saveConfig({
+      'colored-headings-style': newStyle,
+      'colored-headings-initial-hue-rule': newRule,
+      'colored-headings-initial-hue': newHue,
+    } as Partial<Config>);
+    if (neoFeatureActive) applySettings();
+    dialog.destroy();
+  });
+}
+
 export function destroyColoredHeadings(): void {
   neoFeatureActive = false;
   removeCss('element-coloredheadings');
   document.documentElement?.classList.remove('neo-element-coloredheadings');
+  document.documentElement?.style.removeProperty('--_coloredheadings-initial-hue');
+  document.documentElement?.style.removeProperty('--_coloredheadings-c');
 }
