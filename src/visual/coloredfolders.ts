@@ -5,7 +5,7 @@ import { getPlugin } from '../main/context';
 import { Dialog } from 'siyuan';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 type ColoredFoldersLayout = 'partition' | 'simple' | 'card';
-type ColoredFoldersColorStyle = 'default' | 'vivid';
+type ColoredFoldersColorStyle = 'soft' | 'default' | 'vivid';
 type InitialHueRule = 'theme' | 'fixed';
 const defaultInitialHue = 0;
 let coloredFoldersLayout: ColoredFoldersLayout = 'partition';
@@ -18,17 +18,21 @@ function normalizeInitialHue(value: unknown): number {
   if (!Number.isFinite(parsed)) return defaultInitialHue;
   return Math.min(360, Math.max(0, Math.round(parsed)));
 }
+function normalizeColorStyle(value: unknown): ColoredFoldersColorStyle {
+  if (value === 'soft' || value === 'vivid') return value;
+  return 'default';
+}
 function applyLayout(): void {
   document.body.classList.toggle('neo-visual-coloredfolders-partition', coloredFoldersLayout === 'partition');
   document.body.classList.toggle('neo-visual-coloredfolders-simple', coloredFoldersLayout === 'simple');
   document.body.classList.toggle('neo-visual-coloredfolders-card', coloredFoldersLayout === 'card');
 }
 function applyColorStyle(): void {
-  if (coloredFoldersColorStyle === 'vivid') {
-    document.documentElement.style.setProperty('--_coloredfolders-c', '0.185');
-  } else {
+  if (coloredFoldersColorStyle === 'default') {
     document.documentElement.style.removeProperty('--_coloredfolders-c');
+    return;
   }
+  document.documentElement.style.setProperty('--_coloredfolders-c', coloredFoldersColorStyle === 'soft' ? '0.08' : '0.185');
 }
 function applyInitialHue(): void {
   if (initialHueRule === 'fixed') {
@@ -55,7 +59,7 @@ export function initColoredFolders(): void {
     if (!isCurrent()) return;
     const savedLayout = config['colored-folders-layout'];
     coloredFoldersLayout = savedLayout === 'simple' || savedLayout === 'card' ? savedLayout : 'partition';
-    coloredFoldersColorStyle = config['colored-folders-colorstyle'] === 'vivid' ? 'vivid' : 'default';
+    coloredFoldersColorStyle = normalizeColorStyle(config['colored-folders-colorstyle']);
     initialHueRule = config['colored-folders-initial-hue-rule'] === 'fixed' ? 'fixed' : 'theme';
     initialHue = normalizeInitialHue(config['colored-folders-initial-hue']);
     if (neoFeatureActive) {
@@ -78,7 +82,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   const layoutOptions = ['partition', 'simple', 'card']
     .map(value => `<option value="${value}">${i18n[`coloredFoldersLayout${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
-  const colorStyleOptions = ['default', 'vivid']
+  const colorStyleOptions = ['soft', 'default', 'vivid']
     .map(value => `<option value="${value}">${i18n[`coloredFoldersColorStyle${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
   const ruleOptions = ['theme', 'fixed']
@@ -154,7 +158,7 @@ export function showColoredFoldersSettings(): void {
   const hueSlider = dialog.element.querySelector('#neo-colored-folders-initial-hue') as HTMLInputElement | null;
   const hueTooltip = dialog.element.querySelector('#neo-colored-folders-initial-hue-tooltip') as HTMLElement | null;
   const updateColorStylePreview = (): void => {
-    hueSlider?.setAttribute('data-colorstyle', colorStyleSelect?.value === 'vivid' ? 'vivid' : 'default');
+    hueSlider?.setAttribute('data-colorstyle', normalizeColorStyle(colorStyleSelect?.value));
   };
   const updateHueVisibility = (): void => {
     hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
@@ -180,7 +184,7 @@ export function showColoredFoldersSettings(): void {
   dialog.element.querySelector('#neo-colored-folders-confirm')?.addEventListener('click', () => {
     const layoutValue = layoutSelect?.value;
     const newLayout: ColoredFoldersLayout = layoutValue === 'simple' || layoutValue === 'card' ? layoutValue : 'partition';
-    const newColorStyle: ColoredFoldersColorStyle = colorStyleSelect?.value === 'vivid' ? 'vivid' : 'default';
+    const newColorStyle = normalizeColorStyle(colorStyleSelect?.value);
     const newRule: InitialHueRule = ruleSelect?.value === 'fixed' ? 'fixed' : 'theme';
     const newHue = normalizeInitialHue(hueSlider?.value);
     coloredFoldersLayout = newLayout;

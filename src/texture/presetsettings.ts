@@ -78,6 +78,20 @@ export function applyPresetTextureSettings(texture: PresetTextureDefinition): vo
 function getInputId(texture: PresetTextureDefinition, setting: TextureSettingDefinition): string {
   return `neo-preset-texture-${texture.key}-${setting.key}`;
 }
+function writeSettingInputValue(
+  dialogElement: HTMLElement,
+  texture: PresetTextureDefinition,
+  setting: TextureSettingDefinition,
+  value: PresetTextureSettingValue,
+): void {
+  const inputId = getInputId(texture, setting);
+  const input = dialogElement.querySelector(`#${inputId}`) as HTMLInputElement | HTMLSelectElement | null;
+  if (!input) return;
+  input.value = String(value);
+  if (setting.type === 'range') {
+    dialogElement.querySelector(`#${inputId}-tooltip`)?.setAttribute('aria-label', `${value}${setting.unit}`);
+  }
+}
 function buildSettingHTML(
   texture: PresetTextureDefinition,
   setting: TextureSettingDefinition,
@@ -137,7 +151,11 @@ export function showPresetTextureSettings(
   if (!plugin) return;
   const values = getTextureSettingValues(texture);
   const dialog = new Dialog({
-    title: `${plugin.i18n.presetTextureSettings} · ${textureLabel}`,
+    title: `<div class="fn__flex">
+      <div class="fn__ellipsis" style="white-space: nowrap">${plugin.i18n.presetTextureSettings} · ${textureLabel}</div>
+      <div class="fn__space"></div>
+      <button class="b3-button b3-button--small fn__flex-center" id="neo-preset-texture-reset-default">${plugin.i18n.presetTextureResetDefault}</button>
+    </div>`,
     content: buildSettingsHTML(texture, values, plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
@@ -145,7 +163,7 @@ export function showPresetTextureSettings(
     const inputId = getInputId(texture, setting);
     const input = dialog.element.querySelector(`#${inputId}`) as HTMLInputElement | HTMLSelectElement | null;
     if (!input) continue;
-    input.value = String(values[setting.key]);
+    writeSettingInputValue(dialog.element, texture, setting, values[setting.key]);
     if (setting.type === 'range') {
       const tooltip = dialog.element.querySelector(`#${inputId}-tooltip`) as HTMLElement | null;
       input.addEventListener('input', () => {
@@ -153,6 +171,11 @@ export function showPresetTextureSettings(
       });
     }
   }
+  dialog.element.querySelector('#neo-preset-texture-reset-default')?.addEventListener('click', () => {
+    for (const setting of texture.settings) {
+      writeSettingInputValue(dialog.element, texture, setting, setting.defaultValue);
+    }
+  });
   dialog.element.querySelector('#neo-preset-texture-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-preset-texture-confirm')?.addEventListener('click', () => {
     const nextValues: PresetTextureSettings = {};

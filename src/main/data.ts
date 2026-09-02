@@ -89,15 +89,15 @@ export interface Config {
   'focus-block-effect'?: 'vertical-line' | 'shadow' | 'background';
   'colored-folders'?: boolean;
   'colored-folders-layout'?: 'partition' | 'simple' | 'card';
-  'colored-folders-colorstyle'?: 'default' | 'vivid';
+  'colored-folders-colorstyle'?: 'soft' | 'default' | 'vivid';
   'colored-folders-initial-hue-rule'?: 'theme' | 'fixed';
   'colored-folders-initial-hue'?: number;
   'colored-lists'?: boolean;
-  'colored-lists-colorstyle'?: 'default' | 'vivid';
+  'colored-lists-colorstyle'?: 'soft' | 'default' | 'vivid';
   'colored-lists-initial-hue-rule'?: 'theme' | 'fixed';
   'colored-lists-initial-hue'?: number;
   'colored-headings'?: boolean;
-  'colored-headings-colorstyle'?: 'default' | 'vivid';
+  'colored-headings-colorstyle'?: 'soft' | 'default' | 'vivid';
   'colored-headings-initial-hue-rule'?: 'theme' | 'fixed';
   'colored-headings-initial-hue'?: number;
   'colorful-selection'?: boolean;

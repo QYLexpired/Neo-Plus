@@ -5,7 +5,7 @@ import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { getPlugin } from '../main/context';
 import { Dialog } from 'siyuan';
 type InitialHueRule = 'theme' | 'fixed';
-type ColoredListsColorStyle = 'default' | 'vivid';
+type ColoredListsColorStyle = 'soft' | 'default' | 'vivid';
 const defaultInitialHue = 0;
 let coloredListsColorStyle: ColoredListsColorStyle = 'default';
 let initialHueRule: InitialHueRule = 'theme';
@@ -16,6 +16,10 @@ function normalizeInitialHue(value: unknown): number {
   if (!Number.isFinite(parsed)) return defaultInitialHue;
   return Math.min(360, Math.max(0, Math.round(parsed)));
 }
+function normalizeColorStyle(value: unknown): ColoredListsColorStyle {
+  if (value === 'soft' || value === 'vivid') return value;
+  return 'default';
+}
 function applyInitialHue(): void {
   if (initialHueRule === 'fixed') {
     document.documentElement.style.setProperty('--_coloredlists-initial-hue', String(initialHue));
@@ -24,11 +28,11 @@ function applyInitialHue(): void {
   }
 }
 function applyColorStyle(): void {
-  if (coloredListsColorStyle === 'vivid') {
-    document.documentElement.style.setProperty('--_coloredlists-c', '0.185');
-  } else {
+  if (coloredListsColorStyle === 'default') {
     document.documentElement.style.removeProperty('--_coloredlists-c');
+    return;
   }
+  document.documentElement.style.setProperty('--_coloredlists-c', coloredListsColorStyle === 'soft' ? '0.05' : '0.185');
 }
 function applySettings(): void {
   applyColorStyle();
@@ -45,7 +49,7 @@ export function initColoredLists(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
-    coloredListsColorStyle = config['colored-lists-colorstyle'] === 'vivid' ? 'vivid' : 'default';
+    coloredListsColorStyle = normalizeColorStyle(config['colored-lists-colorstyle']);
     initialHueRule = config['colored-lists-initial-hue-rule'] === 'fixed' ? 'fixed' : 'theme';
     initialHue = normalizeInitialHue(config['colored-lists-initial-hue']);
     if (neoFeatureActive) {
@@ -65,7 +69,7 @@ export function onColoredListsClick(): void {
   }
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
-  const colorStyleOptions = ['default', 'vivid']
+  const colorStyleOptions = ['soft', 'default', 'vivid']
     .map(value => `<option value="${value}">${i18n[`coloredListsColorStyle${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
   const ruleOptions = ['theme', 'fixed']
@@ -130,7 +134,7 @@ export function showColoredListsSettings(): void {
   const hueSlider = dialog.element.querySelector('#neo-colored-lists-initial-hue') as HTMLInputElement | null;
   const hueTooltip = dialog.element.querySelector('#neo-colored-lists-initial-hue-tooltip') as HTMLElement | null;
   const updateColorStylePreview = (): void => {
-    hueSlider?.setAttribute('data-colorstyle', colorStyleSelect?.value === 'vivid' ? 'vivid' : 'default');
+    hueSlider?.setAttribute('data-colorstyle', normalizeColorStyle(colorStyleSelect?.value));
   };
   const updateHueVisibility = (): void => {
     hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
@@ -153,7 +157,7 @@ export function showColoredListsSettings(): void {
   updateHueVisibility();
   dialog.element.querySelector('#neo-colored-lists-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-colored-lists-confirm')?.addEventListener('click', () => {
-    const newColorStyle: ColoredListsColorStyle = colorStyleSelect?.value === 'vivid' ? 'vivid' : 'default';
+    const newColorStyle = normalizeColorStyle(colorStyleSelect?.value);
     const newRule: InitialHueRule = ruleSelect?.value === 'fixed' ? 'fixed' : 'theme';
     const newHue = normalizeInitialHue(hueSlider?.value);
     coloredListsColorStyle = newColorStyle;
