@@ -8,6 +8,11 @@ interface RuleFilterEntry {
   filter: StyleRuleFilter;
   dynamic?: boolean;
 }
+type ScanScope = 'all' | 'dynamic';
+interface ScheduledScan {
+  id: number;
+  kind: 'idle' | 'timeout';
+}
 const _ruleFilters: RuleFilterEntry[] = [
   {
     filter: {
@@ -188,6 +193,10 @@ const _ruleFilters: RuleFilterEntry[] = [
     },
   },
 ];
+const _dynamicRuleFilters = _ruleFilters.filter((entry) => entry.dynamic);
+let _performanceTuningActive = false;
+let _pendingScanScope: ScanScope | null = null;
+let _scheduledScan: ScheduledScan | null = null;
 function processAllRules(
   rules: CSSRuleList,
   entries: RuleFilterEntry[],
@@ -205,13 +214,16 @@ function processAllRules(
       }
       processAllRules(rule.cssRules, entries, rule, childContext);
     } else if (rule instanceof CSSStyleRule) {
+      const selectorText = rule.selectorText;
+      let cssText: string | null = null;
       for (const entry of entries) {
         const inMatchingMedia = mediaContext?.get(entry) ?? true;
         if (parentRule instanceof CSSMediaRule && !inMatchingMedia) {
           continue;
         }
-        if (rule.selectorText && entry.filter.selectorMatch(rule.selectorText)) {
-          if (entry.filter.cssMatch(rule.cssText)) {
+        if (selectorText && entry.filter.selectorMatch(selectorText)) {
+          cssText ??= rule.cssText;
+          if (entry.filter.cssMatch(cssText)) {
             if (parentRule instanceof CSSMediaRule) {
               parentRule.deleteRule(j);
             } else {
@@ -238,25 +250,63 @@ function removeMatchingRules(entries?: RuleFilterEntry[]): void {
     } catch {}
   }
 }
+function runScheduledScan(): void {
+  _scheduledScan = null;
+  const scope = _pendingScanScope;
+  _pendingScanScope = null;
+  if (!_performanceTuningActive || scope === null) {
+    return;
+  }
+  removeMatchingRules(scope === 'all' ? undefined : _dynamicRuleFilters);
+}
+function scheduleScan(scope: ScanScope): void {
+  if (!_performanceTuningActive) {
+    return;
+  }
+  if (scope === 'all' || _pendingScanScope === null) {
+    _pendingScanScope = scope;
+  }
+  if (_scheduledScan) {
+    return;
+  }
+  if (typeof requestIdleCallback === 'function' && typeof cancelIdleCallback === 'function') {
+    _scheduledScan = {
+      id: requestIdleCallback(runScheduledScan),
+      kind: 'idle',
+    };
+  } else {
+    _scheduledScan = {
+      id: window.setTimeout(runScheduledScan, 0),
+      kind: 'timeout',
+    };
+  }
+}
+function cancelScheduledScan(): void {
+  if (!_scheduledScan) {
+    _pendingScanScope = null;
+    return;
+  }
+  if (_scheduledScan.kind === 'idle') {
+    cancelIdleCallback(_scheduledScan.id);
+  } else {
+    window.clearTimeout(_scheduledScan.id);
+  }
+  _scheduledScan = null;
+  _pendingScanScope = null;
+}
 const _fetchListener = fetchListener();
 _fetchListener.onNotify('setUILayout', () => {
-  const dynamicEntries = _ruleFilters.filter((e) => e.dynamic);
-  if (dynamicEntries.length > 0) {
-    if (typeof requestIdleCallback === 'function') {
-      requestIdleCallback(() => removeMatchingRules(dynamicEntries));
-    } else {
-      setTimeout(() => removeMatchingRules(dynamicEntries), 0);
-    }
+  if (_dynamicRuleFilters.length > 0) {
+    scheduleScan('dynamic');
   }
 });
 export function initPerformanceTuning(): void {
-  if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(() => removeMatchingRules());
-  } else {
-    setTimeout(() => removeMatchingRules(), 0);
-  }
+  _performanceTuningActive = true;
+  scheduleScan('all');
   _fetchListener.attach();
 }
 export function destroyPerformanceTuning(): void {
+  _performanceTuningActive = false;
+  cancelScheduledScan();
   _fetchListener.detach();
 }

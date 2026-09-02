@@ -97,15 +97,18 @@ export function getCharWidthAtCursor(): number | null {
         }
       })()
     : range.cloneRange();
+  if (!workRange.collapsed || workRange.endContainer.nodeType !== Node.TEXT_NODE) return null;
+  const textNode = workRange.endContainer as Text;
+  const offset = workRange.endOffset;
   const afterRange = workRange.cloneRange();
   try {
-    afterRange.setEnd(afterRange.endContainer, Math.min(afterRange.endOffset + 1, (afterRange.endContainer as Text).length ?? 0));
+    afterRange.setEnd(textNode, Math.min(offset + 1, textNode.length));
   } catch { return null; }
   let rects = afterRange.getClientRects();
   if (rects.length > 0 && rects[0].width > 0) return rects[0].width;
   const beforeRange = workRange.cloneRange();
   try {
-    beforeRange.setStart(beforeRange.startContainer, Math.max(beforeRange.startOffset - 1, 0));
+    beforeRange.setStart(textNode, Math.max(offset - 1, 0));
   } catch { return null; }
   rects = beforeRange.getClientRects();
   if (rects.length > 0 && rects[0].width > 0) return rects[0].width;
