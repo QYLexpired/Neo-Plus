@@ -24,6 +24,9 @@ export type CustomImageConfigKey =
 export type CustomImageValues = Record<CustomImageConfigKey, string>;
 export type CustomImageSource = Partial<Record<CustomImageConfigKey, string | number | boolean | null | undefined>>;
 export type CustomImagePresetConfigKey = `customimage-preset-${string}`;
+export type PresetTextureSettingValue = string | number | boolean;
+export type PresetTextureSettings = Record<string, PresetTextureSettingValue>;
+export type PresetTextureSettingsMap = Record<string, PresetTextureSettings>;
 export function getCustomImagePresetConfigKey(name: string): CustomImagePresetConfigKey {
   return `customimage-preset-${name}`;
 }
@@ -52,7 +55,7 @@ export interface Config {
   'random-brightness-max'?: number;
   'texture-light'?: string;
   'texture-dark'?: string;
-  'texture-zlevels'?: Partial<Record<string, 'content' | 'topmost'>>;
+  'texture-settings'?: PresetTextureSettingsMap;
   'customimage-info'?: string;
   'customimage-opacity'?: string;
   'customimage-blur'?: string;

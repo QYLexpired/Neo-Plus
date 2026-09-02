@@ -103,7 +103,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
             </div>
             <span class="fn__space"></span>
             <div class="b3-tooltips b3-tooltips__n fn__flex-center" id="neo-colored-headings-initial-hue-tooltip" aria-label="${initialHue}deg">
-              <input class="b3-slider fn__size200" id="neo-colored-headings-initial-hue" min="0" max="360" step="1" type="range" value="${initialHue}">
+              <input class="b3-slider fn__size200 neo-colored-hue-slider neo-colored-hue-slider--headings" data-colorstyle="${coloredHeadingsColorStyle}" id="neo-colored-headings-initial-hue" min="0" max="360" step="1" type="range" value="${initialHue}">
             </div>
           </label>
         </div>
@@ -129,10 +129,16 @@ export function showColoredHeadingsSettings(): void {
   const hueItem = dialog.element.querySelector('#neo-colored-headings-initial-hue-item') as HTMLElement | null;
   const hueSlider = dialog.element.querySelector('#neo-colored-headings-initial-hue') as HTMLInputElement | null;
   const hueTooltip = dialog.element.querySelector('#neo-colored-headings-initial-hue-tooltip') as HTMLElement | null;
+  const updateColorStylePreview = (): void => {
+    hueSlider?.setAttribute('data-colorstyle', colorStyleSelect?.value === 'vivid' ? 'vivid' : 'default');
+  };
   const updateHueVisibility = (): void => {
     hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
   };
-  if (colorStyleSelect) colorStyleSelect.value = coloredHeadingsColorStyle;
+  if (colorStyleSelect) {
+    colorStyleSelect.value = coloredHeadingsColorStyle;
+    colorStyleSelect.addEventListener('change', updateColorStylePreview);
+  }
   if (ruleSelect) {
     ruleSelect.value = initialHueRule;
     ruleSelect.addEventListener('change', updateHueVisibility);
@@ -143,6 +149,7 @@ export function showColoredHeadingsSettings(): void {
       hueTooltip?.setAttribute('aria-label', `${hueSlider.value}deg`);
     });
   }
+  updateColorStylePreview();
   updateHueVisibility();
   dialog.element.querySelector('#neo-colored-headings-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-colored-headings-confirm')?.addEventListener('click', () => {

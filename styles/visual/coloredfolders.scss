@@ -148,17 +148,3 @@ $border-width: 3px;
         }
     }
 }
-#neo-colored-folders-initial-hue {
-    &::-webkit-slider-runnable-track {
-        background: linear-gradient(
-            in oklch to right,
-            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 0),
-            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 60),
-            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 120),
-            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 180),
-            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 240),
-            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 300),
-            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 360)
-        );
-    }
-}

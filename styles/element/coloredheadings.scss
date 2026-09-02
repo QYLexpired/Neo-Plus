@@ -43,17 +43,3 @@
         }
     }
 }
-#neo-colored-headings-initial-hue {
-    &::-webkit-slider-runnable-track {
-        background: linear-gradient(
-            in oklch to right,
-            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 0),
-            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 60),
-            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 120),
-            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 180),
-            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 240),
-            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 300),
-            oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) 360)
-        );
-    }
-}

@@ -2,16 +2,26 @@
 .neo-texture-grid {
     @include texture-common("[data-id="neo-texture-grid-button"]", "[data-id="neo-texture-button"]");
     #neo-texture-layer {
+        --_texture-grid-effective-line-width: min(var(--_texture-grid-line-width, 1px), calc(var(--_texture-grid-size, 32px) - 0.5px));
         background-repeat: repeat;
         mix-blend-mode: unset;
-        opacity: 0.032;
-        background-image: linear-gradient(var(--b3-theme-on-background) 1px, transparent 1px), linear-gradient(to right, var(--b3-theme-on-background) 1px, transparent 1px);
-        background-size: 32px 32px;
+        opacity: 0.038;
+        background-image:
+            repeating-linear-gradient(
+                var(--_texture-grid-angle, 0deg),
+                var(--b3-theme-on-background) 0 var(--_texture-grid-effective-line-width),
+                transparent var(--_texture-grid-effective-line-width) var(--_texture-grid-size, 32px)
+            ),
+            repeating-linear-gradient(
+                calc(var(--_texture-grid-angle, 0deg) + 90deg),
+                var(--b3-theme-on-background) 0 var(--_texture-grid-effective-line-width),
+                transparent var(--_texture-grid-effective-line-width) var(--_texture-grid-size, 32px)
+            );
         background-color: transparent;
     }
     &.neo-mode-dark {
         #neo-texture-layer {
-            opacity: 0.025;
+            opacity: 0.03;
         }
     }
 }

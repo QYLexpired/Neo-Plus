@@ -2,13 +2,24 @@
 .neo-texture-checkerboard {
     @include texture-common("[data-id="neo-texture-checkerboard-button"]", "[data-id="neo-texture-button"]");
     #neo-texture-layer {
-        background-repeat: repeat;
+        --_texture-checkerboard-mask:
+            repeating-linear-gradient(
+                var(--_texture-checkerboard-angle, 0deg),
+                #000 0 var(--_texture-checkerboard-size, 32px),
+                transparent var(--_texture-checkerboard-size, 32px) calc(var(--_texture-checkerboard-size, 32px) + var(--_texture-checkerboard-size, 32px))
+            ),
+            repeating-linear-gradient(
+                calc(var(--_texture-checkerboard-angle, 0deg) + 90deg),
+                #000 0 var(--_texture-checkerboard-size, 32px),
+                transparent var(--_texture-checkerboard-size, 32px) calc(var(--_texture-checkerboard-size, 32px) + var(--_texture-checkerboard-size, 32px))
+            );
         mix-blend-mode: unset;
         opacity: 0.02;
-        background-image: repeating-conic-gradient(var(--b3-theme-background) 0% 25%, var(--b3-theme-on-background) 0% 50%);
-        background-position: 0 0, 32px 32px;
-        background-size: 64px 64px;
-        background-color: transparent;
+        background-color: var(--b3-theme-on-background);
+        -webkit-mask-image: var(--_texture-checkerboard-mask);
+        -webkit-mask-composite: xor;
+        mask-image: var(--_texture-checkerboard-mask);
+        mask-composite: exclude;
     }
     &.neo-mode-dark {
         #neo-texture-layer {

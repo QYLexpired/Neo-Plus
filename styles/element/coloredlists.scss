@@ -48,17 +48,3 @@
         }
     }
 }
-#neo-colored-lists-initial-hue {
-    &::-webkit-slider-runnable-track {
-        background: linear-gradient(
-            in oklch to right,
-            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 0),
-            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 60),
-            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 120),
-            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 180),
-            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 240),
-            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 300),
-            oklch(from var(--_coloredlists-base) var(--_coloredlists-l) var(--_coloredlists-c) 360)
-        );
-    }
-}

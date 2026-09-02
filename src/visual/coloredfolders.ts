@@ -126,7 +126,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
             </div>
             <span class="fn__space"></span>
             <div class="b3-tooltips b3-tooltips__n fn__flex-center" id="neo-colored-folders-initial-hue-tooltip" aria-label="${initialHue}deg">
-              <input class="b3-slider fn__size200" id="neo-colored-folders-initial-hue" min="0" max="360" step="1" type="range" value="${initialHue}">
+              <input class="b3-slider fn__size200 neo-colored-hue-slider neo-colored-hue-slider--folders" data-colorstyle="${coloredFoldersColorStyle}" id="neo-colored-folders-initial-hue" min="0" max="360" step="1" type="range" value="${initialHue}">
             </div>
           </label>
         </div>
@@ -153,11 +153,17 @@ export function showColoredFoldersSettings(): void {
   const hueItem = dialog.element.querySelector('#neo-colored-folders-initial-hue-item') as HTMLElement | null;
   const hueSlider = dialog.element.querySelector('#neo-colored-folders-initial-hue') as HTMLInputElement | null;
   const hueTooltip = dialog.element.querySelector('#neo-colored-folders-initial-hue-tooltip') as HTMLElement | null;
+  const updateColorStylePreview = (): void => {
+    hueSlider?.setAttribute('data-colorstyle', colorStyleSelect?.value === 'vivid' ? 'vivid' : 'default');
+  };
   const updateHueVisibility = (): void => {
     hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
   };
   if (layoutSelect) layoutSelect.value = coloredFoldersLayout;
-  if (colorStyleSelect) colorStyleSelect.value = coloredFoldersColorStyle;
+  if (colorStyleSelect) {
+    colorStyleSelect.value = coloredFoldersColorStyle;
+    colorStyleSelect.addEventListener('change', updateColorStylePreview);
+  }
   if (ruleSelect) {
     ruleSelect.value = initialHueRule;
     ruleSelect.addEventListener('change', updateHueVisibility);
@@ -168,6 +174,7 @@ export function showColoredFoldersSettings(): void {
       hueTooltip?.setAttribute('aria-label', `${hueSlider.value}deg`);
     });
   }
+  updateColorStylePreview();
   updateHueVisibility();
   dialog.element.querySelector('#neo-colored-folders-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-colored-folders-confirm')?.addEventListener('click', () => {
