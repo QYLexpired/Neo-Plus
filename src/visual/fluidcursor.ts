@@ -131,14 +131,17 @@ function startFluidCursor(): void {
   waves = [];
   function resize(): void {
     if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
-    if (ctx) {
-      ctx.scale(dpr, dpr);
-    }
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const deviceScale = window.devicePixelRatio || 1;
+    const maxCanvasPixels = 12_000_000;
+    const maxScale = Math.max(1, Math.sqrt(maxCanvasPixels / (width * height)));
+    const renderScale = Math.min(deviceScale, maxScale);
+    canvas.width = Math.round(width * renderScale);
+    canvas.height = Math.round(height * renderScale);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx?.setTransform(renderScale, 0, 0, renderScale, 0, 0);
   }
   resizeHandler = resize;
   resize();
