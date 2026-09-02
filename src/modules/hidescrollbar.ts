@@ -1,6 +1,11 @@
 import { isMac } from '../modules/env';
 const styleId = 'neo-hide-scrollbar-style';
-let _savedScrollbarRules: { sheetIndex: number; cssText: string }[] = [];
+interface SavedScrollbarRule {
+  sheet: CSSStyleSheet;
+  index: number;
+  cssText: string;
+}
+let _savedScrollbarRules: SavedScrollbarRule[] = [];
 function removeScrollbarStyles(): void {
   if (!isMac()) return;
   _savedScrollbarRules = [];
@@ -11,7 +16,7 @@ function removeScrollbarStyles(): void {
         const rule = ss.cssRules[j] as CSSStyleRule;
         if (rule.selectorText && rule.selectorText.includes('::-webkit-scrollbar')) {
           if (rule.style.width || rule.style.height || rule.style.backgroundColor) {
-            _savedScrollbarRules.push({ sheetIndex: i, cssText: rule.cssText });
+            _savedScrollbarRules.push({ sheet: ss, index: j, cssText: rule.cssText });
             ss.deleteRule(j);
             j--;
           }
@@ -27,13 +32,14 @@ function removeScrollbarStyles(): void {
   }
 }
 function restoreScrollbarStyles(): void {
-  for (const saved of _savedScrollbarRules) {
-    const ss = document.styleSheets[saved.sheetIndex];
-    if (ss) {
-      try {
-        ss.insertRule(saved.cssText, ss.cssRules.length);
-      } catch {}
-    }
+  const activeSheets = new Set(Array.from(document.styleSheets));
+  for (let i = _savedScrollbarRules.length - 1; i >= 0; i--) {
+    const saved = _savedScrollbarRules[i];
+    if (!activeSheets.has(saved.sheet)) continue;
+    try {
+      const index = Math.min(saved.index, saved.sheet.cssRules.length);
+      saved.sheet.insertRule(saved.cssText, index);
+    } catch {}
   }
   _savedScrollbarRules = [];
 }
