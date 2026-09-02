@@ -323,13 +323,10 @@ export function showMulticolumnSlashMenuSettings(): void {
     content: buildMulticolumnSlashMenuSettingsHTML(plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
-  loadConfig().then((config) => {
-    const arrowKeysCheckbox = dialog.element.querySelector('#neo-multicolumn-slash-menu-arrowkeys') as HTMLInputElement;
-    if (arrowKeysCheckbox) arrowKeysCheckbox.checked = config['multicolumn-slash-menu-arrowkeys'] !== false;
-  });
+  const arrowKeysCheckbox = dialog.element.querySelector('#neo-multicolumn-slash-menu-arrowkeys') as HTMLInputElement;
+  if (arrowKeysCheckbox) arrowKeysCheckbox.checked = arrowKeysOn;
   dialog.element.querySelector('#neo-multicolumn-slash-menu-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-multicolumn-slash-menu-confirm')?.addEventListener('click', () => {
-    const arrowKeysCheckbox = dialog.element.querySelector('#neo-multicolumn-slash-menu-arrowkeys') as HTMLInputElement;
     if (arrowKeysCheckbox) {
       const newValue = arrowKeysCheckbox.checked;
       arrowKeysOn = newValue;

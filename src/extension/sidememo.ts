@@ -339,6 +339,9 @@ function areConsecutiveSiblings(el1: HTMLElement, el2: HTMLElement): boolean {
   return true;
 }
 async function initSidememoRely(): Promise<boolean> {
+  const needKatex = !(window as any).katex;
+  const needHljs = !(window as any).hljs;
+  if (!needKatex && !needHljs) return false;
   try {
     const head = document.head;
     const createLink = (id: string, href: string) => {
@@ -368,11 +371,6 @@ async function initSidememoRely(): Promise<boolean> {
           head.appendChild(script);
         } catch (e) { reject(e); }
       });
-    const needKatex = !(window as any).katex;
-    const needHljs = !(window as any).hljs;
-    if (!needKatex && !needHljs) {
-      return true;
-    }
     const resources: Array<{ type: 'link' | 'script'; id: string; href?: string; src?: string }> = [];
     if (needKatex) {
       resources.push({ type: 'link', id: 'protyleKatexStyle', href: '/stage/protyle/js/katex/katex.min.css?v=0.16.9' });
@@ -395,7 +393,8 @@ async function initSidememoRely(): Promise<boolean> {
       } catch {}
     }
   } catch {}
-  return ((window as any).katex !== undefined) || ((window as any).hljs !== undefined);
+  return (needKatex && (window as any).katex !== undefined) ||
+    (needHljs && (window as any).hljs !== undefined);
 }
 let sideMemoPosition: 'left' | 'right' = 'right';
 let sideMemoConnector: boolean = true;
@@ -1102,7 +1101,9 @@ function enableSideMemo(): void {
   document.documentElement.classList.add('neo-extension-sidememo');
   neoFeatureActive = true;
   updateSideMemoPositionClass(sideMemoPosition);
-  initSidememoRely();
+  initSidememoRely().then((dependenciesLoaded) => {
+    if (dependenciesLoaded && neoFeatureActive) syncSidememoState();
+  });
   syncSidememoState();
   _fetchListener.attach();
 }

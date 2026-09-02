@@ -470,16 +470,12 @@ export function showFluidCursorSettings(): void {
     content: buildFluidCursorSettingsHTML(plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
-  loadConfig().then((config) => {
-    const trailCheckbox = dialog.element.querySelector('#neo-fluid-cursor-trail') as HTMLInputElement;
-    const waveCheckbox = dialog.element.querySelector('#neo-fluid-cursor-wave') as HTMLInputElement;
-    if (trailCheckbox) trailCheckbox.checked = config['fluid-cursor-trail'] !== false;
-    if (waveCheckbox) waveCheckbox.checked = config['fluid-cursor-wave'] !== false;
-  });
+  const trailCheckbox = dialog.element.querySelector('#neo-fluid-cursor-trail') as HTMLInputElement;
+  const waveCheckbox = dialog.element.querySelector('#neo-fluid-cursor-wave') as HTMLInputElement;
+  if (trailCheckbox) trailCheckbox.checked = trailOn;
+  if (waveCheckbox) waveCheckbox.checked = waveOn;
   dialog.element.querySelector('#neo-fluid-cursor-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-fluid-cursor-confirm')?.addEventListener('click', () => {
-    const trailCheckbox = dialog.element.querySelector('#neo-fluid-cursor-trail') as HTMLInputElement;
-    const waveCheckbox = dialog.element.querySelector('#neo-fluid-cursor-wave') as HTMLInputElement;
     if (trailCheckbox && waveCheckbox) {
       saveConfig({
         'fluid-cursor-trail': trailCheckbox.checked,
