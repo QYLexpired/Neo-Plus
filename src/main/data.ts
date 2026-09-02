@@ -52,6 +52,7 @@ export interface Config {
   'random-brightness-max'?: number;
   'texture-light'?: string;
   'texture-dark'?: string;
+  'texture-zlevels'?: Partial<Record<string, 'content' | 'topmost'>>;
   'customimage-info'?: string;
   'customimage-opacity'?: string;
   'customimage-blur'?: string;
@@ -84,13 +85,16 @@ export interface Config {
   'focus-block-indicator'?: boolean;
   'focus-block-effect'?: 'vertical-line' | 'shadow' | 'background';
   'colored-folders'?: boolean;
-  'colored-folders-style'?: 'partition' | 'simple' | 'card';
+  'colored-folders-layout'?: 'partition' | 'simple' | 'card';
+  'colored-folders-colorstyle'?: 'default' | 'vivid';
+  'colored-folders-initial-hue-rule'?: 'theme' | 'fixed';
+  'colored-folders-initial-hue'?: number;
   'colored-lists'?: boolean;
-  'colored-lists-style'?: 'default' | 'vivid';
+  'colored-lists-colorstyle'?: 'default' | 'vivid';
   'colored-lists-initial-hue-rule'?: 'theme' | 'fixed';
   'colored-lists-initial-hue'?: number;
   'colored-headings'?: boolean;
-  'colored-headings-style'?: 'default' | 'vivid';
+  'colored-headings-colorstyle'?: 'default' | 'vivid';
   'colored-headings-initial-hue-rule'?: 'theme' | 'fixed';
   'colored-headings-initial-hue'?: number;
   'colorful-selection'?: boolean;

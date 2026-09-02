@@ -12,6 +12,8 @@ import { showCustomImageSettings, enableCustomImage, destroyCustomImage } from '
 import { ensureTextureLayer, removeTextureLayer } from './layer';
 import { createSettingsMenuLabel } from '../modules/menusettings';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+import { getPlugin } from '../main/context';
+import { Dialog } from 'siyuan';
 export interface Texture {
   key: string;
   nameKey: string;
@@ -33,6 +35,12 @@ const textures: Texture[] = [
 ];
 let neoActiveTextureKey: string | null = null;
 let textureActionRevision = 0;
+type PresetTextureZLevel = 'content' | 'topmost';
+let presetTextureZLevels: Record<string, PresetTextureZLevel> = {};
+const presetTextureZLevelMap: Record<PresetTextureZLevel, string> = {
+  content: '1',
+  topmost: '99',
+};
 export { textures };
 export function getTextureKey(mode: 'light' | 'dark'): 'texture-light' | 'texture-dark' {
   return mode === 'dark' ? 'texture-dark' : 'texture-light';
@@ -69,7 +77,12 @@ function buildTextureMenuItem(texture: Texture, i18n: Record<string, string>): a
   return {
     id: `neo-texture-${texture.key}-button`,
     icon: 'iconNeoTexture',
-    label: i18n[texture.nameKey],
+    label: createSettingsMenuLabel(
+      `presetTexture-${texture.key}`,
+      i18n[texture.nameKey],
+      i18n.presetTextureSettings,
+      () => showPresetTextureSettings(texture.key, i18n[texture.nameKey]),
+    ),
     click: () => {
       textureActionRevision++;
       if (neoActiveTextureKey === texture.key) {
@@ -110,6 +123,21 @@ function getCustomImagePreset(config: Config): CustomImageSource | undefined {
   const preset = config[getCustomImagePresetConfigKey(presetName)];
   return preset && typeof preset === 'object' ? preset : undefined;
 }
+function getPresetTextureZLevel(textureKey: string): PresetTextureZLevel {
+  return presetTextureZLevels[textureKey] === 'content' ? 'content' : 'topmost';
+}
+function loadPresetTextureZLevels(config: Config): void {
+  const values = config['texture-zlevels'];
+  presetTextureZLevels = {};
+  if (!values || typeof values !== 'object') return;
+  for (const [textureKey, value] of Object.entries(values)) {
+    if (value === 'content' || value === 'topmost') presetTextureZLevels[textureKey] = value;
+  }
+}
+function applyPresetTextureZLevel(textureKey: string): void {
+  const zlevel = getPresetTextureZLevel(textureKey);
+  document.documentElement.style.setProperty('--neo-texture-zlevel', presetTextureZLevelMap[zlevel]);
+}
 function enableTexture(textureKey: string, config?: Config): void {
   if (neoActiveTextureKey === textureKey) return;
   ensureTextureLayer();
@@ -117,6 +145,7 @@ function enableTexture(textureKey: string, config?: Config): void {
   if (textureKey === 'customimage') {
     enableCustomImage(config ? getCustomImagePreset(config) : undefined);
   } else {
+    applyPresetTextureZLevel(textureKey);
     document.documentElement.classList.add(`neo-texture-${textureKey}`);
   }
   neoActiveTextureKey = textureKey;
@@ -124,6 +153,7 @@ function enableTexture(textureKey: string, config?: Config): void {
 function disableTexture(): void {
   neoActiveTextureKey = null;
   destroyCustomImage();
+  document.documentElement.style.removeProperty('--neo-texture-zlevel');
   removeCssByPrefix('texture-');
   document.documentElement.classList.remove(
     ...Array.from(document.documentElement.classList).filter((cls) => cls.startsWith('neo-texture-'))
@@ -131,6 +161,7 @@ function disableTexture(): void {
   removeTextureLayer();
 }
 export function applyTexture(config: Config): void {
+  loadPresetTextureZLevels(config);
   const mode = getCurrentThemeMode();
   const texKey = getTextureKey(mode);
   const textureKey = config[texKey];
@@ -138,6 +169,51 @@ export function applyTexture(config: Config): void {
   if (textureKey && textureKey !== 'none') {
     enableTexture(textureKey, config);
   }
+}
+function buildPresetTextureSettingsHTML(i18n: Record<string, string>): string {
+  return `<div class="b3-dialog__content">
+    <div class="config__tab-container">
+      <div class="config-group">
+        <div class="config-items">
+          <label class="fn__flex b3-label config-item">
+            <div class="fn__flex-1 config-item__main">
+              <div class="config-name">${i18n.presetTextureZLevel}</div>
+              <div class="b3-label__text">${i18n.presetTextureZLevelTip}</div>
+            </div>
+            <span class="fn__space"></span>
+            <select class="b3-select fn__flex-center fn__size200" id="neo-preset-texture-zlevel">
+              <option value="content">${i18n.presetTextureZLevelContent}</option>
+              <option value="topmost">${i18n.presetTextureZLevelTopmost}</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="b3-dialog__action">
+    <button class="b3-button b3-button--cancel" id="neo-preset-texture-cancel">${i18n.cancel}</button>
+    <span class="fn__space"></span>
+    <button class="b3-button b3-button--text" id="neo-preset-texture-confirm">${i18n.confirm}</button>
+  </div>`;
+}
+function showPresetTextureSettings(textureKey: string, textureLabel: string): void {
+  const plugin = getPlugin();
+  if (!plugin) return;
+  const dialog = new Dialog({
+    title: `${plugin.i18n.presetTextureSettings} · ${textureLabel}`,
+    content: buildPresetTextureSettingsHTML(plugin.i18n),
+  });
+  dialog.element.classList.add('neo-settings-dialog');
+  const zlevelSelect = dialog.element.querySelector('#neo-preset-texture-zlevel') as HTMLSelectElement | null;
+  if (zlevelSelect) zlevelSelect.value = getPresetTextureZLevel(textureKey);
+  dialog.element.querySelector('#neo-preset-texture-cancel')?.addEventListener('click', () => dialog.destroy());
+  dialog.element.querySelector('#neo-preset-texture-confirm')?.addEventListener('click', () => {
+    const zlevel: PresetTextureZLevel = zlevelSelect?.value === 'content' ? 'content' : 'topmost';
+    presetTextureZLevels = { ...presetTextureZLevels, [textureKey]: zlevel };
+    saveConfig({ 'texture-zlevels': { ...presetTextureZLevels } } as Partial<Config>);
+    if (neoActiveTextureKey === textureKey) applyPresetTextureZLevel(textureKey);
+    dialog.destroy();
+  });
 }
 async function reloadAndApplyTexture(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();

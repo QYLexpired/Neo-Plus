@@ -4,22 +4,18 @@ import { featureCss } from '../modules/csschunks';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { getPlugin } from '../main/context';
 import { Dialog } from 'siyuan';
-
 type InitialHueRule = 'theme' | 'fixed';
-type ColoredHeadingsStyle = 'default' | 'vivid';
-
+type ColoredHeadingsColorStyle = 'default' | 'vivid';
 const defaultInitialHue = 0;
-let coloredHeadingsStyle: ColoredHeadingsStyle = 'default';
+let coloredHeadingsColorStyle: ColoredHeadingsColorStyle = 'default';
 let initialHueRule: InitialHueRule = 'theme';
 let initialHue = defaultInitialHue;
 let neoFeatureActive = false;
-
 function normalizeInitialHue(value: unknown): number {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return defaultInitialHue;
   return Math.min(360, Math.max(0, Math.round(parsed)));
 }
-
 function applyInitialHue(): void {
   if (initialHueRule === 'fixed') {
     document.documentElement.style.setProperty('--_coloredheadings-initial-hue', String(initialHue));
@@ -27,20 +23,17 @@ function applyInitialHue(): void {
     document.documentElement.style.removeProperty('--_coloredheadings-initial-hue');
   }
 }
-
-function applyStyle(): void {
-  if (coloredHeadingsStyle === 'vivid') {
+function applyColorStyle(): void {
+  if (coloredHeadingsColorStyle === 'vivid') {
     document.documentElement.style.setProperty('--_coloredheadings-c', '0.185');
   } else {
     document.documentElement.style.removeProperty('--_coloredheadings-c');
   }
 }
-
 function applySettings(): void {
-  applyStyle();
+  applyColorStyle();
   applyInitialHue();
 }
-
 function enableColoredHeadings(): void {
   if (neoFeatureActive) return;
   ensureCss('element-coloredheadings', featureCss['element-coloredheadings']);
@@ -52,7 +45,7 @@ export function initColoredHeadings(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
-    coloredHeadingsStyle = config['colored-headings-style'] === 'vivid' ? 'vivid' : 'default';
+    coloredHeadingsColorStyle = config['colored-headings-colorstyle'] === 'vivid' ? 'vivid' : 'default';
     initialHueRule = config['colored-headings-initial-hue-rule'] === 'fixed' ? 'fixed' : 'theme';
     initialHue = normalizeInitialHue(config['colored-headings-initial-hue']);
     if (neoFeatureActive) {
@@ -71,10 +64,9 @@ export function onColoredHeadingsClick(): void {
     saveConfig({ 'colored-headings': true } as Partial<Config>);
   }
 }
-
 function buildSettingsHTML(i18n: Record<string, string>): string {
-  const styleOptions = ['default', 'vivid']
-    .map(value => `<option value="${value}">${i18n[`coloredHeadingsStyle${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
+  const colorStyleOptions = ['default', 'vivid']
+    .map(value => `<option value="${value}">${i18n[`coloredHeadingsColorStyle${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
   const ruleOptions = ['theme', 'fixed']
     .map(value => `<option value="${value}">${i18n[`coloredHeadingsInitialHueRule${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
@@ -86,12 +78,12 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
         <div class="config-items">
           <label class="fn__flex b3-label config-item">
             <div class="fn__flex-1 config-item__main">
-              <div class="config-name">${i18n.coloredHeadingsStyle}</div>
-              <div class="b3-label__text">${i18n.coloredHeadingsStyleTip}</div>
+              <div class="config-name">${i18n.coloredHeadingsColorStyle}</div>
+              <div class="b3-label__text">${i18n.coloredHeadingsColorStyleTip}</div>
             </div>
             <span class="fn__space"></span>
-            <select class="b3-select fn__flex-center fn__size200" id="neo-colored-headings-style">
-              ${styleOptions}
+            <select class="b3-select fn__flex-center fn__size200" id="neo-colored-headings-colorstyle">
+              ${colorStyleOptions}
             </select>
           </label>
           <label class="fn__flex b3-label config-item">
@@ -124,7 +116,6 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <button class="b3-button b3-button--text" id="neo-colored-headings-confirm">${i18n.confirm}</button>
   </div>`;
 }
-
 export function showColoredHeadingsSettings(): void {
   const plugin = getPlugin();
   if (!plugin) return;
@@ -133,7 +124,7 @@ export function showColoredHeadingsSettings(): void {
     content: buildSettingsHTML(plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
-  const styleSelect = dialog.element.querySelector('#neo-colored-headings-style') as HTMLSelectElement | null;
+  const colorStyleSelect = dialog.element.querySelector('#neo-colored-headings-colorstyle') as HTMLSelectElement | null;
   const ruleSelect = dialog.element.querySelector('#neo-colored-headings-initial-hue-rule') as HTMLSelectElement | null;
   const hueItem = dialog.element.querySelector('#neo-colored-headings-initial-hue-item') as HTMLElement | null;
   const hueSlider = dialog.element.querySelector('#neo-colored-headings-initial-hue') as HTMLInputElement | null;
@@ -141,7 +132,7 @@ export function showColoredHeadingsSettings(): void {
   const updateHueVisibility = (): void => {
     hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
   };
-  if (styleSelect) styleSelect.value = coloredHeadingsStyle;
+  if (colorStyleSelect) colorStyleSelect.value = coloredHeadingsColorStyle;
   if (ruleSelect) {
     ruleSelect.value = initialHueRule;
     ruleSelect.addEventListener('change', updateHueVisibility);
@@ -155,14 +146,14 @@ export function showColoredHeadingsSettings(): void {
   updateHueVisibility();
   dialog.element.querySelector('#neo-colored-headings-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-colored-headings-confirm')?.addEventListener('click', () => {
-    const newStyle: ColoredHeadingsStyle = styleSelect?.value === 'vivid' ? 'vivid' : 'default';
+    const newColorStyle: ColoredHeadingsColorStyle = colorStyleSelect?.value === 'vivid' ? 'vivid' : 'default';
     const newRule: InitialHueRule = ruleSelect?.value === 'fixed' ? 'fixed' : 'theme';
     const newHue = normalizeInitialHue(hueSlider?.value);
-    coloredHeadingsStyle = newStyle;
+    coloredHeadingsColorStyle = newColorStyle;
     initialHueRule = newRule;
     initialHue = newHue;
     saveConfig({
-      'colored-headings-style': newStyle,
+      'colored-headings-colorstyle': newColorStyle,
       'colored-headings-initial-hue-rule': newRule,
       'colored-headings-initial-hue': newHue,
     } as Partial<Config>);
@@ -170,7 +161,6 @@ export function showColoredHeadingsSettings(): void {
     dialog.destroy();
   });
 }
-
 export function destroyColoredHeadings(): void {
   neoFeatureActive = false;
   removeCss('element-coloredheadings');

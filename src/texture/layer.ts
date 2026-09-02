@@ -3,7 +3,7 @@ function applyLayerBaseStyle(layer: HTMLElement): void {
   layer.style.position = 'fixed';
   layer.style.inset = '0';
   layer.style.pointerEvents = 'none';
-  layer.style.zIndex = 'var(--neo-customimage-zlevel, 99)';
+  layer.style.zIndex = 'var(--neo-texture-zlevel, var(--neo-customimage-zlevel, 99))';
 }
 export function ensureTextureLayer(): HTMLElement {
   const existing = document.getElementById(textureLayerId);

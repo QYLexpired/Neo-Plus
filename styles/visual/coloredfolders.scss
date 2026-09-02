@@ -2,10 +2,12 @@
 @use "../utils" as *;
 $border-width: 3px;
 .neo-mode-light {
+    --_coloredfolders-initial-hue: h;
     --_coloredfolders-l: l;
     --_coloredfolders-c: 0.12;
 }
 .neo-mode-dark {
+    --_coloredfolders-initial-hue: h;
     --_coloredfolders-l: l;
     --_coloredfolders-c: 0.12;
 }
@@ -41,22 +43,22 @@ $border-width: 3px;
                     @for $i from 0 through 7 {
                         $hue-offset: #{$i * 45};
                         &:nth-of-type(8n + #{$i + 1}) {
-                            background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(h + #{$hue-offset}) / 0.12);
-                            --b3-list-hover: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(h + #{$hue-offset}) / 0.12);
-                            --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(h + #{$hue-offset}) / 0.15);
-                            --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}) / 0.36);
+                            background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            --b3-list-hover: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.15);
+                            --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.36);
                             &::before {
-                                background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(h + #{$hue-offset}) / 0.5);
+                                background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.5);
                             }
                             .b3-list-item[data-type="navigation-root"] {
                                 .b3-list-item__text,
                                 .b3-list-item__icon svg {
-                                    color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}));
+                                    color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
                                     font-weight: bold;
                                 }
                             }
                             .b3-list-item__toggle svg {
-                                color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}));
+                                color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
                             }
                         }
                     }
@@ -81,18 +83,18 @@ $border-width: 3px;
                     @for $i from 0 through 7 {
                         $hue-offset: #{$i * 45};
                         &:nth-of-type(8n + #{$i + 1}) {
-                            --b3-list-hover: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(h + #{$hue-offset}) / 0.12);
-                            --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(h + #{$hue-offset}) / 0.15);
-                            --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}) / 0.36);
+                            --b3-list-hover: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.15);
+                            --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.36);
                             .b3-list-item[data-type="navigation-root"] {
                                 .b3-list-item__text,
                                 .b3-list-item__icon svg {
-                                    color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}));
+                                    color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
                                     font-weight: bold;
                                 }
                             }
                             .b3-list-item__toggle svg {
-                                color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}));
+                                color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
                             }
                         }
                     }
@@ -120,20 +122,20 @@ $border-width: 3px;
                     @for $i from 0 through 7 {
                         $hue-offset: #{$i * 45};
                         &:nth-of-type(8n + #{$i + 1}) {
-                            background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(h + #{$hue-offset}) / 0.12);
-                            outline: 1px solid oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(h + #{$hue-offset}) / 0.065);
-                            --b3-list-hover: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(h + #{$hue-offset}) / 0.12);
-                            --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(h + #{$hue-offset}) / 0.15);
-                            --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}) / 0.36);
+                            background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            outline: 1px solid oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.065);
+                            --b3-list-hover: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.15);
+                            --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.36);
                             .b3-list-item[data-type="navigation-root"] {
                                 .b3-list-item__text,
                                 .b3-list-item__icon svg {
-                                    color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}));
+                                    color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
                                     font-weight: bold;
                                 }
                             }
                             .b3-list-item__toggle svg {
-                                color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(h + #{$hue-offset}));
+                                color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
                             }
                         }
                     }
@@ -144,5 +146,19 @@ $border-width: 3px;
                 }
             }
         }
+    }
+}
+#neo-colored-folders-initial-hue {
+    &::-webkit-slider-runnable-track {
+        background: linear-gradient(
+            in oklch to right,
+            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 0),
+            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 60),
+            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 120),
+            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 180),
+            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 240),
+            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 300),
+            oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) 360)
+        );
     }
 }
