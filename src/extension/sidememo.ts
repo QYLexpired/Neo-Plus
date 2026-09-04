@@ -47,10 +47,17 @@ function getLute() {
   if (!_lute && typeof (window as any).Lute !== 'undefined') {
     _lute = (window as any).Lute.New();
     const syConfig = (window as any).siyuan.config.editor.markdown;
+    _lute.SetInlineMathAllowDigitAfterOpenMarker(true);
+    _lute.SetInlineAsterisk(syConfig.inlineAsterisk);
+    _lute.SetInlineUnderscore(syConfig.inlineUnderscore);
     _lute.SetSup(syConfig.inlineSup);
     _lute.SetSub(syConfig.inlineSub);
-    _lute.SetMark(syConfig.inlineMark);
     _lute.SetTag(syConfig.inlineTag);
+    _lute.SetInlineMath(syConfig.inlineMath);
+    _lute.SetGFMStrikethrough1(false);
+    _lute.SetGFMStrikethrough(syConfig.inlineStrikethrough);
+    _lute.SetFullWidthStrikethrough?.(syConfig.inlineFullWidthStrikethrough);
+    _lute.SetMark(syConfig.inlineMark);
     _lute.SetJSRenderers({
       renderers: {
         Md2HTML: {

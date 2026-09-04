@@ -32,7 +32,7 @@ function applyColorStyle(): void {
     document.documentElement.style.removeProperty('--_coloredheadings-c');
     return;
   }
-  document.documentElement.style.setProperty('--_coloredheadings-c', coloredHeadingsColorStyle === 'soft' ? '0.05' : '0.185');
+  document.documentElement.style.setProperty('--_coloredheadings-c', coloredHeadingsColorStyle === 'soft' ? '0.05' : '0.2');
 }
 function applySettings(): void {
   applyColorStyle();

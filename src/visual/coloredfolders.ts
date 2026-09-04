@@ -32,7 +32,7 @@ function applyColorStyle(): void {
     document.documentElement.style.removeProperty('--_coloredfolders-c');
     return;
   }
-  document.documentElement.style.setProperty('--_coloredfolders-c', coloredFoldersColorStyle === 'soft' ? '0.08' : '0.185');
+  document.documentElement.style.setProperty('--_coloredfolders-c', coloredFoldersColorStyle === 'soft' ? '0.08' : '0.2');
 }
 function applyInitialHue(): void {
   if (initialHueRule === 'fixed') {
