@@ -1,0 +1,150 @@
+@use "manager" as *;
+@use "../utils" as *;
+$border-width: 3px;
+.neo-mode-light {
+    --_coloredfolders-initial-hue: h;
+    --_coloredfolders-l: l;
+    --_coloredfolders-c: 0.12;
+}
+.neo-mode-dark {
+    --_coloredfolders-initial-hue: h;
+    --_coloredfolders-l: l;
+    --_coloredfolders-c: 0.12;
+}
+.neo-coloredfolders {
+    @include appearance-common('[data-id="neo-coloredfolders-button"]', '[data-id="neo-appearance-button"]');
+    body.neo-coloredfolders-partition {
+        .sy__file,
+        [data-type="sidebar-file"] {
+            --_indentline-dot-trans: -10px;
+            --_indentline-ul-trans: 24px;
+            --_indentline-li-trans: 6px;
+            & .b3-list-item {
+                margin: 1px 0;
+                border-radius: 0;
+            }
+            & > .fn__flex-1 {
+                & > ul {
+                    margin: 0 10px 0 15px;
+                    position: relative;
+                    &::before {
+                        content: "";
+                        position: absolute;
+                        left: calc(-1 * $border-width);
+                        top: 0;
+                        bottom: 0;
+                        width: $border-width;
+                        z-index: 3;
+                        pointer-events: none;
+                    }
+                    &:not(:last-child) {
+                        margin-bottom: 3px;
+                    }
+                    @for $i from 0 through 7 {
+                        $hue-offset: #{$i * 45};
+                        &:nth-of-type(8n + #{$i + 1}) {
+                            background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            --b3-list-hover: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.15);
+                            --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.36);
+                            &::before {
+                                background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.5);
+                            }
+                            .b3-list-item[data-type="navigation-root"] {
+                                .b3-list-item__text,
+                                .b3-list-item__icon svg {
+                                    color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
+                                    font-weight: bold;
+                                }
+                            }
+                            .b3-list-item__toggle svg {
+                                color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
+                            }
+                        }
+                    }
+                    & > li:first-child {
+                        margin-inline-start: 0;
+                        margin-inline-end: 0;
+                    }
+                    & ul {
+                        &::before {
+                            left: calc(var(--neo-indent-offset) - 6px)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    body.neo-coloredfolders-simple {
+        .sy__file,
+        [data-type="sidebar-file"] {
+            & > .fn__flex-1 {
+                & > ul {
+                    @for $i from 0 through 7 {
+                        $hue-offset: #{$i * 45};
+                        &:nth-of-type(8n + #{$i + 1}) {
+                            --b3-list-hover: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.15);
+                            --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.36);
+                            .b3-list-item[data-type="navigation-root"] {
+                                .b3-list-item__text,
+                                .b3-list-item__icon svg {
+                                    color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
+                                    font-weight: bold;
+                                }
+                            }
+                            .b3-list-item__toggle svg {
+                                color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    body.neo-coloredfolders-card {
+        .sy__file,
+        [data-type="sidebar-file"] {
+            --_indentline-dot-trans: -10px;
+            --_indentline-ul-trans: 24px;
+            --_indentline-li-trans: 6px;
+            & .b3-list-item {
+                margin: 1px 0;
+            }
+            & > .fn__flex-1 {
+                & > ul {
+                    margin: 0 10px;
+                    @include superellipse-use(8px);
+                    outline-offset: -1px;
+                    &:not(:last-child) {
+                        margin-bottom: 3px;
+                    }
+                    @for $i from 0 through 7 {
+                        $hue-offset: #{$i * 45};
+                        &:nth-of-type(8n + #{$i + 1}) {
+                            background-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            outline: 1px solid oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.065);
+                            --b3-list-hover: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) var(--_coloredfolders-c) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.12);
+                            --b3-list-active: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) + 0.03) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.15);
+                            --_indentline-color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}) / 0.36);
+                            .b3-list-item[data-type="navigation-root"] {
+                                .b3-list-item__text,
+                                .b3-list-item__icon svg {
+                                    color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
+                                    font-weight: bold;
+                                }
+                            }
+                            .b3-list-item__toggle svg {
+                                color: oklch(from var(--b3-theme-accent) var(--_coloredfolders-l) calc(var(--_coloredfolders-c) - 0.04) calc(var(--_coloredfolders-initial-hue) + #{$hue-offset}));
+                            }
+                        }
+                    }
+                    & > li:first-child {
+                        margin-inline-start: 0;
+                        margin-inline-end: 0;
+                    }
+                }
+            }
+        }
+    }
+}

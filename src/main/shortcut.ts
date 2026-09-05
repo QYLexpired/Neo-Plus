@@ -1,8 +1,7 @@
 import { getPlugin } from './context';
 import { switchToPlan } from '../palette/manager';
-import { onImmersiveModeClick } from '../extension/immersivemode';
 import { openNeoMenu } from './topbar';
-const shortcutLangKeys = ['neoMenu', 'random', 'immersiveMode'];
+const shortcutLangKeys = ['neoMenu', 'random'];
 export function initShortcuts(): void {
   const plugin = getPlugin();
   if (!plugin) return;
@@ -18,13 +17,6 @@ export function initShortcuts(): void {
     hotkey: '',
     callback: () => {
       switchToPlan('random');
-    },
-  });
-  plugin.addCommand({
-    langKey: 'immersiveMode',
-    hotkey: '',
-    callback: () => {
-      onImmersiveModeClick();
     },
   });
 }

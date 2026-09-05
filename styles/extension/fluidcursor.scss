@@ -1,0 +1,4 @@
+@use "manager" as *;
+.neo-fluidcursor {
+    @include extension-common('[data-id="neo-fluidcursor-button"]', '[data-id="neo-extension-button"]');
+}

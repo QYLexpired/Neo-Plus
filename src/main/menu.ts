@@ -4,27 +4,23 @@ import { loadConfig } from './data';
 import { createBrightnessSliderHTML, createColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
 import { showRandomSettings } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
-import { onSmoothCaretClick, showSmoothCaretSettings } from '../visual/smoothcaret';
-import { onFluidCursorClick, showFluidCursorSettings } from '../visual/fluidcursor';
+import { onSmoothCaretClick, showSmoothCaretSettings } from '../extension/smoothcaret';
+import { onFluidCursorClick, showFluidCursorSettings } from '../extension/fluidcursor';
+import { onCardSearchListClick } from '../extension/cardsearchlist';
 import { onListBulletLineClick } from '../extension/listbulletline';
 import { onFocusBlockIndicatorClick, showFocusBlockIndicatorSettings } from '../extension/focusblockindicator';
-import { onFrostedGlassClick, showFrostedGlassSettings } from '../visual/frostedglass';
-import { onScrollEffectClick } from '../visual/scrolleffect';
-import { onIdeClick } from '../ide/ide';
-import { onColoredFoldersClick, showColoredFoldersSettings } from '../visual/coloredfolders';
-import { onVerticalTabsClick, showVerticalTabsSettings } from '../verticaltabs/verticaltabs';
-import { onImmersiveModeClick, showImmersiveModeSettings } from '../extension/immersivemode';
-import { onSuperFusionClick, showSuperFusionSettings } from '../superfusion/superfusion';
+import { onFrostedGlassClick, showFrostedGlassSettings } from '../interface/frostedglass';
+import { onIdeClick } from '../interface/ide';
+import { onColoredFoldersClick, showColoredFoldersSettings } from '../appearance/coloredfolders';
+import { onVerticalTabsClick, showVerticalTabsSettings } from '../interface/verticaltabs';
+import { onSuperFusionClick, showSuperFusionSettings } from '../interface/superfusion';
 import { isMobile } from '../modules/env';
-import { onSidebarMuteClick } from '../sidebarmute/sidebarmute';
-import { onCardSearchListClick } from '../visual/cardsearchlist';
-import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../visual/multicolumnslashmenu';
-import { onColoredListsClick, showColoredListsSettings } from '../element/coloredlists';
-import { onPinnedToolbarClick, showPinnedToolbarSettings } from '../extension/pinnedtoolbar';
-import { onSideMemoClick, showSideMemoSettings } from '../extension/sidememo';
-import { onColoredHeadingsClick, showColoredHeadingsSettings } from '../element/coloredheadings';
-import { onColorfulSelectionClick } from '../element/colorfulselection';
-import { onHideToolbarClick } from '../modules/hidetoolbar';
+import { onSidebarMuteClick } from '../interface/sidebarmute';
+import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../extension/multicolumnslashmenu';
+import { onColoredListsClick, showColoredListsSettings } from '../appearance/coloredlists';
+import { onColoredHeadingsClick, showColoredHeadingsSettings } from '../appearance/coloredheadings';
+import { onColorfulSelectionClick } from '../appearance/colorfulselection';
+import { onHideToolbarClick } from '../interface/hidetoolbar';
 import { createSettingsMenuLabel } from '../modules/menusettings';
 import { createNeoLifecycleGuard } from './lifecycle';
 export function buildMenu(
@@ -63,12 +59,12 @@ export function buildMenu(
   const configPromise = loadConfig();
   const isCurrent = createNeoLifecycleGuard();
   menu.addItem({
-    id: 'neo-custom-color-button',
+    id: 'neo-customcolor-button',
     iconHTML: createColorPickerHTML(),
     label: i18n.customThemeColor,
     click: () => {
       switchToPlan('custom');
-      const colorInput = document.querySelector<HTMLInputElement>('[data-id="neo-custom-color-button"] input[type="color"]');
+      const colorInput = document.querySelector<HTMLInputElement>('[data-id="neo-customcolor-button"] input[type="color"]');
       colorInput?.click();
       return true;
     },
@@ -77,7 +73,7 @@ export function buildMenu(
     if (!isCurrent() || !menuActive) return;
     requestAnimationFrame(() => {
       if (!isCurrent() || !menuActive) return;
-      const customPicker = document.querySelector<HTMLInputElement>('[data-id="neo-custom-color-button"] input[type="color"]');
+      const customPicker = document.querySelector<HTMLInputElement>('[data-id="neo-customcolor-button"] input[type="color"]');
       if (customPicker) {
         customPicker.value = getThemeColor(config);
       }
@@ -101,6 +97,7 @@ export function buildMenu(
       return true;
     },
   });
+  menu.addSeparator();
   menu.addItem({
     id: 'neo-saturation-button',
     icon: 'iconNeoSaturation',
@@ -133,76 +130,71 @@ export function buildMenu(
       },
     });
   }
-  if (!isMobile()) {
-    menu.addSeparator();
-    menu.addItem({
-      id: 'neo-ide-button',
-      icon: 'iconNeoIde',
-      label: i18n.ide,
-      click: () => {
-        onIdeClick();
-        return true;
-      },
-    });
-  }
-  if (!isMobile()) {
-    menu.addItem({
-      id: 'neo-super-fusion-button',
-      icon: 'iconNeoSuperFusion',
-      label: createSettingsMenuLabel(
-        'superFusion',
-        i18n.superFusion,
-        i18n.superFusionSettings,
-        showSuperFusionSettings,
-      ),
-      click: () => {
-        onSuperFusionClick();
-        return true;
-      },
-    });
-  }
-  if (!isMobile()) {
-    menu.addItem({
-      id: 'neo-sidebar-mute-button',
-      icon: 'iconNeoSidebarMute',
-      label: i18n.sidebarMute,
-      click: () => {
-        onSidebarMuteClick();
-        return true;
-      },
-    });
-    menu.addItem({
-      id: 'neo-vertical-tabs-button',
-      icon: 'iconNeoVerticalTabs',
-      label: createSettingsMenuLabel(
-        'verticalTabs',
-        i18n.verticalTabs,
-        i18n.verticaltabsSettings,
-        showVerticalTabsSettings,
-      ),
-      click: () => {
-        onVerticalTabsClick();
-        return true;
-      },
-    });
-    menu.addItem({
-      id: 'neo-hide-toolbar-button',
-      icon: 'iconNeoHideToolbar',
-      label: i18n.hideToolbar,
-      click: () => {
-        onHideToolbarClick();
-        return true;
-      },
-    });
-  }
   menu.addSeparator();
   menu.addItem({
-    id: 'neo-visual-button',
-    icon: 'iconNeoVisual',
-    label: i18n.visual,
+    id: 'neo-interface-button',
+    icon: 'iconNeoInterface',
+    label: i18n.interface,
     submenu: [
+      ...(!isMobile() ? [
+        {
+          id: 'neo-ide-button',
+          icon: 'iconNeoIde',
+          label: i18n.ide,
+          click: () => {
+            onIdeClick();
+            return true;
+          },
+        },
+        {
+          id: 'neo-superfusion-button',
+          icon: 'iconNeoSuperFusion',
+          label: createSettingsMenuLabel(
+            'superFusion',
+            i18n.superFusion,
+            i18n.superFusionSettings,
+            showSuperFusionSettings,
+          ),
+          click: () => {
+            onSuperFusionClick();
+            return true;
+          },
+        },
+        {
+          id: 'neo-sidebarmute-button',
+          icon: 'iconNeoSidebarMute',
+          label: i18n.sidebarMute,
+          click: () => {
+            onSidebarMuteClick();
+            return true;
+          },
+        },
+        {
+          id: 'neo-verticaltabs-button',
+          icon: 'iconNeoVerticalTabs',
+          label: createSettingsMenuLabel(
+            'verticalTabs',
+            i18n.verticalTabs,
+            i18n.verticaltabsSettings,
+            showVerticalTabsSettings,
+          ),
+          click: () => {
+            onVerticalTabsClick();
+            return true;
+          },
+        },
+        {
+          id: 'neo-hidetoolbar-button',
+          icon: 'iconNeoHideToolbar',
+          label: i18n.hideToolbar,
+          click: () => {
+            onHideToolbarClick();
+            return true;
+          },
+        },
+      ] : []),
       {
-        id: 'neo-frosted-glass-button',
+        id: 'neo-frostedglass-button',
         icon: 'iconNeoFrostedGlass',
         label: createSettingsMenuLabel(
           'frostedGlass',
@@ -215,17 +207,15 @@ export function buildMenu(
           return true;
         },
       },
+    ],
+  });
+  menu.addItem({
+    id: 'neo-appearance-button',
+    icon: 'iconNeoAppearance',
+    label: i18n.appearance,
+    submenu: [
       {
-        id: 'neo-scroll-effect-button',
-        icon: 'iconNeoScrollEffect',
-        label: i18n.scrollEffect,
-        click: () => {
-          onScrollEffectClick();
-          return true;
-        },
-      },
-      {
-        id: 'neo-colored-folders-button',
+        id: 'neo-coloredfolders-button',
         icon: 'iconFiles',
         label: createSettingsMenuLabel(
           'coloredFolders',
@@ -238,90 +228,8 @@ export function buildMenu(
           return true;
         },
       },
-      ...(!isMobile() ? [
-        {
-          id: 'neo-multicolumn-slash-menu-button',
-          icon: 'iconNeoMulticolumnSlashMenu',
-          label: createSettingsMenuLabel(
-            'multicolumnSlashMenu',
-            i18n.multicolumnSlashMenu,
-            i18n.multicolumnSlashMenuSettings,
-            showMulticolumnSlashMenuSettings,
-          ),
-          click: () => {
-            onMulticolumnSlashMenuClick();
-            return true;
-          },
-        },
-      ] : []),
       {
-        id: 'neo-card-search-list-button',
-        icon: 'iconSearch',
-        label: i18n.cardSearchList,
-        click: () => {
-          onCardSearchListClick();
-          return true;
-        },
-      },
-      {
-        id: 'neo-smooth-caret-button',
-        icon: 'iconNeoSmoothCaret',
-        label: createSettingsMenuLabel(
-          'smoothCaret',
-          i18n.smoothCaret,
-          i18n.smoothCaretSettings,
-          showSmoothCaretSettings,
-        ),
-        click: () => {
-          onSmoothCaretClick();
-          return true;
-        },
-      },
-      ...(!isMobile() ? [
-        {
-          id: 'neo-fluid-cursor-button',
-          icon: 'iconNeoFluidCursor',
-          label: createSettingsMenuLabel(
-            'fluidCursor',
-            i18n.fluidCursor,
-            i18n.fluidCursorSettings,
-            showFluidCursorSettings,
-          ),
-          click: () => {
-            onFluidCursorClick();
-            return true;
-          },
-        },
-      ] : []),
-    ],
-  });
-  menu.addItem({
-    id: 'neo-texture-button',
-    icon: 'iconNeoTexture',
-    label: i18n.texture,
-    submenu: getTextureMenuItems(i18n),
-  });
-  menu.addItem({
-    id: 'neo-element-button',
-    icon: 'iconNeoElement',
-    label: i18n.element,
-    submenu: [
-      {
-        id: 'neo-colored-lists-button',
-        icon: 'iconNeoList',
-        label: createSettingsMenuLabel(
-          'coloredLists',
-          i18n.coloredLists,
-          i18n.coloredListsSettings,
-          showColoredListsSettings,
-        ),
-        click: () => {
-          onColoredListsClick();
-          return true;
-        },
-      },
-      {
-        id: 'neo-colored-headings-button',
+        id: 'neo-coloredheadings-button',
         icon: 'iconNeoColoredHeadings',
         label: createSettingsMenuLabel(
           'coloredHeadings',
@@ -335,7 +243,21 @@ export function buildMenu(
         },
       },
       {
-        id: 'neo-colorful-selection-button',
+        id: 'neo-coloredlists-button',
+        icon: 'iconNeoList',
+        label: createSettingsMenuLabel(
+          'coloredLists',
+          i18n.coloredLists,
+          i18n.coloredListsSettings,
+          showColoredListsSettings,
+        ),
+        click: () => {
+          onColoredListsClick();
+          return true;
+        },
+      },
+      {
+        id: 'neo-colorfulselection-button',
         icon: 'iconNeoColorfulSelection',
         label: i18n.colorfulSelection,
         click: () => {
@@ -346,26 +268,18 @@ export function buildMenu(
     ],
   });
   menu.addItem({
+    id: 'neo-texture-button',
+    icon: 'iconNeoTexture',
+    label: i18n.texture,
+    submenu: getTextureMenuItems(i18n),
+  });
+  menu.addItem({
     id: 'neo-extension-button',
     icon: 'iconNeoExtension',
     label: i18n.extension,
     submenu: [
       {
-        id: 'neo-immersive-mode-button',
-        icon: 'iconNeoImmersiveMode',
-        label: createSettingsMenuLabel(
-          'immersiveMode',
-          i18n.immersiveMode,
-          i18n.immersiveModeSettings,
-          showImmersiveModeSettings,
-        ),
-        click: () => {
-          onImmersiveModeClick();
-          return true;
-        },
-      },
-      {
-        id: 'neo-list-bullet-line-button',
+        id: 'neo-listbulletline-button',
         icon: 'iconNeoList',
         label: i18n.listBulletLine,
         click: () => {
@@ -374,7 +288,7 @@ export function buildMenu(
         },
       },
       {
-        id: 'neo-focus-block-indicator-button',
+        id: 'neo-focusblockindicator-button',
         icon: 'iconNeoFocusBlockIndicator',
         label: createSettingsMenuLabel(
           'focusBlockIndicator',
@@ -389,32 +303,55 @@ export function buildMenu(
       },
       ...(!isMobile() ? [
         {
-          id: 'neo-pinned-toolbar-button',
-          icon: 'iconNeoPinnedToolbar',
+          id: 'neo-multicolumnslashmenu-button',
+          icon: 'iconNeoMulticolumnSlashMenu',
           label: createSettingsMenuLabel(
-            'pinnedToolbar',
-            i18n.pinnedToolbar,
-            i18n.pinnedToolbarSettings,
-            showPinnedToolbarSettings,
+            'multicolumnSlashMenu',
+            i18n.multicolumnSlashMenu,
+            i18n.multicolumnSlashMenuSettings,
+            showMulticolumnSlashMenuSettings,
           ),
           click: () => {
-            onPinnedToolbarClick();
+            onMulticolumnSlashMenuClick();
             return true;
           },
         },
       ] : []),
+      {
+        id: 'neo-cardsearchlist-button',
+        icon: 'iconSearch',
+        label: i18n.cardSearchList,
+        click: () => {
+          onCardSearchListClick();
+          return true;
+        },
+      },
+      {
+        id: 'neo-smoothcaret-button',
+        icon: 'iconNeoSmoothCaret',
+        label: createSettingsMenuLabel(
+          'smoothCaret',
+          i18n.smoothCaret,
+          i18n.smoothCaretSettings,
+          showSmoothCaretSettings,
+        ),
+        click: () => {
+          onSmoothCaretClick();
+          return true;
+        },
+      },
       ...(!isMobile() ? [
         {
-          id: 'neo-sidememo-button',
-          icon: 'iconNeoSideMemo',
+          id: 'neo-fluidcursor-button',
+          icon: 'iconNeoFluidCursor',
           label: createSettingsMenuLabel(
-            'sideMemo',
-            i18n.sideMemo,
-            i18n.sidememoSettings,
-            showSideMemoSettings,
+            'fluidCursor',
+            i18n.fluidCursor,
+            i18n.fluidCursorSettings,
+            showFluidCursorSettings,
           ),
           click: () => {
-            onSideMemoClick();
+            onFluidCursorClick();
             return true;
           },
         },

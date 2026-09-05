@@ -1,4 +1,0 @@
-@use "manager" as *;
-.neo-visual-fluid-cursor {
-    @include visual-common('[data-id="neo-fluid-cursor-button"]', '[data-id="neo-visual-button"]');
-}

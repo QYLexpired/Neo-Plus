@@ -142,7 +142,7 @@ function unbindSelectionChange(): void {
 function enableListBulletLine(): void {
   if (neoFeatureActive) return;
   ensureCss('extension-listbulletline', featureCss['extension-listbulletline']);
-  document.documentElement.classList.add('neo-extension-listbulletline');
+  document.documentElement.classList.add('neo-listbulletline');
   neoFeatureActive = true;
   bindSelectionChange();
 }
@@ -150,7 +150,7 @@ export function initListBulletLine(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
-    if (config['list-bullet-line'] === true) {
+    if (config['listbulletline'] === true) {
       enableListBulletLine();
     }
   });
@@ -158,15 +158,15 @@ export function initListBulletLine(): void {
 export function onListBulletLineClick(): void {
   if (neoFeatureActive) {
     destroyListBulletLine();
-    saveConfig({ 'list-bullet-line': false } as Partial<Config>);
+    saveConfig({ 'listbulletline': false } as Partial<Config>);
   } else {
     enableListBulletLine();
-    saveConfig({ 'list-bullet-line': true } as Partial<Config>);
+    saveConfig({ 'listbulletline': true } as Partial<Config>);
   }
 }
 export function destroyListBulletLine(): void {
   neoFeatureActive = false;
   removeCss('extension-listbulletline');
-  document.documentElement?.classList.remove('neo-extension-listbulletline');
+  document.documentElement?.classList.remove('neo-listbulletline');
   unbindSelectionChange();
 }

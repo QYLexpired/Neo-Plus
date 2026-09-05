@@ -1,4 +1,0 @@
-@use "manager" as *;
-.neo-visual-frostedglass {
-    @include visual-common('[data-id="neo-frosted-glass-button"]', '[data-id="neo-visual-button"]');
-}

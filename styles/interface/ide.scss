@@ -1,0 +1,200 @@
+@use "manager" as *;
+.neo-ide {
+    @include interface-common('[data-id="neo-ide-button"]', '[data-id="neo-interface-button"]');
+    --_ide-dockitem-margin-top: 8px;
+    --_ide-dockitem-margin-bottom: 8px;
+    --_ide-dock-bg: var(--b3-theme-background);
+    --_ide-dock-resize-bg: var(--b3-border-color-trans);
+    &.neo-sidebarmute {
+        --_ide-dock-bg: var(--b3-theme-surface);
+        --_ide-dock-resize-bg: transparent;
+    }
+}
+.neo-ide-body.body--toolbar-hide {
+    .neo-superfusion & {
+        --_ide-dockitem-margin-top: 2px;
+    }
+    background-color: var(--b3-theme-background);
+    & > .fn__flex-1 {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    .layout > .fn__flex-1 {
+        margin: 0 !important;
+    }
+    #toolbar .toolbar__item {
+        z-index: 4;
+    }
+    .neo-haswnd {
+        padding: unset !important;
+        & > [data-type=wnd] {
+            box-shadow: unset !important;
+            border-radius: 0 !important;
+            padding: unset !important;
+            &::before {
+                display: none;
+            }
+            & > .layout-tab-container {
+                box-shadow: unset !important;
+                border-radius: 0 !important;
+                &::before {
+                    display: none;
+                }
+            }
+        }
+    }
+    .dockPanel .block__icons {
+        margin-top: 0;
+        .neo-superfusion & {
+            margin-top: -6px;
+        }
+    }
+    .layout__dockl,
+    .layout__dockr,
+    .layout__dockb {
+        background-color: var(--_ide-dock-bg);
+        .neo-haswnd {
+            & > [data-type=wnd] {
+                background-color: var(--_ide-dock-bg);
+            }
+        }
+        &.layout--float {
+            margin: 0;
+            --_ide-dock-bg: var(--b3-theme-background);
+            .neo-frostedglass-global & {
+                --_ide-dock-bg: oklch(from var(--b3-theme-background) l c h / 0.7);
+            }
+        }
+    }
+    .layout__dockl {
+        box-shadow: 0 -42px 0 0 var(--_ide-dock-bg);
+        margin-right: 0 !important;
+        &.layout--float {
+            top: 0;
+            padding-top: 42px;
+            bottom: 0;
+            border-right: 1px solid var(--b3-border-color-trans);
+        }
+    }
+    .layout__dockr {
+        box-shadow: 0 -42px 0 0 var(--_ide-dock-bg);
+        margin-left: 0 !important;
+        &.layout--float {
+            top: 0;
+            padding-top: 42px;
+            bottom: 0;
+            border-left: 1px solid var(--b3-border-color-trans);
+        }
+    }
+    .layout__dockb {
+        margin-top: 0 !important;
+        &.layout--float {
+            bottom: 0 !important; // 覆盖内联
+            border-top: 1px solid var(--b3-border-color-trans);
+        }
+    }
+    #dockLeft,
+    #dockRight {
+        background-color: var(--_ide-dock-bg);
+        transition: display 0.45s var(--neo-ease-spring-3), background-color 0.05s;
+        //transition-behavior: allow-discrete;
+        position: relative;
+        margin-right: 0;
+        margin-left: 0;
+        & > .dock__items:first-child {
+            .dock__item:first-child {
+                margin-top: var(--_ide-dockitem-margin-top);
+            }
+        }
+        & > .dock__item--space + .dock__items {
+            .dock__item:last-child {
+                margin-bottom: var(--_ide-dockitem-margin-bottom);
+            }
+        }
+    }
+    &.neo-dockl-not-expand,
+    &.neo-dockl-expand.neo-dockl-float {
+        #dockLeft {
+            background-color: var(--b3-theme-background);
+            &::after {
+                content: "";
+                position: absolute;
+                top: 42px;
+                right: 0;
+                width: 1px;
+                height: calc(100% - 42px);
+                background-color: var(--b3-border-color-trans);
+                pointer-events: none;
+                z-index: 1;
+            }
+        }
+    }
+    &.neo-dockr-not-expand,
+    &.neo-dockr-expand.neo-dockr-float {
+        #dockRight {
+            background-color: var(--b3-theme-background);
+            &::after {
+                content: "";
+                position: absolute;
+                top: 42px;
+                left: 0;
+                width: 1px;
+                height: calc(100% - 42px);
+                background-color: var(--b3-border-color-trans);
+                pointer-events: none;
+                z-index: 1;
+            }
+        }
+    }
+    .layout__dockl + .layout__resize,
+    .layout__center + .layout__resize,
+    .layout:not(.layout__center) > .layout__resize {
+        &::after {
+            background-color: var(--_ide-dock-resize-bg);
+        }
+        &:hover::after {
+            background-color: var(--_resize-hl);
+        }
+    }
+    .layout__resize {
+        &:not(.layout__resize--lr) {
+            margin: -3px 0;
+            &::after {
+                background-color: var(--b3-border-color-trans);
+            }
+            &:hover {
+                &::after {
+                    background-color: var(--_resize-hl);
+                }
+            }
+        }
+        &--lr {
+            margin: 0 -3px;
+            &::after {
+                background-color: var(--b3-border-color-trans);
+                top: 0;
+                height: 100%;
+            }
+            &:hover {
+                &::after {
+                    background-color: var(--_resize-hl);
+                }
+            }
+        }
+    }
+    &.neo-dockl-expand.neo-dockl-not-float {
+        .layout__dockl + .layout__resize {
+            display: block !important;
+        }
+    }
+    &.neo-dockr-expand.neo-dockr-not-float {
+        .layout__center + .layout__resize {
+            display: block !important;
+        }
+    }
+    &.neo-dockb-expand.neo-dockb-not-float {
+        .layout:not(.layout__center) > .layout__resize {
+            display: block !important;
+        }
+    }
+}

@@ -1,0 +1,322 @@
+@use "manager" as *;
+@use "../utils" as *;
+$breadcrumb-height: 42px;
+$breadcrumb-offset: 6px;
+$tab-height: 42px;
+$tab-offset: 6px;
+$header-height: 40vh;
+$header-parallax: 5vh;
+$text-shadow: 0 0 0.5px var(--b3-theme-background);
+$svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
+.neo-mode-light {
+    --_superfusion-frostedglass-filter: blur(3px) brightness(1.05);
+    --_superfusion-frostedglass-strip: 0 1px 0 0 oklch(from var(--b3-theme-background) 0.99 c h / 0.18), 0 2px 8px 1px oklch(from var(--b3-theme-on-background) calc(l - 0.035) c h / 0.08);
+    --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass) saturate(1.5);
+    .neo-mobile {
+        --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass-mobile) saturate(1.5);
+    }
+}
+.neo-mode-dark {
+    --_superfusion-frostedglass-filter: blur(3px) brightness(0.9);
+    --_superfusion-frostedglass-strip: 0 1px 0 0 oklch(from var(--b3-theme-on-background) l c h / 0.18), 0 2px 8px 1px oklch(from var(--b3-theme-background) calc(l - 0.1) c h / 0.42);
+    --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass) saturate(1.5);
+    .neo-mobile {
+        --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass-mobile) saturate(1.5);
+    }
+}
+@mixin scrim-gradient(
+    $color: var(--b3-theme-background),
+    $direction: to bottom,
+    $type: adaptive
+    ) {
+    @if $type == compact {
+        background-image: linear-gradient(
+        #{$direction},
+        rgb(from $color r g b / 1) 2%,
+        rgb(from $color r g b / 0.97) 9%,
+        rgb(from $color r g b / 0.9) 18%,
+        rgb(from $color r g b / 0.75) 33%,
+        rgb(from $color r g b / 0.05) 92%,
+        rgb(from $color r g b / 0) 100%
+        );
+    } @else {
+        background-image: linear-gradient(
+        #{$direction},
+        rgb(from $color r g b / 0.92) 2%,
+        rgb(from $color r g b / 0.738) 19%,
+        rgb(from $color r g b / 0.541) 34%,
+        rgb(from $color r g b / 0.382) 47%,
+        rgb(from $color r g b / 0.278) 56.5%,
+        rgb(from $color r g b / 0.194) 65%,
+        rgb(from $color r g b / 0.126) 73%,
+        rgb(from $color r g b / 0.075) 80.2%,
+        rgb(from $color r g b / 0.042) 86.1%,
+        rgb(from $color r g b / 0.021) 91%,
+        rgb(from $color r g b / 0.008) 95.2%,
+        rgb(from $color r g b / 0.002) 98.2%,
+        rgb(from $color r g b / 0) 100%
+        );
+    }
+}
+.neo-superfusion {
+    @include interface-common('[data-id="neo-superfusion-button"]', '[data-id="neo-interface-button"]');
+}
+// 面包屑与正文融合
+.neo-superfusion {
+    .protyle {
+        & > .protyle-breadcrumb {
+            padding-left: $tab-offset;
+            margin-top: calc($breadcrumb-height * -1);
+            padding-top: calc($breadcrumb-height + $breadcrumb-offset);
+            z-index: 2;
+            .protyle-breadcrumb__bar {
+                @include superellipse-use(8px);
+                background-color: oklch(from var(--b3-theme-background) l c h / 0.8);
+                backdrop-filter: blur(3px);
+                padding: 0 4px;
+                &:empty {
+                    visibility: hidden;
+                }
+            }
+            .block__icon {
+                svg {
+                    filter: $svg-shadow;
+                }
+            }
+            .protyle-breadcrumb__icon {
+                text-shadow: $text-shadow;
+            }
+            & ~ .protyle-content {
+                margin-top: calc($breadcrumb-height * -1 + $breadcrumb-offset);
+                padding-top: $breadcrumb-height;
+                .protyle-background {
+                    margin-top: calc($breadcrumb-height * -1);
+                }
+                .protyle-background__img {
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        top: calc(25vh + 2px);
+                        left: 0;
+                        width: 100%;
+                        height: 15vh;
+                        @include scrim-gradient(var(--b3-theme-background), to top, compact);
+                        pointer-events: none;
+                    }
+                    .protyle-icons {
+                        top: calc($breadcrumb-height + $breadcrumb-offset);
+                    }
+                    &.fn__none + .protyle-background__ia {
+                        padding-top: calc($breadcrumb-height + $breadcrumb-offset);
+                        position: relative;
+                    }
+                    &:not(.fn__none) + .protyle-background__ia {
+                        margin-top: -5vh;
+                        position: relative;
+                    }
+                }
+                // 视差滚动
+                overflow-x: clip;
+                scroll-timeline-name: --protyle-conten-scroll;
+                scroll-timeline-axis: block;
+                .protyle-background__img {
+                    height: $header-height !important;
+                    transform-origin: center;
+                    animation: header-parallax ease-out;
+                    animation-timeline: --protyle-conten-scroll;
+                    animation-range: 0 $header-height;
+                    img, video {
+                        height: $header-height !important;
+                    }
+                }
+            }
+        }
+    }
+}
+// 页签/标题栏融合
+@mixin superfusion-tab { // 需要融合的页签选择器
+    body:not(.body--toolbar-hide) .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none),
+    .neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none)
+    /*#mobileTopBar*/
+    /*.block__popover > .block__icons*/ {
+        @content;
+    }
+}
+@mixin superfusion-tab-protyle { // 需要融合的protyle选择器
+    body:not(.body--toolbar-hide) .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen),
+    .neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen)
+    /*.neo-mobile #editor*/
+    /*.block__popover > .block__content > .protyle:not(.fullscreen):first-child*/ {
+        @content;
+    }
+}
+@mixin superfusion-tab-not-protyle { // 非protyle
+    body:not(.body--toolbar-hide) .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .fn__flex-1:not(.protyle),
+    .neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .fn__flex-1:not(.protyle) {
+        @content;
+    }
+}
+@mixin superfusion-tab-protyle-x { // 需要融合的protyle选择器（顶层选择器为body类）
+    &:not(.body--toolbar-hide) .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen),
+    &.neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen)
+    /*&.neo-mobile #editor*/
+    /*.block__popover > .block__content > .protyle:not(.fullscreen):first-child*/ {
+        @content;
+    }
+}
+/* 移动端特殊处理
+#mobileTopBar[aria-hidden="true"] ~ #editor {
+    --_superfusion-mobile-top-fold-fix: 94px;
+}*/
+.neo-superfusion {
+    @include superfusion-tab {
+        background-color: transparent;
+        z-index: 3;
+        margin-bottom: calc($tab-height * -1);
+        height: $tab-height;
+        min-height: $tab-height;
+        .layout-tab-bar {
+            background-color: transparent;
+            .item {
+                &::before {
+                    background-color: oklch(from var(--b3-theme-on-background) l c h / 0.3);
+                }
+                &.item--focus {
+                    background-color: oklch(from var(--b3-theme-background) l c h / 0.5) !important;
+                }
+            }
+        }
+    }
+    @include superfusion-tab-protyle {
+        & > .protyle-breadcrumb {
+            padding-top: calc($breadcrumb-height + $breadcrumb-offset + $tab-height - $breadcrumb-offset);
+            //padding-top: var(--_superfusion-mobile-top-fold-fix, calc($breadcrumb-height + $breadcrumb-offset + $tab-height - $breadcrumb-offset));
+            transition: padding 180ms;
+        }
+        & > .protyle-content {
+            margin-top: calc($breadcrumb-height * -1 + $breadcrumb-offset - $tab-height + $breadcrumb-offset);
+            .protyle-background {
+                margin-top: calc($breadcrumb-height * -1);
+            }
+            .protyle-background__img {
+                .protyle-icons {
+                    top: calc($breadcrumb-height + $tab-height + $breadcrumb-offset);
+                }
+                &.fn__none + .protyle-background__ia {
+                    padding-top: calc($breadcrumb-height + $breadcrumb-offset + $tab-height + $breadcrumb-offset);
+                }
+            }
+        }
+    }
+    @include superfusion-tab-not-protyle {
+        margin-top: $tab-height;
+    }
+    /*.block__popover {
+        & > .block__icons {
+            @include superellipse-use(12px 12px 0 0);
+        }
+        & > .block__content {
+            @include superellipse-use(12px 12px 0 0);
+            overflow: unset;
+            min-height: 0;
+            & > .protyle:not(.fullscreen)::before {
+                @include superellipse-use(12px 12px 0 0);
+            }
+            .protyle-content {
+                @include superellipse-use(12px 12px 0 0);
+            }
+        }
+    }*/
+}
+// 渐进模糊
+.neo-superfusion-blur {
+    @include superfusion-tab-protyle-x {
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc($tab-height * 3);
+            pointer-events: none;
+            backdrop-filter: blur(3px);
+            background-color: transparent;
+            mask: linear-gradient(black 42px, transparent);
+            @include scrim-gradient(var(--b3-theme-background), to bottom, adaptive);
+            z-index: 2;
+        }
+    }
+}
+// 毛玻璃
+.neo-superfusion-frostedglass {
+    @include superfusion-tab-protyle-x {
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            pointer-events: none;
+            backdrop-filter: var(--_superfusion-frostedglass-filter);
+            background-color: oklch(from var(--b3-theme-background) l c h / 0.8);
+            box-shadow: var(--_superfusion-frostedglass-strip);
+            z-index: 2;
+        }
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 160px;
+            pointer-events: none;
+            backdrop-filter: blur(40px) saturate(3.5);
+            mask: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7) 80px, black 80px, black 81px, transparent 81px, transparent 160px);
+        }
+        & > .protyle-breadcrumb {
+            .protyle-breadcrumb__bar {
+                background-color: transparent;
+                backdrop-filter: unset;
+            }
+        }
+    }
+}
+// 液态玻璃
+.neo-superfusion-liquidglass {
+    @include superfusion-tab-protyle-x {
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            pointer-events: none;
+            backdrop-filter: var(--_superfusion-liquidglass-filter);
+            background-color: oklch(from var(--b3-theme-background) l c h / 0.8);
+            box-shadow: var(--_superfusion-frostedglass-strip);
+            z-index: 2;
+        }
+        & > .protyle-breadcrumb {
+            .protyle-breadcrumb__bar {
+                background-color: transparent;
+                backdrop-filter: unset;
+            }
+        }
+    }
+}
+// 兼容性
+.neo-superfusion {
+    // 伪文档面包屑插件
+    .og-fake-doc-breadcrumb-container.protyle-breadcrumb {
+        z-index: 3;
+    }
+}
+@keyframes header-parallax {
+    to {
+        transform: scale(1.375) translateY($header-parallax);
+        filter: blur(1px);
+        opacity: 0;
+    }
+}

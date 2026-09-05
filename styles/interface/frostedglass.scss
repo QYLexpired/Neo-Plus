@@ -1,0 +1,4 @@
+@use "manager" as *;
+.neo-frostedglass {
+    @include interface-common('[data-id="neo-frostedglass-button"]', '[data-id="neo-interface-button"]');
+}

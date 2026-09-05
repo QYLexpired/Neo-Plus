@@ -11,9 +11,9 @@ $types: (
   "t": $fix-t,
 );
 $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.protyle-wysiwyg--hl):not([custom-list-view] [neo-listbulletline-current]):not(.dragover)";
-.neo-extension-listbulletline {
+.neo-listbulletline {
   @include extension-common(
-    '[data-id="neo-list-bullet-line-button"]',
+    '[data-id="neo-listbulletline-button"]',
     '[data-id="neo-extension-button"]'
   );
   #{$selector}::after {

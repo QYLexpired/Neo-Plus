@@ -1,0 +1,24 @@
+@use "manager" as *;
+@use "../utils" as *;
+.neo-cardsearchlist {
+    @include extension-common('[data-id="neo-cardsearchlist-button"]', '[data-id="neo-extension-button"]');
+    #searchList.neo-cardsearchlist,
+    #searchUnRefList.neo-cardsearchlist,
+    #searchAssetList.neo-cardsearchlist {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+        grid-auto-rows: max-content;
+        gap: 8px;
+        padding: 8px;
+        & .b3-list-item[data-type=search-item] {
+            margin: 0;
+            padding: 8px;
+            outline: 1px solid var(--b3-border-color-trans);
+            @include superellipse(8px);
+            &.b3-list-item--focus {
+                outline-color: oklch(from var(--b3-list-active) l c h / 0.25);
+                background-color: var(--b3-list-active);
+            }
+        }
+    }
+}

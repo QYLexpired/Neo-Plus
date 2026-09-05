@@ -181,7 +181,7 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     const menuItem = target.closest('[data-id]') as HTMLElement | null;
     if (!menuItem) return;
     const dataId = menuItem.getAttribute('data-id');
-    if (dataId === 'neo-custom-color-button' && target instanceof HTMLInputElement && target.type === 'color') {
+    if (dataId === 'neo-customcolor-button' && target instanceof HTMLInputElement && target.type === 'color') {
       handleColorInput(target.value, '--neo-custom-base-color', getCustomColorKey(getCurrentThemeMode()), 'custom');
     } else if (dataId === 'neo-saturation-button' && target instanceof HTMLInputElement && target.type === 'range') {
       handleSliderInput(target, '--neo-saturation', getSaturationKey(getCurrentThemeMode()), i18n.saturation ?? 'Saturation');
@@ -195,7 +195,7 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     const menuItem = target.closest('[data-id]') as HTMLElement | null;
     if (!menuItem) return;
     const dataId = menuItem.getAttribute('data-id');
-    if (dataId !== 'neo-custom-color-button') return;
+    if (dataId !== 'neo-customcolor-button') return;
     e.stopPropagation();
   };
   _dblclickHandler = (e: Event) => {

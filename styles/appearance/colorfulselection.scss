@@ -1,0 +1,14 @@
+@use "manager" as *;
+.neo-colorfulselection {
+    @include appearance-common('[data-id="neo-colorfulselection-button"]', '[data-id="neo-appearance-button"]');
+}
+:root {
+    ::selection {
+        color: currentColor;
+        background-color: oklch(from currentColor l c h / 0.2);
+    }
+    .hljs ::selection {
+        color: currentColor;
+        background-color: oklch(from currentColor l c h / 0.2);
+    }
+}

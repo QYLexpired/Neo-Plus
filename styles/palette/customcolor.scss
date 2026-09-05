@@ -1,11 +1,11 @@
 @use "manager" as *;
 .neo-palette-custom:not(.neo-palette-random) {
-    @include palette-common("[data-id=\"neo-custom-color-button\"]");
-    [data-id="neo-custom-color-button"]::before {
+    @include palette-common("[data-id=\"neo-customcolor-button\"]");
+    [data-id="neo-customcolor-button"]::before {
         content: "";
     }
 }
-.b3-menu__item[data-id="neo-custom-color-button"] {
+.b3-menu__item[data-id="neo-customcolor-button"] {
     @include palette-base-color-input;
     @include palette-base-color-dot;
 }

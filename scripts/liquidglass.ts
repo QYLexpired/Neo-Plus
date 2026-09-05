@@ -246,32 +246,6 @@ function encodePngDataUrl(rgba: Uint8ClampedArray, width: number, height: number
 }
 const presets: LiquidGlassConfig[] = [
   {
-    width: 478,
-    height: 36,
-    borderRadius: 8,
-    bezelWidth: 20,
-    thickness: 30,
-    strength: 1,
-    dispersion: 0,
-    ior: 1.5,
-    profileType: 'convex-round',
-    dpr: 2,
-    filterId: 'neo-pinnedtoolbar-liquid-glass-row',
-  },
-  {
-    width: 36,
-    height: 478,
-    borderRadius: 8,
-    bezelWidth: 20,
-    thickness: 30,
-    strength: 1,
-    dispersion: 0,
-    ior: 1.5,
-    profileType: 'convex-round',
-    dpr: 2,
-    filterId: 'neo-pinnedtoolbar-liquid-glass-column',
-  },
-  {
     width: 2000,
     height: 80,
     borderRadius: 0,
@@ -282,7 +256,7 @@ const presets: LiquidGlassConfig[] = [
     ior: 1.5,
     profileType: 'convex-round',
     dpr: 2,
-    filterId: 'neo-superfusion-liquid-glass',
+    filterId: 'neo-superfusion-liquidglass',
   },
   {
     width: 400,
@@ -295,7 +269,7 @@ const presets: LiquidGlassConfig[] = [
     ior: 1.5,
     profileType: 'convex-round',
     dpr: 2,
-    filterId: 'neo-superfusion-liquid-glass-mobile',
+    filterId: 'neo-superfusion-liquidglass-mobile',
   },
 ];
 function escapeTemplate(s: string): string {

@@ -71,13 +71,9 @@ function scanFeatureEntries(dir, prefix) {
   });
 }
 const featureEntries = [
-  ...scanFeatureEntries('visual', 'visual'),
-  ...scanFeatureEntries('element', 'element'),
+  ...scanFeatureEntries('appearance', 'appearance'),
   ...scanFeatureEntries('extension', 'extension'),
-  ...scanFeatureEntries('sidebarmute', 'sidebarmute'),
-  ...scanFeatureEntries('ide', 'ide'),
-  ...scanFeatureEntries('superfusion', 'superfusion'),
-  ...scanFeatureEntries('verticaltabs', 'verticaltabs'),
+  ...scanFeatureEntries('interface', 'interface'),
   ...scanFeatureEntries('texture', 'texture'),
 ];
 const featureCss = {};

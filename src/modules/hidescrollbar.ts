@@ -1,5 +1,5 @@
 import { isMac } from '../modules/env';
-const styleId = 'neo-hide-scrollbar-style';
+const styleId = 'neo-hidescrollbar-style';
 interface SavedScrollbarRule {
   sheet: CSSStyleSheet;
   index: number;

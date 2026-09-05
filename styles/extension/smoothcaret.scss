@@ -1,0 +1,130 @@
+@use "manager" as *;
+@property --neo-smoothcaret-rainbow-hue {
+    syntax: '<integer>';
+    inherits: false;
+    initial-value: 0;
+}
+.neo-mode-light {
+    --_smoothcaret-rainbow-l: 0.75;
+}
+.neo-mode-dark {
+    --_smoothcaret-rainbow-l: 0.95;
+}
+.neo-smoothcaret {
+    @include extension-common('[data-id="neo-smoothcaret-button"]', '[data-id="neo-extension-button"]');
+    .protyle-wysiwyg,
+    .protyle-title__input,
+    body:not(.neo-mobile) .agent-chat__input-area {
+        caret-color: transparent !important;
+    }
+    .neo-mobile .agent-chat__input-area .protyle-wysiwyg {
+        caret-color: currentColor !important;
+    }
+    #neo-smoothcaret-item {
+        position: fixed;
+        width: 2px;
+        border-radius: 8px;
+        pointer-events: none;
+        opacity: 1;
+        background-color: var(--neo-smoothcaret-color, var(--b3-theme-accent));
+        transition: translate var(--neo-smoothcaret-ease), height var(--neo-smoothcaret-ease), width var(--neo-smoothcaret-ease);
+        will-change: translate, transform, height, width;
+        &.neo-smoothcaret-hidden {
+            opacity: 0 !important;
+            animation: none !important;
+            transition: opacity 0.3s;
+        }
+    }
+    body.neo-smoothcaret-style-neon {
+        #neo-smoothcaret-item {
+            --_smoothcaret-neno-color: oklch(from var(--neo-smoothcaret-color, var(--b3-theme-accent)) calc(l + 0.15) c h);
+            box-shadow: 0 0 4px var(--_smoothcaret-neno-color), 0 0 10px var(--_smoothcaret-neno-color), 0 0 20px var(--_smoothcaret-neno-color);
+        }
+    }
+    body.neo-smoothcaret-style-rainbow {
+        #neo-smoothcaret-item {
+            animation: neo-smoothcaret-rainbow-hue 6s linear infinite;
+            background-color: oklch(from var(--b3-theme-accent) var(--_smoothcaret-rainbow-l) max(c, 0.45) calc(h + var(--neo-smoothcaret-rainbow-hue, 0)));
+        }
+    }
+    body.neo-smoothcaret-style-block {
+        #neo-smoothcaret-item {
+            border-radius: 0;
+            background-color: oklch(from var(--neo-smoothcaret-color, var(--b3-theme-accent)) l c h / 0.2);
+            outline: 1px solid oklch(from var(--neo-smoothcaret-color, var(--b3-theme-accent)) l c h / 0.5);
+            outline-offset: -1px;
+        }
+    }
+    body.neo-smoothcaret-style-underline {
+        #neo-smoothcaret-item {
+            border-radius: 1px;
+            height: 2px !important;
+        }
+    }
+    body.neo-smoothcaret-motion-breathing {
+        #neo-smoothcaret-item {
+            animation: neo-smoothcaret-breath 1s ease-in-out infinite;
+        }
+        &.neo-smoothcaret-style-rainbow #neo-smoothcaret-item {
+            animation: neo-smoothcaret-rainbow-hue 6s linear infinite, neo-smoothcaret-breath 1s ease-in-out infinite;
+        }
+    }
+    body.neo-smoothcaret-motion-stretch {
+        #neo-smoothcaret-item {
+            animation: neo-smoothcaret-stretch 0.8s ease infinite;
+        }
+        &.neo-smoothcaret-style-rainbow #neo-smoothcaret-item {
+            animation: neo-smoothcaret-rainbow-hue 6s linear infinite, neo-smoothcaret-stretch 0.8s ease infinite;
+        }
+        &.neo-smoothcaret-style-underline #neo-smoothcaret-item {
+            animation-name: neo-smoothcaret-stretch-x;
+        }
+        &.neo-smoothcaret-style-rainbow.neo-smoothcaret-style-underline #neo-smoothcaret-item {
+            animation: neo-smoothcaret-rainbow-hue 6s linear infinite, neo-smoothcaret-stretch-x 0.8s ease infinite;
+        }
+    }
+}
+@keyframes neo-smoothcaret-rainbow-hue {
+    0% {
+        --neo-smoothcaret-rainbow-hue: 0;
+    }
+    100% {
+        --neo-smoothcaret-rainbow-hue: 360;
+    }
+}
+@keyframes neo-smoothcaret-breath {
+    0%   { opacity: 1; }
+    50%  { opacity: 1; }
+    80%  { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes neo-smoothcaret-stretch {
+    0% {
+        transform: scaleY(0.3);
+        animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    35% {
+        transform: scaleY(1.1);
+        animation-timing-function: ease;
+    }
+    65% {
+        transform: scaleY(1.1);
+        animation-timing-function: ease-in;
+    }
+    100% { transform: scaleY(0.3); }
+}
+@keyframes neo-smoothcaret-stretch-x {
+    0% {
+        transform: scaleX(0.3);
+        animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    35% {
+        transform: scaleX(1.1);
+        animation-timing-function: ease;
+    }
+    65% {
+        transform: scaleX(1.1);
+        animation-timing-function: ease-in;
+    }
+    100% { transform: scaleX(0.3); }
+}

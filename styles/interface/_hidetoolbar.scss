@@ -1,0 +1,11 @@
+.body--toolbar-hide {
+    .b3-menu__item[data-id="neo-hidetoolbar-button"],
+    .b3-menu__item[data-id="neo-interface-button"] {
+        &:not(.b3-menu__item--show):not(.b3-menu__item--current) {
+            color: var(--b3-theme-accent);
+            & .b3-menu__icon {
+                color: var(--b3-theme-accent);
+            }
+        }
+    }
+}

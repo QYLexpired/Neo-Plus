@@ -13,26 +13,26 @@ let selectionChangeHandler: (() => void) | null = null;
 let neoFeatureActive = false;
 let activeFocusBlock: Element | null = null;
 function applyFocusBlockEffect(): void {
-  document.body.classList.toggle('neo-extension-focusblockindicator-shadow', focusBlockEffect === 'shadow');
-  document.body.classList.toggle('neo-extension-focusblockindicator-vertical-line', focusBlockEffect === 'vertical-line');
-  document.body.classList.toggle('neo-extension-focusblockindicator-background', focusBlockEffect === 'background');
+  document.body.classList.toggle('neo-focusblockindicator-shadow', focusBlockEffect === 'shadow');
+  document.body.classList.toggle('neo-focusblockindicator-vertical-line', focusBlockEffect === 'vertical-line');
+  document.body.classList.toggle('neo-focusblockindicator-background', focusBlockEffect === 'background');
   if (focusBlockEffect !== 'background') {
     document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
   }
 }
 function clearAllFocusBlocks(): void {
-  activeFocusBlock?.removeAttribute('neo-focus-block');
+  activeFocusBlock?.removeAttribute('neo-focusblock');
   activeFocusBlock = null;
-  document.querySelectorAll('[neo-focus-block]').forEach((el) => {
-    el.removeAttribute('neo-focus-block');
+  document.querySelectorAll('[neo-focusblock]').forEach((el) => {
+    el.removeAttribute('neo-focusblock');
   });
   document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
 }
 function updateFocusBlock(block: Element | null, focusNode: Node | null): void {
   if (activeFocusBlock !== block) {
-    activeFocusBlock?.removeAttribute('neo-focus-block');
+    activeFocusBlock?.removeAttribute('neo-focusblock');
     activeFocusBlock = block;
-    activeFocusBlock?.setAttribute('neo-focus-block', '');
+    activeFocusBlock?.setAttribute('neo-focusblock', '');
   }
   if (!block || !focusNode || focusBlockEffect !== 'background') {
     document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
@@ -74,7 +74,7 @@ function startObserving(): void {
 function enableFocusBlockIndicator(): void {
   if (neoFeatureActive) return;
   ensureCss('extension-focusblockindicator', featureCss['extension-focusblockindicator']);
-  document.documentElement.classList.add('neo-extension-focusblockindicator');
+  document.documentElement.classList.add('neo-focusblockindicator');
   neoFeatureActive = true;
   applyFocusBlockEffect();
   startObserving();
@@ -95,10 +95,10 @@ export function initFocusBlockIndicator(): void {
   const isCurrent = createNeoLifecycleGuard();
   loadConfig().then((config) => {
     if (!isCurrent()) return;
-    focusBlockEffect = config['focus-block-effect'] || 'vertical-line';
+    focusBlockEffect = config['focusblockindicator-effect'] || 'vertical-line';
     if (neoFeatureActive) {
       applyFocusBlockEffect();
-    } else if (config['focus-block-indicator'] === true) {
+    } else if (config['focusblockindicator'] === true) {
       enableFocusBlockIndicator();
     }
   });
@@ -106,10 +106,10 @@ export function initFocusBlockIndicator(): void {
 export function onFocusBlockIndicatorClick(): void {
   if (neoFeatureActive) {
     destroyFocusBlockIndicator();
-    saveConfig({ 'focus-block-indicator': false } as Partial<Config>);
+    saveConfig({ 'focusblockindicator': false } as Partial<Config>);
   } else {
     enableFocusBlockIndicator();
-    saveConfig({ 'focus-block-indicator': true } as Partial<Config>);
+    saveConfig({ 'focusblockindicator': true } as Partial<Config>);
   }
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
@@ -126,7 +126,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
               <div class="b3-label__text">${i18n.focusBlockEffectTip}</div>
             </div>
             <span class="fn__space"></span>
-            <select class="b3-select fn__flex-center fn__size200" id="neo-focus-block-effect">
+            <select class="b3-select fn__flex-center fn__size200" id="neo-focusblockindicator-effect">
               ${effectOptions}
             </select>
           </label>
@@ -135,9 +135,9 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     </div>
   </div>
   <div class="b3-dialog__action">
-    <button class="b3-button b3-button--cancel" id="neo-focus-block-indicator-cancel">${i18n.cancel}</button>
+    <button class="b3-button b3-button--cancel" id="neo-focusblockindicator-cancel">${i18n.cancel}</button>
     <span class="fn__space"></span>
-    <button class="b3-button b3-button--text" id="neo-focus-block-indicator-confirm">${i18n.confirm}</button>
+    <button class="b3-button b3-button--text" id="neo-focusblockindicator-confirm">${i18n.confirm}</button>
   </div>`;
 }
 export function showFocusBlockIndicatorSettings(): void {
@@ -148,15 +148,15 @@ export function showFocusBlockIndicatorSettings(): void {
     content: buildSettingsHTML(plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
-  const effectSelect = dialog.element.querySelector('#neo-focus-block-effect') as HTMLSelectElement;
+  const effectSelect = dialog.element.querySelector('#neo-focusblockindicator-effect') as HTMLSelectElement;
   if (effectSelect) effectSelect.value = focusBlockEffect;
-  dialog.element.querySelector('#neo-focus-block-indicator-cancel')?.addEventListener('click', () => dialog.destroy());
-  dialog.element.querySelector('#neo-focus-block-indicator-confirm')?.addEventListener('click', () => {
+  dialog.element.querySelector('#neo-focusblockindicator-cancel')?.addEventListener('click', () => dialog.destroy());
+  dialog.element.querySelector('#neo-focusblockindicator-confirm')?.addEventListener('click', () => {
     if (effectSelect) {
       const newEffect = effectSelect.value as 'vertical-line' | 'shadow' | 'background';
       if (newEffect !== focusBlockEffect) {
         focusBlockEffect = newEffect;
-        saveConfig({ 'focus-block-effect': newEffect } as Partial<Config>);
+        saveConfig({ 'focusblockindicator-effect': newEffect } as Partial<Config>);
         if (neoFeatureActive) {
           applyFocusBlockEffect();
         }
@@ -168,8 +168,8 @@ export function showFocusBlockIndicatorSettings(): void {
 export function destroyFocusBlockIndicator(): void {
   neoFeatureActive = false;
   removeCss('extension-focusblockindicator');
-  document.documentElement?.classList.remove('neo-extension-focusblockindicator');
-  document.body.classList.remove('neo-extension-focusblockindicator-shadow', 'neo-extension-focusblockindicator-vertical-line', 'neo-extension-focusblockindicator-background');
+  document.documentElement?.classList.remove('neo-focusblockindicator');
+  document.body.classList.remove('neo-focusblockindicator-shadow', 'neo-focusblockindicator-vertical-line', 'neo-focusblockindicator-background');
   document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
   stopObserving();
 }

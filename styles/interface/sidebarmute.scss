@@ -1,0 +1,41 @@
+@use "manager" as *;
+.neo-sidebarmute {
+    @include interface-common('[data-id="neo-sidebarmute-button"]', '[data-id="neo-interface-button"]');
+    &:not(.neo-palette-highcontrast.neo-mode-light),
+    .body--toolbar-hide.neo-ide-body {
+        .file-tree {
+            .b3-list-item:not(.b3-list-item--focus) {
+                .b3-list-item__text,
+                .counter,
+                .b3-list-item__action,
+                .b3-list-item__graphic {
+                    color: var(--b3-theme-on-surface);
+                }
+            }
+        }
+    }
+    &:not(.neo-palette-highcontrast.neo-mode-light):not(.neo-ide) {
+        .layout__dockl,
+        .layout__dockr,
+        .layout__dockb {
+            &:not(.layout--float) {
+                .neo-haswnd {
+                    & > [data-type=wnd] {
+                        box-shadow: unset;
+                        background-color: transparent;
+                        &::before {
+                            display: none;
+                        }
+                    }
+                }
+                .layout__resize {
+                    &:not(:hover) {
+                        &::after {
+                            background-color: var(--b3-border-color-trans);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

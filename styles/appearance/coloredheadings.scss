@@ -1,0 +1,52 @@
+@use "manager" as *;
+.neo-mode-light {
+    --_coloredheadings-base: oklch(from var(--b3-base-color) clamp(0.55, l, 0.68) max(c, 0.2) h);
+    --_coloredheadings-initial-hue: h;
+    --_coloredheadings-l: l;
+    --_coloredheadings-c: 0.08;
+    --_coloredheadings-outline-l: calc(var(--_coloredheadings-l) - 0.05);
+}
+.neo-mode-dark {
+    --_coloredheadings-base: oklch(from var(--b3-base-color) max(l, 0.68) max(c, 0.18) h);
+    --_coloredheadings-initial-hue: h;
+    --_coloredheadings-l: l;
+    --_coloredheadings-c: 0.08;
+    --_coloredheadings-outline-l: calc(var(--_coloredheadings-l) + 0.05);
+}
+.neo-coloredheadings {
+    @include appearance-common('[data-id="neo-coloredheadings-button"]', '[data-id="neo-appearance-button"]');
+    .b3-typography,
+    .protyle-wysiwyg {
+        @for $i from 1 through 6 {
+            $hue-offset: #{($i - 1) * 50};
+            h#{$i},
+            [data-type=NodeHeading].h#{$i},
+            [data-type=NodeHeading][data-subtype=h#{$i}] [spellcheck] {
+                --neo-coloredheadings-color: oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) calc(var(--_coloredheadings-initial-hue) + #{$hue-offset}));
+                color: var(--neo-coloredheadings-color);
+                // 彩色列表中标题以列表颜色为准
+                --neo-kbd-color: var(--neo-coloredlists-color, var(--neo-coloredheadings-color));
+                --neo-inline-code-color: var(--neo-coloredlists-color, var(--neo-coloredheadings-color));
+                --neo-tag-color: var(--neo-coloredlists-color, var(--neo-coloredheadings-color));
+                --neo-inline-memo-color: var(--neo-coloredlists-color, var(--neo-coloredheadings-color));
+            }
+        }
+    }
+    .sy__outline {
+        @for $i from 1 through 6 {
+            $hue-offset: #{($i - 1) * 50};
+            .b3-list-item[data-type=NodeHeading][data-subtype=h#{$i}] {
+                .b3-list-item__graphic,
+                .b3-list-item__number,
+                .b3-list-item__text {
+                    --neo-coloredheadings-color_outline: oklch(from var(--_coloredheadings-base) var(--_coloredheadings-outline-l) var(--_coloredheadings-c) calc(var(--_coloredheadings-initial-hue) + #{$hue-offset}));
+                    color: var(--neo-coloredheadings-color_outline) !important;
+                    --neo-kbd-color: var(--neo-coloredheadings-color_outline);
+                    --neo-inline-code-color: var(--neo-coloredheadings-color_outline);
+                    --neo-tag-color: var(--neo-coloredheadings-color_outline);
+                    --neo-inline-memo-color: var(--neo-coloredheadings-color_outline);
+                }
+            }
+        }
+    }
+}

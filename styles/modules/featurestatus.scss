@@ -1,5 +1,5 @@
 // 垂直页签
-.b3-menu__item[data-id="neo-vertical-tabs-button"] {
+.b3-menu__item[data-id="neo-verticaltabs-button"] {
     .body--toolbar-hide & {
         opacity: 0.38;
     }
@@ -11,7 +11,7 @@
     }
 }
 // 侧栏静音
-.b3-menu__item[data-id="neo-sidebar-mute-button"] {
+.b3-menu__item[data-id="neo-sidebarmute-button"] {
     .neo-palette-highcontrast.neo-mode-light & {
         opacity: 0.38;      
     }

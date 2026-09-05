@@ -1,0 +1,33 @@
+@use "manager" as *;
+.neo-multicolumnslashmenu {
+    @include extension-common('[data-id="neo-multicolumnslashmenu-button"]', '[data-id="neo-extension-button"]');
+    @mixin multicol-menu($min-width, $column-width) {
+        .protyle-hint.hint--menu {   
+            max-height: min(80vh, 550px);
+            max-width: unset;
+            padding: 8px;
+            & > div {
+                min-width: $min-width;
+                column-rule: 1px outset var(--b3-border-color-trans);
+                column-width: $column-width;
+                & > .b3-menu__separator { 
+                    margin: 4px 4px;
+                    width: calc(100% - 8px);
+                }
+                & > .b3-list-item { 
+                    margin: 1px auto;
+                    width: 100% !important;
+                    &:first-child {
+                        margin-top: 0;
+                    }
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
+    }
+    @media screen and (min-width: 1000px) { 
+        @include multicol-menu(800px, 150px); 
+    }
+}

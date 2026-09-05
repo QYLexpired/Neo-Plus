@@ -8,28 +8,24 @@ import { initHideScrollbar, destroyHideScrollbar } from '../modules/hidescrollba
 import { initLayout, destroyLayout } from '../modules/layout';
 import { initFetchMonitor, destroyFetchMonitor } from '../modules/fetchmonitor';
 import { initPerformanceTuning, destroyPerformanceTuning } from '../modules/performancetuning';
-import { initCardSearchList, destroyCardSearchList } from '../visual/cardsearchlist';
+import { initCardSearchList, destroyCardSearchList } from '../extension/cardsearchlist';
 import { initSvgFilter, destroySvgFilter } from '../modules/svgfilter';
 import { initPalette, destroyPalette } from '../palette/manager';
 import { initTexture, destroyTexture } from '../texture/manager';
-import { initColoredLists, destroyColoredLists } from '../element/coloredlists';
-import { initColoredHeadings, destroyColoredHeadings } from '../element/coloredheadings';
-import { initColorfulSelection, destroyColorfulSelection } from '../element/colorfulselection';
-import { initSmoothCaret, destroySmoothCaret } from '../visual/smoothcaret';
-import { initColoredFolders, destroyColoredFolders } from '../visual/coloredfolders';
-import { initMulticolumnSlashMenu, destroyMulticolumnSlashMenu } from '../visual/multicolumnslashmenu';
-import { initFrostedGlass, destroyFrostedGlass } from '../visual/frostedglass';
-import { initScrollEffect, destroyScrollEffect } from '../visual/scrolleffect';
-import { initFluidCursor, destroyFluidCursor } from '../visual/fluidcursor';
-import { initVerticalTabs, destroyVerticalTabs } from '../verticaltabs/verticaltabs';
-import { initSuperFusion, destroySuperFusion } from '../superfusion/superfusion';
-import { initIde, destroyIde } from '../ide/ide';
-import { initSidebarMute, destroySidebarMute } from '../sidebarmute/sidebarmute';
+import { initColoredLists, destroyColoredLists } from '../appearance/coloredlists';
+import { initColoredHeadings, destroyColoredHeadings } from '../appearance/coloredheadings';
+import { initColorfulSelection, destroyColorfulSelection } from '../appearance/colorfulselection';
+import { initSmoothCaret, destroySmoothCaret } from '../extension/smoothcaret';
+import { initColoredFolders, destroyColoredFolders } from '../appearance/coloredfolders';
+import { initMulticolumnSlashMenu, destroyMulticolumnSlashMenu } from '../extension/multicolumnslashmenu';
+import { initFrostedGlass, destroyFrostedGlass } from '../interface/frostedglass';
+import { initFluidCursor, destroyFluidCursor } from '../extension/fluidcursor';
+import { initVerticalTabs, destroyVerticalTabs } from '../interface/verticaltabs';
+import { initSuperFusion, destroySuperFusion } from '../interface/superfusion';
+import { initIde, destroyIde } from '../interface/ide';
+import { initSidebarMute, destroySidebarMute } from '../interface/sidebarmute';
 import { initListBulletLine, destroyListBulletLine } from '../extension/listbulletline';
 import { initFocusBlockIndicator, destroyFocusBlockIndicator } from '../extension/focusblockindicator';
-import { initImmersiveMode, destroyImmersiveMode } from '../extension/immersivemode';
-import { initPinnedToolbar, destroyPinnedToolbar } from '../extension/pinnedtoolbar';
-import { initSideMemo, destroySideMemo } from '../extension/sidememo';
 import { initModeTransition, destroyModeTransition } from '../modules/modetransition';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { baseCss } from '../modules/csschunks';
@@ -84,7 +80,6 @@ const runtimeModules: readonly RuntimeModule[] = [
   { init: initColoredFolders, destroy: destroyColoredFolders },
   { init: initMulticolumnSlashMenu, destroy: destroyMulticolumnSlashMenu },
   { init: initFrostedGlass, destroy: destroyFrostedGlass },
-  { init: initScrollEffect, destroy: destroyScrollEffect },
   { init: initFluidCursor, destroy: destroyFluidCursor },
   { init: initVerticalTabs, destroy: destroyVerticalTabs },
   { init: initSuperFusion, destroy: destroySuperFusion },
@@ -92,9 +87,6 @@ const runtimeModules: readonly RuntimeModule[] = [
   { init: initIde, destroy: destroyIde },
   { init: initListBulletLine, destroy: destroyListBulletLine },
   { init: initFocusBlockIndicator, destroy: destroyFocusBlockIndicator },
-  { init: initImmersiveMode, destroy: destroyImmersiveMode },
-  { init: initPinnedToolbar, destroy: destroyPinnedToolbar },
-  { init: initSideMemo, destroy: destroySideMemo },
   { init: initModeTransition, destroy: destroyModeTransition },
 ];
 export function startNeoRuntime(): void {

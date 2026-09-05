@@ -1,8 +1,8 @@
 @use "manager" as *;
-.neo-extension-focusblockindicator {
-    @include extension-common('[data-id="neo-focus-block-indicator-button"]', '[data-id="neo-extension-button"]');
-    body.neo-extension-focusblockindicator-vertical-line {
-        .protyle-wysiwyg [neo-focus-block] {
+.neo-focusblockindicator {
+    @include extension-common('[data-id="neo-focusblockindicator-button"]', '[data-id="neo-extension-button"]');
+    body.neo-focusblockindicator-vertical-line {
+        .protyle-wysiwyg [neo-focusblock] {
             &::before {
                 content: "";
                 display: block;
@@ -19,13 +19,13 @@
         }
         .agent-chat__composer-host,
         .agent-chat__edit-editor {
-            .protyle-wysiwyg [neo-focus-block]::before {
+            .protyle-wysiwyg [neo-focusblock]::before {
                 inset-inline-start: -2px;
             }
         }
     }
-    body.neo-extension-focusblockindicator-shadow {
-        .protyle-wysiwyg [neo-focus-block] {
+    body.neo-focusblockindicator-shadow {
+        .protyle-wysiwyg [neo-focusblock] {
             &::before {
                 content: "";
                 display: block;
@@ -41,8 +41,8 @@
             }
         }
     }
-    body.neo-extension-focusblockindicator-background {
-        .protyle-wysiwyg [neo-focus-block] {
+    body.neo-focusblockindicator-background {
+        .protyle-wysiwyg [neo-focusblock] {
             &::before {
                 content: "";
                 display: block;
