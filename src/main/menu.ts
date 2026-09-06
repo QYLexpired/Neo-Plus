@@ -14,7 +14,8 @@ import { onIdeClick } from '../interface/ide';
 import { onColoredFoldersClick, showColoredFoldersSettings } from '../appearance/coloredfolders';
 import { onVerticalTabsClick, showVerticalTabsSettings } from '../interface/verticaltabs';
 import { onSuperFusionClick, showSuperFusionSettings } from '../interface/superfusion';
-import { isMobile } from '../modules/env';
+import { isDesktop, isMobile } from '../modules/env';
+import { getCurrentThemeMode } from '../modules/thememode';
 import { onSidebarMuteClick } from '../interface/sidebarmute';
 import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../extension/multicolumnslashmenu';
 import { onColoredListsClick, showColoredListsSettings } from '../appearance/coloredlists';
@@ -88,15 +89,17 @@ export function buildMenu(
       return true;
     },
   });
-  menu.addItem({
-    id: 'neo-followsystem-button',
-    icon: '',
-    label: i18n.followSystem,
-    click: () => {
-      switchToPlan('followsystem');
-      return true;
-    },
-  });
+  if (isDesktop()) {
+    menu.addItem({
+      id: 'neo-followsystem-button',
+      icon: '',
+      label: i18n.followSystem,
+      click: () => {
+        switchToPlan('followsystem');
+        return true;
+      },
+    });
+  }
   menu.addSeparator();
   menu.addItem({
     id: 'neo-saturation-button',
@@ -110,16 +113,17 @@ export function buildMenu(
     label: createBrightnessSliderHTML(i18n),
     type: 'readonly',
   });
-  menu.addItem({
-    id: 'neo-invert-button',
-    icon: 'iconNeoInvert',
-    label: i18n.invertColor,
-    click: () => {
-      onInvertClick();
-      return true;
-    },
-  });
-  if (!isMobile()) {
+  if (getCurrentThemeMode() === 'dark') {
+    menu.addItem({
+      id: 'neo-invert-button',
+      icon: 'iconNeoInvert',
+      label: i18n.invertColor,
+      click: () => {
+        onInvertClick();
+        return true;
+      },
+    });
+  } else if (!isMobile()) {
     menu.addItem({
       id: 'neo-highcontrast-button',
       icon: 'iconNeoContrast',

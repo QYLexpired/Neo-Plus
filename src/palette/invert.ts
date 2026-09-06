@@ -3,11 +3,13 @@ import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getInvertKey } from './presets';
 let neoFeatureActive = false;
 export function enableInvert(): void {
-  if (neoFeatureActive) return;
+  if (getCurrentThemeMode() !== 'dark' || neoFeatureActive) return;
   document.documentElement.classList.add('neo-palette-invert');
   neoFeatureActive = true;
 }
 export async function onInvertClick(): Promise<void> {
+  const mode = getCurrentThemeMode();
+  if (mode !== 'dark') return;
   const shouldEnable = !neoFeatureActive;
   const callback = () => {
     if (shouldEnable) {
@@ -17,7 +19,6 @@ export async function onInvertClick(): Promise<void> {
     }
   };
   withViewTransition(callback);
-  const mode = getCurrentThemeMode();
   const key = getInvertKey(mode);
   const patch: Partial<Config> = {};
   patch[key] = shouldEnable;
@@ -25,6 +26,7 @@ export async function onInvertClick(): Promise<void> {
 }
 export function initInvert(config: Config): void {
   const mode = getCurrentThemeMode();
+  if (mode !== 'dark') return;
   const key = getInvertKey(mode);
   const enabled = config[key] ?? false;
   if (enabled) {

@@ -4,12 +4,14 @@ import { withViewTransition } from '../modules/viewtransition';
 import { getCurrentThemeMode, getHighContrastKey } from './presets';
 let neoFeatureActive = false;
 export function enableHighContrast(): void {
-  if (neoFeatureActive) return;
+  if (isMobile() || getCurrentThemeMode() !== 'light' || neoFeatureActive) return;
   document.documentElement.classList.add('neo-palette-highcontrast');
   neoFeatureActive = true;
 }
 export function onHighContrastClick(): void {
   if (isMobile()) return;
+  const mode = getCurrentThemeMode();
+  if (mode !== 'light') return;
   const shouldEnable = !neoFeatureActive;
   const callback = () => {
     if (shouldEnable) {
@@ -19,7 +21,6 @@ export function onHighContrastClick(): void {
     }
   };
   withViewTransition(callback);
-  const mode = getCurrentThemeMode();
   const key = getHighContrastKey(mode);
   const patch: Partial<Config> = {};
   patch[key] = shouldEnable;
@@ -28,6 +29,7 @@ export function onHighContrastClick(): void {
 export function initHighContrast(config: Config): void {
   if (isMobile()) return;
   const mode = getCurrentThemeMode();
+  if (mode !== 'light') return;
   const key = getHighContrastKey(mode);
   const enabled = config[key] ?? false;
   if (enabled) {

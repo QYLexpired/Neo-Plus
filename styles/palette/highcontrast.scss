@@ -1,9 +1,6 @@
 @use "manager" as *;
 @use "../utils" as *;
 .b3-menu__item[data-id="neo-highcontrast-button"] {
-    .neo-mode-dark & {
-        display: none;
-    }
     .neo-ide-body.body--toolbar-hide & {
         opacity: 0.38;
     }
