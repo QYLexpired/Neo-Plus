@@ -1,9 +1,9 @@
 import type { Plugin } from 'siyuan';
-import { getCurrentThemeMode } from '../modules/thememode';
+import { getThemeMode } from '../modules/thememode';
 import { clearPlugin, setPlugin } from './context';
 import { startNeoRuntime, stopNeoRuntime, syncNeoRootMode } from './runtime';
 function isNeoTheme(): boolean {
-  if (getCurrentThemeMode() === 'dark') {
+  if (getThemeMode() === 'dark') {
     return document.documentElement.getAttribute('data-dark-theme') === 'Neo';
   }
   return document.documentElement.getAttribute('data-light-theme') === 'Neo';

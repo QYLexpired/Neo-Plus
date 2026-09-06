@@ -11,7 +11,7 @@ import {
   type CustomImageValues,
   type CustomImageSource,
 } from '../main/data';
-import { getCurrentThemeMode } from '../modules/thememode';
+import { getThemeMode } from '../modules/thememode';
 export type { CustomImageConfigKey, CustomImageValues, CustomImageSource };
 interface CustomImageCssBinding {
   cssVar: string;
@@ -246,7 +246,7 @@ function getPresetKeyForMode(mode: 'light' | 'dark'): CurrentPresetKey {
   return mode === 'dark' ? currentPresetKeyDark : currentPresetKeyLight;
 }
 function getCurrentPresetKey(): CurrentPresetKey {
-  return getPresetKeyForMode(getCurrentThemeMode());
+  return getPresetKeyForMode(getThemeMode());
 }
 interface SliderConfig {
   id: string;

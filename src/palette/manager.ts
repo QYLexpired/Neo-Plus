@@ -3,7 +3,7 @@ import { loadConfig, saveConfig, type Config } from '../main/data';
 import {
   type ThemeMode,
   type Preset,
-  getCurrentThemeMode,
+  getThemeMode,
   getPresetsByMode,
   getCurrentPlan,
   getCustomColorKey,
@@ -45,7 +45,7 @@ function destroyPaletteEffects(): void {
   destroyHighContrast();
 }
 function restorePalette(config: Config): void {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const plan = getCurrentPlan(config, mode);
   destroyPaletteEffects();
   applyCurrentPlan(config);
@@ -75,7 +75,7 @@ export function switchToPreset(key: string): void {
 }
 export function switchToPlan(plan: Plan): void {
   const isCurrent = createNeoLifecycleGuard();
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const configKey: 'color-plan-light' | 'color-plan-dark' = mode === 'dark' ? 'color-plan-dark' : 'color-plan-light';
   saveConfig({ [configKey]: plan }).then(() => {
     if (!isCurrent()) return;
@@ -88,7 +88,7 @@ export function switchToPlan(plan: Plan): void {
   }).catch(() => {});
 }
 export function getPresetMenuItems(i18n: Record<string, string>): any[] {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const availablePresets = getPresetsByMode(mode);
   const pinnedKeys = ['default', 'classic'];
   const topLevelPresets = availablePresets.filter((p) => pinnedKeys.includes(p.key));
@@ -156,7 +156,7 @@ export function getPresetMenuItems(i18n: Record<string, string>): any[] {
 }
 export function handleColorInput(value: string, cssVar: string, colorKey: string, plan: string): void {
   document.documentElement.style.setProperty(cssVar, value);
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const configKey: 'color-plan-light' | 'color-plan-dark' = mode === 'dark' ? 'color-plan-dark' : 'color-plan-light';
   saveConfig({ [colorKey]: value, [configKey]: plan } as Partial<Config>);
 }
@@ -182,11 +182,11 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     if (!menuItem) return;
     const dataId = menuItem.getAttribute('data-id');
     if (dataId === 'neo-customcolor-button' && target instanceof HTMLInputElement && target.type === 'color') {
-      handleColorInput(target.value, '--neo-custom-base-color', getCustomColorKey(getCurrentThemeMode()), 'custom');
+      handleColorInput(target.value, '--neo-custom-base-color', getCustomColorKey(getThemeMode()), 'custom');
     } else if (dataId === 'neo-saturation-button' && target instanceof HTMLInputElement && target.type === 'range') {
-      handleSliderInput(target, '--neo-saturation', getSaturationKey(getCurrentThemeMode()), i18n.saturation ?? 'Saturation');
+      handleSliderInput(target, '--neo-saturation', getSaturationKey(getThemeMode()), i18n.saturation ?? 'Saturation');
     } else if (dataId === 'neo-brightness-button' && target instanceof HTMLInputElement && target.type === 'range') {
-      handleSliderInput(target, '--neo-brightness', getBrightnessKey(getCurrentThemeMode()), i18n.brightness ?? 'Brightness');
+      handleSliderInput(target, '--neo-brightness', getBrightnessKey(getThemeMode()), i18n.brightness ?? 'Brightness');
     }
   };
   _clickHandler = (e: Event) => {
@@ -205,10 +205,10 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     const dataId = menuItem.getAttribute('data-id');
     if (dataId === 'neo-saturation-button' && target instanceof HTMLInputElement && target.type === 'range') {
       target.value = '1';
-      handleSliderInput(target, '--neo-saturation', getSaturationKey(getCurrentThemeMode()), i18n.saturation ?? 'Saturation');
+      handleSliderInput(target, '--neo-saturation', getSaturationKey(getThemeMode()), i18n.saturation ?? 'Saturation');
     } else if (dataId === 'neo-brightness-button' && target instanceof HTMLInputElement && target.type === 'range') {
       target.value = '0';
-      handleSliderInput(target, '--neo-brightness', getBrightnessKey(getCurrentThemeMode()), i18n.brightness ?? 'Brightness');
+      handleSliderInput(target, '--neo-brightness', getBrightnessKey(getThemeMode()), i18n.brightness ?? 'Brightness');
     }
   };
   document.addEventListener('input', _inputHandler, true);

@@ -3,7 +3,7 @@ import { Dialog } from 'siyuan';
 import { getPlugin } from '../main/context';
 import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
-import { getCurrentThemeMode, getPresetsByMode } from './presets';
+import { getThemeMode, getPresetsByMode } from './presets';
 import type { Preset } from './presets';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { enableInvert, destroyInvert } from './invert';
@@ -106,7 +106,7 @@ function randomPickDifferentPreset(arr: Preset[], previousKey: string): Preset {
   return randomPick(filtered);
 }
 function pickHighContrast(sameAsLast: boolean): boolean {
-  if (isMobile() || getCurrentThemeMode() !== 'light') return false;
+  if (isMobile() || getThemeMode() !== 'light') return false;
   const highContrast = randomHighContrast === 'on' || (randomHighContrast === 'random' && Math.random() < 0.15);
   if (randomHighContrast === 'random' && sameAsLast && highContrast === lastState?.highContrast) {
     return !highContrast;
@@ -114,7 +114,7 @@ function pickHighContrast(sameAsLast: boolean): boolean {
   return highContrast;
 }
 function pickInvert(sameAsLast: boolean): boolean {
-  if (getCurrentThemeMode() !== 'dark') return false;
+  if (getThemeMode() !== 'dark') return false;
   const inverted = randomInvert === 'on' || (randomInvert === 'random' && Math.random() < 0.5);
   if (randomInvert === 'random' && sameAsLast && inverted === lastState?.inverted) {
     return !inverted;
@@ -219,7 +219,7 @@ function showCurrentStateDialog(): void {
   const plugin = getPlugin();
   if (!plugin) return;
   const i18n = plugin.i18n;
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const swatch = (color: string): string =>
     `<span style="display:inline-block;width:13px;height:13px;border-radius:50%;background-color:${color};outline:0.5px solid var(--b3-border-color-trans);outline-offset:-0.5px;vertical-align:-1px"></span>`;
   const lines: string[] = [];
@@ -439,7 +439,7 @@ export function destroyRandom(): void {
 }
 function applyRandom(config: Config): void {
   const html = document.documentElement;
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   randomScope = normalizeRandomScope(config['random-scope']);
   randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
   randomInvert = normalizeRandomTristate(config['random-invert']);

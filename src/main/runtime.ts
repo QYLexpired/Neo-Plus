@@ -1,5 +1,5 @@
 import { initEnv, destroyEnv } from '../modules/env';
-import { getCurrentThemeMode } from '../modules/thememode';
+import { getThemeMode } from '../modules/thememode';
 import { initNeoIcons, destroyNeoIcons } from './icons';
 import { initTopBarButton, destroyTopBarButton } from './topbar';
 import { initShortcuts, destroyShortcuts } from './shortcut';
@@ -53,7 +53,7 @@ export function syncNeoRootMode(): void {
   if (!runtimeActive) return;
   document.documentElement.classList.remove('neo-mode-light', 'neo-mode-dark');
   document.documentElement.classList.add(
-    getCurrentThemeMode() === 'dark' ? 'neo-mode-dark' : 'neo-mode-light',
+    getThemeMode() === 'dark' ? 'neo-mode-dark' : 'neo-mode-light',
   );
 }
 const runtimeModules: readonly RuntimeModule[] = [

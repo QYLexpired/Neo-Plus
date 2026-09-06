@@ -1,5 +1,5 @@
 import { saveConfig, type Config } from '../main/data';
-import { getCurrentThemeMode } from '../modules/thememode';
+import { getThemeMode } from '../modules/thememode';
 export type ThemeMode = 'light' | 'dark';
 export type PresetMode = ThemeMode | 'all';
 export type PresetGroup = 'neuebrutalism';
@@ -52,7 +52,7 @@ const presets: Preset[] = [
 export function getPresetsByMode(mode: ThemeMode): Preset[] {
   return presets.filter((p) => p.mode === 'all' || p.mode === mode);
 }
-export { getCurrentThemeMode };
+export { getThemeMode };
 export function getCustomColorKey(mode: ThemeMode): 'custom-color-light' | 'custom-color-dark' {
   return mode === 'dark' ? 'custom-color-dark' : 'custom-color-light';
 }
@@ -81,7 +81,7 @@ function removePaletteClasses(html: HTMLElement): void {
   html.classList.remove(...classesToRemove);
 }
 export function applyPreset(key: string): void {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const html = document.documentElement;
   removePaletteClasses(html);
   html.classList.add(`neo-palette-${key}`);
@@ -100,7 +100,7 @@ export function destroyPaletteClasses(): void {
   removePaletteClasses(html);
 }
 export function applyCurrentPlan(config: Config): void {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const plan = getCurrentPlan(config, mode);
   const html = document.documentElement;
   removePaletteClasses(html);

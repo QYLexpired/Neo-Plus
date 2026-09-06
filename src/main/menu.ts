@@ -15,7 +15,7 @@ import { onColoredFoldersClick, showColoredFoldersSettings } from '../appearance
 import { onVerticalTabsClick, showVerticalTabsSettings } from '../interface/verticaltabs';
 import { onSuperFusionClick, showSuperFusionSettings } from '../interface/superfusion';
 import { isDesktop, isMobile } from '../modules/env';
-import { getCurrentThemeMode } from '../modules/thememode';
+import { getThemeMode } from '../modules/thememode';
 import { onSidebarMuteClick } from '../interface/sidebarmute';
 import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../extension/multicolumnslashmenu';
 import { onColoredListsClick, showColoredListsSettings } from '../appearance/coloredlists';
@@ -113,7 +113,7 @@ export function buildMenu(
     label: createBrightnessSliderHTML(i18n),
     type: 'readonly',
   });
-  if (getCurrentThemeMode() === 'dark') {
+  if (getThemeMode() === 'dark') {
     menu.addItem({
       id: 'neo-invert-button',
       icon: 'iconNeoInvert',

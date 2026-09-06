@@ -1,7 +1,7 @@
 import type { Config } from '../main/data';
-import { getBrightnessKey, getCurrentThemeMode } from './presets';
+import { getBrightnessKey, getThemeMode } from './presets';
 export function initBrightness(config: Config): void {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const brightnessKey = getBrightnessKey(mode);
   const brightness = config[brightnessKey] ?? 0;
   document.documentElement.style.setProperty('--neo-brightness', String(brightness));

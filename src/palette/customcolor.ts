@@ -1,8 +1,8 @@
 import type { Config } from '../main/data';
-import { getCurrentThemeMode, getCustomColorKey } from './presets';
+import { getThemeMode, getCustomColorKey } from './presets';
 export function getThemeColor(config?: Config): string {
   if (config) {
-    const mode = getCurrentThemeMode();
+    const mode = getThemeMode();
     const colorKey = getCustomColorKey(mode);
     const color = config[colorKey as keyof Config] as string | undefined;
     if (color) return color;
@@ -18,7 +18,7 @@ export function createColorPickerHTML(config?: Config): string {
   return `<svg class="b3-menu__icon"><use xlink:href="#"></use></svg><input type="color" id="${id}" value="${currentColor}">`;
 }
 export function initCustomColor(config: Config): void {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const colorKey = getCustomColorKey(mode);
   const color = config[colorKey as keyof Config] as string | undefined;
   if (color) {

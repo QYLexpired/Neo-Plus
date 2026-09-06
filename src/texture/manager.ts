@@ -5,7 +5,7 @@ import {
   type Config,
   type CustomImageSource,
 } from '../main/data';
-import { getCurrentThemeMode } from '../modules/thememode';
+import { getThemeMode } from '../modules/thememode';
 import { ensureCss, removeCssByPrefix } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { showCustomImageSettings, enableCustomImage, destroyCustomImage } from './customimage';
@@ -108,11 +108,11 @@ export function getTextureMenuItems(i18n: Record<string, string>): any[] {
   ];
 }
 function saveTextureSelection(textureKey: string): void {
-  const texKey = getTextureKey(getCurrentThemeMode());
+  const texKey = getTextureKey(getThemeMode());
   saveConfig({ [texKey]: textureKey } as Partial<Config>);
 }
 function getCustomImagePreset(config: Config): CustomImageSource | undefined {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
   const presetName = config[currentKey];
   if (!presetName) return undefined;
@@ -146,7 +146,7 @@ function disableTexture(): void {
 }
 export function applyTexture(config: Config): void {
   loadPresetTextureSettings(config);
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const texKey = getTextureKey(mode);
   const textureKey = config[texKey];
   disableTexture();

@@ -1,14 +1,14 @@
 import { saveConfig, type Config } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
-import { getCurrentThemeMode, getInvertKey } from './presets';
+import { getThemeMode, getInvertKey } from './presets';
 let neoFeatureActive = false;
 export function enableInvert(): void {
-  if (getCurrentThemeMode() !== 'dark' || neoFeatureActive) return;
+  if (getThemeMode() !== 'dark' || neoFeatureActive) return;
   document.documentElement.classList.add('neo-palette-invert');
   neoFeatureActive = true;
 }
 export async function onInvertClick(): Promise<void> {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   if (mode !== 'dark') return;
   const shouldEnable = !neoFeatureActive;
   const callback = () => {
@@ -25,7 +25,7 @@ export async function onInvertClick(): Promise<void> {
   await saveConfig(patch);
 }
 export function initInvert(config: Config): void {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   if (mode !== 'dark') return;
   const key = getInvertKey(mode);
   const enabled = config[key] ?? false;

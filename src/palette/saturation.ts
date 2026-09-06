@@ -1,7 +1,7 @@
 import type { Config } from '../main/data';
-import { getCurrentThemeMode, getSaturationKey } from './presets';
+import { getThemeMode, getSaturationKey } from './presets';
 export function initSaturation(config: Config): void {
-  const mode = getCurrentThemeMode();
+  const mode = getThemeMode();
   const satKey = getSaturationKey(mode);
   const saturation = config[satKey] ?? 1;
   document.documentElement.style.setProperty('--neo-saturation', String(saturation));
