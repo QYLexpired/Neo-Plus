@@ -32,7 +32,8 @@
             }
         }
     }
-    .sy__outline {
+    .sy__outline,
+    .fn__flex-column[data-type="sidebar-outline"] {
         @for $i from 1 through 6 {
             $hue-offset: #{($i - 1) * 50};
             .b3-list-item[data-type=NodeHeading][data-subtype=h#{$i}] {

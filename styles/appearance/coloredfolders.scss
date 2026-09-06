@@ -15,7 +15,7 @@ $border-width: 3px;
     @include appearance-common('[data-id="neo-coloredfolders-button"]', '[data-id="neo-appearance-button"]');
     body.neo-coloredfolders-partition {
         .sy__file,
-        [data-type="sidebar-file"] {
+        .fn__flex-column[data-type="sidebar-file"] {
             --_indentline-dot-trans: -10px;
             --_indentline-ul-trans: 24px;
             --_indentline-li-trans: 6px;
@@ -77,7 +77,7 @@ $border-width: 3px;
     }
     body.neo-coloredfolders-simple {
         .sy__file,
-        [data-type="sidebar-file"] {
+        .fn__flex-column[data-type="sidebar-file"] {
             & > .fn__flex-1 {
                 & > ul {
                     @for $i from 0 through 7 {
@@ -104,7 +104,7 @@ $border-width: 3px;
     }
     body.neo-coloredfolders-card {
         .sy__file,
-        [data-type="sidebar-file"] {
+        .fn__flex-column[data-type="sidebar-file"] {
             --_indentline-dot-trans: -10px;
             --_indentline-ul-trans: 24px;
             --_indentline-li-trans: 6px;

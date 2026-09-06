@@ -101,18 +101,6 @@ export function buildMenu(
     });
   }
   menu.addSeparator();
-  menu.addItem({
-    id: 'neo-saturation-button',
-    icon: 'iconNeoSaturation',
-    label: createSliderHTML(i18n),
-    type: 'readonly',
-  });
-  menu.addItem({
-    id: 'neo-brightness-button',
-    icon: 'iconNeoBrightness',
-    label: createBrightnessSliderHTML(i18n),
-    type: 'readonly',
-  });
   if (getThemeMode() === 'dark') {
     menu.addItem({
       id: 'neo-invert-button',
@@ -134,6 +122,18 @@ export function buildMenu(
       },
     });
   }
+  menu.addItem({
+    id: 'neo-saturation-button',
+    icon: 'iconNeoSaturation',
+    label: createSliderHTML(i18n),
+    type: 'readonly',
+  });
+  menu.addItem({
+    id: 'neo-brightness-button',
+    icon: 'iconNeoBrightness',
+    label: createBrightnessSliderHTML(i18n),
+    type: 'readonly',
+  });
   menu.addSeparator();
   menu.addItem({
     id: 'neo-interface-button',
