@@ -24,7 +24,7 @@ function reconcileCardSearchListClass(): boolean {
     const results = searchListSelectors
       .map(selector => document.querySelector(selector))
       .filter(Boolean);
-    if (results.length === 0) return true;
+    if (results.length === 0) return false;
     results.forEach(el => {
       try {
         const firstChild = (el as Element).firstElementChild;
