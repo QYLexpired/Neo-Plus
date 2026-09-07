@@ -1,7 +1,6 @@
 import {
   saveConfig,
   loadConfig,
-  getCustomImagePresetConfigKey,
   type Config,
   type CustomImageSource,
 } from '../main/data';
@@ -116,7 +115,10 @@ function getCustomImagePreset(config: Config): CustomImageSource | undefined {
   const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
   const presetName = config[currentKey];
   if (!presetName) return undefined;
-  const preset = config[getCustomImagePresetConfigKey(presetName)];
+  const presets = config['customimage-presets'];
+  const preset = presets && typeof presets === 'object'
+    ? presets[presetName]
+    : undefined;
   return preset && typeof preset === 'object' ? preset : undefined;
 }
 function enablePresetTexture(texture: PresetTextureDefinition): void {

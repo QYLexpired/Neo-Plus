@@ -4,8 +4,6 @@ import { createNeoLifecycleGuard } from '../main/lifecycle';
 import {
   saveConfig,
   loadConfig,
-  deleteConfigKeys,
-  getCustomImagePresetConfigKey,
   type Config,
   type CustomImageConfigKey,
   type CustomImageValues,
@@ -234,12 +232,20 @@ export function destroyCustomImage(): void {
   document.documentElement.classList.remove('neo-texture-customimage');
   clearCustomImageCss();
 }
+const presetsConfigKey = 'customimage-presets';
 const currentPresetKeyLight = 'customimage-preset-current-light';
 const currentPresetKeyDark  = 'customimage-preset-current-dark';
 type CurrentPresetKey = typeof currentPresetKeyLight | typeof currentPresetKeyDark;
+function readPresets(config?: Partial<Config> | null): Record<string, CustomImageSource> {
+  const raw = config?.[presetsConfigKey];
+  return raw && typeof raw === 'object' && !Array.isArray(raw)
+    ? raw as Record<string, CustomImageSource>
+    : {};
+}
 function getPreset(config: Partial<Config> | null | undefined, name: string): CustomImageSource {
   if (!config || !name) return {};
-  const raw = config[getCustomImagePresetConfigKey(name)];
+  const presets = readPresets(config);
+  const raw = Object.prototype.hasOwnProperty.call(presets, name) ? presets[name] : undefined;
   return raw && typeof raw === 'object' ? raw : {};
 }
 function getPresetKeyForMode(mode: 'light' | 'dark'): CurrentPresetKey {
@@ -473,7 +479,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   </div>
 </div>
 <div class="b3-dialog__action">
-  <button class="b3-button b3-button--cancel" id="neo-customimage-cancel">${t(i18n, 'cancel')}</button>
+  <button class="b3-button b3-button--cancel" id="neo-customimage-cancel">${t(i18n, 'close')}</button>
   <span class="fn__space"></span>
   <button class="b3-button b3-button--remove" id="neo-customimage-delete-preset">${t(i18n, 'customimageDeletePreset')}</button>
   <span class="fn__space"></span>
@@ -617,17 +623,19 @@ export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<voi
       const isCurrent = createNeoLifecycleGuard();
       const currentKey = getCurrentPresetKey();
       try {
-        await saveConfig({ [currentKey]: '' } as Partial<Config>);
-        await deleteConfigKeys([getCustomImagePresetConfigKey(name)]);
+        const cfg = await loadConfig();
+        if (!isCurrent()) return;
+        const next = { ...readPresets(cfg) };
+        delete next[name];
+        const patch: Partial<Config> = { [presetsConfigKey]: next, [currentKey]: '' };
+        const otherKey = currentKey === currentPresetKeyLight ? currentPresetKeyDark : currentPresetKeyLight;
+        if (cfg[otherKey] === name) patch[otherKey] = '';
+        await saveConfig(patch);
         const updatedCfg = await loadConfig();
         if (presetSelect) {
           Array.from(presetSelect.options).find(o => o.value === name)?.remove();
           presetSelect.value = '';
         }
-        const otherKey = currentKey === currentPresetKeyLight ? currentPresetKeyDark : currentPresetKeyLight;
-        const patch: Partial<Config> = {};
-        if (updatedCfg[otherKey] === name) patch[otherKey] = '';
-        if (Object.keys(patch).length) await saveConfig(patch);
         const values = populateDialog(updatedCfg, presetSelect, fieldDom, customFillWrap, layoutOpacityWrap);
         if (isCurrent() && neoFeatureActive) applyCustomImageCss(values);
         showMessage(plugin.i18n.customimagePresetDeleted.replace('${name}', name), 3000);
@@ -637,8 +645,11 @@ export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<voi
   const savePresetToConfig = async (preset: Partial<CustomImageValues>, presetName: string): Promise<void> => {
     const isCurrent = createNeoLifecycleGuard();
     const currentKey = getCurrentPresetKey();
-    const patch: Partial<Config> = { [currentKey]: presetName };
-    patch[getCustomImagePresetConfigKey(presetName)] = preset;
+    const cfg = await loadConfig();
+    const patch: Partial<Config> = {
+      [presetsConfigKey]: { ...readPresets(cfg), [presetName]: preset },
+      [currentKey]: presetName,
+    };
     await saveConfig(patch);
     if (isCurrent() && neoFeatureActive) {
       applyCustomImageCss(preset);
@@ -664,17 +675,13 @@ export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<voi
     pd.element.querySelector('#npc-confirm')?.addEventListener('click', async () => {
       const name = (pd.element.querySelector('#neo-customimage-preset-name') as HTMLInputElement)?.value?.trim();
       if (!name) { showMessage(plugin.i18n.customimagePresetNameEmpty, 3000); return; }
-      if (['current', 'current-light', 'current-dark'].includes(name.toLowerCase())) {
-        showMessage(plugin.i18n.customimagePresetNameReserved, 3000);
-        return;
-      }
       const saved = await onConfirm(name);
       if (saved) pd.destroy();
     });
   };
   const savePresetAs = async (name: string): Promise<boolean> => {
     const cfg = await loadConfig();
-    const exists = cfg[getCustomImagePresetConfigKey(name)] !== undefined;
+    const exists = Object.prototype.hasOwnProperty.call(readPresets(cfg), name);
     if (exists) {
       const confirmed = await new Promise<boolean>(resolve => {
         const cd = new Dialog({
@@ -762,13 +769,10 @@ function populateDialog(
   const cpk = config?.[currentKey] || '';
   if (presetSelect) {
     presetSelect.innerHTML = '';
-    if (config) Object.keys(config).forEach(k => {
-      if (!k.startsWith('customimage-preset-') || k === currentPresetKeyLight || k === currentPresetKeyDark) return;
-      const n = k.replace('customimage-preset-', '');
-      if (n) {
-        const o = document.createElement('option'); o.value = n; o.textContent = n;
-        presetSelect.appendChild(o);
-      }
+    if (config) Object.keys(readPresets(config)).forEach(n => {
+      if (!n) return;
+      const o = document.createElement('option'); o.value = n; o.textContent = n;
+      presetSelect.appendChild(o);
     });
   }
   const presetAvailable = !!cpk && presetSelect !== null && Array.from(presetSelect.options).some(o => o.value === cpk);

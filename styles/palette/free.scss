@@ -1,0 +1,4 @@
+@use "manager" as *;
+.neo-palette-free {
+    @include palette-common('[data-id="neo-free-button"]');
+}

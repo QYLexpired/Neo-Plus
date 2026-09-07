@@ -1,4 +1,9 @@
 @use "manager" as *;
+.b3-menu__item[data-id="neo-invert-button"] {
+    .neo-palette-free & {
+        opacity: 0.38;
+    }
+}
 .neo-palette-invert {
     @include palette-common("[data-id=\"neo-invert-button\"]");
 }

@@ -124,6 +124,7 @@ declare module 'siyuan' {
   }
   export class Dialog {
     constructor(config: {
+      destroyCallback?: () => void;
       title: string;
       content: string;
       width?: string;

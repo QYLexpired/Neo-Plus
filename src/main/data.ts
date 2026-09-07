@@ -23,15 +23,12 @@ export type CustomImageConfigKey =
   | 'customimage-fill-repeat';
 export type CustomImageValues = Record<CustomImageConfigKey, string>;
 export type CustomImageSource = Partial<Record<CustomImageConfigKey, string | number | boolean | null | undefined>>;
-export type CustomImagePresetConfigKey = `customimage-preset-${string}`;
 export type PresetTextureSettingValue = string | number | boolean;
 export type PresetTextureSettings = Record<string, PresetTextureSettingValue>;
 export type PresetTextureSettingsMap = Record<string, PresetTextureSettings>;
-export function getCustomImagePresetConfigKey(name: string): CustomImagePresetConfigKey {
-  return `customimage-preset-${name}`;
-}
+export type FreeColorKey = 'base' | 'primary' | 'accent' | 'background' | 'surface' | 'onbackground';
+export type FreeColors = Partial<Record<FreeColorKey, string>>;
 export interface Config {
-  [key: CustomImagePresetConfigKey]: CustomImageSource | string | undefined;
   'custom-color-light'?: string;
   'custom-color-dark'?: string;
   'saturation-light'?: number;
@@ -42,11 +39,15 @@ export interface Config {
   'invert-dark'?: boolean;
   'highcontrast-light'?: boolean;
   'highcontrast-dark'?: boolean;
+  'free-presets-light'?: Record<string, FreeColors>;
+  'free-presets-dark'?: Record<string, FreeColors>;
+  'free-preset-current-light'?: string;
+  'free-preset-current-dark'?: string;
   'preset-light'?: string;
   'preset-dark'?: string;
-  'color-plan-light'?: 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random';
-  'color-plan-dark'?: 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random';
-  'random-scope'?: 'all' | 'preset' | 'custom';
+  'color-plan-light'?: 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free';
+  'color-plan-dark'?: 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free';
+  'random-scope'?: 'all' | 'preset' | 'custom' | 'free';
   'random-highcontrast'?: 'random' | 'on' | 'off';
   'random-invert'?: 'random' | 'on' | 'off';
   'random-saturation-min'?: number;
@@ -56,6 +57,7 @@ export interface Config {
   'texture-light'?: string;
   'texture-dark'?: string;
   'texture-settings'?: PresetTextureSettingsMap;
+  'customimage-presets'?: Record<string, CustomImageSource>;
   'customimage-info'?: string;
   'customimage-opacity'?: string;
   'customimage-blur'?: string;

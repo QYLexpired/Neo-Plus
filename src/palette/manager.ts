@@ -14,6 +14,7 @@ import {
   destroyPaletteClasses,
   volChunkSize,
 } from './presets';
+import { initFree, destroyFree } from './free';
 import { initCustomColor, destroyCustomColor } from './customcolor';
 import { initFollowBanner, destroyFollowBanner } from './followbanner';
 import { initFollowSystem, destroyFollowSystem } from './followsystem';
@@ -25,9 +26,10 @@ import { initRandom, destroyRandom, initRandomSettings } from './random';
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 export type { ThemeMode, Preset, Config };
-type Plan = 'custom' | 'followbanner' | 'followsystem' | 'random';
+type Plan = 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free';
 function initPlan(plan: Plan, config: Config): void {
   switch (plan) {
+    case 'free': initFree(config); break;
     case 'custom': initCustomColor(config); break;
     case 'followbanner': initFollowBanner(config); break;
     case 'followsystem': initFollowSystem(); break;
@@ -35,6 +37,7 @@ function initPlan(plan: Plan, config: Config): void {
   }
 }
 function destroyPaletteEffects(): void {
+  destroyFree();
   destroyRandom();
   destroyCustomColor();
   destroyFollowBanner();

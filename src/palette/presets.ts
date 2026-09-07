@@ -68,7 +68,7 @@ export function getInvertKey(mode: ThemeMode): 'invert-light' | 'invert-dark' {
 export function getHighContrastKey(mode: ThemeMode): 'highcontrast-light' | 'highcontrast-dark' {
   return mode === 'dark' ? 'highcontrast-dark' : 'highcontrast-light';
 }
-export function getCurrentPlan(config: Config, mode: ThemeMode): 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' {
+export function getCurrentPlan(config: Config, mode: ThemeMode): 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free' {
   return mode === 'dark'
     ? (config['color-plan-dark'] ?? 'preset')
     : (config['color-plan-light'] ?? 'preset');
@@ -107,6 +107,8 @@ export function applyCurrentPlan(config: Config): void {
   if (plan === 'preset') {
     const presetKey = getPresetKey(config, mode) ?? 'default';
     html.classList.add(`neo-palette-${presetKey}`);
+  } else if (plan === 'free') {
+    html.classList.add('neo-palette-free');
   } else if (plan === 'followbanner') {
     html.classList.add('neo-palette-followbanner');
   } else if (plan === 'followsystem') {

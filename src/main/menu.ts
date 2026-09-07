@@ -2,6 +2,7 @@ import { Menu } from 'siyuan';
 import { getPlugin } from './context';
 import { loadConfig } from './data';
 import { createBrightnessSliderHTML, createColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
+import { showFreeSettings } from '../palette/free';
 import { showRandomSettings } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
 import { onSmoothCaretClick, showSmoothCaretSettings } from '../extension/smoothcaret';
@@ -56,6 +57,20 @@ export function buildMenu(
     icon: 'iconNeoPalette',
     label: i18n.colorScheme,
     submenu: getPresetMenuItems(i18n),
+  });
+  menu.addItem({
+    id: 'neo-free-button',
+    icon: 'iconNeoFreePalette',
+    label: createSettingsMenuLabel(
+      'free',
+      i18n.freePalette,
+      i18n.freePaletteSettings,
+      showFreeSettings,
+    ),
+    click: () => {
+      switchToPlan('free');
+      return true;
+    },
   });
   const configPromise = loadConfig();
   const isCurrent = createNeoLifecycleGuard();
