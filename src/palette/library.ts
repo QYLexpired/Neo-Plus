@@ -288,6 +288,26 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
       colors: { base: '#30cf79', primary: '#147a46', accent: '#30cf79', background: '#ffffff', surface: '#f3f6f4', onbackground: '#2f3331' },
     },
     {
+      key: 'douban-light',
+      nameKey: 'freeLibraryDoubanLight',
+      colors: { base: '#007722', primary: '#3377aa', accent: '#007722', background: '#ffffff', surface: '#f7f7f7', onbackground: '#333333' },
+    },
+    {
+      key: 'telegram-day',
+      nameKey: 'freeLibraryTelegramDay',
+      colors: { base: '#40a7e3', primary: '#168acd', accent: '#40a7e3', background: '#ffffff', surface: '#f1f1f1', onbackground: '#000000' },
+    },
+    {
+      key: 'discord-light',
+      nameKey: 'freeLibraryDiscordLight',
+      colors: { base: '#5865f2', primary: '#5865f2', accent: '#006ce7', background: '#ffffff', surface: '#f2f3f5', onbackground: '#313338' },
+    },
+    {
+      key: 'zhihu-light',
+      nameKey: 'freeLibraryZhihuLight',
+      colors: { base: '#0084ff', primary: '#0066cc', accent: '#0084ff', background: '#ffffff', surface: '#f6f6f6', onbackground: '#1a1a1a' },
+    },
+    {
       key: 'notion-light',
       nameKey: 'freeLibraryNotionLight',
       colors: { base: '#0075de', primary: '#0075de', accent: '#f64932', background: '#ffffff', surface: '#f6f5f4', onbackground: '#0d0d0d' },
@@ -606,6 +626,61 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
       key: 'velocity-anniversary',
       nameKey: 'freeLibraryVelocityAnniversary',
       colors: { base: '#da0b2e', primary: '#da0b2e', accent: '#da0b2e', background: '#fdfdfd', surface: '#f2f2f3', onbackground: '#222222' },
+    },
+    {
+      key: 'noctis-lux',
+      nameKey: 'freeLibraryNoctisLux',
+      colors: { base: '#fef8ec', primary: '#005661', accent: '#5842ff', background: '#fef8ec', surface: '#f9f1e1', onbackground: '#005661' },
+    },
+    {
+      key: 'noctis-lilac',
+      nameKey: 'freeLibraryNoctisLilac',
+      colors: { base: '#7060eb', primary: '#0c006b', accent: '#5842ff', background: '#f2f1f8', surface: '#edecf8', onbackground: '#0c006b' },
+    },
+    {
+      key: 'noctis-hibernus',
+      nameKey: 'freeLibraryNoctisHibernus',
+      colors: { base: '#0099ad', primary: '#005661', accent: '#5842ff', background: '#f4f6f6', surface: '#e7f2f3', onbackground: '#005661' },
+    },
+    {
+      key: 'winter-is-coming-light',
+      nameKey: 'freeLibraryWinterIsComingLight',
+      colors: { base: '#219fd5', primary: '#236ebf', accent: '#236ebf', background: '#ffffff', surface: '#f3f3f3', onbackground: '#236ebf' },
+    },
+    {
+      key: 'bearded-coffee-cream',
+      nameKey: 'freeLibraryBeardedCoffeeCream',
+      colors: { base: '#d3694c', primary: '#36221d', accent: '#140f00', background: '#eae4e1', surface: '#e3dbd7', onbackground: '#36221d' },
+    },
+    {
+      key: 'bearded-vivid-light',
+      nameKey: 'freeLibraryBeardedVividLight',
+      colors: { base: '#9c45ff', primary: '#181818', accent: '#3b2600', background: '#f4f4f4', surface: '#ebebeb', onbackground: '#181818' },
+    },
+    {
+      key: 'dune-wood',
+      nameKey: 'freeLibraryDuneWood',
+      colors: { base: '#4792b8', primary: '#433721', accent: '#60090a', background: '#eae8d5', surface: '#899aac', onbackground: '#000000' },
+    },
+    {
+      key: 'dune-sand',
+      nameKey: 'freeLibraryDuneSand',
+      colors: { base: '#cc8c33', primary: '#433721', accent: '#60090a', background: '#dbc7ab', surface: '#899aac', onbackground: '#000000' },
+    },
+    {
+      key: 'dune-rose',
+      nameKey: 'freeLibraryDuneRose',
+      colors: { base: '#c4523b', primary: '#433721', accent: '#60090a', background: '#e9a791', surface: '#899aac', onbackground: '#000000' },
+    },
+    {
+      key: 'typomagical-ficus-ruby-light',
+      nameKey: 'freeLibraryTypomagicalFicusRubyLight',
+      colors: { base: '#c94458', primary: '#417262', accent: '#800000', background: '#f5f5f5', surface: '#b0c6c2', onbackground: '#333834' },
+    },
+    {
+      key: 'ebullientworks-light',
+      nameKey: 'freeLibraryEbullientworksLight',
+      colors: { base: '#8c6585', primary: '#8c6585', accent: '#6b4c65', background: '#f8f8f8', surface: '#e3e3e3', onbackground: '#484848' },
     },
     {
       key: 'vscode-light',
@@ -1115,6 +1190,26 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
       colors: { base: '#30cf79', primary: '#30cf79', accent: '#30cf79', background: '#111613', surface: '#1a211d', onbackground: '#e7ebe8' },
     },
     {
+      key: 'telegram-night',
+      nameKey: 'freeLibraryTelegramNight',
+      colors: { base: '#5288c1', primary: '#6ab3f3', accent: '#6ab3f3', background: '#17212b', surface: '#232e3c', onbackground: '#f5f5f5' },
+    },
+    {
+      key: 'spotify-dark',
+      nameKey: 'freeLibrarySpotifyDark',
+      colors: { base: '#1db954', primary: '#1ed760', accent: '#1db954', background: '#121212', surface: '#181818', onbackground: '#ffffff' },
+    },
+    {
+      key: 'discord-dark',
+      nameKey: 'freeLibraryDiscordDark',
+      colors: { base: '#5865f2', primary: '#949cf7', accent: '#00a8fc', background: '#313338', surface: '#2b2d31', onbackground: '#dbdee1' },
+    },
+    {
+      key: 'zhihu-dark',
+      nameKey: 'freeLibraryZhihuDark',
+      colors: { base: '#0084ff', primary: '#559fff', accent: '#559fff', background: '#1a1a1a', surface: '#121212', onbackground: '#d3d3d3' },
+    },
+    {
       key: 'notion-dark',
       nameKey: 'freeLibraryNotionDark',
       colors: { base: '#62aef0', primary: '#62aef0', accent: '#f64932', background: '#191919', surface: '#2f3437', onbackground: '#f1f1ef' },
@@ -1498,6 +1593,81 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
       key: 'velocity-midnight-purple',
       nameKey: 'freeLibraryVelocityMidnightPurple',
       colors: { base: '#7c55e7', primary: '#7c55e7', accent: '#7c55e7', background: '#1f1921', surface: '#2a262c', onbackground: '#d1cbd3' },
+    },
+    {
+      key: 'noctis-bordo',
+      nameKey: 'freeLibraryNoctisBordo',
+      colors: { base: '#f18eb0', primary: '#f18eb0', accent: '#49e9a6', background: '#322a2d', surface: '#2c2528', onbackground: '#cbbec2' },
+    },
+    {
+      key: 'noctis-uva',
+      nameKey: 'freeLibraryNoctisUva',
+      colors: { base: '#998ef1', primary: '#998ef1', accent: '#49e9a6', background: '#292640', surface: '#232136', onbackground: '#c5c2d6' },
+    },
+    {
+      key: 'noctis-viola',
+      nameKey: 'freeLibraryNoctisViola',
+      colors: { base: '#bf8ef1', primary: '#bf8ef1', accent: '#49e9a6', background: '#30243d', surface: '#2b2136', onbackground: '#ccbfd9' },
+    },
+    {
+      key: 'winter-is-coming-dark-blue',
+      nameKey: 'freeLibraryWinterIsComingDarkBlue',
+      colors: { base: '#219fd5', primary: '#219fd5', accent: '#219fd5', background: '#011627', surface: '#0b2942', onbackground: '#a7dbf7' },
+    },
+    {
+      key: 'winter-is-coming-dark-black',
+      nameKey: 'freeLibraryWinterIsComingDarkBlack',
+      colors: { base: '#219fd5', primary: '#219fd5', accent: '#219fd5', background: '#282822', surface: '#0b2942', onbackground: '#a7dbf7' },
+    },
+    {
+      key: 'bearded-anthracite',
+      nameKey: 'freeLibraryBeardedAnthracite',
+      colors: { base: '#a2abb6', primary: '#a2abb6', accent: '#3398db', background: '#181a1f', surface: '#131519', onbackground: '#c8ccd4' },
+    },
+    {
+      key: 'bearded-coffee',
+      nameKey: 'freeLibraryBeardedCoffee',
+      colors: { base: '#f09177', primary: '#f09177', accent: '#6eddd6', background: '#292423', surface: '#231f1e', onbackground: '#ceb5b0' },
+    },
+    {
+      key: 'bearded-earth',
+      nameKey: 'freeLibraryBeardedEarth',
+      colors: { base: '#d35386', primary: '#ba9d6f', accent: '#ba9d6f', background: '#221b1b', surface: '#1c1616', onbackground: '#caa5a5' },
+    },
+    {
+      key: 'bearded-vivid-purple',
+      nameKey: 'freeLibraryBeardedVividPurple',
+      colors: { base: '#a680ff', primary: '#a680ff', accent: '#42dd76', background: '#171131', surface: '#130e29', onbackground: '#c7bfe8' },
+    },
+    {
+      key: 'aura-dark',
+      nameKey: 'freeLibraryAuraDark',
+      colors: { base: '#a277ff', primary: '#a277ff', accent: '#61ffca', background: '#15141b', surface: '#110f18', onbackground: '#edecee' },
+    },
+    {
+      key: 'dune-dusk',
+      nameKey: 'freeLibraryDuneDusk',
+      colors: { base: '#ffaa00', primary: '#ffaa00', accent: '#ffdead', background: '#201433', surface: '#232529', onbackground: '#cad3eb' },
+    },
+    {
+      key: 'dune-midnight',
+      nameKey: 'freeLibraryDuneMidnight',
+      colors: { base: '#ffd770', primary: '#ffd770', accent: '#ffdead', background: '#141733', surface: '#232529', onbackground: '#cad3eb' },
+    },
+    {
+      key: 'dune-blacky',
+      nameKey: 'freeLibraryDuneBlacky',
+      colors: { base: '#c9893b', primary: '#c9893b', accent: '#ffdead', background: '#283037', surface: '#232529', onbackground: '#cad3eb' },
+    },
+    {
+      key: 'typomagical-ficus-ruby-dark',
+      nameKey: 'freeLibraryTypomagicalFicusRubyDark',
+      colors: { base: '#f4465d', primary: '#dadc8f', accent: '#e8bb89', background: '#305654', surface: '#1e3735', onbackground: '#f9ead9' },
+    },
+    {
+      key: 'ebullientworks-dark',
+      nameKey: 'freeLibraryEbullientworksDark',
+      colors: { base: '#8c6585', primary: '#e6c076', accent: '#c7a1c0', background: '#1e1e1e', surface: '#2f2f2f', onbackground: '#cdcdcd' },
     },
     {
       key: 'vscode-dark',

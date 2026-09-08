@@ -232,27 +232,15 @@ export function destroyCustomImage(): void {
   document.documentElement.classList.remove('neo-texture-customimage');
   clearCustomImageCss();
 }
-const presetsConfigKey = 'customimage-presets';
-const currentPresetKeyLight = 'customimage-preset-current-light';
-const currentPresetKeyDark  = 'customimage-preset-current-dark';
-type CurrentPresetKey = typeof currentPresetKeyLight | typeof currentPresetKeyDark;
-function readPresets(config?: Partial<Config> | null): Record<string, CustomImageSource> {
-  const raw = config?.[presetsConfigKey];
-  return raw && typeof raw === 'object' && !Array.isArray(raw)
-    ? raw as Record<string, CustomImageSource>
-    : {};
+type ThemeMode = ReturnType<typeof getThemeMode>;
+function getCurrentPresetName(config: Config, mode: ThemeMode): string {
+  const presets = config[`customimage-presets-${mode}`] ?? {};
+  const selected = config[`customimage-preset-current-${mode}`] ?? '';
+  return Object.prototype.hasOwnProperty.call(presets, selected) ? selected : '';
 }
-function getPreset(config: Partial<Config> | null | undefined, name: string): CustomImageSource {
-  if (!config || !name) return {};
-  const presets = readPresets(config);
-  const raw = Object.prototype.hasOwnProperty.call(presets, name) ? presets[name] : undefined;
-  return raw && typeof raw === 'object' ? raw : {};
-}
-function getPresetKeyForMode(mode: 'light' | 'dark'): CurrentPresetKey {
-  return mode === 'dark' ? currentPresetKeyDark : currentPresetKeyLight;
-}
-function getCurrentPresetKey(): CurrentPresetKey {
-  return getPresetKeyForMode(getThemeMode());
+function getValues(config: Config, mode: ThemeMode): CustomImageValues {
+  const presets = config[`customimage-presets-${mode}`] ?? {};
+  return normalizeCustomImageValues(presets[getCurrentPresetName(config, mode)]);
 }
 interface SliderConfig {
   id: string;
@@ -426,7 +414,7 @@ function fillModeSelectHTML(i18n: Record<string, string>, id: string, i18nKey: s
     </div>
   </div>`;
 }
-function buildSettingsHTML(i18n: Record<string, string>): string {
+function buildSettingsHTML(i18n: Record<string, string>, mode: ThemeMode): string {
   const basicSliderKeys = ['customimage-blur'];
   const basicSliders = basicSliderKeys.map(k => sliderHTML(i18n, getSliderConfig(k)!)).join('');
   const opacitySlider = sliderHTML(i18n, getSliderConfig('customimage-opacity')!);
@@ -443,7 +431,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
       <div class="config-items">
         <label class="fn__flex b3-label config-item">
           <div class="fn__flex-1 config-item__main">
-            <div class="config-name">${t(i18n, 'customimagePresetSelect')}</div>
+            <div class="config-name">${t(i18n, mode === 'dark' ? 'customimagePresetSelectDark' : 'customimagePresetSelectLight')}</div>
             <div class="b3-label__text">${t(i18n, 'customimagePresetSelectTip')}</div>
           </div>
           <span class="fn__space"></span>
@@ -488,19 +476,59 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   <button class="b3-button b3-button--text" id="neo-customimage-update-preset">${t(i18n, 'customimageUpdateApply')}</button>
 </div>`;
 }
-export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<void>): void {
+function confirmPresetAction(title: string, content: string, action: string, cancel: string): Promise<boolean> {
+  return new Promise(resolve => {
+    const dialog = new Dialog({
+      title,
+      content: `<div class="b3-dialog__content"></div><div class="b3-dialog__action">
+        <button class="b3-button b3-button--cancel" id="neo-customimage-action-cancel">${cancel}</button>
+        <span class="fn__space"></span>
+        <button class="b3-button b3-button--remove" id="neo-customimage-action-confirm">${action}</button>
+      </div>`,
+      destroyCallback: () => resolve(false),
+    });
+    dialog.element.classList.add('neo-settings-dialog');
+    dialog.element.querySelector('.b3-dialog__content')!.textContent = content;
+    dialog.element.querySelector('#neo-customimage-action-cancel')?.addEventListener('click', () => dialog.destroy());
+    dialog.element.querySelector('#neo-customimage-action-confirm')?.addEventListener('click', () => {
+      resolve(true);
+      dialog.destroy();
+    });
+  });
+}
+export async function showCustomImageSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
+  let config = await loadConfig();
+  if (!isCurrent()) return;
+  const mode = getThemeMode();
+  const presetsKey = mode === 'dark' ? 'customimage-presets-dark' : 'customimage-presets-light';
+  const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
+  const { i18n } = plugin;
+  let presets = config[presetsKey] ?? {};
+  let selected = config[currentKey] ?? '';
+  if (!Object.prototype.hasOwnProperty.call(presets, selected)) selected = '';
+  let savedValues = getValues(config, mode);
+  let saving = false;
+  let closePromptOpen = false;
+  let dirty = false;
+  function canPreview(): boolean {
+    return isCurrent() && getThemeMode() === mode && neoFeatureActive;
+  }
   const dialog = new Dialog({
     title: `<div class="fn__flex">
-    <div class="fn__ellipsis" style="white-space: nowrap">${plugin.i18n.customimageSettings}</div>
-    <div class="fn__space"></div>
-    <button class="b3-button b3-button--small fn__flex-center" id="neo-customimage-reset-preset">${plugin.i18n.customimageResetPreset}</button>
-  </div>`,
-    content: buildSettingsHTML(plugin.i18n),
+      <div class="fn__ellipsis">${i18n.customimageSettings}</div>
+      <span class="fn__space"></span>
+      <button class="b3-button b3-button--small fn__flex-center" id="neo-customimage-reset-preset">${i18n.customimageResetPreset}</button>
+    </div>`,
+    content: buildSettingsHTML(i18n, mode),
+    destroyCallback: () => {
+      if (canPreview()) applyCustomImageCss(savedValues);
+    },
   });
   dialog.element.classList.add('neo-settings-dialog');
-  const presetSelect = dialog.element.querySelector('#neo-customimage-preset-select') as HTMLSelectElement | null;
+  const presetSelect = dialog.element.querySelector<HTMLSelectElement>('#neo-customimage-preset-select')!;
   const fieldDom: CustomImageFieldDom[] = fieldDefs.map(f => ({
     field: f,
     input: dialog.element.querySelector('#' + f.inputId) as CustomImageInput | null,
@@ -528,29 +556,51 @@ export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<voi
   const setFormValues = (source?: CustomImageSource | null, updatePreview = false): CustomImageValues => {
     const values = writeFieldDomValues(fieldDom, source);
     syncConditionalVisibility(values, customFillWrap, layoutOpacityWrap);
-    if (updatePreview && neoFeatureActive) applyCustomImageCss(values);
+    if (updatePreview && canPreview()) applyCustomImageCss(values);
     return values;
   };
-  const initializationControls = new Set<CustomImageInput | HTMLButtonElement>();
-  if (presetSelect) initializationControls.add(presetSelect);
-  for (const { input } of fieldDom) {
-    if (input) initializationControls.add(input);
+  function populatePresets(): void {
+    presetSelect.replaceChildren();
+    for (const name of Object.keys(presets)) {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      presetSelect.append(option);
+    }
+    if (selected) presetSelect.value = selected;
+    else presetSelect.selectedIndex = -1;
   }
-  for (const id of ['#neo-customimage-reset-preset', '#neo-customimage-delete-preset', '#neo-customimage-new-preset', '#neo-customimage-update-preset']) {
-    const button = btn(id);
-    if (button) initializationControls.add(button);
+  populatePresets();
+  async function persist(nextPresets: Record<string, CustomImageSource>, name: string): Promise<boolean> {
+    if (!isCurrent() || saving || !dialog.element.isConnected) return false;
+    saving = true;
+    const controls = dialog.element.querySelectorAll<CustomImageInput | HTMLButtonElement>('input, textarea, select, button');
+    controls.forEach(control => { control.disabled = true; });
+    const patch: Partial<Config> = {};
+    patch[presetsKey] = nextPresets;
+    patch[currentKey] = name;
+    try {
+      await saveConfig(patch);
+      if (!isCurrent()) return false;
+      config = { ...config, ...patch };
+      presets = nextPresets;
+      selected = name;
+      savedValues = getValues(config, mode);
+      populatePresets();
+      setFormValues(savedValues, true);
+      dirty = false;
+      return true;
+    } catch {
+      if (isCurrent()) showMessage(i18n.customimageSaveFailed);
+      return false;
+    } finally {
+      saving = false;
+      controls.forEach(control => { control.disabled = false; });
+    }
   }
-  initializationControls.forEach(control => { control.disabled = true; });
-  loadConfig().then(c => {
-    if (!dialog.element.isConnected) return;
-    populateDialog(c, presetSelect, fieldDom, customFillWrap, layoutOpacityWrap);
-  }).catch(() => {}).finally(() => {
-    if (!dialog.element.isConnected) return;
-    initializationControls.forEach(control => { control.disabled = false; });
-  });
-  let dirty = false;
+  setFormValues(savedValues);
   const applyCssFromDom = (): void => {
-    if (!neoFeatureActive) return;
+    if (!canPreview()) return;
     applyCustomImageCss(readFieldDomValues(fieldDom));
   };
   for (const { field, input, tooltip } of fieldDom) {
@@ -578,214 +628,81 @@ export function showCustomImageSettings(reloadAndApplyTexture: () => Promise<voi
       const titleKey = btnEl.dataset.tipTitle;
       if (!tipKey) return;
       new Dialog({
-        title: titleKey ? t(plugin.i18n, titleKey) : '',
-        content: `<div class="b3-dialog__content"><div class="b3-label__text">${t(plugin.i18n, tipKey)}</div></div>`,
+        title: titleKey ? t(i18n, titleKey) : '',
+        content: `<div class="b3-dialog__content"><div class="b3-label__text">${t(i18n, tipKey)}</div></div>`,
       });
     });
   });
   const originalDestroy = dialog.destroy.bind(dialog);
-  const doDestroy = (): void => { originalDestroy(); };
-  const performDestroyWithRestore = async (): Promise<void> => {
-    try {
-      await reloadAndApplyTexture();
-    } catch {}
-    doDestroy();
-  };
   dialog.destroy = (): void => {
-    if (!dirty) {
-      performDestroyWithRestore();
+    if (saving || closePromptOpen) return;
+    if (!isCurrent() || !dirty) {
+      originalDestroy();
       return;
     }
-    const cd = new Dialog({
-      title: plugin.i18n.customimageUnsavedTitle,
-      content: `<div class="b3-dialog__content">${plugin.i18n.customimageUnsavedContent}</div><div class="b3-dialog__action"><button class="b3-button b3-button--cancel" id="ncu-back">${plugin.i18n.customimageUnsavedBack}</button><span class="fn__space"></span><button class="b3-button b3-button--remove" id="ncu-exit">${plugin.i18n.customimageUnsavedExit}</button></div>`,
-    });
-    cd.element.classList.add('neo-settings-dialog');
-    cd.element.querySelector('#ncu-back')?.addEventListener('click', () => cd.destroy());
-    cd.element.querySelector('#ncu-exit')?.addEventListener('click', () => {
-      dirty = false;
-      cd.destroy();
-      performDestroyWithRestore();
-    });
-  };
-  btn('#neo-customimage-cancel')?.addEventListener('click', () => dialog.destroy());
-  btn('#neo-customimage-delete-preset')?.addEventListener('click', async () => {
-    if (!presetSelect) return;
-    const name = presetSelect.value;
-    if (!name) { showMessage(plugin.i18n.customimagePresetNotSelected, 3000); return; }
-    const cd = new Dialog({
-      title: plugin.i18n.customimagePresetDeleteConfirmTitle,
-      content: `<div class="b3-dialog__content">${plugin.i18n.customimagePresetDeleteConfirmContent.replace('${name}', name)}</div><div class="b3-dialog__action"><button class="b3-button b3-button--cancel" id="ndc-cancel">${plugin.i18n.cancel}</button><span class="fn__space"></span><button class="b3-button b3-button--remove" id="ndc-confirm">${plugin.i18n.customimageDelete}</button></div>`,
-    });
-    cd.element.classList.add('neo-settings-dialog');
-    cd.element.querySelector('#ndc-cancel')?.addEventListener('click', () => cd.destroy());
-    cd.element.querySelector('#ndc-confirm')?.addEventListener('click', async () => {
-      const isCurrent = createNeoLifecycleGuard();
-      const currentKey = getCurrentPresetKey();
-      try {
-        const cfg = await loadConfig();
-        if (!isCurrent()) return;
-        const next = { ...readPresets(cfg) };
-        delete next[name];
-        const patch: Partial<Config> = { [presetsConfigKey]: next, [currentKey]: '' };
-        const otherKey = currentKey === currentPresetKeyLight ? currentPresetKeyDark : currentPresetKeyLight;
-        if (cfg[otherKey] === name) patch[otherKey] = '';
-        await saveConfig(patch);
-        const updatedCfg = await loadConfig();
-        if (presetSelect) {
-          Array.from(presetSelect.options).find(o => o.value === name)?.remove();
-          presetSelect.value = '';
-        }
-        const values = populateDialog(updatedCfg, presetSelect, fieldDom, customFillWrap, layoutOpacityWrap);
-        if (isCurrent() && neoFeatureActive) applyCustomImageCss(values);
-        showMessage(plugin.i18n.customimagePresetDeleted.replace('${name}', name), 3000);
-      } catch {} finally { cd.destroy(); }
-    });
-  });
-  const savePresetToConfig = async (preset: Partial<CustomImageValues>, presetName: string): Promise<void> => {
-    const isCurrent = createNeoLifecycleGuard();
-    const currentKey = getCurrentPresetKey();
-    const cfg = await loadConfig();
-    const patch: Partial<Config> = {
-      [presetsConfigKey]: { ...readPresets(cfg), [presetName]: preset },
-      [currentKey]: presetName,
-    };
-    await saveConfig(patch);
-    if (isCurrent() && neoFeatureActive) {
-      applyCustomImageCss(preset);
-    }
-  };
-  btn('#neo-customimage-update-preset')?.addEventListener('click', async () => {
-    if (!presetSelect) return;
-    const name = presetSelect.value;
-    if (!name) { showMessage(plugin.i18n.customimagePresetNotSelected, 3000); return; }
-    const preset = buildPresetFromDom();
-    await savePresetToConfig(preset, name);
-    dirty = false;
-    showMessage(plugin.i18n.customimagePresetUpdated.replace('${name}', name), 3000);
-    dialog.destroy();
-  });
-  const askPresetName = (title: string, onConfirm: (name: string) => Promise<boolean>): void => {
-    const pd = new Dialog({
-      title,
-      content: `<div class="b3-dialog__content"><div class="fn__flex b3-label config-item"><div class="fn__flex-1 config-item__main"><div class="config-name">${plugin.i18n.customimagePresetName}</div><div class="b3-label__text">${plugin.i18n.customimagePresetNameTip}</div></div><span class="fn__space"></span><input class="b3-text-field fn__flex-center fn__size200" id="neo-customimage-preset-name" spellcheck="false"></div></div><div class="b3-dialog__action"><button class="b3-button b3-button--cancel" id="npc-cancel">${plugin.i18n.cancel}</button><span class="fn__space"></span><button class="b3-button b3-button--text" id="npc-confirm">${plugin.i18n.confirm}</button></div>`,
-    });
-    pd.element.classList.add('neo-settings-dialog');
-    pd.element.querySelector('#npc-cancel')?.addEventListener('click', () => pd.destroy());
-    pd.element.querySelector('#npc-confirm')?.addEventListener('click', async () => {
-      const name = (pd.element.querySelector('#neo-customimage-preset-name') as HTMLInputElement)?.value?.trim();
-      if (!name) { showMessage(plugin.i18n.customimagePresetNameEmpty, 3000); return; }
-      const saved = await onConfirm(name);
-      if (saved) pd.destroy();
-    });
-  };
-  const savePresetAs = async (name: string): Promise<boolean> => {
-    const cfg = await loadConfig();
-    const exists = Object.prototype.hasOwnProperty.call(readPresets(cfg), name);
-    if (exists) {
-      const confirmed = await new Promise<boolean>(resolve => {
-        const cd = new Dialog({
-          title: plugin.i18n.customimagePresetOverwriteTitle,
-          content: `<div class="b3-dialog__content">${plugin.i18n.customimagePresetOverwriteContent.replace('${name}', name)}</div><div class="b3-dialog__action"><button class="b3-button b3-button--cancel" id="npo-cancel">${plugin.i18n.cancel}</button><span class="fn__space"></span><button class="b3-button b3-button--text" id="npo-confirm">${plugin.i18n.confirm}</button></div>`,
-        });
-        cd.element.classList.add('neo-settings-dialog');
-        const resolveFalse = () => resolve(false);
-        const origDestroy = cd.destroy.bind(cd);
-        cd.destroy = () => { resolveFalse(); origDestroy(); };
-        cd.element.querySelector('#npo-cancel')?.addEventListener('click', () => cd.destroy());
-        cd.element.querySelector('#npo-confirm')?.addEventListener('click', async () => {
-          resolve(true);
-          cd.destroy();
-        });
+    closePromptOpen = true;
+    void confirmPresetAction(i18n.customimageUnsavedTitle, i18n.customimageUnsavedContent, i18n.customimageUnsavedExit, i18n.customimageUnsavedBack)
+      .then(discard => {
+        closePromptOpen = false;
+        if (discard) originalDestroy();
       });
-      if (!confirmed) return false;
-    }
-    const preset = buildPresetFromDom();
-    await savePresetToConfig(preset, name);
-    setFormValues(preset);
-    dirty = false;
-    showMessage(plugin.i18n.customimagePresetSaved.replace('${name}', name), 3000);
-    if (presetSelect && !Array.from(presetSelect.options).some(o => o.value === name)) {
-      const opt = document.createElement('option'); opt.value = name; opt.textContent = name;
-      presetSelect.appendChild(opt); presetSelect.value = name;
-    }
-    return true;
   };
-  btn('#neo-customimage-new-preset')?.addEventListener('click', () => {
-    askPresetName(plugin.i18n.customimageNewPresetTitle, savePresetAs);
+  dialog.element.querySelector('#neo-customimage-cancel')?.addEventListener('click', () => dialog.destroy());
+  dialog.element.querySelector('#neo-customimage-update-preset')?.addEventListener('click', async () => {
+    if (!selected) { showMessage(i18n.customimagePresetNotSelected); return; }
+    if (await persist({ ...presets, [selected]: buildPresetFromDom() }, selected)) {
+      showMessage(i18n.customimagePresetUpdated.replace('${name}', selected), 3000);
+      dialog.destroy();
+    }
   });
-  presetSelect?.addEventListener('change', async () => {
+  presetSelect.addEventListener('change', async () => {
     const name = presetSelect.value;
-    if (!name) return;
-    const switchPreset = async (): Promise<void> => {
-      const isCurrent = createNeoLifecycleGuard();
-      try {
-        const currentKey = getCurrentPresetKey();
-        const patch: Partial<Config> = { [currentKey]: name };
-        await saveConfig(patch);
-        const updatedCfg = await loadConfig();
-        const values = populateDialog(updatedCfg, presetSelect, fieldDom, customFillWrap, layoutOpacityWrap);
-        if (isCurrent() && neoFeatureActive) {
-          applyCustomImageCss(values);
-        }
-      } catch {}
-    };
-    if (!dirty) {
-      await switchPreset();
-      return;
-    }
-    const sd = new Dialog({
-      title: plugin.i18n.customimagePresetSwitchTitle,
-      content: `<div class="b3-dialog__content">${plugin.i18n.customimagePresetSwitchContent}</div><div class="b3-dialog__action"><button class="b3-button b3-button--cancel" id="nps-cancel">${plugin.i18n.customimagePresetSwitchCancel}</button><span class="fn__space"></span><button class="b3-button b3-button--remove" id="nps-confirm">${plugin.i18n.customimagePresetSwitchConfirm}</button></div>`,
-    });
-    sd.element.classList.add('neo-settings-dialog');
-    const restorePresetSelect = (): void => {
-      if (presetSelect) presetSelect.value = presetSelect.dataset.previousValue || '';
-    };
-    const origSdDestroy = sd.destroy.bind(sd);
-    sd.destroy = (): void => {
-      restorePresetSelect();
-      origSdDestroy();
-    };
-    sd.element.querySelector('#nps-cancel')?.addEventListener('click', () => {
-      restorePresetSelect();
-      sd.destroy();
-    });
-    sd.element.querySelector('#nps-confirm')?.addEventListener('click', async () => {
-      dirty = false;
-      origSdDestroy();
-      await switchPreset();
-    });
+    presetSelect.value = selected;
+    if (!name || name === selected) return;
+    if (dirty && !await confirmPresetAction(i18n.customimagePresetSwitchTitle, i18n.customimagePresetSwitchContent, i18n.customimagePresetSwitchConfirm, i18n.customimagePresetSwitchCancel)) return;
+    await persist(presets, name);
   });
-}
-function populateDialog(
-  config: Partial<Config> | null,
-  presetSelect: HTMLSelectElement | null,
-  fieldDom: CustomImageFieldDom[],
-  customWrap: HTMLElement | null,
-  layoutOpacityWrap: HTMLElement | null,
-): CustomImageValues {
-  const currentKey = getCurrentPresetKey();
-  const cpk = config?.[currentKey] || '';
-  if (presetSelect) {
-    presetSelect.innerHTML = '';
-    if (config) Object.keys(readPresets(config)).forEach(n => {
-      if (!n) return;
-      const o = document.createElement('option'); o.value = n; o.textContent = n;
-      presetSelect.appendChild(o);
+  dialog.element.querySelector('#neo-customimage-delete-preset')?.addEventListener('click', async () => {
+    const name = selected;
+    if (!name) { showMessage(i18n.customimagePresetNotSelected); return; }
+    if (!await confirmPresetAction(i18n.customimagePresetDeleteConfirmTitle, i18n.customimagePresetDeleteConfirmContent.replace('${name}', name), i18n.customimageDelete, i18n.cancel)) return;
+    const next = { ...presets };
+    delete next[name];
+    if (await persist(next, '')) {
+      showMessage(i18n.customimagePresetDeleted.replace('${name}', name), 3000);
+    }
+  });
+  function showNewPreset(source: Partial<CustomImageValues>, title: string): Promise<boolean> {
+    return new Promise(resolve => {
+      const nameDialog = new Dialog({
+        title,
+        content: `<div class="b3-dialog__content"><label class="fn__flex b3-label config-item">
+          <div class="fn__flex-1 config-item__main"><div class="config-name">${i18n.customimagePresetName}</div><div class="b3-label__text">${i18n.customimagePresetNameTip}</div></div>
+          <span class="fn__space"></span><input class="b3-text-field fn__flex-center fn__size200" id="neo-customimage-preset-name" spellcheck="false">
+        </label></div><div class="b3-dialog__action">
+          <button class="b3-button b3-button--cancel" id="neo-customimage-name-cancel">${i18n.cancel}</button><span class="fn__space"></span>
+          <button class="b3-button b3-button--text" id="neo-customimage-name-confirm">${i18n.confirm}</button>
+        </div>`,
+        destroyCallback: () => resolve(false),
+      });
+      nameDialog.element.classList.add('neo-settings-dialog');
+      const nameInput = nameDialog.element.querySelector<HTMLInputElement>('#neo-customimage-preset-name')!;
+      nameInput.focus();
+      nameDialog.element.querySelector('#neo-customimage-name-cancel')?.addEventListener('click', () => nameDialog.destroy());
+      nameDialog.element.querySelector('#neo-customimage-name-confirm')?.addEventListener('click', async () => {
+        const name = nameInput.value.trim();
+        if (!name) { showMessage(i18n.customimagePresetNameEmpty); return; }
+        if (Object.prototype.hasOwnProperty.call(presets, name)
+          && !await confirmPresetAction(i18n.customimagePresetOverwriteTitle, i18n.customimagePresetOverwriteContent.replace('${name}', name), i18n.confirm, i18n.cancel)) return;
+        if (await persist({ ...presets, [name]: { ...source } }, name)) {
+          showMessage(i18n.customimagePresetSaved.replace('${name}', name), 3000);
+          resolve(true);
+          nameDialog.destroy();
+        }
+      });
     });
   }
-  const presetAvailable = !!cpk && presetSelect !== null && Array.from(presetSelect.options).some(o => o.value === cpk);
-  if (presetSelect) {
-    if (presetAvailable) {
-      presetSelect.value = cpk;
-      presetSelect.dataset.previousValue = cpk;
-    } else {
-      presetSelect.selectedIndex = -1;
-      delete presetSelect.dataset.previousValue;
-    }
-  }
-  const values = writeFieldDomValues(fieldDom, presetAvailable ? getPreset(config, cpk) : undefined);
-  syncConditionalVisibility(values, customWrap, layoutOpacityWrap);
-  return values;
+  dialog.element.querySelector('#neo-customimage-new-preset')?.addEventListener('click', () => {
+    void showNewPreset(buildPresetFromDom(), i18n.customimageNewPresetTitle);
+  });
 }

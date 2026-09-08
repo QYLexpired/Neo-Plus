@@ -40,7 +40,7 @@ function buildCustomImageMenuItem(i18n: Record<string, string>): any {
       'customImage',
       i18n.textureCustomImage,
       i18n.customimageSettings,
-      () => showCustomImageSettings(reloadAndApplyTexture),
+      () => showCustomImageSettings(),
     ),
     click: () => {
       const revision = ++textureActionRevision;
@@ -115,7 +115,7 @@ function getCustomImagePreset(config: Config): CustomImageSource | undefined {
   const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
   const presetName = config[currentKey];
   if (!presetName) return undefined;
-  const presets = config['customimage-presets'];
+  const presets = config[`customimage-presets-${mode}`];
   const preset = presets && typeof presets === 'object'
     ? presets[presetName]
     : undefined;
