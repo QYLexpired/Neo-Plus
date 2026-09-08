@@ -15,7 +15,7 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'minimal-light',
       nameKey: 'freeLibraryMinimalLight',
-      colors: { base: '#6a8695', primary: '#59717d', accent: '#6a8695', background: '#ffffff', surface: '#f5f5f5', onbackground: '#0f0f0f' },
+      colors: { base: '#6a8695', primary: '#59717d', accent: '#4f7cac', background: '#ffffff', surface: '#f5f5f5', onbackground: '#0f0f0f' },
     },
     {
       key: 'things-light',
@@ -30,7 +30,7 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'solarized-light',
       nameKey: 'freeLibrarySolarizedLight',
-      colors: { base: '#268bd2', primary: '#2076b3', accent: '#2aa198', background: '#fdf6e3', surface: '#eee8d5', onbackground: '#657b83' },
+      colors: { base: '#268bd2', primary: '#2076b3', accent: '#2aa198', background: '#fdf6e3', surface: '#eee8d5', onbackground: '#586e75' },
     },
     {
       key: 'catppuccin-latte',
@@ -175,7 +175,7 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'oxocarbon-light',
       nameKey: 'freeLibraryOxocarbonLight',
-      colors: { base: '#0f62fe', primary: '#0f62fe', accent: '#673ab7', background: '#ffffff', surface: '#f2f2f2', onbackground: '#37474f' },
+      colors: { base: '#0f62fe', primary: '#0f62fe', accent: '#673ab7', background: '#f2f4f8', surface: '#dde1e6', onbackground: '#37474f' },
     },
     {
       key: 'hybrid-light',
@@ -240,7 +240,7 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'primary-light',
       nameKey: 'freeLibraryPrimaryLight',
-      colors: { base: '#22729b', primary: '#22729b', accent: '#df453a', background: '#f8f5f1', surface: '#eee7dd', onbackground: '#432e14' },
+      colors: { base: '#9d8062', primary: '#593e22', accent: '#9d8062', background: '#f8f5f1', surface: '#eee7dd', onbackground: '#593e22' },
     },
     {
       key: 'sanctum-light',
@@ -420,12 +420,12 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'its-adventure-light',
       nameKey: 'freeLibraryITSAdventureLight',
-      colors: { base: '#6eca85', primary: '#5d4738', accent: '#bf5e5e', background: '#6e5849', surface: '#503d35', onbackground: '#eeeae8' },
+      colors: { base: '#6eca85', primary: '#5d4738', accent: '#bf5e5e', background: '#f3ece6', surface: '#e6ddd5', onbackground: '#4b3b33' },
     },
     {
       key: 'its-drowned-light',
       nameKey: 'freeLibraryITSDrownedLight',
-      colors: { base: '#43c1a5', primary: '#2e918a', accent: '#69cfd2', background: '#f8fbff', surface: '#eef3fd', onbackground: '#697580' },
+      colors: { base: '#43c1a5', primary: '#24756f', accent: '#69cfd2', background: '#f8fbff', surface: '#eef3fd', onbackground: '#697580' },
     },
     {
       key: 'its-tangerine-dunes-light',
@@ -535,12 +535,82 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'magicuser-stealth-light',
       nameKey: 'freeLibraryMagicUserStealthLight',
-      colors: { base: '#666d76', primary: '#50565e', accent: '#77808b', background: '#fafafa', surface: '#e8e9ea', onbackground: '#34373b' },
+      colors: { base: '#666d76', primary: '#50565e', accent: '#5c739e', background: '#fafafa', surface: '#e8e9ea', onbackground: '#34373b' },
     },
     {
       key: 'claude-light',
       nameKey: 'freeLibraryClaudeLight',
-      colors: { base: '#d97757', primary: '#d97757', accent: '#6a9bcc', background: '#faf9f5', surface: '#edece8', onbackground: '#141413' },
+      colors: { base: '#d97757', primary: '#141413', accent: '#d97757', background: '#ffffff', surface: '#f5f4ed', onbackground: '#141413' },
+    },
+    {
+      key: 'underwater-octopus',
+      nameKey: 'freeLibraryUnderwaterOctopus',
+      colors: { base: '#7f6f86', primary: '#7f6f86', accent: '#7f6f86', background: '#fcfbfa', surface: '#eee9f0', onbackground: '#475669' },
+    },
+    {
+      key: 'underwater-coral',
+      nameKey: 'freeLibraryUnderwaterCoral',
+      colors: { base: '#91a6cc', primary: '#6c6156', accent: '#91a6cc', background: '#fff4ed', surface: '#fbe1db', onbackground: '#6c6156' },
+    },
+    {
+      key: 'underwater-aqua',
+      nameKey: 'freeLibraryUnderwaterAqua',
+      colors: { base: '#d78374', primary: '#4e4c49', accent: '#d78374', background: '#fffbf5', surface: '#e6eeec', onbackground: '#4e4c49' },
+    },
+    {
+      key: 'underwater-oyster',
+      nameKey: 'freeLibraryUnderwaterOyster',
+      colors: { base: '#8c2333', primary: '#8c2333', accent: '#8c2333', background: '#f5efee', surface: '#e6dad7', onbackground: '#2c2e2f' },
+    },
+    {
+      key: 'golden-topaz-light',
+      nameKey: 'freeLibraryGoldenTopazLight',
+      colors: { base: '#007de4', primary: '#007de4', accent: '#007de4', background: '#ffffff', surface: '#f0f0f0', onbackground: '#000000' },
+    },
+    {
+      key: 'maple-light',
+      nameKey: 'freeLibraryMapleLight',
+      colors: { base: '#a79376', primary: '#2e3338', accent: '#a79376', background: '#f8f8f6', surface: '#efedec', onbackground: '#2e3338' },
+    },
+    {
+      key: 'maple-minimal-light',
+      nameKey: 'freeLibraryMapleMinimalLight',
+      colors: { base: '#565c61', primary: '#2e3338', accent: '#0585a8', background: '#f7f7f8', surface: '#eceeee', onbackground: '#2e3338' },
+    },
+    {
+      key: 'velocity-silver',
+      nameKey: 'freeLibraryVelocitySilver',
+      colors: { base: '#0d70f2', primary: '#0d70f2', accent: '#0d70f2', background: '#fcfcfc', surface: '#f2f2f4', onbackground: '#2e2e2e' },
+    },
+    {
+      key: 'velocity-utopia',
+      nameKey: 'freeLibraryVelocityUtopia',
+      colors: { base: '#0484ae', primary: '#0484ae', accent: '#0484ae', background: '#fbfbfb', surface: '#f2f3f0', onbackground: '#2e2e2e' },
+    },
+    {
+      key: 'velocity-touring-beige',
+      nameKey: 'freeLibraryVelocityTouringBeige',
+      colors: { base: '#d65c5c', primary: '#d65c5c', accent: '#d65c5c', background: '#fcfcfc', surface: '#f4f2f0', onbackground: '#2e2e2e' },
+    },
+    {
+      key: 'velocity-millennium-green',
+      nameKey: 'freeLibraryVelocityMillenniumGreen',
+      colors: { base: '#729414', primary: '#729414', accent: '#729414', background: '#fbfbfb', surface: '#eaece8', onbackground: '#2e2e2e' },
+    },
+    {
+      key: 'velocity-jet-blue',
+      nameKey: 'freeLibraryVelocityJetBlue',
+      colors: { base: '#497aab', primary: '#497aab', accent: '#497aab', background: '#fbfbfb', surface: '#e9ecef', onbackground: '#2e2e2e' },
+    },
+    {
+      key: 'velocity-anniversary',
+      nameKey: 'freeLibraryVelocityAnniversary',
+      colors: { base: '#da0b2e', primary: '#da0b2e', accent: '#da0b2e', background: '#fdfdfd', surface: '#f2f2f3', onbackground: '#222222' },
+    },
+    {
+      key: 'vscode-light',
+      nameKey: 'freeLibraryVscodeLight',
+      colors: { base: '#007acc', primary: '#0451a5', accent: '#007acc', background: '#ffffff', surface: '#f3f3f3', onbackground: '#000000' },
     },
   ],
   dark: [
@@ -552,7 +622,7 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'minimal-dark',
       nameKey: 'freeLibraryMinimalDark',
-      colors: { base: '#889eaa', primary: '#889eaa', accent: '#889eaa', background: '#262626', surface: '#212121', onbackground: '#d1d1d1' },
+      colors: { base: '#889eaa', primary: '#889eaa', accent: '#688caf', background: '#262626', surface: '#212121', onbackground: '#d1d1d1' },
     },
     {
       key: 'things-dark',
@@ -997,7 +1067,7 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'primary-dark',
       nameKey: 'freeLibraryPrimaryDark',
-      colors: { base: '#4db2d1', primary: '#4db2d1', accent: '#f35044', background: '#2a241d', surface: '#241f19', onbackground: '#ebdac6' },
+      colors: { base: '#4e3e2d', primary: '#d7c0a3', accent: '#4db2d1', background: '#2e261f', surface: '#26211c', onbackground: '#d7c0a3' },
     },
     {
       key: 'sanctum-dark',
@@ -1362,12 +1432,77 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'magicuser-stealth-dark',
       nameKey: 'freeLibraryMagicUserStealthDark',
-      colors: { base: '#7e8793', primary: '#a0a6ae', accent: '#8b95a3', background: '#111315', surface: '#1a1d20', onbackground: '#d7d9dc' },
+      colors: { base: '#7e8793', primary: '#a0a6ae', accent: '#7588ad', background: '#111315', surface: '#1a1d20', onbackground: '#d7d9dc' },
     },
     {
       key: 'claude-dark',
       nameKey: 'freeLibraryClaudeDark',
-      colors: { base: '#d97757', primary: '#d97757', accent: '#6a9bcc', background: '#141413', surface: '#1f1f1e', onbackground: '#faf9f5' },
+      colors: { base: '#d97757', primary: '#faf9f5', accent: '#d97757', background: '#30302e', surface: '#262624', onbackground: '#faf9f5' },
+    },
+    {
+      key: 'underwater-deep',
+      nameKey: 'freeLibraryUnderwaterDeep',
+      colors: { base: '#e59c58', primary: '#e59c58', accent: '#e59c58', background: '#15171d', surface: '#22252f', onbackground: '#d5e1e5' },
+    },
+    {
+      key: 'underwater-ocean',
+      nameKey: 'freeLibraryUnderwaterOcean',
+      colors: { base: '#e8b192', primary: '#e8b192', accent: '#e8b192', background: '#08122b', surface: '#06334d', onbackground: '#e1e3ff' },
+    },
+    {
+      key: 'underwater-seaweed',
+      nameKey: 'freeLibraryUnderwaterSeaweed',
+      colors: { base: '#d8ed8d', primary: '#d8ed8d', accent: '#d8ed8d', background: '#19393a', surface: '#214b4c', onbackground: '#dee2b9' },
+    },
+    {
+      key: 'underwater-sand',
+      nameKey: 'freeLibraryUnderwaterSand',
+      colors: { base: '#bba379', primary: '#bba379', accent: '#bba379', background: '#19192e', surface: '#212037', onbackground: '#ced9bf' },
+    },
+    {
+      key: 'golden-topaz-dark',
+      nameKey: 'freeLibraryGoldenTopazDark',
+      colors: { base: '#53aaf5', primary: '#53aaf5', accent: '#53aaf5', background: '#242424', surface: '#333333', onbackground: '#d1d1d1' },
+    },
+    {
+      key: 'maple-dark',
+      nameKey: 'freeLibraryMapleDark',
+      colors: { base: '#6788a2', primary: '#b5bbc0', accent: '#6788a2', background: '#1b1c1d', surface: '#1d2020', onbackground: '#b5bbc0' },
+    },
+    {
+      key: 'maple-minimal-dark',
+      nameKey: 'freeLibraryMapleMinimalDark',
+      colors: { base: '#b5b8ba', primary: '#b4bac0', accent: '#7eb8f1', background: '#181a1b', surface: '#1d1f20', onbackground: '#b4bac0' },
+    },
+    {
+      key: 'velocity-gray',
+      nameKey: 'freeLibraryVelocityGray',
+      colors: { base: '#1b7eee', primary: '#1b7eee', accent: '#1b7eee', background: '#1e1e1f', surface: '#272729', onbackground: '#cdcdd0' },
+    },
+    {
+      key: 'velocity-jet-black',
+      nameKey: 'freeLibraryVelocityJetBlack',
+      colors: { base: '#bd3528', primary: '#bd3528', accent: '#bd3528', background: '#000000', surface: '#161616', onbackground: '#bebebe' },
+    },
+    {
+      key: 'velocity-touring-bronze',
+      nameKey: 'freeLibraryVelocityTouringBronze',
+      colors: { base: '#b4692d', primary: '#b4692d', accent: '#b4692d', background: '#211e1b', surface: '#2b2723', onbackground: '#d3ccc7' },
+    },
+    {
+      key: 'velocity-british-racing-green',
+      nameKey: 'freeLibraryVelocityBritishRacingGreen',
+      colors: { base: '#6e8b18', primary: '#6e8b18', accent: '#6e8b18', background: '#141f1e', surface: '#212a29', onbackground: '#c5d0cf' },
+    },
+    {
+      key: 'velocity-midnight-purple',
+      nameKey: 'freeLibraryVelocityMidnightPurple',
+      colors: { base: '#7c55e7', primary: '#7c55e7', accent: '#7c55e7', background: '#1f1921', surface: '#2a262c', onbackground: '#d1cbd3' },
+    },
+    {
+      key: 'vscode-dark',
+      nameKey: 'freeLibraryVscodeDark',
+      colors: { base: '#007acc', primary: '#569cd6', accent: '#007acc', background: '#1e1e1e', surface: '#252526', onbackground: '#d4d4d4' },
     },
   ],
 };

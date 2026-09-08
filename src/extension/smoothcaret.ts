@@ -64,7 +64,8 @@ function startSmoothCaret(): void {
       if (
         currentElement.classList.contains('b3-dialog') ||
         currentElement.classList.contains('block__popover--open') ||
-        currentElement.id === 'commonMenu'
+        currentElement.id === 'commonMenu' ||
+        currentElement.classList.contains('av__richtext-mask')
       ) {
         const computedStyle = window.getComputedStyle(currentElement);
         const zIndex = parseInt(computedStyle.zIndex) || 0;

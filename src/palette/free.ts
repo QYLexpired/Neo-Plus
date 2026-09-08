@@ -130,7 +130,7 @@ function buildSettingsHTML(i18n: Record<string, string>, colors: Required<FreeCo
 function showReferencePalette(
   mode: ThemeMode,
   onPreview: (colors: Required<FreeColors>) => void,
-  onCreate: (colors: Required<FreeColors>) => Promise<boolean>,
+  onCreate: (colors: Required<FreeColors>, suggestedName: string) => Promise<boolean>,
   onRestore: () => void,
 ): void {
   const plugin = getPlugin();
@@ -190,6 +190,17 @@ function showReferencePalette(
   presetSelect.selectedIndex = -1;
   librarySelect.selectedIndex = -1;
   createButton.disabled = true;
+  function getSourceName(): string {
+    if (source === 'library') {
+      const item = library.find(candidate => candidate.key === librarySelect.value);
+      return item ? (i18n[item.nameKey] ?? item.key) : '';
+    }
+    if (source === 'preset') {
+      const preset = presets.find(candidate => candidate.key === presetSelect.value);
+      return preset ? (i18n[preset.nameKey] ?? preset.key) : '';
+    }
+    return '';
+  }
   function getSelectedColors(): Required<FreeColors> | null {
     if (!source) return null;
     if (source === 'library') {
@@ -224,7 +235,7 @@ function showReferencePalette(
     if (!colors) return;
     creating = true;
     createButton.disabled = true;
-    if (await onCreate(colors)) {
+    if (await onCreate(colors, getSourceName())) {
       keepPreview = true;
       dialog.destroy();
       return;
@@ -359,9 +370,9 @@ export async function showFreeSettings(): Promise<void> {
         applyColors(imported);
         root.style.setProperty('--b3-theme-on-surface', 'oklch(from var(--b3-theme-on-background) l c h / 0.65)');
       },
-      async imported => {
+      async (imported, suggestedName) => {
         if (dirty && !await confirmPresetAction(i18n.freeUnsavedTitle, i18n.freeReferenceUnsavedContent, i18n.freeReferenceUnsavedConfirm, i18n.freeUnsavedBack)) return false;
-        const created = await showNewPreset(imported, i18n.freeReferenceNewPreset);
+        const created = await showNewPreset(imported, i18n.freeReferenceNewPreset, suggestedName);
         if (created && !canPreview()) restorePreview();
         return created;
       },
@@ -415,7 +426,7 @@ export async function showFreeSettings(): Promise<void> {
       showMessage(i18n.freePresetDeleted.replace('${name}', name), 3000);
     }
   });
-  function showNewPreset(source: Required<FreeColors>, title: string): Promise<boolean> {
+  function showNewPreset(source: Required<FreeColors>, title: string, suggestedName = ''): Promise<boolean> {
     return new Promise(resolve => {
       const nameDialog = new Dialog({
         title,
@@ -429,9 +440,15 @@ export async function showFreeSettings(): Promise<void> {
         destroyCallback: () => resolve(false),
       });
       nameDialog.element.classList.add('neo-settings-dialog');
+      const nameInput = nameDialog.element.querySelector<HTMLInputElement>('#neo-free-preset-name')!;
+      if (suggestedName) {
+        nameInput.value = suggestedName;
+        nameInput.select();
+      }
+      nameInput.focus();
       nameDialog.element.querySelector('#neo-free-name-cancel')?.addEventListener('click', () => nameDialog.destroy());
       nameDialog.element.querySelector('#neo-free-name-confirm')?.addEventListener('click', async () => {
-        const name = nameDialog.element.querySelector<HTMLInputElement>('#neo-free-preset-name')!.value.trim();
+        const name = nameInput.value.trim();
         if (!name) { showMessage(i18n.freePresetNameEmpty); return; }
         if (Object.prototype.hasOwnProperty.call(presets, name)
           && !await confirmPresetAction(i18n.freePresetOverwriteTitle, i18n.freePresetOverwriteContent.replace('${name}', name), i18n.confirm, i18n.cancel)) return;
