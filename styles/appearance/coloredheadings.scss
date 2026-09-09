@@ -18,6 +18,9 @@
         --_coloredheadings-fixed-color: var(--b3-theme-accent);
     }
     @include appearance-common('[data-id="neo-coloredheadings-button"]', '[data-id="neo-appearance-button"]');
+    .protyle-title__input {
+        --_heading-color: var(--b3-theme-accent);
+    }
     .b3-typography,
     .protyle-wysiwyg {
         @for $i from 1 through 6 {
