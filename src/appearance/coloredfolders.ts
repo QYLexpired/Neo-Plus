@@ -6,7 +6,7 @@ import { Dialog } from 'siyuan';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 type ColoredFoldersLayout = 'partition' | 'simple' | 'card';
 type ColoredFoldersColorStyle = 'soft' | 'default' | 'vivid';
-type InitialHueRule = 'theme' | 'fixed';
+type InitialHueRule = 'theme' | 'fixed' | 'accent';
 const defaultInitialHue = 0;
 let coloredFoldersLayout: ColoredFoldersLayout = 'partition';
 let coloredFoldersColorStyle: ColoredFoldersColorStyle = 'default';
@@ -34,7 +34,11 @@ function applyColorStyle(): void {
   }
   document.documentElement.style.setProperty('--_coloredfolders-c', coloredFoldersColorStyle === 'soft' ? '0.08' : '0.2');
 }
+function normalizeInitialHueRule(value: unknown): InitialHueRule {
+  return value === 'fixed' || value === 'accent' ? value : 'theme';
+}
 function applyInitialHue(): void {
+  document.documentElement.classList.toggle('neo-coloredfolders-accent', initialHueRule === 'accent');
   if (initialHueRule === 'fixed') {
     document.documentElement.style.setProperty('--_coloredfolders-initial-hue', String(initialHue));
   } else {
@@ -60,7 +64,7 @@ export function initColoredFolders(): void {
     const savedLayout = config['coloredfolders-layout'];
     coloredFoldersLayout = savedLayout === 'simple' || savedLayout === 'card' ? savedLayout : 'partition';
     coloredFoldersColorStyle = normalizeColorStyle(config['coloredfolders-colorstyle']);
-    initialHueRule = config['coloredfolders-initial-hue-rule'] === 'fixed' ? 'fixed' : 'theme';
+    initialHueRule = normalizeInitialHueRule(config['coloredfolders-initial-hue-rule']);
     initialHue = normalizeInitialHue(config['coloredfolders-initial-hue']);
     if (neoFeatureActive) {
       applySettings();
@@ -85,7 +89,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   const colorStyleOptions = ['soft', 'default', 'vivid']
     .map(value => `<option value="${value}">${i18n[`coloredFoldersColorStyle${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
-  const ruleOptions = ['theme', 'fixed']
+  const ruleOptions = ['theme', 'fixed', 'accent']
     .map(value => `<option value="${value}">${i18n[`coloredFoldersInitialHueRule${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
   const fixedHueClass = initialHueRule === 'fixed' ? '' : ' fn__none';
@@ -105,22 +109,22 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
           </label>
           <label class="fn__flex b3-label config-item">
             <div class="fn__flex-1 config-item__main">
-              <div class="config-name">${i18n.coloredFoldersColorStyle}</div>
-              <div class="b3-label__text">${i18n.coloredFoldersColorStyleTip}</div>
-            </div>
-            <span class="fn__space"></span>
-            <select class="b3-select fn__flex-center fn__size200" id="neo-coloredfolders-colorstyle">
-              ${colorStyleOptions}
-            </select>
-          </label>
-          <label class="fn__flex b3-label config-item">
-            <div class="fn__flex-1 config-item__main">
               <div class="config-name">${i18n.coloredFoldersInitialHueRule}</div>
               <div class="b3-label__text">${i18n.coloredFoldersInitialHueRuleTip}</div>
             </div>
             <span class="fn__space"></span>
             <select class="b3-select fn__flex-center fn__size200" id="neo-coloredfolders-initial-hue-rule">
               ${ruleOptions}
+            </select>
+          </label>
+          <label class="fn__flex b3-label config-item">
+            <div class="fn__flex-1 config-item__main">
+              <div class="config-name">${i18n.coloredFoldersColorStyle}</div>
+              <div class="b3-label__text">${i18n.coloredFoldersColorStyleTip}</div>
+            </div>
+            <span class="fn__space"></span>
+            <select class="b3-select fn__flex-center fn__size200" id="neo-coloredfolders-colorstyle">
+              ${colorStyleOptions}
             </select>
           </label>
           <label class="fn__flex b3-label config-item${fixedHueClass}" id="neo-coloredfolders-initial-hue-item">
@@ -162,6 +166,7 @@ export function showColoredFoldersSettings(): void {
   };
   const updateHueVisibility = (): void => {
     hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
+    colorStyleSelect?.closest('.config-item')?.classList.toggle('fn__none', ruleSelect?.value === 'accent');
   };
   if (layoutSelect) layoutSelect.value = coloredFoldersLayout;
   if (colorStyleSelect) {
@@ -185,7 +190,7 @@ export function showColoredFoldersSettings(): void {
     const layoutValue = layoutSelect?.value;
     const newLayout: ColoredFoldersLayout = layoutValue === 'simple' || layoutValue === 'card' ? layoutValue : 'partition';
     const newColorStyle = normalizeColorStyle(colorStyleSelect?.value);
-    const newRule: InitialHueRule = ruleSelect?.value === 'fixed' ? 'fixed' : 'theme';
+    const newRule = normalizeInitialHueRule(ruleSelect?.value);
     const newHue = normalizeInitialHue(hueSlider?.value);
     coloredFoldersLayout = newLayout;
     coloredFoldersColorStyle = newColorStyle;
@@ -204,7 +209,7 @@ export function showColoredFoldersSettings(): void {
 export function destroyColoredFolders(): void {
   neoFeatureActive = false;
   removeCss('appearance-coloredfolders');
-  document.documentElement?.classList.remove('neo-coloredfolders');
+  document.documentElement?.classList.remove('neo-coloredfolders', 'neo-coloredfolders-accent');
   document.body.classList.remove('neo-coloredfolders-partition', 'neo-coloredfolders-simple', 'neo-coloredfolders-card');
   document.documentElement?.style.removeProperty('--_coloredfolders-initial-hue');
   document.documentElement?.style.removeProperty('--_coloredfolders-c');

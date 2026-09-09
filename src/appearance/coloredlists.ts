@@ -4,7 +4,7 @@ import { featureCss } from '../modules/csschunks';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { getPlugin } from '../main/context';
 import { Dialog } from 'siyuan';
-type InitialHueRule = 'theme' | 'fixed';
+type InitialHueRule = 'theme' | 'fixed' | 'accent';
 type ColoredListsColorStyle = 'soft' | 'default' | 'vivid';
 const defaultInitialHue = 0;
 let coloredListsColorStyle: ColoredListsColorStyle = 'default';
@@ -20,7 +20,11 @@ function normalizeColorStyle(value: unknown): ColoredListsColorStyle {
   if (value === 'soft' || value === 'vivid') return value;
   return 'default';
 }
+function normalizeInitialHueRule(value: unknown): InitialHueRule {
+  return value === 'fixed' || value === 'accent' ? value : 'theme';
+}
 function applyInitialHue(): void {
+  document.documentElement.classList.toggle('neo-coloredlists-accent', initialHueRule === 'accent');
   if (initialHueRule === 'fixed') {
     document.documentElement.style.setProperty('--_coloredlists-initial-hue', String(initialHue));
   } else {
@@ -50,7 +54,7 @@ export function initColoredLists(): void {
   loadConfig().then((config) => {
     if (!isCurrent()) return;
     coloredListsColorStyle = normalizeColorStyle(config['coloredlists-colorstyle']);
-    initialHueRule = config['coloredlists-initial-hue-rule'] === 'fixed' ? 'fixed' : 'theme';
+    initialHueRule = normalizeInitialHueRule(config['coloredlists-initial-hue-rule']);
     initialHue = normalizeInitialHue(config['coloredlists-initial-hue']);
     if (neoFeatureActive) {
       applySettings();
@@ -72,7 +76,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   const colorStyleOptions = ['soft', 'default', 'vivid']
     .map(value => `<option value="${value}">${i18n[`coloredListsColorStyle${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
-  const ruleOptions = ['theme', 'fixed']
+  const ruleOptions = ['theme', 'fixed', 'accent']
     .map(value => `<option value="${value}">${i18n[`coloredListsInitialHueRule${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
   const fixedHueClass = initialHueRule === 'fixed' ? '' : ' fn__none';
@@ -82,22 +86,22 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
         <div class="config-items">
           <label class="fn__flex b3-label config-item">
             <div class="fn__flex-1 config-item__main">
-              <div class="config-name">${i18n.coloredListsColorStyle}</div>
-              <div class="b3-label__text">${i18n.coloredListsColorStyleTip}</div>
-            </div>
-            <span class="fn__space"></span>
-            <select class="b3-select fn__flex-center fn__size200" id="neo-coloredlists-colorstyle">
-              ${colorStyleOptions}
-            </select>
-          </label>
-          <label class="fn__flex b3-label config-item">
-            <div class="fn__flex-1 config-item__main">
               <div class="config-name">${i18n.coloredListsInitialHueRule}</div>
               <div class="b3-label__text">${i18n.coloredListsInitialHueRuleTip}</div>
             </div>
             <span class="fn__space"></span>
             <select class="b3-select fn__flex-center fn__size200" id="neo-coloredlists-initial-hue-rule">
               ${ruleOptions}
+            </select>
+          </label>
+          <label class="fn__flex b3-label config-item">
+            <div class="fn__flex-1 config-item__main">
+              <div class="config-name">${i18n.coloredListsColorStyle}</div>
+              <div class="b3-label__text">${i18n.coloredListsColorStyleTip}</div>
+            </div>
+            <span class="fn__space"></span>
+            <select class="b3-select fn__flex-center fn__size200" id="neo-coloredlists-colorstyle">
+              ${colorStyleOptions}
             </select>
           </label>
           <label class="fn__flex b3-label config-item${fixedHueClass}" id="neo-coloredlists-initial-hue-item">
@@ -138,6 +142,7 @@ export function showColoredListsSettings(): void {
   };
   const updateHueVisibility = (): void => {
     hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
+    colorStyleSelect?.closest('.config-item')?.classList.toggle('fn__none', ruleSelect?.value === 'accent');
   };
   if (colorStyleSelect) {
     colorStyleSelect.value = coloredListsColorStyle;
@@ -158,7 +163,7 @@ export function showColoredListsSettings(): void {
   dialog.element.querySelector('#neo-coloredlists-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-coloredlists-confirm')?.addEventListener('click', () => {
     const newColorStyle = normalizeColorStyle(colorStyleSelect?.value);
-    const newRule: InitialHueRule = ruleSelect?.value === 'fixed' ? 'fixed' : 'theme';
+    const newRule = normalizeInitialHueRule(ruleSelect?.value);
     const newHue = normalizeInitialHue(hueSlider?.value);
     coloredListsColorStyle = newColorStyle;
     initialHueRule = newRule;
@@ -175,7 +180,7 @@ export function showColoredListsSettings(): void {
 export function destroyColoredLists(): void {
   neoFeatureActive = false;
   removeCss('appearance-coloredlists');
-  document.documentElement?.classList.remove('neo-coloredlists');
+  document.documentElement?.classList.remove('neo-coloredlists', 'neo-coloredlists-accent');
   document.documentElement?.style.removeProperty('--_coloredlists-initial-hue');
   document.documentElement?.style.removeProperty('--_coloredlists-c');
 }

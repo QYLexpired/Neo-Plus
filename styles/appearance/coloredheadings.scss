@@ -14,6 +14,9 @@
     --_coloredheadings-outline-l: calc(var(--_coloredheadings-l) + 0.05);
 }
 .neo-coloredheadings {
+    &.neo-coloredheadings-accent {
+        --_coloredheadings-fixed-color: var(--b3-theme-accent);
+    }
     @include appearance-common('[data-id="neo-coloredheadings-button"]', '[data-id="neo-appearance-button"]');
     .b3-typography,
     .protyle-wysiwyg {
@@ -22,7 +25,7 @@
             h#{$i},
             [data-type=NodeHeading].h#{$i},
             [data-type=NodeHeading][data-subtype=h#{$i}] [spellcheck] {
-                --neo-coloredheadings-color: oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) calc(var(--_coloredheadings-initial-hue) + #{$hue-offset}));
+                --neo-coloredheadings-color: var(--_coloredheadings-fixed-color, oklch(from var(--_coloredheadings-base) var(--_coloredheadings-l) var(--_coloredheadings-c) calc(var(--_coloredheadings-initial-hue) + #{$hue-offset})));
                 color: var(--neo-coloredheadings-color);
                 // 彩色列表中标题以列表颜色为准
                 --neo-kbd-color: var(--neo-coloredlists-color, var(--neo-coloredheadings-color));
@@ -40,7 +43,7 @@
                 .b3-list-item__graphic,
                 .b3-list-item__number,
                 .b3-list-item__text {
-                    --neo-coloredheadings-color_outline: oklch(from var(--_coloredheadings-base) var(--_coloredheadings-outline-l) var(--_coloredheadings-c) calc(var(--_coloredheadings-initial-hue) + #{$hue-offset}));
+                    --neo-coloredheadings-color_outline: var(--_coloredheadings-fixed-color, oklch(from var(--_coloredheadings-base) var(--_coloredheadings-outline-l) var(--_coloredheadings-c) calc(var(--_coloredheadings-initial-hue) + #{$hue-offset})));
                     color: var(--neo-coloredheadings-color_outline) !important;
                     --neo-kbd-color: var(--neo-coloredheadings-color_outline);
                     --neo-inline-code-color: var(--neo-coloredheadings-color_outline);

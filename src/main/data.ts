@@ -75,15 +75,15 @@ export interface Config {
   'coloredfolders'?: boolean;
   'coloredfolders-layout'?: 'partition' | 'simple' | 'card';
   'coloredfolders-colorstyle'?: 'soft' | 'default' | 'vivid';
-  'coloredfolders-initial-hue-rule'?: 'theme' | 'fixed';
+  'coloredfolders-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
   'coloredfolders-initial-hue'?: number;
   'coloredlists'?: boolean;
   'coloredlists-colorstyle'?: 'soft' | 'default' | 'vivid';
-  'coloredlists-initial-hue-rule'?: 'theme' | 'fixed';
+  'coloredlists-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
   'coloredlists-initial-hue'?: number;
   'coloredheadings'?: boolean;
   'coloredheadings-colorstyle'?: 'soft' | 'default' | 'vivid';
-  'coloredheadings-initial-hue-rule'?: 'theme' | 'fixed';
+  'coloredheadings-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
   'coloredheadings-initial-hue'?: number;
   'colorfulselection'?: boolean;
   'frostedglass'?: boolean;

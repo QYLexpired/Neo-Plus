@@ -8,6 +8,7 @@ import { createNeoLifecycleGuard } from '../main/lifecycle';
 let smoothCaretEventHandler: (() => void) | null = null;
 let throttledCaretEventHandler: (() => void) | null = null;
 let _throttleTimer: number | null = null;
+let caretAnimationFrame: number | null = null;
 let cachedZIndex = 0;
 let lastTargetElement: Element | null = null;
 let cachedScrollContainer: HTMLElement | null = null;
@@ -51,9 +52,9 @@ function startSmoothCaret(): void {
   document.getElementById('neo-smoothcaret-item')?.remove();
   const caretElement = document.createElement('div');
   caretElement.id = 'neo-smoothcaret-item';
+  caretElement.classList.add('neo-smoothcaret-hidden');
   document.body.appendChild(caretElement);
   applySmoothCaretEase();
-  let isAnimationFramePending = false;
   function calculateCaretZIndex(targetElement: Element): number {
     if (targetElement === lastTargetElement) {
       return cachedZIndex;
@@ -84,9 +85,15 @@ function startSmoothCaret(): void {
     return cachedZIndex;
   }
   function updateCaretPosition(): void {
-    isAnimationFramePending = false;
+    caretAnimationFrame = null;
     const sel = window.getSelection();
-    const focusElement = sel?.focusNode?.parentElement;
+    if (!sel || sel.rangeCount === 0 || !sel.isCollapsed) {
+      caretElement.classList.add('neo-smoothcaret-hidden');
+      return;
+    }
+    const focusElement = sel?.focusNode?.nodeType === Node.ELEMENT_NODE
+      ? sel.focusNode as Element
+      : sel?.focusNode?.parentElement;
     if (focusElement?.classList?.contains('av__cursor')) {
       caretElement.classList.add('neo-smoothcaret-hidden');
       return;
@@ -140,12 +147,12 @@ function startSmoothCaret(): void {
     caretElement.classList.add('neo-smoothcaret-hidden');
   }
   function handleCaretUpdateTrigger(): void {
-    if (!isAnimationFramePending) {
-      window.requestAnimationFrame(updateCaretPosition);
-      isAnimationFramePending = true;
+    if (caretAnimationFrame === null) {
+      caretAnimationFrame = window.requestAnimationFrame(updateCaretPosition);
     }
   }
   function handleThrottledCaretUpdate(): void {
+    handleCaretUpdateTrigger();
     if (_throttleTimer !== null) clearTimeout(_throttleTimer);
     _throttleTimer = window.setTimeout(() => {
       _throttleTimer = null;
@@ -298,6 +305,10 @@ export function destroySmoothCaret(): void {
   if (_throttleTimer !== null) {
     clearTimeout(_throttleTimer);
     _throttleTimer = null;
+  }
+  if (caretAnimationFrame !== null) {
+    window.cancelAnimationFrame(caretAnimationFrame);
+    caretAnimationFrame = null;
   }
   cachedZIndex = 0;
   lastTargetElement = null;

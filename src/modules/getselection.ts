@@ -1,61 +1,41 @@
 export function getCursorRect(): DOMRect | null {
   const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0) return null;
-  const range = sel.getRangeAt(0);
-  if (!range.collapsed && sel.focusNode) {
-    const cursorRange = document.createRange();
-    try {
-      cursorRange.setStart(sel.focusNode, sel.focusOffset);
-      cursorRange.collapse(true);
-      const rects = cursorRange.getClientRects();
-      if (rects.length > 0 && rects[0].height > 0) {
-        return rects[0];
-      }
-      let textNode: Text | null = null;
-      try {
-        textNode = document.createTextNode('\u200B');
-        cursorRange.insertNode(textNode);
-        cursorRange.selectNode(textNode);
-        const rect = cursorRange.getBoundingClientRect();
-        if (rect && rect.height > 0) {
-          return rect;
-        }
-        if (rect) {
-          return new DOMRect(rect.left, rect.top, 0, rect.height);
-        }
-      } catch {
-      } finally {
-        if (textNode?.parentNode) {
-          textNode.parentNode.removeChild(textNode);
-        }
-      }
-    } catch {
-    }
-  }
-  const rects = range.getClientRects();
-  if (rects.length > 0 && rects[0].height > 0) {
-    return rects[0];
-  }
-  let textNode: Text | null = null;
+  if (!sel || sel.rangeCount === 0 || !sel.focusNode) return null;
+  const range = document.createRange();
   try {
-    const cloneRange = range.cloneRange();
-    textNode = document.createTextNode('\u200B');
-    cloneRange.insertNode(textNode);
-    cloneRange.selectNode(textNode);
-    const rect = cloneRange.getBoundingClientRect();
-    if (rect && rect.height > 0) {
-      return rect;
+    range.setStart(sel.focusNode, sel.focusOffset);
+    range.collapse(true);
+    const rect = Array.from(range.getClientRects()).find(rect => rect.height > 0);
+    if (rect) return rect;
+    const node = sel.focusNode;
+    if (node.nodeType === Node.TEXT_NODE && node.textContent?.length) {
+      const offset = sel.focusOffset;
+      const useNextChar = offset < node.textContent.length;
+      range.setStart(node, useNextChar ? offset : offset - 1);
+      range.setEnd(node, useNextChar ? offset + 1 : offset);
+      const rects = range.getClientRects();
+      const charRect = useNextChar ? rects[0] : rects[rects.length - 1];
+      if (charRect?.height > 0) {
+        const rtl = node.parentElement && window.getComputedStyle(node.parentElement).direction === 'rtl';
+        const x = useNextChar !== !!rtl ? charRect.left : charRect.right;
+        return new DOMRect(x, charRect.top, 0, charRect.height);
+      }
     }
-    if (rect) {
-      return new DOMRect(rect.left, rect.top, 0, rect.height);
-    }
+    const element = node.nodeType === Node.ELEMENT_NODE ? node as HTMLElement : node.parentElement;
+    if (!element || element.textContent || !element.matches('[contenteditable="true"], [contenteditable="true"] *')) return null;
+    const bounds = element.getBoundingClientRect();
+    if (bounds.height <= 0) return null;
+    const style = window.getComputedStyle(element);
+    const fontSize = parseFloat(style.fontSize) || 16;
+    const lineHeight = parseFloat(style.lineHeight) || fontSize * 1.2;
+    const x = style.direction === 'rtl'
+      ? bounds.right - (parseFloat(style.borderRightWidth) || 0) - (parseFloat(style.paddingRight) || 0)
+      : bounds.left + (parseFloat(style.borderLeftWidth) || 0) + (parseFloat(style.paddingLeft) || 0);
+    const y = bounds.top + (parseFloat(style.borderTopWidth) || 0) + (parseFloat(style.paddingTop) || 0) + Math.max(0, (lineHeight - fontSize) / 2);
+    return new DOMRect(x, y, 0, fontSize);
   } catch {
-  } finally {
-    if (textNode?.parentNode) {
-      textNode.parentNode.removeChild(textNode);
-    }
+    return null;
   }
-  return null;
 }
 export function getTextColor(focusNode: Node | null, fallbackElement: Element): string | null {
   let textColor: string | null = null;

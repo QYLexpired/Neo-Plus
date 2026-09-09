@@ -22,6 +22,8 @@
     }
     #neo-smoothcaret-item {
         position: fixed;
+        top: 0;
+        left: 0;
         width: 2px;
         border-radius: 8px;
         pointer-events: none;
