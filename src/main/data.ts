@@ -206,6 +206,7 @@ export function saveConfig(patch: Partial<Config>): Promise<void> {
   return enqueueConfigSave(plugin, Object.keys(patch) as Array<keyof Config>);
 }
 export async function saveConfigIfUnchanged(patch: Partial<Config>, expected: Partial<Config>): Promise<boolean> {
+  await ensureConfigLoaded();
   if (!getPluginOrNull() || (Object.keys(expected) as Array<keyof Config>).some(key => configCache[key] !== expected[key])) return false;
   await saveConfig(patch);
   return true;
