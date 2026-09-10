@@ -3,7 +3,7 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/context';
-import { Dialog } from 'siyuan';
+import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 type Direction = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 let arrowKeysOn = true;

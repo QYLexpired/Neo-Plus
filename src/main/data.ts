@@ -47,7 +47,7 @@ export interface Config {
   'preset-dark'?: string;
   'color-plan-light'?: 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free';
   'color-plan-dark'?: 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free';
-  'random-scope'?: 'all' | 'preset' | 'custom' | 'free';
+  'random-scope'?: Array<'preset' | 'free' | 'custom' | 'library'>;
   'random-highcontrast'?: 'random' | 'on' | 'off';
   'random-invert'?: 'random' | 'on' | 'off';
   'random-saturation-min'?: number;
@@ -99,6 +99,8 @@ export interface Config {
   'multicolumnslashmenu-arrowkeys'?: boolean;
 }
 let configCache: Config = {};
+let persistedConfigCache: Config = {};
+const configKeyRevisions = new Map<keyof Config, number>();
 let pendingLoadConfig: Promise<Config> | null = null;
 let configLoaded = false;
 interface ConfigSaveWaiter {
@@ -156,9 +158,24 @@ async function flushConfigSaves(): Promise<void> {
         const plugin = configSavePlugin;
         if (!plugin) throw new Error('Config save plugin unavailable');
         await plugin.saveData(configKey, snapshot);
+        persistedConfigCache = snapshot;
         persistedConfigRevision = revision;
+        for (const [key, changedAt] of configKeyRevisions) {
+          if (changedAt <= revision) configKeyRevisions.delete(key);
+        }
         resolveConfigSaveWaiters();
       } catch (error) {
+        const restored = { ...configCache };
+        for (const [key, changedAt] of configKeyRevisions) {
+          if (changedAt > revision) continue;
+          if (Object.prototype.hasOwnProperty.call(persistedConfigCache, key)) {
+            Object.assign(restored, { [key]: persistedConfigCache[key] });
+          } else {
+            delete restored[key];
+          }
+          configKeyRevisions.delete(key);
+        }
+        configCache = restored;
         rejectConfigSaveWaiters(revision, error);
         if (configRevision <= revision) break;
       }
@@ -167,9 +184,10 @@ async function flushConfigSaves(): Promise<void> {
     configSaveLoop = null;
   }
 }
-function enqueueConfigSave(plugin: Plugin): Promise<void> {
+function enqueueConfigSave(plugin: Plugin, keys: Array<keyof Config>): Promise<void> {
   configRevision += 1;
   const revision = configRevision;
+  keys.forEach(key => configKeyRevisions.set(key, revision));
   configSavePlugin = plugin;
   const result = new Promise<void>((resolve, reject) => {
     configSaveWaiters.push({ revision, resolve, reject });
@@ -185,7 +203,12 @@ export function saveConfig(patch: Partial<Config>): Promise<void> {
   const plugin = getPluginOrNull();
   if (!plugin) return Promise.resolve();
   configCache = { ...configCache, ...patch };
-  return enqueueConfigSave(plugin);
+  return enqueueConfigSave(plugin, Object.keys(patch) as Array<keyof Config>);
+}
+export async function saveConfigIfUnchanged(patch: Partial<Config>, expected: Partial<Config>): Promise<boolean> {
+  if (!getPluginOrNull() || (Object.keys(expected) as Array<keyof Config>).some(key => configCache[key] !== expected[key])) return false;
+  await saveConfig(patch);
+  return true;
 }
 export function loadConfig(): Promise<Config> {
   if (pendingLoadConfig) return pendingLoadConfig;
@@ -196,6 +219,7 @@ export function loadConfig(): Promise<Config> {
     return pendingLoadConfig;
   }
   pendingLoadConfig = plugin.loadData(configKey).then((data: Config | null) => {
+    if (!configLoaded) persistedConfigCache = { ...(data || {}) };
     configCache = { ...(data || {}), ...configCache };
     configLoaded = true;
     return configCache;
@@ -213,5 +237,5 @@ export function deleteConfigKeys(keys: string[]): Promise<void> {
     delete nextConfig[k];
   }
   configCache = nextConfig as Config;
-  return enqueueConfigSave(plugin);
+  return enqueueConfigSave(plugin, keys as Array<keyof Config>);
 }

@@ -7,6 +7,7 @@
                 content: "";
                 display: block;
                 position: absolute;
+                pointer-events: none;
                 width: 3.5px;
                 height: calc(100% - 1em);
                 border-radius: 8px;

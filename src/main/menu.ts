@@ -142,12 +142,18 @@ export function buildMenu(
     icon: 'iconNeoSaturation',
     label: createSliderHTML(i18n),
     type: 'readonly',
+    bind: (element) => {
+      if (isMobile()) element.style.paddingInline = '8px';
+    },
   });
   menu.addItem({
     id: 'neo-brightness-button',
     icon: 'iconNeoBrightness',
     label: createBrightnessSliderHTML(i18n),
     type: 'readonly',
+    bind: (element) => {
+      if (isMobile()) element.style.paddingInline = '8px';
+    },
   });
   menu.addSeparator();
   menu.addItem({

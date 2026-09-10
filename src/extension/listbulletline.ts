@@ -4,7 +4,8 @@ import { featureCss } from '../modules/csschunks';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let selectionChangeHandler: (() => void) | null = null;
 let clickHandler: ((event: MouseEvent) => void) | null = null;
-let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+let updateFrame: number | null = null;
+let pendingClickTarget: HTMLElement | null = null;
 let lastMarkedItems: Set<HTMLElement> = new Set();
 let neoFeatureActive = false;
 function clearBulletLineMarks(): void {
@@ -29,6 +30,35 @@ function addMarkToItem(item: HTMLElement, hasNext: boolean, nextItem?: HTMLEleme
     item.setAttribute('neo-listbulletline-current', '');
   }
 }
+function getSelectionStartNode(range: Range): Node | null {
+  let node: Node | null = range.startContainer;
+  if (node.nodeType === Node.TEXT_NODE && (range.collapsed || range.startOffset < (node.textContent?.length ?? 0))) return node;
+  const element = node.nodeType === Node.ELEMENT_NODE ? node as Element : node.parentElement;
+  const editor = element?.closest('.protyle-wysiwyg');
+  if (!editor) return node;
+  const child = node.childNodes[range.startOffset];
+  if (child) {
+    node = child;
+  } else {
+    if (range.collapsed) return node;
+    while (node && node !== editor && !node.nextSibling) node = node.parentNode;
+    if (!node || node === editor) return null;
+    node = node.nextSibling;
+  }
+  while (node && editor.contains(node)) {
+    if (!range.collapsed && !range.intersectsNode(node)) return null;
+    while (node.firstChild) node = node.firstChild;
+    if (!range.collapsed && node === range.endContainer && range.endOffset === 0) return null;
+    const parent: Element | null = node.nodeType === Node.ELEMENT_NODE ? node as Element : node.parentElement;
+    const block: Element | null | undefined = parent?.closest('[data-node-id]');
+    if (block && block !== editor && editor.contains(block)) return node;
+    if (range.collapsed) return node;
+    while (node && node !== editor && !node.nextSibling) node = node.parentNode;
+    if (!node || node === editor) return null;
+    node = node.nextSibling;
+  }
+  return null;
+}
 function runSelectionUpdate(clickTarget?: HTMLElement | null): void {
   const selection = window.getSelection();
   const currentListItems: HTMLElement[] = [];
@@ -45,7 +75,7 @@ function runSelectionUpdate(clickTarget?: HTMLElement | null): void {
       node = element.parentElement;
     }
   } else if (selection && selection.rangeCount) {
-    let node: Node | null = selection.getRangeAt(0).startContainer;
+    let node: Node | null = getSelectionStartNode(selection.getRangeAt(0));
     while (node && node.nodeType !== Node.ELEMENT_NODE) {
       node = node.parentElement;
     }
@@ -93,43 +123,42 @@ function runSelectionUpdate(clickTarget?: HTMLElement | null): void {
   });
   lastMarkedItems = currentSet;
 }
+function scheduleSelectionUpdate(clickTarget: HTMLElement | null = null): void {
+  if (!neoFeatureActive) return;
+  pendingClickTarget = clickTarget;
+  if (updateFrame !== null) return;
+  updateFrame = window.requestAnimationFrame(() => {
+    updateFrame = null;
+    const target = pendingClickTarget;
+    pendingClickTarget = null;
+    if (!neoFeatureActive) return;
+    runSelectionUpdate(target?.isConnected ? target : null);
+  });
+}
 function bindSelectionChange(): void {
   if (selectionChangeHandler) {
     return;
   }
-  selectionChangeHandler = () => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-    debounceTimer = setTimeout(() => {
-      runSelectionUpdate();
-      debounceTimer = null;
-    }, 50);
-  };
+  selectionChangeHandler = () => scheduleSelectionUpdate();
   clickHandler = (event: MouseEvent) => {
     const target = event.composedPath()[0] as HTMLElement;
     if (target.closest?.('.protyle-action')) {
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
-      }
-      debounceTimer = setTimeout(() => {
-        runSelectionUpdate(target);
-        debounceTimer = null;
-      }, 50);
+      scheduleSelectionUpdate(target);
     }
   };
   document.addEventListener('selectionchange', selectionChangeHandler);
   document.addEventListener('click', clickHandler, { capture: true });
-  runSelectionUpdate();
+  scheduleSelectionUpdate();
 }
 function unbindSelectionChange(): void {
+  if (updateFrame !== null) {
+    window.cancelAnimationFrame(updateFrame);
+    updateFrame = null;
+  }
+  pendingClickTarget = null;
   if (!selectionChangeHandler) {
     clearBulletLineMarks();
     return;
-  }
-  if (debounceTimer) {
-    clearTimeout(debounceTimer);
-    debounceTimer = null;
   }
   document.removeEventListener('selectionchange', selectionChangeHandler);
   if (clickHandler) {

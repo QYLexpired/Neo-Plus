@@ -22,7 +22,7 @@ import { initSaturation, destroySaturation } from './saturation';
 import { initBrightness, destroyBrightness } from './brightness';
 import { initInvert, destroyInvert } from './invert';
 import { initHighContrast, destroyHighContrast } from './highcontrast';
-import { initRandom, destroyRandom, initRandomSettings } from './random';
+import { initRandom, destroyRandom, initRandomSettings, refreshRandom } from './random';
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 export type { ThemeMode, Preset, Config };
@@ -50,6 +50,7 @@ function destroyPaletteEffects(): void {
 function restorePalette(config: Config): void {
   const mode = getThemeMode();
   const plan = getCurrentPlan(config, mode);
+  if (plan === 'random' && refreshRandom(config)) return;
   destroyPaletteEffects();
   applyCurrentPlan(config);
   if (plan !== 'preset') {

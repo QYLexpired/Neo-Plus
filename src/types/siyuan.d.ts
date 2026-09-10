@@ -134,6 +134,8 @@ declare module 'siyuan' {
     destroy(): void;
   }
   export class Menu {
+    element: HTMLElement;
+    close(): void;
     constructor(name: string, closeCallback?: () => void);
     addItem(item: {
       id?: string;
@@ -141,12 +143,13 @@ declare module 'siyuan' {
       iconHTML?: string;
       label: string;
       accelerator?: string;
+      bind?: (element: HTMLElement) => void;
       click?: () => void;
       type?: string;
       submenu?: any[];
     }): void;
     addSeparator(): void;
-    open(position: { x: number; y: number; isLeft?: boolean }): void;
+    open(position: { x: number; y: number; h?: number; isLeft?: boolean }): void;
     fullscreen(): void;
   }
   export class Protyle {

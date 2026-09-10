@@ -1,17 +1,18 @@
 import { saveConfig, loadConfig, type Config } from '../main/data';
-import { Dialog } from 'siyuan';
+import { Dialog } from '../modules/dialog';
 import { getPlugin } from '../main/context';
 import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
 import { getThemeMode, getPresetsByMode } from './presets';
+import { paletteLibrary } from './library';
 import type { Preset, ThemeMode } from './presets';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { enableInvert, destroyInvert } from './invert';
 import { enableHighContrast, destroyHighContrast } from './highcontrast';
 import { getFreePresetColors, applyFreeColors, clearFreeColors, setFreePresetAttr } from './free';
-type RandomPool = 'preset' | 'free' | 'custom';
-type RandomScope = RandomPool | 'all';
-let randomScope: RandomScope = 'all';
+type RandomPool = 'preset' | 'free' | 'custom' | 'library';
+const randomPools: RandomPool[] = ['preset', 'free', 'custom', 'library'];
+let randomScope: RandomPool[] = [...randomPools];
 let randomHighContrast: 'random' | 'on' | 'off' = 'random';
 let randomInvert: 'random' | 'on' | 'off' = 'random';
 let randomSaturationMin: number = 0;
@@ -25,8 +26,10 @@ function clampSaturation(value: number): number {
 function clampBrightness(value: number): number {
   return Math.min(1, Math.max(-1, value));
 }
-function normalizeRandomScope(value: Config['random-scope']): RandomScope {
-  return value === 'preset' || value === 'custom' || value === 'free' ? value : 'all';
+function normalizeRandomScope(value: Config['random-scope']): RandomPool[] {
+  const selected = Array.isArray(value) ? value : [];
+  const pools = randomPools.filter(pool => selected.includes(pool));
+  return pools.length > 0 ? pools : [...randomPools];
 }
 function normalizeRandomTristate(value: Config['random-highcontrast']): 'random' | 'on' | 'off' {
   return value === 'on' || value === 'off' ? value : 'random';
@@ -48,6 +51,7 @@ function readConfigBrightnessRange(config: Config): { min: number; max: number }
 interface LastRandomState {
   type: RandomPool;
   presetKey?: string;
+  freeName?: string;
   color?: string;
   saturation?: number;
   brightness?: number;
@@ -55,6 +59,7 @@ interface LastRandomState {
   highContrast?: boolean;
 }
 let lastState: LastRandomState | null = null;
+let lastMode: ThemeMode | null = null;
 function randomHexColor(): string {
   const r = Math.floor(Math.random() * 256);
   const g = Math.floor(Math.random() * 256);
@@ -132,9 +137,11 @@ function pickRandomEffects(sameAsLast: boolean): { inverted: boolean; highContra
   return { inverted, highContrast };
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
-  const scopeOptions = ['all', 'preset', 'free', 'custom']
-    .map(v => `<option value="${v}">${i18n[`randomScope${v.charAt(0).toUpperCase() + v.slice(1)}`]}</option>`)
-    .join('');
+  const scopeSwitches = randomPools.map(pool => `
+          <label style="display:inline-flex;align-items:center;gap:8px;white-space:nowrap;cursor:pointer">
+            <span>${i18n[`randomScope${pool.charAt(0).toUpperCase() + pool.slice(1)}`]}</span>
+            <input class="b3-switch" id="neo-random-scope-${pool}" type="checkbox">
+          </label>`).join('');
   const highContrastOptions = ['random', 'on', 'off']
     .map(v => `<option value="${v}">${i18n[`randomHighContrast${v.charAt(0).toUpperCase() + v.slice(1)}`]}</option>`)
     .join('');
@@ -145,56 +152,55 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <div class="config__tab-container">
       <div class="config-group">
         <div class="config-items">
-          <label class="fn__flex b3-label config-item">
-            <div class="fn__flex-1 config-item__main">
+          <div class="b3-label config-item" style="display:flex;flex-direction:column;align-items:stretch;gap:12px">
+            <div class="config-item__main">
               <div class="config-name">${i18n.randomScope}</div>
               <div class="b3-label__text">${i18n.randomScopeTip}</div>
             </div>
-            <span class="fn__space"></span>
-            <select class="b3-select fn__flex-center fn__size200" id="neo-random-scope">
-              ${scopeOptions}
-            </select>
-          </label>
-          <label class="fn__flex b3-label config-item">
-            <div class="fn__flex-1 config-item__main">
-              <div class="config-name">${i18n.randomSaturationMin}</div>
-              <div class="b3-label__text">${i18n.randomSaturationMinTip}</div>
+            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px" role="group" aria-label="${i18n.randomScope}">
+              ${scopeSwitches}
             </div>
-            <span class="fn__space"></span>
-            <div class="b3-tooltips b3-tooltips__n fn__flex-center" id="neo-random-saturation-min-tooltip" aria-label="${randomSaturationMin}">
-              <input class="b3-slider fn__size200" id="neo-random-saturation-min" min="0" max="5" step="0.01" type="range" value="${randomSaturationMin}">
+          </div>
+          <div class="b3-label config-item" style="display:flex;flex-direction:column;align-items:stretch;gap:12px">
+            <div class="config-item__main">
+              <div class="config-name" id="neo-random-saturation-title">${i18n.saturation}</div>
+              <div class="b3-label__text">${i18n.randomSaturationRangeTip}</div>
             </div>
-          </label>
-          <label class="fn__flex b3-label config-item">
-            <div class="fn__flex-1 config-item__main">
-              <div class="config-name">${i18n.randomSaturationMax}</div>
-              <div class="b3-label__text">${i18n.randomSaturationMaxTip}</div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px" role="group" aria-labelledby="neo-random-saturation-title">
+              <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
+                <span style="white-space:nowrap">${i18n.randomRangeMin}</span>
+                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-min-tooltip" aria-label="${randomSaturationMin}">
+                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-min" min="0" max="5" step="0.01" type="range" value="${randomSaturationMin}">
+                </div>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
+                <span style="white-space:nowrap">${i18n.randomRangeMax}</span>
+                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-max-tooltip" aria-label="${randomSaturationMax}">
+                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-max" min="0" max="5" step="0.01" type="range" value="${randomSaturationMax}">
+                </div>
+              </label>
             </div>
-            <span class="fn__space"></span>
-            <div class="b3-tooltips b3-tooltips__n fn__flex-center" id="neo-random-saturation-max-tooltip" aria-label="${randomSaturationMax}">
-              <input class="b3-slider fn__size200" id="neo-random-saturation-max" min="0" max="5" step="0.01" type="range" value="${randomSaturationMax}">
+          </div>
+          <div class="b3-label config-item" style="display:flex;flex-direction:column;align-items:stretch;gap:12px">
+            <div class="config-item__main">
+              <div class="config-name" id="neo-random-brightness-title">${i18n.brightness}</div>
+              <div class="b3-label__text">${i18n.randomBrightnessRangeTip}</div>
             </div>
-          </label>
-          <label class="fn__flex b3-label config-item">
-            <div class="fn__flex-1 config-item__main">
-              <div class="config-name">${i18n.randomBrightnessMin}</div>
-              <div class="b3-label__text">${i18n.randomBrightnessMinTip}</div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px" role="group" aria-labelledby="neo-random-brightness-title">
+              <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
+                <span style="white-space:nowrap">${i18n.randomRangeMin}</span>
+                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-min-tooltip" aria-label="${randomBrightnessMin}">
+                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-min" min="-1" max="1" step="0.01" type="range" value="${randomBrightnessMin}">
+                </div>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
+                <span style="white-space:nowrap">${i18n.randomRangeMax}</span>
+                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-max-tooltip" aria-label="${randomBrightnessMax}">
+                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-max" min="-1" max="1" step="0.01" type="range" value="${randomBrightnessMax}">
+                </div>
+              </label>
             </div>
-            <span class="fn__space"></span>
-            <div class="b3-tooltips b3-tooltips__n fn__flex-center" id="neo-random-brightness-min-tooltip" aria-label="${randomBrightnessMin}">
-              <input class="b3-slider fn__size200" id="neo-random-brightness-min" min="-1" max="1" step="0.01" type="range" value="${randomBrightnessMin}">
-            </div>
-          </label>
-          <label class="fn__flex b3-label config-item">
-            <div class="fn__flex-1 config-item__main">
-              <div class="config-name">${i18n.randomBrightnessMax}</div>
-              <div class="b3-label__text">${i18n.randomBrightnessMaxTip}</div>
-            </div>
-            <span class="fn__space"></span>
-            <div class="b3-tooltips b3-tooltips__n fn__flex-center" id="neo-random-brightness-max-tooltip" aria-label="${randomBrightnessMax}">
-              <input class="b3-slider fn__size200" id="neo-random-brightness-max" min="-1" max="1" step="0.01" type="range" value="${randomBrightnessMax}">
-            </div>
-          </label>
+          </div>
           <label class="fn__flex b3-label config-item">
             <div class="fn__flex-1 config-item__main">
               <div class="config-name">${i18n.randomHighContrast}</div>
@@ -239,8 +245,9 @@ function showCurrentStateDialog(): void {
     if (lastState.type === 'preset' && lastState.presetKey) {
       const nameKey = `colorScheme${lastState.presetKey.charAt(0).toUpperCase()}${lastState.presetKey.slice(1)}`;
       lines.push(`${i18n.colorScheme}：${i18n[nameKey] ?? lastState.presetKey}`);
-    } else if (lastState.type === 'free' && lastState.presetKey) {
-      lines.push(`${i18n.freePalette}：${lastState.presetKey}`);
+    } else if ((lastState.type === 'free' || lastState.type === 'library') && lastState.presetKey) {
+      const label = lastState.type === 'library' ? i18n.freeLibrary : i18n.freePalette;
+      lines.push(`${label}：${(lastState.freeName ?? lastState.presetKey).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}`);
     } else if (lastState.type === 'custom') {
       lines.push(`${i18n.customThemeColor}：${swatch(lastState.color ?? '')} ${lastState.color}`);
       if (lastState.saturation !== undefined) {
@@ -275,6 +282,7 @@ function showCurrentStateDialog(): void {
   });
 }
 export function showRandomSettings(): void {
+  const isCurrent = createNeoLifecycleGuard();
   const plugin = getPlugin();
   if (!plugin) return;
   const dialog = new Dialog({
@@ -289,8 +297,24 @@ export function showRandomSettings(): void {
   });
   dialog.element.classList.add('neo-settings-dialog');
   dialog.element.querySelector('#neo-random-view-current')?.addEventListener('click', showCurrentStateDialog);
-  const scopeSelect = dialog.element.querySelector('#neo-random-scope') as HTMLSelectElement;
-  if (scopeSelect) scopeSelect.value = randomScope;
+  const scopeSwitches = randomPools.map(pool => ({
+    pool,
+    input: dialog.element.querySelector(`#neo-random-scope-${pool}`) as HTMLInputElement,
+  }));
+  const updateScopeSwitches = (): void => {
+    const selected = scopeSwitches.filter(({ input }) => input.checked);
+    for (const { input } of scopeSwitches) {
+      input.disabled = selected.length === 1 && input.checked;
+    }
+  };
+  for (const { pool, input } of scopeSwitches) {
+    input.checked = randomScope.includes(pool);
+    input.addEventListener('change', () => {
+      if (!scopeSwitches.some(({ input }) => input.checked)) input.checked = true;
+      updateScopeSwitches();
+    });
+  }
+  updateScopeSwitches();
   const highContrastSelect = dialog.element.querySelector('#neo-random-highcontrast') as HTMLSelectElement;
   if (highContrastSelect) highContrastSelect.value = randomHighContrast;
   const invertSelect = dialog.element.querySelector('#neo-random-invert') as HTMLSelectElement;
@@ -344,7 +368,8 @@ export function showRandomSettings(): void {
     });
   }
   dialog.element.querySelector('#neo-random-reset-default')?.addEventListener('click', () => {
-    if (scopeSelect) scopeSelect.value = 'all';
+    for (const { input } of scopeSwitches) input.checked = true;
+    updateScopeSwitches();
     if (highContrastSelect) highContrastSelect.value = 'random';
     if (invertSelect) invertSelect.value = 'random';
     if (saturationMinSlider) {
@@ -366,13 +391,13 @@ export function showRandomSettings(): void {
   });
   dialog.element.querySelector('#neo-random-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-random-confirm')?.addEventListener('click', () => {
-    if (scopeSelect) {
-      const newScope = scopeSelect.value as RandomScope;
-      if (newScope !== randomScope) {
-        randomScope = newScope;
-        saveConfig({ 'random-scope': newScope } as Partial<Config>);
-      }
+    if (!isCurrent()) {
+      dialog.destroy();
+      return;
     }
+    const newScope = normalizeRandomScope(scopeSwitches.filter(({ input }) => input.checked).map(({ pool }) => pool));
+    randomScope = newScope;
+    saveConfig({ 'random-scope': newScope });
     if (highContrastSelect) {
       const newHighContrast = highContrastSelect.value as 'random' | 'on' | 'off';
       if (newHighContrast !== randomHighContrast) {
@@ -412,7 +437,6 @@ export function showRandomSettings(): void {
       }
     }
     dialog.destroy();
-    const isCurrent = createNeoLifecycleGuard();
     loadConfig().then((config) => {
       if (!isCurrent()) return;
       if (neoFeatureActive) {
@@ -451,17 +475,16 @@ export function destroyRandom(): void {
   destroyInvert();
   destroyHighContrast();
   lastState = null;
+  lastMode = null;
 }
 function pickRandomPool(config: Config, mode: ThemeMode): RandomPool | 'default' {
-  if (randomScope === 'preset') return 'preset';
-  if (randomScope === 'custom') return 'custom';
-  if (randomScope === 'free') {
-    return Object.keys(config[`free-presets-${mode}`] ?? {}).length > 0 ? 'free' : 'default';
-  }
-  const candidates: RandomPool[] = ['preset'];
-  if (Object.keys(config[`free-presets-${mode}`] ?? {}).length > 0) candidates.push('free');
-  candidates.push('custom');
-  return randomPick(candidates);
+  const candidates = randomScope.filter(pool => {
+    if (pool === 'free') return Object.keys(config[`free-presets-${mode}`] ?? {}).length > 0;
+    if (pool === 'library') return paletteLibrary[mode].length > 0;
+    if (pool === 'preset') return getPresetsByMode(mode).length > 0;
+    return true;
+  });
+  return candidates.length > 0 ? randomPick(candidates) : 'default';
 }
 function applyDefaultRandom(): void {
   document.documentElement.classList.add('neo-palette-default');
@@ -471,7 +494,7 @@ function applyPresetRandom(config: Config, mode: ThemeMode): void {
   const html = document.documentElement;
   const available = getPresetsByMode(mode);
   if (available.length === 0) {
-    applyCustomRandom(config, mode);
+    applyDefaultRandom();
     return;
   }
   const preset = lastState?.type === 'preset' && lastState.presetKey
@@ -482,26 +505,32 @@ function applyPresetRandom(config: Config, mode: ThemeMode): void {
   const { inverted: finalInverted, highContrast: finalHighContrast } = pickRandomEffects(sameAsLast);
   lastState = { type: 'preset', presetKey: preset.key, inverted: finalInverted, highContrast: finalHighContrast };
 }
-function applyFreeRandom(config: Config, mode: ThemeMode): void {
-  const names = Object.keys(config[`free-presets-${mode}`] ?? {});
-  if (names.length === 0) {
-    applyCustomRandom(config, mode);
+function applyFreeRandom(config: Config, mode: ThemeMode, pool: 'free' | 'library'): void {
+  const candidates = pool === 'library'
+    ? paletteLibrary[mode].map(item => item.key)
+    : Object.keys(config[`free-presets-${mode}`] ?? {});
+  if (candidates.length === 0) {
+    applyDefaultRandom();
     return;
   }
-  let name: string;
-  if (lastState?.type === 'free' && lastState.presetKey) {
-    const previous = lastState.presetKey;
-    const rest = names.filter(candidate => candidate !== previous);
-    name = rest.length > 0 ? randomPick(rest) : randomPick(names);
-  } else {
-    name = randomPick(names);
-  }
-  const colors = getFreePresetColors(config, mode, name);
+  const rest = lastState?.type === pool
+    ? candidates.filter(key => key !== lastState?.presetKey)
+    : candidates;
+  const selected = randomPick(rest.length > 0 ? rest : candidates);
+  const libraryItem = pool === 'library'
+    ? paletteLibrary[mode].find(item => item.key === selected)
+    : undefined;
+  const colors = pool === 'library'
+    ? libraryItem?.colors
+    : getFreePresetColors(config, mode, selected);
   if (!colors) {
-    applyCustomRandom(config, mode);
+    applyDefaultRandom();
     return;
   }
-  const sameAsLast = lastState?.type === 'free' && lastState.presetKey === name;
+  const name = libraryItem
+    ? (getPlugin()?.i18n[libraryItem.nameKey] ?? libraryItem.key)
+    : selected;
+  const sameAsLast = lastState?.type === pool && lastState.presetKey === selected;
   const { inverted: finalInverted, highContrast: finalHighContrast } = pickRandomEffects(sameAsLast);
   if (finalInverted) {
     applyFreeColors({ ...colors, background: colors.surface, surface: colors.background });
@@ -510,7 +539,7 @@ function applyFreeRandom(config: Config, mode: ThemeMode): void {
   }
   document.documentElement.classList.add('neo-palette-free');
   setFreePresetAttr(name);
-  lastState = { type: 'free', presetKey: name, inverted: finalInverted, highContrast: finalHighContrast };
+  lastState = { type: pool, presetKey: selected, freeName: name, inverted: finalInverted, highContrast: finalHighContrast };
 }
 function applyCustomRandom(config: Config, mode: ThemeMode): void {
   const html = document.documentElement;
@@ -537,6 +566,8 @@ function applyCustomRandom(config: Config, mode: ThemeMode): void {
 function applyRandom(config: Config): void {
   const html = document.documentElement;
   const mode = getThemeMode();
+  if (lastMode !== mode) lastState = null;
+  lastMode = mode;
   randomScope = normalizeRandomScope(config['random-scope']);
   randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
   randomInvert = normalizeRandomTristate(config['random-invert']);
@@ -558,9 +589,14 @@ function applyRandom(config: Config): void {
   destroyHighContrast();
   const pool = pickRandomPool(config, mode);
   if (pool === 'preset') applyPresetRandom(config, mode);
-  else if (pool === 'free') applyFreeRandom(config, mode);
+  else if (pool === 'free' || pool === 'library') applyFreeRandom(config, mode, pool);
   else if (pool === 'default') applyDefaultRandom();
   else applyCustomRandom(config, mode);
+}
+export function refreshRandom(config: Config): boolean {
+  if (!neoFeatureActive) return false;
+  applyRandom(config);
+  return true;
 }
 function enableRandom(config: Config): void {
   if (neoFeatureActive) return;

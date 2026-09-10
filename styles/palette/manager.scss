@@ -64,6 +64,9 @@
         height: 13px;
         border-radius: 50%;
         background-color: var(--b3-base-color);
+        .neo-mobile & {
+            left: 18px;
+        }
     }
     &:hover,
     &.b3-menu__item--current {

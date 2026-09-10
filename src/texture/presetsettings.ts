@@ -1,4 +1,4 @@
-import { Dialog } from 'siyuan';
+import { Dialog } from '../modules/dialog';
 import { getPlugin } from '../main/context';
 import {
   saveConfig,

@@ -3,13 +3,10 @@ import { getPlugin } from '../main/context';
 import { getTextColor } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { Dialog } from 'siyuan';
+import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
-const debounceDelay = 200;
 let focusBlockEffect: 'vertical-line' | 'shadow' | 'background' = 'vertical-line';
-let pendingUpdate = false;
-let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-let selectionChangeHandler: (() => void) | null = null;
+let updateFrame: number | null = null;
 let neoFeatureActive = false;
 let activeFocusBlock: Element | null = null;
 function applyFocusBlockEffect(): void {
@@ -45,31 +42,55 @@ function updateFocusBlock(block: Element | null, focusNode: Node | null): void {
     document.documentElement.style.removeProperty('--neo-focusblock-text-color');
   }
 }
+function getFocusNode(selection: Selection | null): Node | null {
+  if (!selection || selection.rangeCount === 0) return null;
+  const focusNode = selection.focusNode;
+  if (!focusNode || selection.isCollapsed) return focusNode;
+  const range = selection.getRangeAt(0);
+  if (focusNode !== range.endContainer || selection.focusOffset !== range.endOffset) return focusNode;
+  if (focusNode.nodeType === Node.TEXT_NODE && selection.focusOffset > 0) return focusNode;
+  const focusElement = focusNode.nodeType === Node.ELEMENT_NODE ? focusNode as Element : focusNode.parentElement;
+  const editor = focusElement?.closest('.protyle-wysiwyg');
+  if (!editor) return focusNode;
+  let node: Node | null = focusNode;
+  let offset = selection.focusOffset;
+  while (node && editor.contains(node)) {
+    if (offset > 0) {
+      node = node.childNodes[offset - 1];
+    } else {
+      if (node === editor) break;
+      if (!node.previousSibling) {
+        node = node.parentNode;
+        continue;
+      }
+      node = node.previousSibling;
+    }
+    while (node.lastChild) node = node.lastChild;
+    const element: Element | null = node.nodeType === Node.ELEMENT_NODE ? node as Element : node.parentElement;
+    const block: Element | null | undefined = element?.closest('[data-node-id]');
+    if (block && block !== editor && editor.contains(block)) return node;
+    offset = 0;
+  }
+  return focusNode;
+}
 function applyFocusBlock(): void {
-  pendingUpdate = false;
+  updateFrame = null;
+  if (!neoFeatureActive) return;
   const selection = window.getSelection();
-  const focusNode = selection && selection.rangeCount > 0 ? selection.focusNode : null;
+  const focusNode = getFocusNode(selection);
   const focusElement = focusNode?.nodeType === Node.ELEMENT_NODE ? focusNode as Element : focusNode?.parentElement;
   const curBlock = focusElement?.closest('[data-node-id]');
   updateFocusBlock(curBlock ?? null, focusNode);
 }
-function handleUpdate(): void {
-  if (debounceTimer) {
-    clearTimeout(debounceTimer);
-  }
-  debounceTimer = setTimeout(() => {
-    if (pendingUpdate) applyFocusBlock();
-  }, debounceDelay);
-}
-function onSelectionChange(): void {
-  pendingUpdate = true;
-  handleUpdate();
+function scheduleFocusBlockUpdate(): void {
+  if (!neoFeatureActive || updateFrame !== null) return;
+  updateFrame = window.requestAnimationFrame(applyFocusBlock);
 }
 function startObserving(): void {
-  selectionChangeHandler = () => {
-    onSelectionChange();
-  };
-  document.addEventListener('selectionchange', selectionChangeHandler);
+  document.addEventListener('selectionchange', scheduleFocusBlockUpdate);
+  document.addEventListener('mouseup', scheduleFocusBlockUpdate);
+  document.addEventListener('keyup', scheduleFocusBlockUpdate);
+  scheduleFocusBlockUpdate();
 }
 function enableFocusBlockIndicator(): void {
   if (neoFeatureActive) return;
@@ -80,15 +101,13 @@ function enableFocusBlockIndicator(): void {
   startObserving();
 }
 function stopObserving(): void {
-  if (selectionChangeHandler) {
-    document.removeEventListener('selectionchange', selectionChangeHandler);
-    selectionChangeHandler = null;
+  document.removeEventListener('selectionchange', scheduleFocusBlockUpdate);
+  document.removeEventListener('mouseup', scheduleFocusBlockUpdate);
+  document.removeEventListener('keyup', scheduleFocusBlockUpdate);
+  if (updateFrame !== null) {
+    window.cancelAnimationFrame(updateFrame);
+    updateFrame = null;
   }
-  if (debounceTimer) {
-    clearTimeout(debounceTimer);
-    debounceTimer = null;
-  }
-  pendingUpdate = false;
   clearAllFocusBlocks();
 }
 export function initFocusBlockIndicator(): void {

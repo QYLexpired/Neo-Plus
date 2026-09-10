@@ -3,7 +3,7 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { getPlugin } from '../main/context';
-import { Dialog } from 'siyuan';
+import { Dialog } from '../modules/dialog';
 type InitialHueRule = 'theme' | 'fixed' | 'accent';
 type ColoredListsColorStyle = 'soft' | 'default' | 'vivid';
 const defaultInitialHue = 0;

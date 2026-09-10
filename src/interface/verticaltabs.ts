@@ -4,7 +4,7 @@ import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { fetchListener } from '../modules/fetchmonitor';
 import { withViewTransition } from '../modules/viewtransition';
-import { Dialog } from 'siyuan';
+import { Dialog } from '../modules/dialog';
 import { getPlugin } from '../main/context';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let neoFeatureActive = false;
