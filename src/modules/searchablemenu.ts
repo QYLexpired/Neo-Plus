@@ -1,5 +1,5 @@
 import { Menu, showMessage } from 'siyuan';
-function editPaletteName(
+function editMenuItemName(
   label: HTMLElement,
   onSave: (name: string) => Promise<boolean>,
   onFinish: (name: string | undefined, refocus: boolean) => void,
@@ -50,7 +50,7 @@ function editPaletteName(
   input.select();
   return { commit, cancel };
 }
-export function openPresetMenu(
+export function openSearchableMenu(
   trigger: HTMLButtonElement,
   items: ReadonlyArray<{ key: string; label: string }>,
   searchLabel: string,
@@ -59,7 +59,7 @@ export function openPresetMenu(
   onClose: () => void,
   actions: ReadonlyArray<{ label: string; icon: string } & ({ click: (key: string) => void | Promise<void> } | { rename: (key: string, name: string) => Promise<boolean> })> = [],
 ): Menu {
-  let editing: ReturnType<typeof editPaletteName> | null = null;
+  let editing: ReturnType<typeof editMenuItemName> | null = null;
   const menu = new Menu(trigger.id, () => {
     void editing?.commit();
     trigger.setAttribute('aria-expanded', 'false');
@@ -75,9 +75,9 @@ export function openPresetMenu(
       searchInput.setAttribute('aria-label', searchLabel);
       searchInput.setAttribute('role', 'combobox');
       searchInput.setAttribute('aria-expanded', 'true');
-      searchInput.setAttribute('aria-controls', 'neo-preset-options');
+      searchInput.setAttribute('aria-controls', 'neo-searchable-menu-options');
       const list = element.querySelector<HTMLElement>('[role="listbox"]')!;
-      list.id = 'neo-preset-options';
+      list.id = 'neo-searchable-menu-options';
       list.setAttribute('aria-label', listLabel);
       let matched = items;
       let focused = Math.max(0, items.findIndex(item => item.key === trigger.value));
@@ -104,7 +104,7 @@ export function openPresetMenu(
           row.classList.toggle('b3-list-item--hide-action', actions.length > 0);
           row.setAttribute('role', 'option');
           row.setAttribute('aria-selected', String(item.key === trigger.value));
-          row.id = `neo-preset-option-${index}`;
+          row.id = `neo-searchable-menu-option-${index}`;
           const label = document.createElement('span');
           label.className = 'b3-list-item__text ariaLabel';
           label.dataset.position = 'parentW';
@@ -125,7 +125,7 @@ export function openPresetMenu(
                 focused = index;
                 updateFocus();
                 searchInput.disabled = true;
-                editing = editPaletteName(label, name => action.rename(item.key, name), (name, refocus) => {
+                editing = editMenuItemName(label, name => action.rename(item.key, name), (name, refocus) => {
                   if (name !== undefined) {
                     item.key = name;
                     item.label = name;
@@ -197,6 +197,6 @@ export function openPresetMenu(
   menu.element.querySelector('.b3-list-item--focus')?.scrollIntoView({ block: 'nearest' });
   return menu;
 }
-export function showPresetMessage(message: string, name: string): void {
+export function showNamedMessage(message: string, name: string): void {
   showMessage(message.replace('${name}', () => name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')), 3000);
 }

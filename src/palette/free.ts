@@ -1,6 +1,6 @@
 import { showMessage, type Menu } from 'siyuan';
 import { Dialog } from '../modules/dialog';
-import { openPresetMenu, showPresetMessage } from '../modules/presetmenu';
+import { openSearchableMenu, showNamedMessage } from '../modules/searchablemenu';
 import { getPlugin } from '../main/context';
 import { loadConfig, saveConfigIfUnchanged, type Config, type FreeColorKey, type FreeColors } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
@@ -230,7 +230,7 @@ function showReferencePalette(
     referenceMenu?.close();
     const trigger = next === 'preset' ? presetButton : libraryButton;
     const items: ReadonlyArray<{ key: string; nameKey: string }> = next === 'preset' ? presets : library;
-    referenceMenu = openPresetMenu(
+    referenceMenu = openSearchableMenu(
       trigger,
       items.map(item => ({ key: item.key, label: i18n[item.nameKey] ?? item.key })),
       i18n.freeReferenceSearch,
@@ -431,14 +431,14 @@ export async function showFreeSettings(): Promise<void> {
   dialog.element.querySelector('#neo-free-confirm')?.addEventListener('click', async () => {
     if (!selected) { showMessage(i18n.freePresetNotSelected); return; }
     if (await persist({ ...presets, [selected]: { ...colors } }, selected)) {
-      showPresetMessage(i18n.freePresetUpdated, selected);
+      showNamedMessage(i18n.freePresetUpdated, selected);
       dialog.destroy();
     }
   });
   presetButton.addEventListener('click', () => {
     if (!isCurrent() || saving) return;
     presetMenu?.close();
-    presetMenu = openPresetMenu(
+    presetMenu = openSearchableMenu(
       presetButton,
       Object.keys(presets).map(name => ({ key: name, label: name })),
       i18n.freePresetSearch,
@@ -461,7 +461,7 @@ export async function showFreeSettings(): Promise<void> {
     const next = { ...presets };
     delete next[name];
     if (await persist(next, name === selected ? '' : selected, name !== selected)) {
-      showPresetMessage(i18n.freePresetDeleted, name);
+      showNamedMessage(i18n.freePresetDeleted, name);
     }
   }
   async function renamePreset(oldName: string, name: string): Promise<boolean> {
@@ -484,7 +484,7 @@ export async function showFreeSettings(): Promise<void> {
       if (Object.prototype.hasOwnProperty.call(presets, name)
         && !await confirmPresetAction(i18n.freePresetOverwriteTitle, i18n.freePresetOverwriteContent.replace('${name}', () => name), i18n.confirm, i18n.cancel)) return false;
       if (!await persist({ ...presets, [name]: { ...source } }, name)) return false;
-      showPresetMessage(i18n.freePresetSaved, name);
+      showNamedMessage(i18n.freePresetSaved, name);
       return true;
     });
   }

@@ -1,6 +1,6 @@
 import { showMessage, type Menu } from 'siyuan';
 import { Dialog } from '../modules/dialog';
-import { openPresetMenu, showPresetMessage } from '../modules/presetmenu';
+import { openSearchableMenu, showNamedMessage } from '../modules/searchablemenu';
 import { getPlugin } from '../main/context';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import {
@@ -653,14 +653,14 @@ export async function showCustomImageSettings(): Promise<void> {
   dialog.element.querySelector('#neo-customimage-update-preset')?.addEventListener('click', async () => {
     if (!selected) { showMessage(i18n.customimagePresetNotSelected); return; }
     if (await persist({ ...presets, [selected]: buildPresetFromDom() }, selected)) {
-      showPresetMessage(i18n.customimagePresetUpdated, selected);
+      showNamedMessage(i18n.customimagePresetUpdated, selected);
       dialog.destroy();
     }
   });
   presetButton.addEventListener('click', () => {
     if (!isCurrent() || saving) return;
     presetMenu?.close();
-    presetMenu = openPresetMenu(
+    presetMenu = openSearchableMenu(
       presetButton,
       Object.keys(presets).map(name => ({ key: name, label: name })),
       i18n.customimagePresetSearch,
@@ -683,7 +683,7 @@ export async function showCustomImageSettings(): Promise<void> {
     const next = { ...presets };
     delete next[name];
     if (await persist(next, name === selected ? '' : selected, name !== selected)) {
-      showPresetMessage(i18n.customimagePresetDeleted, name);
+      showNamedMessage(i18n.customimagePresetDeleted, name);
     }
   }
   async function renamePreset(oldName: string, name: string): Promise<boolean> {
@@ -735,7 +735,7 @@ export async function showCustomImageSettings(): Promise<void> {
           if (Object.prototype.hasOwnProperty.call(presets, name)
             && !await confirmPresetAction(i18n.customimagePresetOverwriteTitle, i18n.customimagePresetOverwriteContent.replace('${name}', () => name), i18n.confirm, i18n.cancel)) return;
           if (await persist({ ...presets, [name]: { ...source } }, name)) {
-            showPresetMessage(i18n.customimagePresetSaved, name);
+            showNamedMessage(i18n.customimagePresetSaved, name);
             resolve(true);
             destroyNameDialog();
           }
