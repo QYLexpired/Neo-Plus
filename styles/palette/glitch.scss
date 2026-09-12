@@ -7,7 +7,6 @@
         --b3-theme-background: #ecfcff;
         --b3-theme-surface: #cac3ed;
         --b3-theme-on-background: #2e1e74;
-        --b3-theme-on-surface: #4c4370d1;
         --_brutalism-black: #4c306f;
         --_brutalism-gray: #d9fff7;
     }
@@ -17,14 +16,12 @@
         --b3-theme-background: #1a2233;
         --b3-theme-surface: #293255;
         --b3-theme-on-background: #eefaf7;
-        --b3-theme-on-surface: #c4c4e8bc;
         --_brutalism-black: black;
         --_brutalism-gray: #3b466b;
         &.neo-palette-invert {
             --b3-theme-background: #293255;
             --b3-theme-surface: #1a2233;
             --b3-theme-on-background: #d5f7f2;
-            --b3-theme-on-surface: #d0d0f0bc;
         }
     }
 }

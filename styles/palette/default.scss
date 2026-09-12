@@ -7,7 +7,6 @@
 		--b3-theme-background: var(--neo-default-background);
 		--b3-theme-surface: var(--neo-default-surface);
 		--b3-theme-on-background: var(--neo-default-on-background);
-		--b3-theme-on-surface: var(--neo-default-on-surface);
     }
     &.neo-mode-dark {
         --b3-base-color: var(--neo-default-base-color);
@@ -15,6 +14,5 @@
 		--b3-theme-background: var(--neo-default-background);
 		--b3-theme-surface: var(--neo-default-surface);
         --b3-theme-on-background: var(--neo-default-on-background);
-        --b3-theme-on-surface: var(--neo-default-on-surface);
     }
 }

@@ -7,7 +7,6 @@
 		--b3-theme-background: #f8f5f1;
 		--b3-theme-surface: #f2ece3;
 		--b3-theme-on-background: #654f2f;
-		--b3-theme-on-surface: #7b5c30;
     }
     &.neo-mode-dark {
         --b3-base-color: #d5ab7c;
@@ -15,12 +14,10 @@
 		--b3-theme-background: #221e1e;
 		--b3-theme-surface: #423939;
 		--b3-theme-on-background: #f4e6d2;
-		--b3-theme-on-surface: #9d8b8b;
 		&.neo-palette-invert {
 			--b3-theme-background: #423939;
 			--b3-theme-surface: #221e1e;
 			--b3-theme-on-background: #ffefd9;
-			--b3-theme-on-surface: #cabdb2;
 		}
     }
 }

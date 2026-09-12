@@ -7,7 +7,6 @@
         --b3-theme-background: #fefefe;
         --b3-theme-surface: #ededed;
         --b3-theme-on-background: #010101;
-        --b3-theme-on-surface: #01010194;
         --b3-menu-background: var(--b3-theme-background);
         --b3-list-active: oklch(from var(--b3-theme-primary) l 0 h / 0.12);
         --neo-layout-shadow-blur: 0 1px 3px oklch(from var(--b3-theme-on-background) calc(l - 0.035) c h / 0.15), 0 0 0 0.5px oklch(from var(--b3-theme-on-background) calc(l - 0.035) c h / 0.08), 0.5px 0 0 0 oklch(from var(--b3-theme-on-background) calc(l - 0.035) c h / 0.2), -0.5px 0 0 0 oklch(from var(--b3-theme-on-background) calc(l - 0.035) c h / 0.2);
@@ -18,7 +17,6 @@
         --b3-theme-background: #010101;
         --b3-theme-surface: #232323;
         --b3-theme-on-background: #fefefe;
-        --b3-theme-on-surface: #fefefe92;
         --b3-menu-background: var(--b3-theme-surface);
         --b3-list-active: oklch(from var(--b3-theme-primary) l 0 h / 0.2);
         --neo-switch-primary: #13aa00;
