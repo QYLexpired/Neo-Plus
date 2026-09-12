@@ -70,7 +70,7 @@
                 --b3-theme-on-surface: oklch(from var(--b3-theme-on-background) l c h / 0.65);
                 &::before {
                     --_status-dot-color: var(--neo-highcontrast-on-bg);
-    }
+                }
                 .toolbar__item {
                     @include neo-highcontrast-icon;
                 }
