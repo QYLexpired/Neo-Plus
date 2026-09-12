@@ -3,7 +3,6 @@
     @include palette-common("[data-id=\"neo-palette-titaniumspace-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
         --b3-base-color: #7287fd;
-        --b3-theme-primary: #5e73e9;
         --b3-theme-accent: #5e73e9;
         --b3-theme-background: #eef1f5;
         --b3-theme-surface: #dce0e8;
@@ -12,7 +11,6 @@
     }
     &.neo-mode-dark {
         --b3-base-color: #90b1ff;
-        --b3-theme-primary: #6a86c8;
         --b3-theme-accent: #90b1ff;
         --b3-theme-background: #262c37;
         --b3-theme-surface: #3a4353;

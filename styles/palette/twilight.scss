@@ -3,7 +3,6 @@
     @include palette-common("[data-id=\"neo-palette-twilight-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
         --b3-base-color: #6175de;
-        --b3-theme-primary: #6175de;
         --b3-theme-accent: #6175de;
         --b3-theme-background: #ffffff;
         --b3-theme-surface: #f5f6f8;
@@ -12,7 +11,6 @@
     }
     &.neo-mode-dark {
         --b3-base-color: #b7c9ff;
-        --b3-theme-primary: #8297d6;
         --b3-theme-accent: #7295ff;
         --b3-theme-background: #1e2030;
         --b3-theme-surface: #24273a;

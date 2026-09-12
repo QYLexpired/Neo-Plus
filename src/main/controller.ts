@@ -1,6 +1,7 @@
 import type { Plugin } from 'siyuan';
 import { getThemeMode } from '../modules/thememode';
 import { clearPlugin, setPlugin } from './context';
+import { initShortcuts } from './shortcut';
 import { startNeoRuntime, stopNeoRuntime, syncNeoRootMode } from './runtime';
 function isNeoTheme(): boolean {
   if (getThemeMode() === 'dark') {
@@ -14,6 +15,7 @@ export class NeoPlusController {
   constructor(private readonly plugin: Plugin) {}
   init(): void {
     setPlugin(this.plugin);
+    initShortcuts(() => this.neoThemeActive);
     this.handleThemeChange();
     this.themeObserver = new MutationObserver(() => {
       this.handleThemeChange();

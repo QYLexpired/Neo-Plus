@@ -26,7 +26,7 @@ export type CustomImageSource = Partial<Record<CustomImageConfigKey, string | nu
 export type PresetTextureSettingValue = string | number | boolean;
 export type PresetTextureSettings = Record<string, PresetTextureSettingValue>;
 export type PresetTextureSettingsMap = Record<string, PresetTextureSettings>;
-export type FreeColorKey = 'base' | 'primary' | 'accent' | 'background' | 'surface' | 'onbackground';
+export type FreeColorKey = 'base' | 'accent' | 'background' | 'surface' | 'onbackground';
 export type FreeColors = Partial<Record<FreeColorKey, string>>;
 export interface Config {
   'custom-color-light'?: string;

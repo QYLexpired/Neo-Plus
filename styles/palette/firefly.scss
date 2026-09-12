@@ -3,7 +3,6 @@
     @include palette-common("[data-id=\"neo-palette-firefly-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
         --b3-base-color: #9dc238;
-        --b3-theme-primary: #9fb022;
         --b3-theme-accent: #87aa1a;
         --b3-theme-background: #f5f7e6;
         --b3-theme-surface: #ecefd6;
@@ -12,7 +11,6 @@
     }
     &.neo-mode-dark {
         --b3-base-color: #cef698;
-        --b3-theme-primary: #89a861;
         --b3-theme-accent: #cef698;
         --b3-theme-background: #19192e;
         --b3-theme-surface: #212037;

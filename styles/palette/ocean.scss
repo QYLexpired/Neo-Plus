@@ -3,7 +3,6 @@
     @include palette-common("[data-id=\"neo-palette-ocean-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
         --b3-base-color: #1b6afd;
-        --b3-theme-primary: #1b6afd;
         --b3-theme-accent: #ff6f61;
         --b3-theme-background: #e5eefd;
         --b3-theme-surface: #d6e3f9;
@@ -15,7 +14,6 @@
     }
     &.neo-mode-dark {
         --b3-base-color: #b8e53f;
-        --b3-theme-primary: #8eb22d;
         --b3-theme-accent: #b8e53f;
         --b3-theme-background: #1e253b;
         --b3-theme-surface: #11172c;

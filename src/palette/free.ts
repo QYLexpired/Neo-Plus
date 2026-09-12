@@ -1,4 +1,4 @@
-import { showMessage, type Menu } from 'siyuan';
+import { showMessage } from 'siyuan';
 import { Dialog } from '../modules/dialog';
 import { openSearchableMenu, showNamedMessage } from '../modules/searchablemenu';
 import { getPlugin } from '../main/context';
@@ -8,7 +8,6 @@ import { paletteLibrary } from './library';
 import { getThemeMode, getPresetsByMode, type ThemeMode } from './presets';
 const colorFields: ReadonlyArray<readonly [FreeColorKey, string, string, string]> = [
   ['base', 'freeBase', '--b3-base-color', 'freeBaseTip'],
-  ['primary', 'freePrimary', '--b3-theme-primary', 'freePrimaryTip'],
   ['accent', 'freeAccent', '--b3-theme-accent', 'freeAccentTip'],
   ['background', 'freeBackground', '--b3-theme-background', 'freeBackgroundTip'],
   ['surface', 'freeSurface', '--b3-theme-surface', 'freeSurfaceTip'],
@@ -71,10 +70,16 @@ export function clearFreeColors(): void {
     document.documentElement.style.removeProperty(variable);
   }
   document.documentElement.style.removeProperty('--b3-theme-on-surface');
+  document.documentElement.style.removeProperty('--b3-theme-primary');
 }
 function applyColors(colors: Required<FreeColors>): void {
   for (const [key, , variable] of colorFields) {
     document.documentElement.style.setProperty(variable, colors[key]);
+    if (key === 'accent') {
+      document.documentElement.style.setProperty('--b3-theme-primary', getThemeMode() === 'dark'
+        ? 'oklch(from var(--b3-theme-accent) clamp(0.68, l, 0.72) c h)'
+        : 'oklch(from var(--b3-theme-accent) clamp(0.6, l, 0.68) c h)');
+    }
   }
 }
 export function initFree(config: Config): void {
@@ -104,16 +109,21 @@ function buildSettingsHTML(i18n: Record<string, string>, colors: Required<FreeCo
       </div>
       <div class="config-group">
         <div class="config-title">${i18n.freeColorGroupTitle}</div>
-        <div class="config-items" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
-          ${colorFields.map(([key, label]) => {
+        <div class="config-items">
+          ${colorFields.map(([key, label, , tip]) => {
             const color = colors[key];
-            return `<label class="fn__flex b3-label config-item" style="min-width:0" for="neo-free-${key}">
+            return `<div class="fn__flex b3-label config-item">
               <div class="fn__flex-1 config-item__main">
-                <div class="config-name">${i18n[label]}<span class="neo-config-name-tip" data-free-tip="${key}">${i18n.customimagePathTipToggle}</span></div>
+                <div class="config-name">${i18n[label]}</div>
+                <div class="b3-label__text">${i18n[tip]}</div>
               </div>
               <span class="fn__space"></span>
-              <input id="neo-free-${key}" class="b3-text-field fn__flex-center" type="color" value="${color}" aria-label="${i18n[label]}">
-            </label>`;
+              <div class="fn__flex fn__flex-center">
+                <input id="neo-free-${key}" class="b3-text-field fn__flex-center" type="color" value="${color}" aria-label="${i18n[label]}">
+                <span class="fn__space"></span>
+                <input id="neo-free-${key}-value" class="b3-text-field fn__flex-center" type="text" value="${color}" placeholder="#RRGGBB" size="8" spellcheck="false" aria-label="${i18n[label]}">
+              </div>
+            </div>`;
           }).join('')}
         </div>
       </div>
@@ -140,7 +150,7 @@ function showReferencePalette(
   const library = [...paletteLibrary[mode]].sort((a, b) =>
     (i18n[a.nameKey] ?? a.nameKey).localeCompare(i18n[b.nameKey] ?? b.nameKey, undefined, { sensitivity: 'base' }));
   let keepPreview = false;
-  let referenceMenu: Menu | null = null;
+  let referenceMenu: ReturnType<typeof openSearchableMenu> | null = null;
   const dialog = new Dialog({
     title: i18n.freeReference,
     content: `<div class="b3-dialog__content">
@@ -293,7 +303,7 @@ export async function showFreeSettings(): Promise<void> {
   let savedColors = getColors(config, mode);
   const colors = { ...savedColors };
   let saving = false;
-  let presetMenu: Menu | null = null;
+  let presetMenu: ReturnType<typeof openSearchableMenu> | null = null;
   let closePromptOpen = false;
   let dirty = false;
   function canPreview(): boolean {
@@ -314,21 +324,13 @@ export async function showFreeSettings(): Promise<void> {
   });
   dialog.element.classList.add('neo-settings-dialog');
   const presetButton = dialog.element.querySelector<HTMLButtonElement>('#neo-free-preset-select')!;
-  for (const [key, label, , tip] of colorFields) {
-    dialog.element.querySelector(`[data-free-tip="${key}"]`)?.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      new Dialog({
-        title: i18n[label],
-        content: `<div class="b3-dialog__content"><div class="b3-label__text">${i18n[tip]}</div></div>`,
-      });
-    });
-  }
   function setColors(values: Required<FreeColors>): void {
     Object.assign(colors, values);
     for (const [key] of colorFields) {
       const input = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}`);
       if (input) input.value = colors[key];
+      const valueInput = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}-value`);
+      if (valueInput) valueInput.value = colors[key];
     }
     if (canPreview()) applyColors(colors);
   }
@@ -376,7 +378,7 @@ export async function showFreeSettings(): Promise<void> {
   dialog.element.querySelector('#neo-free-reference')?.addEventListener('click', () => {
     if (!isCurrent() || saving) return;
     const root = document.documentElement;
-    const variables = [...colorFields.map(([, , variable]) => variable), '--b3-theme-on-surface'];
+    const variables = [...colorFields.map(([, , variable]) => variable), '--b3-theme-primary', '--b3-theme-on-surface'];
     const snapshot = variables.map(variable => [
       variable,
       root.style.getPropertyValue(variable),
@@ -406,11 +408,26 @@ export async function showFreeSettings(): Promise<void> {
     );
   });
   for (const [key, , variable] of colorFields) {
-    const input = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}`);
-    input?.addEventListener('input', () => {
-      colors[key] = input.value;
+    const input = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}`)!;
+    const valueInput = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}-value`)!;
+    function updateColor(value: string): void {
+      if (!isCurrent() || saving || colors[key] === value) return;
+      colors[key] = value;
       dirty = true;
-      if (canPreview()) document.documentElement.style.setProperty(variable, input.value);
+      if (canPreview()) document.documentElement.style.setProperty(variable, value);
+    }
+    input.addEventListener('input', () => {
+      valueInput.value = input.value;
+      updateColor(input.value);
+    });
+    valueInput.addEventListener('input', () => {
+      const value = valueInput.value.trim();
+      if (!/^#[\da-f]{6}$/i.test(value)) return;
+      input.value = value;
+      updateColor(input.value);
+    });
+    valueInput.addEventListener('blur', () => {
+      valueInput.value = colors[key];
     });
   }
   const originalDestroy = dialog.destroy.bind(dialog);

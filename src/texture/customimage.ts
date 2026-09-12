@@ -1,4 +1,4 @@
-import { showMessage, type Menu } from 'siyuan';
+import { showMessage } from 'siyuan';
 import { Dialog } from '../modules/dialog';
 import { openSearchableMenu, showNamedMessage } from '../modules/searchablemenu';
 import { getPlugin } from '../main/context';
@@ -510,7 +510,7 @@ export async function showCustomImageSettings(): Promise<void> {
   if (!Object.prototype.hasOwnProperty.call(presets, selected)) selected = '';
   let savedValues = getValues(config, mode);
   let saving = false;
-  let presetMenu: Menu | null = null;
+  let presetMenu: ReturnType<typeof openSearchableMenu> | null = null;
   let closePromptOpen = false;
   let dirty = false;
   function canPreview(): boolean {

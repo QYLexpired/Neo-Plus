@@ -3,7 +3,6 @@
     @include palette-common("[data-id=\"neo-palette-default-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
         --b3-base-color: var(--neo-default-base-color);
-		--b3-theme-primary: var(--neo-default-primary);
 		--b3-theme-accent: var(--neo-default-accent);
 		--b3-theme-background: var(--neo-default-background);
 		--b3-theme-surface: var(--neo-default-surface);
@@ -12,7 +11,6 @@
     }
     &.neo-mode-dark {
         --b3-base-color: var(--neo-default-base-color);
-		--b3-theme-primary: var(--neo-default-primary);
 		--b3-theme-accent: var(--neo-default-accent);
 		--b3-theme-background: var(--neo-default-background);
 		--b3-theme-surface: var(--neo-default-surface);

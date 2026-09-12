@@ -1,14 +1,14 @@
 import { getPlugin } from './context';
 import { switchToPlan } from '../palette/manager';
 import { openNeoMenu } from './topbar';
-const shortcutLangKeys = ['neoMenu', 'random'];
-export function initShortcuts(): void {
+export function initShortcuts(isActive: () => boolean): void {
   const plugin = getPlugin();
   if (!plugin) return;
   plugin.addCommand({
     langKey: 'neoMenu',
     hotkey: '',
     callback: () => {
+      if (!isActive()) return;
       openNeoMenu();
     },
   });
@@ -16,16 +16,8 @@ export function initShortcuts(): void {
     langKey: 'random',
     hotkey: '',
     callback: () => {
+      if (!isActive()) return;
       switchToPlan('random');
     },
   });
-}
-export function destroyShortcuts(): void {
-  const plugin = getPlugin();
-  if (!plugin) return;
-  if (plugin.commands && plugin.commands.length > 0) {
-    plugin.commands = plugin.commands.filter(
-      (cmd: any) => !shortcutLangKeys.includes(cmd.langKey)
-    );
-  }
 }

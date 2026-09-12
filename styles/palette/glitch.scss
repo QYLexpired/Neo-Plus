@@ -3,7 +3,6 @@
     @include palette-common("[data-id=\"neo-palette-glitch-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
         --b3-base-color: #cfc5ff;
-        --b3-theme-primary: #745a98;
         --b3-theme-accent: #8a2be2;
         --b3-theme-background: #ecfcff;
         --b3-theme-surface: #cac3ed;
@@ -14,7 +13,6 @@
     }
     &.neo-mode-dark {
         --b3-base-color: #d6ceff;
-        --b3-theme-primary: #9a84c4;
         --b3-theme-accent: #cfaeff;
         --b3-theme-background: #1a2233;
         --b3-theme-surface: #293255;

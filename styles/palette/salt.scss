@@ -3,7 +3,6 @@
     @include palette-common("[data-id=\"neo-palette-salt-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
         --b3-base-color: #007a95;
-        --b3-theme-primary: #252830;
         --b3-theme-accent: #007a95;
         --b3-theme-background: #eaf2f2;
         --b3-theme-surface: #d7e0df;
@@ -12,7 +11,6 @@
     }
     &.neo-mode-dark {
         --b3-base-color: #e8ecef;
-        --b3-theme-primary: #98a1ab;
         --b3-theme-accent: #34a3ae;
         --b3-theme-background: #1b1e22;
         --b3-theme-surface: #14171a;
