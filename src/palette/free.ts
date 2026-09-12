@@ -63,13 +63,11 @@ export function getFreePresetColors(config: Config, mode: ThemeMode, name: strin
 }
 export function applyFreeColors(colors: Required<FreeColors>): void {
   applyColors(colors);
-  document.documentElement.style.setProperty('--b3-theme-on-surface', 'oklch(from var(--b3-theme-on-background) l c h / 0.65)');
 }
 export function clearFreeColors(): void {
   for (const [, , variable] of colorFields) {
     document.documentElement.style.removeProperty(variable);
   }
-  document.documentElement.style.removeProperty('--b3-theme-on-surface');
 }
 function applyColors(colors: Required<FreeColors>): void {
   for (const [key, , variable] of colorFields) {
@@ -372,7 +370,7 @@ export async function showFreeSettings(): Promise<void> {
   dialog.element.querySelector('#neo-free-reference')?.addEventListener('click', () => {
     if (!isCurrent() || saving) return;
     const root = document.documentElement;
-    const variables = [...colorFields.map(([, , variable]) => variable), '--b3-theme-on-surface'];
+    const variables = colorFields.map(([, , variable]) => variable);
     const snapshot = variables.map(variable => [
       variable,
       root.style.getPropertyValue(variable),
@@ -390,7 +388,6 @@ export async function showFreeSettings(): Promise<void> {
       imported => {
         if (!isCurrent() || getThemeMode() !== mode) return;
         applyColors(imported);
-        root.style.setProperty('--b3-theme-on-surface', 'oklch(from var(--b3-theme-on-background) l c h / 0.65)');
       },
       async (imported, suggestedName) => {
         if (dirty && !await confirmPresetAction(i18n.freeUnsavedTitle, i18n.freeReferenceUnsavedContent, i18n.freeReferenceUnsavedConfirm, i18n.freeUnsavedBack)) return false;
