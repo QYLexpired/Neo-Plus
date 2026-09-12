@@ -70,16 +70,10 @@ export function clearFreeColors(): void {
     document.documentElement.style.removeProperty(variable);
   }
   document.documentElement.style.removeProperty('--b3-theme-on-surface');
-  document.documentElement.style.removeProperty('--b3-theme-primary');
 }
 function applyColors(colors: Required<FreeColors>): void {
   for (const [key, , variable] of colorFields) {
     document.documentElement.style.setProperty(variable, colors[key]);
-    if (key === 'accent') {
-      document.documentElement.style.setProperty('--b3-theme-primary', getThemeMode() === 'dark'
-        ? 'oklch(from var(--b3-theme-accent) clamp(0.68, l, 0.72) c h)'
-        : 'oklch(from var(--b3-theme-accent) clamp(0.6, l, 0.68) c h)');
-    }
   }
 }
 export function initFree(config: Config): void {
@@ -378,7 +372,7 @@ export async function showFreeSettings(): Promise<void> {
   dialog.element.querySelector('#neo-free-reference')?.addEventListener('click', () => {
     if (!isCurrent() || saving) return;
     const root = document.documentElement;
-    const variables = [...colorFields.map(([, , variable]) => variable), '--b3-theme-primary', '--b3-theme-on-surface'];
+    const variables = [...colorFields.map(([, , variable]) => variable), '--b3-theme-on-surface'];
     const snapshot = variables.map(variable => [
       variable,
       root.style.getPropertyValue(variable),
