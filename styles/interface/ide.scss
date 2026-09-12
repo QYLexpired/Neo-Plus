@@ -43,7 +43,7 @@
             }
         }
     }
-    .dockPanel .block__icons {
+    .dockPanel > .block__icons {
         margin-top: 0;
         .neo-superfusion & {
             margin-top: -6px;

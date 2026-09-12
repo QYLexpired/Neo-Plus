@@ -1,3 +1,6 @@
+html.neo-enabled::after {
+    display: none !important; // 隐藏neo+插件安装提示
+}
 .neo-config-name-tip {
     margin-left: 6px;
     font-size: 0.8em;
