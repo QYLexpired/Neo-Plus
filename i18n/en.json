@@ -503,6 +503,8 @@
   "coloredListsInitialHueTip": "Set the initial hue of the first list item",
   "coloredHeadings": "Colored Headings",
   "coloredHeadingsSettings": "Colored Headings Settings",
+  "coloredHeadingsOutline": "Colored Outline",
+  "coloredHeadingsOutlineTip": "Outline headings follow heading colors",
   "coloredHeadingsColorStyle": "Color Style",
   "coloredHeadingsColorStyleTip": "Set the color style of colored headings",
   "coloredHeadingsColorStyleSoft": "Soft",

@@ -82,6 +82,7 @@ export interface Config {
   'coloredlists-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
   'coloredlists-initial-hue'?: number;
   'coloredheadings'?: boolean;
+  'coloredheadings-outline'?: boolean;
   'coloredheadings-colorstyle'?: 'soft' | 'default' | 'vivid';
   'coloredheadings-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
   'coloredheadings-initial-hue'?: number;

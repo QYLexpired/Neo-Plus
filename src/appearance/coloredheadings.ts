@@ -10,6 +10,7 @@ const defaultInitialHue = 0;
 let coloredHeadingsColorStyle: ColoredHeadingsColorStyle = 'default';
 let initialHueRule: InitialHueRule = 'theme';
 let initialHue = defaultInitialHue;
+let outlineFollow = true;
 let neoFeatureActive = false;
 function normalizeInitialHue(value: unknown): number {
   const parsed = Number(value);
@@ -41,6 +42,7 @@ function applyColorStyle(): void {
 function applySettings(): void {
   applyColorStyle();
   applyInitialHue();
+  document.body.classList.toggle('neo-coloredheadings-outline', outlineFollow);
 }
 function enableColoredHeadings(): void {
   if (neoFeatureActive) return;
@@ -56,6 +58,7 @@ export function initColoredHeadings(): void {
     coloredHeadingsColorStyle = normalizeColorStyle(config['coloredheadings-colorstyle']);
     initialHueRule = normalizeInitialHueRule(config['coloredheadings-initial-hue-rule']);
     initialHue = normalizeInitialHue(config['coloredheadings-initial-hue']);
+    outlineFollow = config['coloredheadings-outline'] !== false;
     if (neoFeatureActive) {
       applySettings();
     } else if (config['coloredheadings'] === true) {
@@ -84,6 +87,14 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <div class="config__tab-container">
       <div class="config-group">
         <div class="config-items">
+          <label class="fn__flex b3-label config-item">
+            <div class="fn__flex-1 config-item__main">
+              <div class="config-name">${i18n.coloredHeadingsOutline}</div>
+              <div class="b3-label__text">${i18n.coloredHeadingsOutlineTip}</div>
+            </div>
+            <span class="fn__space"></span>
+            <input class="b3-switch fn__flex-center" id="neo-coloredheadings-outline" type="checkbox">
+          </label>
           <label class="fn__flex b3-label config-item">
             <div class="fn__flex-1 config-item__main">
               <div class="config-name">${i18n.coloredHeadingsInitialHueRule}</div>
@@ -132,6 +143,8 @@ export function showColoredHeadingsSettings(): void {
     content: buildSettingsHTML(plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
+  const outlineSwitch = dialog.element.querySelector('#neo-coloredheadings-outline') as HTMLInputElement | null;
+  if (outlineSwitch) outlineSwitch.checked = outlineFollow;
   const colorStyleSelect = dialog.element.querySelector('#neo-coloredheadings-colorstyle') as HTMLSelectElement | null;
   const ruleSelect = dialog.element.querySelector('#neo-coloredheadings-initial-hue-rule') as HTMLSelectElement | null;
   const hueItem = dialog.element.querySelector('#neo-coloredheadings-initial-hue-item') as HTMLElement | null;
@@ -168,7 +181,9 @@ export function showColoredHeadingsSettings(): void {
     coloredHeadingsColorStyle = newColorStyle;
     initialHueRule = newRule;
     initialHue = newHue;
+    outlineFollow = outlineSwitch?.checked ?? outlineFollow;
     saveConfig({
+      'coloredheadings-outline': outlineFollow,
       'coloredheadings-colorstyle': newColorStyle,
       'coloredheadings-initial-hue-rule': newRule,
       'coloredheadings-initial-hue': newHue,
@@ -180,6 +195,7 @@ export function showColoredHeadingsSettings(): void {
 export function destroyColoredHeadings(): void {
   neoFeatureActive = false;
   removeCss('appearance-coloredheadings');
+  document.body?.classList.remove('neo-coloredheadings-outline');
   document.documentElement?.classList.remove('neo-coloredheadings', 'neo-coloredheadings-accent');
   document.documentElement?.style.removeProperty('--_coloredheadings-initial-hue');
   document.documentElement?.style.removeProperty('--_coloredheadings-c');

@@ -503,6 +503,8 @@
   "coloredListsInitialHueTip": "设置第一个列表项的初始色相值",
   "coloredHeadings": "彩色标题",
   "coloredHeadingsSettings": "配置彩色标题",
+  "coloredHeadingsOutline": "彩色大纲",
+  "coloredHeadingsOutlineTip": "大纲标题跟随着色",
   "coloredHeadingsColorStyle": "色彩风格",
   "coloredHeadingsColorStyleTip": "设置彩色标题的色彩风格",
   "coloredHeadingsColorStyleSoft": "柔和",
