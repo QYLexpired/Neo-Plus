@@ -1,7 +1,7 @@
 import { isMobile } from '../modules/env';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { getPlugin } from '../main/context';
 import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
@@ -269,10 +269,10 @@ function enableMulticolumnSlashMenu(): void {
   neoFeatureActive = true;
   ensureKeydownHandler(arrowKeysOn);
 }
-export function initMulticolumnSlashMenu(): void {
+export function initMulticolumnSlashMenu(): Promise<void> | void {
   if (isMobile()) return;
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     arrowKeysOn = config['multicolumnslashmenu-arrowkeys'] !== false;
     if (neoFeatureActive) {
@@ -286,10 +286,10 @@ export function onMulticolumnSlashMenuClick(): void {
   if (isMobile()) return;
   if (neoFeatureActive) {
     destroyMulticolumnSlashMenu();
-    saveConfig({ 'multicolumnslashmenu': false } as Partial<Config>);
+    saveConfig({ 'multicolumnslashmenu': false });
   } else {
     enableMulticolumnSlashMenu();
-    saveConfig({ 'multicolumnslashmenu': true } as Partial<Config>);
+    saveConfig({ 'multicolumnslashmenu': true });
   }
 }
 function buildMulticolumnSlashMenuSettingsHTML(i18n: Record<string, string>): string {
@@ -330,7 +330,7 @@ export function showMulticolumnSlashMenuSettings(): void {
     if (arrowKeysCheckbox) {
       const newValue = arrowKeysCheckbox.checked;
       arrowKeysOn = newValue;
-      saveConfig({ 'multicolumnslashmenu-arrowkeys': newValue } as Partial<Config>);
+      saveConfig({ 'multicolumnslashmenu-arrowkeys': newValue });
       if (neoFeatureActive) {
         ensureKeydownHandler(arrowKeysOn);
       }

@@ -25,21 +25,21 @@ function handleModeChange(event: Event): void {
   if (!select.matches('[id="appearance.__themeMode"]')) return;
   startTransition();
 }
-let _handler: ((event: MouseEvent) => void) | null = null;
-let _changeHandler: ((event: Event) => void) | null = null;
+let handler: ((event: MouseEvent) => void) | null = null;
+let changeHandler: ((event: Event) => void) | null = null;
 export function initModeTransition(): void {
-  _handler = handleModeSwitch;
-  document.addEventListener('mouseup', _handler);
-  _changeHandler = handleModeChange;
-  document.addEventListener('change', _changeHandler);
+  handler = handleModeSwitch;
+  document.addEventListener('mouseup', handler);
+  changeHandler = handleModeChange;
+  document.addEventListener('change', changeHandler);
 }
 export function destroyModeTransition(): void {
-  if (_handler) {
-    document.removeEventListener('mouseup', _handler);
-    _handler = null;
+  if (handler) {
+    document.removeEventListener('mouseup', handler);
+    handler = null;
   }
-  if (_changeHandler) {
-    document.removeEventListener('change', _changeHandler);
-    _changeHandler = null;
+  if (changeHandler) {
+    document.removeEventListener('change', changeHandler);
+    changeHandler = null;
   }
 }

@@ -3,8 +3,8 @@ const statusSelector = '#status';
 const targetSelector =
   '.layout__wnd--active > .layout-tab-container > .fn__flex-1:not(.fn__none):not(.protyle)';
 let statusObserver: MutationObserver | null = null;
-const _fetchListener = fetchListener();
-_fetchListener.onNotify('setUILayout', () => { checkAndToggleStatus(); });
+const fetchMonitor = fetchListener();
+fetchMonitor.onNotify('setUILayout', () => { checkAndToggleStatus(); });
 function checkAndToggleStatus(): void {
   const target = document.querySelector<HTMLElement>(targetSelector);
   const statusEl = document.querySelector<HTMLElement>(statusSelector);
@@ -17,7 +17,7 @@ function checkAndToggleStatus(): void {
 }
 function waitForStatusEl(): void {
   if (document.querySelector(statusSelector)) {
-    _fetchListener.attach();
+    fetchMonitor.attach();
     checkAndToggleStatus();
     return;
   }
@@ -25,7 +25,7 @@ function waitForStatusEl(): void {
     if (document.querySelector(statusSelector)) {
       observer.disconnect();
       statusObserver = null;
-      _fetchListener.attach();
+      fetchMonitor.attach();
       checkAndToggleStatus();
     }
   });
@@ -38,7 +38,7 @@ export function initStatusHidden(): void {
   waitForStatusEl();
 }
 export function destroyStatusHidden(): void {
-  _fetchListener.detach();
+  fetchMonitor.detach();
   if (statusObserver) {
     statusObserver.disconnect();
     statusObserver = null;

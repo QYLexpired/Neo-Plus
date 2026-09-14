@@ -1,28 +1,14 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { type InitialHueRule, type ColorStyle, defaultInitialHue, normalizeInitialHue, normalizeColorStyle, normalizeInitialHueRule } from './color';
+import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { getPlugin } from '../main/context';
 import { Dialog } from '../modules/dialog';
-type InitialHueRule = 'theme' | 'fixed' | 'accent';
-type ColoredListsColorStyle = 'soft' | 'default' | 'vivid';
-const defaultInitialHue = 0;
-let coloredListsColorStyle: ColoredListsColorStyle = 'default';
+let coloredListsColorStyle: ColorStyle = 'default';
 let initialHueRule: InitialHueRule = 'theme';
 let initialHue = defaultInitialHue;
 let neoFeatureActive = false;
-function normalizeInitialHue(value: unknown): number {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return defaultInitialHue;
-  return Math.min(360, Math.max(0, Math.round(parsed)));
-}
-function normalizeColorStyle(value: unknown): ColoredListsColorStyle {
-  if (value === 'soft' || value === 'vivid') return value;
-  return 'default';
-}
-function normalizeInitialHueRule(value: unknown): InitialHueRule {
-  return value === 'fixed' || value === 'accent' ? value : 'theme';
-}
 function applyInitialHue(): void {
   document.documentElement.classList.toggle('neo-coloredlists-accent', initialHueRule === 'accent');
   if (initialHueRule === 'fixed') {
@@ -49,9 +35,9 @@ function enableColoredLists(): void {
   neoFeatureActive = true;
   applySettings();
 }
-export function initColoredLists(): void {
+export function initColoredLists(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     coloredListsColorStyle = normalizeColorStyle(config['coloredlists-colorstyle']);
     initialHueRule = normalizeInitialHueRule(config['coloredlists-initial-hue-rule']);
@@ -66,10 +52,10 @@ export function initColoredLists(): void {
 export function onColoredListsClick(): void {
   if (neoFeatureActive) {
     destroyColoredLists();
-    saveConfig({ 'coloredlists': false } as Partial<Config>);
+    saveConfig({ 'coloredlists': false });
   } else {
     enableColoredLists();
-    saveConfig({ 'coloredlists': true } as Partial<Config>);
+    saveConfig({ 'coloredlists': true });
   }
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
@@ -172,7 +158,7 @@ export function showColoredListsSettings(): void {
       'coloredlists-colorstyle': newColorStyle,
       'coloredlists-initial-hue-rule': newRule,
       'coloredlists-initial-hue': newHue,
-    } as Partial<Config>);
+    });
     if (neoFeatureActive) applySettings();
     dialog.destroy();
   });

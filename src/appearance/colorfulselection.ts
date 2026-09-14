@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
@@ -9,9 +9,9 @@ function enableColorfulSelection(): void {
   document.documentElement.classList.add('neo-colorfulselection');
   neoFeatureActive = true;
 }
-export function initColorfulSelection(): void {
+export function initColorfulSelection(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     if (config['colorfulselection'] === true) {
       enableColorfulSelection();
@@ -21,10 +21,10 @@ export function initColorfulSelection(): void {
 export function onColorfulSelectionClick(): void {
   if (neoFeatureActive) {
     destroyColorfulSelection();
-    saveConfig({ 'colorfulselection': false } as Partial<Config>);
+    saveConfig({ 'colorfulselection': false });
   } else {
     enableColorfulSelection();
-    saveConfig({ 'colorfulselection': true } as Partial<Config>);
+    saveConfig({ 'colorfulselection': true });
   }
 }
 export function destroyColorfulSelection(): void {

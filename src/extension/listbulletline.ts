@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
@@ -171,9 +171,9 @@ function enableListBulletLine(): void {
   neoFeatureActive = true;
   bindSelectionChange();
 }
-export function initListBulletLine(): void {
+export function initListBulletLine(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     if (config['listbulletline'] === true) {
       enableListBulletLine();
@@ -183,10 +183,10 @@ export function initListBulletLine(): void {
 export function onListBulletLineClick(): void {
   if (neoFeatureActive) {
     destroyListBulletLine();
-    saveConfig({ 'listbulletline': false } as Partial<Config>);
+    saveConfig({ 'listbulletline': false });
   } else {
     enableListBulletLine();
-    saveConfig({ 'listbulletline': true } as Partial<Config>);
+    saveConfig({ 'listbulletline': true });
   }
 }
 export function destroyListBulletLine(): void {

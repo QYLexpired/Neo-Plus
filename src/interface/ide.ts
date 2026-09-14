@@ -2,7 +2,7 @@ import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 interface DebouncedTask {
   schedule: () => void;
@@ -84,9 +84,9 @@ function updateDockExpandAndFloat(): void {
   updateDockExpandState();
   updateFloatState();
 }
-const _debouncedUpdate = createDebouncedTask(updateDockExpandAndFloat, 50);
+const debouncedUpdate = createDebouncedTask(updateDockExpandAndFloat, 50);
 function onInteractionUp(): void {
-  _debouncedUpdate.schedule();
+  debouncedUpdate.schedule();
 }
 function attachEvents(): void {
   document.addEventListener('mouseup', onInteractionUp, { passive: true });
@@ -96,7 +96,7 @@ function detachEvents(): void {
   document.removeEventListener('mouseup', onInteractionUp);
   document.removeEventListener('keyup', onInteractionUp);
 }
-let _fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
 let neoFeatureActive = false;
 function enableIde(): void {
   if (neoFeatureActive) return;
@@ -106,18 +106,18 @@ function enableIde(): void {
   neoFeatureActive = true;
   attachEvents();
 }
-export function initIde(): void {
+export function initIde(): Promise<void> | void {
   if (isMobile()) return;
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     if (config['ide'] === true) {
       if (neoFeatureActive) return;
       enableIde();
       updateDockExpandState();
-      _fallbackTimer = setTimeout(() => {
+      fallbackTimer = setTimeout(() => {
         updateFloatState();
-        _fallbackTimer = null;
+        fallbackTimer = null;
       }, 500);
     }
   });
@@ -130,26 +130,26 @@ export function onIdeClick(): void {
     if (!isCurrent()) return;
     if (shouldEnable) {
       enableIde();
-      saveConfig({ 'ide': true } as Partial<Config>);
+      saveConfig({ 'ide': true });
       updateDockExpandAndFloat();
-      _fallbackTimer = setTimeout(() => {
+      fallbackTimer = setTimeout(() => {
         updateDockExpandAndFloat();
-        _fallbackTimer = null;
+        fallbackTimer = null;
       }, 200);
     } else {
       destroyIde();
-      saveConfig({ 'ide': false } as Partial<Config>);
+      saveConfig({ 'ide': false });
     }
   });
 }
 export function destroyIde(): void {
   neoFeatureActive = false;
   removeCss('interface-ide');
-  if (_fallbackTimer !== null) {
-    clearTimeout(_fallbackTimer);
-    _fallbackTimer = null;
+  if (fallbackTimer !== null) {
+    clearTimeout(fallbackTimer);
+    fallbackTimer = null;
   }
-  _debouncedUpdate.cancel();
+  debouncedUpdate.cancel();
   detachEvents();
   document.body.classList.remove(
     'neo-dockl-not-expand',

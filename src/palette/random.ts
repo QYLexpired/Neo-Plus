@@ -402,14 +402,14 @@ export function showRandomSettings(): void {
       const newHighContrast = highContrastSelect.value as 'random' | 'on' | 'off';
       if (newHighContrast !== randomHighContrast) {
         randomHighContrast = newHighContrast;
-        saveConfig({ 'random-highcontrast': newHighContrast } as Partial<Config>);
+        saveConfig({ 'random-highcontrast': newHighContrast });
       }
     }
     if (invertSelect) {
       const newInvert = invertSelect.value as 'random' | 'on' | 'off';
       if (newInvert !== randomInvert) {
         randomInvert = newInvert;
-        saveConfig({ 'random-invert': newInvert } as Partial<Config>);
+        saveConfig({ 'random-invert': newInvert });
       }
     }
     if (saturationMinSlider && saturationMaxSlider) {
@@ -421,7 +421,7 @@ export function showRandomSettings(): void {
         saveConfig({
           'random-saturation-min': randomSaturationMin,
           'random-saturation-max': randomSaturationMax,
-        } as Partial<Config>);
+        });
       }
     }
     if (brightnessMinSlider && brightnessMaxSlider) {
@@ -433,7 +433,7 @@ export function showRandomSettings(): void {
         saveConfig({
           'random-brightness-min': randomBrightnessMin,
           'random-brightness-max': randomBrightnessMax,
-        } as Partial<Config>);
+        });
       }
     }
     dialog.destroy();
@@ -448,9 +448,9 @@ export function showRandomSettings(): void {
     });
   });
 }
-export function initRandomSettings(): void {
+export function initRandomSettings(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     randomScope = normalizeRandomScope(config['random-scope']);
     randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
@@ -490,7 +490,7 @@ function applyDefaultRandom(): void {
   document.documentElement.classList.add('neo-palette-default');
   lastState = { type: 'preset', presetKey: 'default', inverted: false, highContrast: false };
 }
-function applyPresetRandom(config: Config, mode: ThemeMode): void {
+function applyPresetRandom(mode: ThemeMode): void {
   const html = document.documentElement;
   const available = getPresetsByMode(mode);
   if (available.length === 0) {
@@ -541,7 +541,7 @@ function applyFreeRandom(config: Config, mode: ThemeMode, pool: 'free' | 'librar
   setFreePresetAttr(name);
   lastState = { type: pool, presetKey: selected, freeName: name, inverted: finalInverted, highContrast: finalHighContrast };
 }
-function applyCustomRandom(config: Config, mode: ThemeMode): void {
+function applyCustomRandom(): void {
   const html = document.documentElement;
   html.classList.add('neo-palette-custom');
   const color = lastState?.type === 'custom' && lastState.color
@@ -588,10 +588,10 @@ function applyRandom(config: Config): void {
   destroyInvert();
   destroyHighContrast();
   const pool = pickRandomPool(config, mode);
-  if (pool === 'preset') applyPresetRandom(config, mode);
+  if (pool === 'preset') applyPresetRandom(mode);
   else if (pool === 'free' || pool === 'library') applyFreeRandom(config, mode, pool);
   else if (pool === 'default') applyDefaultRandom();
-  else applyCustomRandom(config, mode);
+  else applyCustomRandom();
 }
 export function refreshRandom(config: Config): boolean {
   if (!neoFeatureActive) return false;

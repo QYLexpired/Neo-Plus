@@ -1,13 +1,13 @@
 import { fetchListener } from '../modules/fetchmonitor';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 const fetchMonitor = fetchListener();
 const searchListSelectors = ['#searchList', '#searchAssetList', '#searchUnRefList'];
 const settleInterval = 50;
 const settleLimit = 10;
-let featureActive = false;
+let neoFeatureActive = false;
 let settleTimer: ReturnType<typeof setTimeout> | undefined;
 let settlePassesLeft = 0;
 function cancelSettleFallback(): void {
@@ -18,7 +18,7 @@ function cancelSettleFallback(): void {
   settlePassesLeft = 0;
 }
 function reconcileCardSearchListClass(): boolean {
-  if (!featureActive) return true;
+  if (!neoFeatureActive) return true;
   let anyItem = false;
   try {
     const results = searchListSelectors
@@ -39,7 +39,7 @@ function reconcileCardSearchListClass(): boolean {
   return anyItem;
 }
 function scheduleSettlePass(): void {
-  if (!featureActive || settlePassesLeft <= 0) return;
+  if (!neoFeatureActive || settlePassesLeft <= 0) return;
   settlePassesLeft--;
   settleTimer = setTimeout(() => {
     settleTimer = undefined;
@@ -48,7 +48,7 @@ function scheduleSettlePass(): void {
   }, settleInterval);
 }
 function armSettleFallback(): void {
-  if (!featureActive) return;
+  if (!neoFeatureActive) return;
   if (settleTimer) {
     clearTimeout(settleTimer);
     settleTimer = undefined;
@@ -57,7 +57,7 @@ function armSettleFallback(): void {
   scheduleSettlePass();
 }
 function onSearchActivity(): void {
-  if (!featureActive) return;
+  if (!neoFeatureActive) return;
   if (!reconcileCardSearchListClass()) {
     armSettleFallback();
   }
@@ -67,16 +67,16 @@ fetchMonitor.onNotify('getCriteria', onSearchActivity);
 fetchMonitor.onNotify('fullTextSearchAssetContent', onSearchActivity);
 fetchMonitor.onNotify('getRecentUpdatedBlocks', onSearchActivity);
 function enableCardSearchList(): void {
-  if (featureActive) return;
+  if (neoFeatureActive) return;
   ensureCss('extension-cardsearchlist', featureCss['extension-cardsearchlist']);
   document.documentElement.classList.add('neo-cardsearchlist');
-  featureActive = true;
+  neoFeatureActive = true;
   fetchMonitor.attach();
   onSearchActivity();
 }
-export function initCardSearchList(): void {
+export function initCardSearchList(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     if (config['cardsearchlist'] === true) {
       enableCardSearchList();
@@ -84,16 +84,16 @@ export function initCardSearchList(): void {
   });
 }
 export function onCardSearchListClick(): void {
-  if (featureActive) {
+  if (neoFeatureActive) {
     destroyCardSearchList();
-    saveConfig({ 'cardsearchlist': false } as Partial<Config>);
+    saveConfig({ 'cardsearchlist': false });
   } else {
     enableCardSearchList();
-    saveConfig({ 'cardsearchlist': true } as Partial<Config>);
+    saveConfig({ 'cardsearchlist': true });
   }
 }
 export function destroyCardSearchList(): void {
-  featureActive = false;
+  neoFeatureActive = false;
   cancelSettleFallback();
   try {
     removeCss('extension-cardsearchlist');

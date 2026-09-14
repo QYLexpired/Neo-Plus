@@ -193,7 +193,7 @@ export function showPresetTextureSettings(
       'texture-settings': Object.fromEntries(
         Object.entries(presetTextureSettings).map(([key, settings]) => [key, { ...settings }]),
       ),
-    } as Partial<Config>);
+    });
     onApply();
     dialog.destroy();
   });

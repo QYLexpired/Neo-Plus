@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
@@ -65,7 +65,7 @@ export function showSuperFusionSettings(): void {
       const newMode = modeSelect.value as 'blur' | 'frostedGlass' | 'liquidGlass';
       if (newMode !== superFusionMode) {
         superFusionMode = newMode;
-        saveConfig({ 'superfusion-mode': newMode } as Partial<Config>);
+        saveConfig({ 'superfusion-mode': newMode });
         if (neoFeatureActive) {
           applyModeClass();
         }
@@ -74,10 +74,10 @@ export function showSuperFusionSettings(): void {
     dialog.destroy();
   });
 }
-export function initSuperFusion(): void {
+export function initSuperFusion(): Promise<void> | void {
   if (isMobile()) return;
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     superFusionMode = config['superfusion-mode'] || 'blur';
     if (neoFeatureActive) {
@@ -95,10 +95,10 @@ export function onSuperFusionClick(): void {
     if (!isCurrent()) return;
     if (shouldEnable) {
       enableSuperFusion();
-      saveConfig({ 'superfusion': true } as Partial<Config>);
+      saveConfig({ 'superfusion': true });
     } else {
       destroySuperFusion();
-      saveConfig({ 'superfusion': false } as Partial<Config>);
+      saveConfig({ 'superfusion': false });
     }
   });
 }

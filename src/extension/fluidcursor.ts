@@ -1,7 +1,7 @@
 import { isMobile } from '../modules/env';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { getPlugin } from '../main/context';
 import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
@@ -289,53 +289,53 @@ function startFluidCursor(): void {
     if (waveOn) {
       const hadWaves = waves.length > 0;
       try {
-      waves = waves.filter(r => {
-        const age = Math.max(0, (currentTime - r.startTime) / 1000);
-        const dur = r.duration || 0.8;
-        if (age > dur) return false;
-        const s = r.scale || 1;
-        const durInner = dur * 0.68;
-        const durMiddle = dur * 0.82;
-        const durOuter = dur;
-        const progressInner = Math.min(age / durInner, 1);
-        const progressMiddle = Math.min(age / durMiddle, 1);
-        const progressOuter = Math.min(age / durOuter, 1);
-        const fadeInner = 1 - progressInner;
-        const fadeMiddle = 1 - progressMiddle;
-        const fadeOuter = 1 - progressOuter;
-        const r1 = Math.max(0, progressInner * 10 * s);
-        c.beginPath();
-        c.strokeStyle = r.colors[0];
-        c.lineWidth = Math.max(0, 3 * fadeInner * Math.min(s, 1.4));
-        c.globalAlpha = Math.max(0, 0.4 * fadeInner);
-        c.shadowColor = r.colors[0];
-        c.shadowBlur = 2;
-        c.arc(r.x, r.y, r1, 0, Math.PI * 2);
-        c.stroke();
-        c.shadowBlur = 0;
-        const r2 = Math.max(0, progressMiddle * 20 * s);
-        c.beginPath();
-        c.strokeStyle = r.colors[1];
-        c.lineWidth = Math.max(0, 2 * fadeMiddle * Math.min(s, 1.4));
-        c.globalAlpha = Math.max(0, 0.25 * fadeMiddle);
-        c.shadowColor = r.colors[1];
-        c.shadowBlur = 5;
-        c.arc(r.x, r.y, r2, 0, Math.PI * 2);
-        c.stroke();
-        c.shadowBlur = 0;
-        const r3 = Math.max(0, progressOuter * 32 * s);
-        c.beginPath();
-        c.strokeStyle = r.colors[2];
-        c.lineWidth = Math.max(0, 1.5 * fadeOuter + 0.2);
-        c.globalAlpha = Math.max(0, 0.15 * fadeOuter);
-        c.shadowColor = r.colors[2];
-        c.shadowBlur = 10;
-        c.arc(r.x, r.y, r3, 0, Math.PI * 2);
-        c.stroke();
-        c.shadowBlur = 0;
-        c.globalAlpha = 1;
-        return true;
-      });
+        waves = waves.filter(r => {
+          const age = Math.max(0, (currentTime - r.startTime) / 1000);
+          const dur = r.duration || 0.8;
+          if (age > dur) return false;
+          const s = r.scale || 1;
+          const durInner = dur * 0.68;
+          const durMiddle = dur * 0.82;
+          const durOuter = dur;
+          const progressInner = Math.min(age / durInner, 1);
+          const progressMiddle = Math.min(age / durMiddle, 1);
+          const progressOuter = Math.min(age / durOuter, 1);
+          const fadeInner = 1 - progressInner;
+          const fadeMiddle = 1 - progressMiddle;
+          const fadeOuter = 1 - progressOuter;
+          const r1 = Math.max(0, progressInner * 10 * s);
+          c.beginPath();
+          c.strokeStyle = r.colors[0];
+          c.lineWidth = Math.max(0, 3 * fadeInner * Math.min(s, 1.4));
+          c.globalAlpha = Math.max(0, 0.4 * fadeInner);
+          c.shadowColor = r.colors[0];
+          c.shadowBlur = 2;
+          c.arc(r.x, r.y, r1, 0, Math.PI * 2);
+          c.stroke();
+          c.shadowBlur = 0;
+          const r2 = Math.max(0, progressMiddle * 20 * s);
+          c.beginPath();
+          c.strokeStyle = r.colors[1];
+          c.lineWidth = Math.max(0, 2 * fadeMiddle * Math.min(s, 1.4));
+          c.globalAlpha = Math.max(0, 0.25 * fadeMiddle);
+          c.shadowColor = r.colors[1];
+          c.shadowBlur = 5;
+          c.arc(r.x, r.y, r2, 0, Math.PI * 2);
+          c.stroke();
+          c.shadowBlur = 0;
+          const r3 = Math.max(0, progressOuter * 32 * s);
+          c.beginPath();
+          c.strokeStyle = r.colors[2];
+          c.lineWidth = Math.max(0, 1.5 * fadeOuter + 0.2);
+          c.globalAlpha = Math.max(0, 0.15 * fadeOuter);
+          c.shadowColor = r.colors[2];
+          c.shadowBlur = 10;
+          c.arc(r.x, r.y, r3, 0, Math.PI * 2);
+          c.stroke();
+          c.shadowBlur = 0;
+          c.globalAlpha = 1;
+          return true;
+        });
       } catch {}
       if (hadWaves && waves.length === 0 && trailOn && !isShrinking && !isMouseDown) {
         scheduleHideCursor();
@@ -502,16 +502,16 @@ export function showFluidCursorSettings(): void {
       saveConfig({
         'fluidcursor-trail': trailCheckbox.checked,
         'fluidcursor-wave': waveCheckbox.checked,
-      } as Partial<Config>);
+      });
       applyFluidCursorOptions(trailCheckbox.checked, waveCheckbox.checked);
     }
     dialog.destroy();
   });
 }
-export function initFluidCursor(): void {
+export function initFluidCursor(): Promise<void> | void {
   if (isMobile()) return;
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     trailOn = config['fluidcursor-trail'] !== false;
     waveOn = config['fluidcursor-wave'] !== false;
@@ -524,9 +524,9 @@ export function onFluidCursorClick(): void {
   if (isMobile()) return;
   if (neoFeatureActive) {
     destroyFluidCursor();
-    saveConfig({ 'fluidcursor': false } as Partial<Config>);
+    saveConfig({ 'fluidcursor': false });
   } else {
-    saveConfig({ 'fluidcursor': true } as Partial<Config>);
+    saveConfig({ 'fluidcursor': true });
     enableFluidCursor();
   }
 }

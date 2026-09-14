@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { getPlugin } from '../main/context';
 import { getTextColor } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
@@ -110,9 +110,9 @@ function stopObserving(): void {
   }
   clearAllFocusBlocks();
 }
-export function initFocusBlockIndicator(): void {
+export function initFocusBlockIndicator(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     focusBlockEffect = config['focusblockindicator-effect'] || 'vertical-line';
     if (neoFeatureActive) {
@@ -125,10 +125,10 @@ export function initFocusBlockIndicator(): void {
 export function onFocusBlockIndicatorClick(): void {
   if (neoFeatureActive) {
     destroyFocusBlockIndicator();
-    saveConfig({ 'focusblockindicator': false } as Partial<Config>);
+    saveConfig({ 'focusblockindicator': false });
   } else {
     enableFocusBlockIndicator();
-    saveConfig({ 'focusblockindicator': true } as Partial<Config>);
+    saveConfig({ 'focusblockindicator': true });
   }
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
@@ -175,7 +175,7 @@ export function showFocusBlockIndicatorSettings(): void {
       const newEffect = effectSelect.value as 'vertical-line' | 'shadow' | 'background';
       if (newEffect !== focusBlockEffect) {
         focusBlockEffect = newEffect;
-        saveConfig({ 'focusblockindicator-effect': newEffect } as Partial<Config>);
+        saveConfig({ 'focusblockindicator-effect': newEffect });
         if (neoFeatureActive) {
           applyFocusBlockEffect();
         }

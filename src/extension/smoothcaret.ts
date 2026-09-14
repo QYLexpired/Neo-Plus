@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { getPlugin } from '../main/context';
 import { getCursorRect, getTextColor, getScrollContainer, getCharWidthAtCursor } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
@@ -7,7 +7,7 @@ import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let smoothCaretEventHandler: (() => void) | null = null;
 let throttledCaretEventHandler: (() => void) | null = null;
-let _throttleTimer: number | null = null;
+let throttleTimer: number | null = null;
 let caretAnimationFrame: number | null = null;
 let cachedZIndex = 0;
 let lastTargetElement: Element | null = null;
@@ -153,15 +153,15 @@ function startSmoothCaret(): void {
   }
   function handleThrottledCaretUpdate(): void {
     handleCaretUpdateTrigger();
-    if (_throttleTimer !== null) clearTimeout(_throttleTimer);
-    _throttleTimer = window.setTimeout(() => {
-      _throttleTimer = null;
+    if (throttleTimer !== null) clearTimeout(throttleTimer);
+    throttleTimer = window.setTimeout(() => {
+      throttleTimer = null;
       handleCaretUpdateTrigger();
-      _throttleTimer = window.setTimeout(() => {
-        _throttleTimer = null;
+      throttleTimer = window.setTimeout(() => {
+        throttleTimer = null;
         handleCaretUpdateTrigger();
-        _throttleTimer = window.setTimeout(() => {
-          _throttleTimer = null;
+        throttleTimer = window.setTimeout(() => {
+          throttleTimer = null;
           handleCaretUpdateTrigger();
         }, 200);
       }, 200);
@@ -258,7 +258,7 @@ export function showSmoothCaretSettings(): void {
       const newEase = easeSelect.value as 'elegant' | 'shuttle' | 'drift' | 'spring';
       if (newEase !== smoothCaretEase) {
         smoothCaretEase = newEase;
-        saveConfig({ 'smoothcaret-ease': newEase } as Partial<Config>);
+        saveConfig({ 'smoothcaret-ease': newEase });
         if (neoFeatureActive) {
           applySmoothCaretEase();
         }
@@ -268,7 +268,7 @@ export function showSmoothCaretSettings(): void {
       const newMotion = motionSelect.value as 'static' | 'breathing' | 'stretch';
       if (newMotion !== smoothCaretMotion) {
         smoothCaretMotion = newMotion;
-        saveConfig({ 'smoothcaret-motion': newMotion } as Partial<Config>);
+        saveConfig({ 'smoothcaret-motion': newMotion });
         if (neoFeatureActive) {
           applySmoothCaretMotion();
         }
@@ -278,7 +278,7 @@ export function showSmoothCaretSettings(): void {
       const newStyle = styleSelect.value as 'default' | 'neon' | 'rainbow' | 'block' | 'underline';
       if (newStyle !== smoothCaretStyle) {
         smoothCaretStyle = newStyle;
-        saveConfig({ 'smoothcaret-style': newStyle } as Partial<Config>);
+        saveConfig({ 'smoothcaret-style': newStyle });
         if (neoFeatureActive) {
           applySmoothCaretStyle();
         }
@@ -302,9 +302,9 @@ export function destroySmoothCaret(): void {
     'neo-smoothcaret-style-block',
     'neo-smoothcaret-style-underline'
   );
-  if (_throttleTimer !== null) {
-    clearTimeout(_throttleTimer);
-    _throttleTimer = null;
+  if (throttleTimer !== null) {
+    clearTimeout(throttleTimer);
+    throttleTimer = null;
   }
   if (caretAnimationFrame !== null) {
     window.cancelAnimationFrame(caretAnimationFrame);
@@ -325,9 +325,9 @@ export function destroySmoothCaret(): void {
     throttledCaretEventHandler = null;
   }
 }
-export function initSmoothCaret(): void {
+export function initSmoothCaret(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     smoothCaretMotion = config['smoothcaret-motion'] || 'static';
     smoothCaretEase = config['smoothcaret-ease'] || 'elegant';
@@ -344,9 +344,9 @@ export function initSmoothCaret(): void {
 export function onSmoothCaretClick(): void {
   if (neoFeatureActive) {
     destroySmoothCaret();
-    saveConfig({ 'smoothcaret': false } as Partial<Config>);
+    saveConfig({ 'smoothcaret': false });
   } else {
     enableSmoothCaret();
-    saveConfig({ 'smoothcaret': true } as Partial<Config>);
+    saveConfig({ 'smoothcaret': true });
   }
 }

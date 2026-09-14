@@ -1,29 +1,15 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { type InitialHueRule, type ColorStyle, defaultInitialHue, normalizeInitialHue, normalizeColorStyle, normalizeInitialHueRule } from './color';
+import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { getPlugin } from '../main/context';
 import { Dialog } from '../modules/dialog';
-type InitialHueRule = 'theme' | 'fixed' | 'accent';
-type ColoredHeadingsColorStyle = 'soft' | 'default' | 'vivid';
-const defaultInitialHue = 0;
-let coloredHeadingsColorStyle: ColoredHeadingsColorStyle = 'default';
+let coloredHeadingsColorStyle: ColorStyle = 'default';
 let initialHueRule: InitialHueRule = 'theme';
 let initialHue = defaultInitialHue;
 let outlineFollow = true;
 let neoFeatureActive = false;
-function normalizeInitialHue(value: unknown): number {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return defaultInitialHue;
-  return Math.min(360, Math.max(0, Math.round(parsed)));
-}
-function normalizeColorStyle(value: unknown): ColoredHeadingsColorStyle {
-  if (value === 'soft' || value === 'vivid') return value;
-  return 'default';
-}
-function normalizeInitialHueRule(value: unknown): InitialHueRule {
-  return value === 'fixed' || value === 'accent' ? value : 'theme';
-}
 function applyInitialHue(): void {
   document.documentElement.classList.toggle('neo-coloredheadings-accent', initialHueRule === 'accent');
   if (initialHueRule === 'fixed') {
@@ -51,9 +37,9 @@ function enableColoredHeadings(): void {
   neoFeatureActive = true;
   applySettings();
 }
-export function initColoredHeadings(): void {
+export function initColoredHeadings(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     coloredHeadingsColorStyle = normalizeColorStyle(config['coloredheadings-colorstyle']);
     initialHueRule = normalizeInitialHueRule(config['coloredheadings-initial-hue-rule']);
@@ -69,10 +55,10 @@ export function initColoredHeadings(): void {
 export function onColoredHeadingsClick(): void {
   if (neoFeatureActive) {
     destroyColoredHeadings();
-    saveConfig({ 'coloredheadings': false } as Partial<Config>);
+    saveConfig({ 'coloredheadings': false });
   } else {
     enableColoredHeadings();
-    saveConfig({ 'coloredheadings': true } as Partial<Config>);
+    saveConfig({ 'coloredheadings': true });
   }
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
@@ -187,7 +173,7 @@ export function showColoredHeadingsSettings(): void {
       'coloredheadings-colorstyle': newColorStyle,
       'coloredheadings-initial-hue-rule': newRule,
       'coloredheadings-initial-hue': newHue,
-    } as Partial<Config>);
+    });
     if (neoFeatureActive) applySettings();
     dialog.destroy();
   });

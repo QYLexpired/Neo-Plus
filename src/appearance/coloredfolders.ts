@@ -1,27 +1,16 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { type InitialHueRule, type ColorStyle, defaultInitialHue, normalizeInitialHue, normalizeColorStyle, normalizeInitialHueRule } from './color';
+import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { getPlugin } from '../main/context';
 import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 type ColoredFoldersLayout = 'partition' | 'simple' | 'card';
-type ColoredFoldersColorStyle = 'soft' | 'default' | 'vivid';
-type InitialHueRule = 'theme' | 'fixed' | 'accent';
-const defaultInitialHue = 0;
 let coloredFoldersLayout: ColoredFoldersLayout = 'partition';
-let coloredFoldersColorStyle: ColoredFoldersColorStyle = 'default';
+let coloredFoldersColorStyle: ColorStyle = 'default';
 let initialHueRule: InitialHueRule = 'theme';
 let initialHue = defaultInitialHue;
 let neoFeatureActive = false;
-function normalizeInitialHue(value: unknown): number {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return defaultInitialHue;
-  return Math.min(360, Math.max(0, Math.round(parsed)));
-}
-function normalizeColorStyle(value: unknown): ColoredFoldersColorStyle {
-  if (value === 'soft' || value === 'vivid') return value;
-  return 'default';
-}
 function applyLayout(): void {
   document.body.classList.toggle('neo-coloredfolders-partition', coloredFoldersLayout === 'partition');
   document.body.classList.toggle('neo-coloredfolders-simple', coloredFoldersLayout === 'simple');
@@ -33,9 +22,6 @@ function applyColorStyle(): void {
     return;
   }
   document.documentElement.style.setProperty('--_coloredfolders-c', coloredFoldersColorStyle === 'soft' ? '0.08' : '0.2');
-}
-function normalizeInitialHueRule(value: unknown): InitialHueRule {
-  return value === 'fixed' || value === 'accent' ? value : 'theme';
 }
 function applyInitialHue(): void {
   document.documentElement.classList.toggle('neo-coloredfolders-accent', initialHueRule === 'accent');
@@ -57,9 +43,9 @@ function enableColoredFolders(): void {
   neoFeatureActive = true;
   applySettings();
 }
-export function initColoredFolders(): void {
+export function initColoredFolders(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     const savedLayout = config['coloredfolders-layout'];
     coloredFoldersLayout = savedLayout === 'simple' || savedLayout === 'card' ? savedLayout : 'partition';
@@ -76,10 +62,10 @@ export function initColoredFolders(): void {
 export function onColoredFoldersClick(): void {
   if (neoFeatureActive) {
     destroyColoredFolders();
-    saveConfig({ 'coloredfolders': false } as Partial<Config>);
+    saveConfig({ 'coloredfolders': false });
   } else {
     enableColoredFolders();
-    saveConfig({ 'coloredfolders': true } as Partial<Config>);
+    saveConfig({ 'coloredfolders': true });
   }
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
@@ -201,7 +187,7 @@ export function showColoredFoldersSettings(): void {
       'coloredfolders-colorstyle': newColorStyle,
       'coloredfolders-initial-hue-rule': newRule,
       'coloredfolders-initial-hue': newHue,
-    } as Partial<Config>);
+    });
     if (neoFeatureActive) applySettings();
     dialog.destroy();
   });

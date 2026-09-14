@@ -261,7 +261,7 @@ export function showVerticalTabsSettings(): void {
         }
         topLeftOnlyLastWidth = null;
         currentMode = newMode;
-        saveConfig({ 'verticaltabs-mode': newMode } as Partial<Config>);
+        saveConfig({ 'verticaltabs-mode': newMode });
         if (neoFeatureActive) {
           doUpdate();
         }
@@ -273,7 +273,7 @@ export function showVerticalTabsSettings(): void {
       if (newWidth !== currentWidth) {
         configWidth = newWidth;
         topLeftOnlyLastWidth = null;
-        saveConfig({ 'verticaltabs-width': newWidth } as Partial<Config>);
+        saveConfig({ 'verticaltabs-width': newWidth });
         if (neoFeatureActive) {
           if (currentMode === 'all') {
             queryWnds().forEach((wnd) => {
@@ -291,8 +291,8 @@ export function showVerticalTabsSettings(): void {
     dialog.destroy();
   });
 }
-const _fetchListener = fetchListener();
-_fetchListener.onNotify('setUILayout', () => { doUpdate(); });
+const fetchMonitor = fetchListener();
+fetchMonitor.onNotify('setUILayout', () => { doUpdate(); });
 function enableVerticalTabs(): void {
   if (neoFeatureActive) return;
   ensureCss('interface-verticaltabs', featureCss['interface-verticaltabs']);
@@ -300,13 +300,13 @@ function enableVerticalTabs(): void {
   neoFeatureActive = true;
   topLeftOnlyLastWidth = null;
   initResizeHandle();
-  _fetchListener.attach();
+  fetchMonitor.attach();
   doUpdate();
 }
-export function initVerticalTabs(): void {
+export function initVerticalTabs(): Promise<void> | void {
   if (isMobile()) return;
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     applyVerticalTabsConfig(config);
     if (neoFeatureActive) {
@@ -325,17 +325,17 @@ export function onVerticalTabsClick(): void {
     if (!isCurrent()) return;
     if (shouldEnable) {
       enableVerticalTabs();
-      saveConfig({ 'verticaltabs': true } as Partial<Config>);
+      saveConfig({ 'verticaltabs': true });
     } else {
       destroyVerticalTabs();
-      saveConfig({ 'verticaltabs': false } as Partial<Config>);
+      saveConfig({ 'verticaltabs': false });
     }
   });
 }
 export function destroyVerticalTabs(): void {
   neoFeatureActive = false;
   removeCss('interface-verticaltabs');
-  _fetchListener.detach();
+  fetchMonitor.detach();
   destroyResizeHandle();
   document.documentElement?.classList.remove('neo-verticaltabs');
   clearVerticalTabsLayout();

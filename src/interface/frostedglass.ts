@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
@@ -61,7 +61,7 @@ export function showFrostedGlassSettings(): void {
       const newScope = scopeSelect.value as 'light' | 'global';
       if (newScope !== frostedGlassScope) {
         frostedGlassScope = newScope;
-        saveConfig({ 'frostedglass-scope': newScope } as Partial<Config>);
+        saveConfig({ 'frostedglass-scope': newScope });
         if (neoFeatureActive) {
           applyScopeClass();
         }
@@ -70,9 +70,9 @@ export function showFrostedGlassSettings(): void {
     dialog.destroy();
   });
 }
-export function initFrostedGlass(): void {
+export function initFrostedGlass(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
+  return loadConfig().then((config) => {
     if (!isCurrent()) return;
     frostedGlassScope = config['frostedglass-scope'] || 'light';
     if (neoFeatureActive) {
@@ -89,10 +89,10 @@ export function onFrostedGlassClick(): void {
     if (!isCurrent()) return;
     if (shouldEnable) {
       enableFrostedGlass();
-      saveConfig({ 'frostedglass': true } as Partial<Config>);
+      saveConfig({ 'frostedglass': true });
     } else {
       destroyFrostedGlass();
-      saveConfig({ 'frostedglass': false } as Partial<Config>);
+      saveConfig({ 'frostedglass': false });
     }
   });
 }

@@ -31,7 +31,7 @@ import { baseCss } from '../modules/csschunks';
 import { initMenuSettings, destroyMenuSettings } from '../modules/menusettings';
 import { beginNeoLifecycle, endNeoLifecycle } from './lifecycle';
 interface RuntimeModule {
-  init: () => void;
+  init: () => void | PromiseLike<void>;
   destroy: () => void;
 }
 let runtimeActive = false;
@@ -61,7 +61,7 @@ const runtimeModules: readonly RuntimeModule[] = [
   { init: initEnv, destroy: destroyEnv },
   { init: initNeoIcons, destroy: destroyNeoIcons },
   { init: initMenuSettings, destroy: destroyMenuSettings },
-  { init: initTopBarButton, destroy: destroyTopBarButton },
+  { init: () => { initTopBarButton(); }, destroy: destroyTopBarButton },
   { init: initStatusHidden, destroy: destroyStatusHidden },
   { init: initHideScrollbar, destroy: destroyHideScrollbar },
   { init: initLayout, destroy: destroyLayout },
@@ -92,7 +92,10 @@ export function startNeoRuntime(): void {
   runtimeActive = true;
   beginNeoLifecycle();
   for (const module of runtimeModules) {
-    try { module.init(); } catch {}
+    try {
+      const result = module.init();
+      if (result) Promise.resolve(result).catch(() => {});
+    } catch {}
   }
 }
 export function stopNeoRuntime(): void {

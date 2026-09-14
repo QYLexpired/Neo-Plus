@@ -133,21 +133,22 @@ declare module 'siyuan' {
     element: HTMLElement;
     destroy(): void;
   }
+  export type MenuItem = { type: 'separator' } | {
+    id?: string;
+    icon?: string;
+    iconHTML?: string;
+    label: string;
+    accelerator?: string;
+    bind?: (element: HTMLElement) => void;
+    click?: () => void;
+    type?: string;
+    submenu?: MenuItem[];
+  };
   export class Menu {
     element: HTMLElement;
     close(): void;
     constructor(name: string, closeCallback?: () => void);
-    addItem(item: {
-      id?: string;
-      icon?: string;
-      iconHTML?: string;
-      label: string;
-      accelerator?: string;
-      bind?: (element: HTMLElement) => void;
-      click?: () => void;
-      type?: string;
-      submenu?: any[];
-    }): void;
+    addItem(item: MenuItem): void;
     addSeparator(): void;
     open(position: { x: number; y: number; h?: number; isLeft?: boolean }): void;
     fullscreen(): void;

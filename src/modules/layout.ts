@@ -1,5 +1,5 @@
 import { fetchListener } from './fetchmonitor';
-const _fetchListener = fetchListener();
+const fetchMonitor = fetchListener();
 function updateHasWndClass(): void {
   const currentHaswnd = new Set(document.querySelectorAll('.neo-haswnd'));
   const shouldHaswnd = new Set<Element>();
@@ -36,22 +36,22 @@ function updateHasWndClass(): void {
     });
   });
 }
-_fetchListener.onNotify('setUILayout', () => { updateHasWndClass(); });
-let _fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+fetchMonitor.onNotify('setUILayout', () => { updateHasWndClass(); });
+let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
 export function initLayout(): void {
-  _fetchListener.attach();
+  fetchMonitor.attach();
   updateHasWndClass();
-  _fallbackTimer = setTimeout(() => {
+  fallbackTimer = setTimeout(() => {
     updateHasWndClass();
-    _fallbackTimer = null;
+    fallbackTimer = null;
   }, 200);
 }
 export function destroyLayout(): void {
-  if (_fallbackTimer !== null) {
-    clearTimeout(_fallbackTimer);
-    _fallbackTimer = null;
+  if (fallbackTimer !== null) {
+    clearTimeout(fallbackTimer);
+    fallbackTimer = null;
   }
-  _fetchListener.detach();
+  fetchMonitor.detach();
   document.querySelectorAll('.neo-haswnd, .neo-haswnd-notfirst-visible').forEach((el) => {
     el.classList.remove('neo-haswnd', 'neo-haswnd-notfirst-visible');
   });

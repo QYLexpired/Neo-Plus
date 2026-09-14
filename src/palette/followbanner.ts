@@ -4,37 +4,37 @@ import { fetchListener } from '../modules/fetchmonitor';
 import { isMobile } from '../modules/env';
 let lastValidHex: string | null = null;
 let neoFeatureActive = false;
-let _extractTimer: ReturnType<typeof setTimeout> | null = null;
-let _extractFrame = 0;
-let _extractController: AbortController | null = null;
+let extractTimer: ReturnType<typeof setTimeout> | null = null;
+let extractFrame = 0;
+let extractController: AbortController | null = null;
 const mediaReadyTimeout = 10000;
 function cancelExtractionWork(): void {
-  if (_extractTimer !== null) {
-    clearTimeout(_extractTimer);
-    _extractTimer = null;
+  if (extractTimer !== null) {
+    clearTimeout(extractTimer);
+    extractTimer = null;
   }
-  if (_extractFrame) {
-    cancelAnimationFrame(_extractFrame);
-    _extractFrame = 0;
+  if (extractFrame) {
+    cancelAnimationFrame(extractFrame);
+    extractFrame = 0;
   }
-  _extractController?.abort();
-  _extractController = null;
+  extractController?.abort();
+  extractController = null;
 }
 function scheduleExtract(delay = 200): void {
   if (!neoFeatureActive) return;
   cancelExtractionWork();
-  _extractTimer = setTimeout(() => {
-    _extractTimer = null;
-    _extractFrame = requestAnimationFrame(() => {
-      _extractFrame = 0;
+  extractTimer = setTimeout(() => {
+    extractTimer = null;
+    extractFrame = requestAnimationFrame(() => {
+      extractFrame = 0;
       startBannerExtraction();
     });
   }, delay);
 }
-const _fetchListener = fetchListener();
-_fetchListener.onNotify('setUILayout', () => { scheduleExtract(); });
-_fetchListener.onNotify('setBlockAttrs', () => { scheduleExtract(); });
-_fetchListener.onNotify('getDocInfo', () => {
+const fetchMonitor = fetchListener();
+fetchMonitor.onNotify('setUILayout', () => { scheduleExtract(); });
+fetchMonitor.onNotify('setBlockAttrs', () => { scheduleExtract(); });
+fetchMonitor.onNotify('getDocInfo', () => {
   if (isMobile()) scheduleExtract();
 });
 const fallbackHex = 'var(--neo-default-base-color)';
@@ -229,7 +229,7 @@ function waitForMediaReady(source: BannerSource, signal: AbortSignal): Promise<M
   });
 }
 function isCurrentTarget(controller: AbortController, target: BannerTarget): boolean {
-  if (!neoFeatureActive || controller.signal.aborted || _extractController !== controller) return false;
+  if (!neoFeatureActive || controller.signal.aborted || extractController !== controller) return false;
   const current = getBannerTarget();
   return current.banner === target.banner
     && current.source === target.source
@@ -286,16 +286,16 @@ function startBannerExtraction(): void {
   if (!neoFeatureActive) return;
   const controller = new AbortController();
   const target = getBannerTarget();
-  _extractController = controller;
+  extractController = controller;
   void extractBannerAverageColor(controller, target).finally(() => {
-    if (_extractController === controller) _extractController = null;
+    if (extractController === controller) extractController = null;
   });
 }
 function enableFollowBanner(): void {
   if (neoFeatureActive) return;
   neoFeatureActive = true;
   applyFallback();
-  _fetchListener.attach();
+  fetchMonitor.attach();
   scheduleExtract(500);
 }
 export function initFollowBanner(_config: Config): void {
@@ -304,7 +304,7 @@ export function initFollowBanner(_config: Config): void {
 export function destroyFollowBanner(): void {
   neoFeatureActive = false;
   cancelExtractionWork();
-  _fetchListener.detach();
+  fetchMonitor.detach();
   document.documentElement.style.removeProperty('--neo-followbanner-base-color');
   lastValidHex = null;
 }

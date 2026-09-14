@@ -13,7 +13,7 @@ interface ScheduledScan {
   id: number;
   kind: 'idle' | 'timeout';
 }
-const _ruleFilters: RuleFilterEntry[] = [
+const ruleFilters: RuleFilterEntry[] = [
   {
     filter: {
       selectorMatch: (s) => s.includes('::selection'),
@@ -193,11 +193,11 @@ const _ruleFilters: RuleFilterEntry[] = [
     },
   },
 ];
-const _dynamicRuleFilters = _ruleFilters.filter((entry) => entry.dynamic);
-let _performanceTuningActive = false;
-let _pendingScanScope: ScanScope | null = null;
-let _scheduledScan: ScheduledScan | null = null;
-let _scanIterator: Generator<void> | null = null;
+const dynamicRuleFilters = ruleFilters.filter((entry) => entry.dynamic);
+let neoFeatureActive = false;
+let pendingScanScope: ScanScope | null = null;
+let scheduledScan: ScheduledScan | null = null;
+let scanIterator: Generator<void> | null = null;
 function* processAllRules(
   rules: CSSRuleList,
   entries: RuleFilterEntry[],
@@ -241,7 +241,7 @@ function* processAllRules(
   }
 }
 function* removeMatchingRules(entries?: RuleFilterEntry[]): Generator<void> {
-  const targets = entries ?? _ruleFilters;
+  const targets = entries ?? ruleFilters;
   for (const ss of Array.from(document.styleSheets)) {
     yield;
     const ownerNode = ss.ownerNode as HTMLElement | null;
@@ -254,27 +254,27 @@ function* removeMatchingRules(entries?: RuleFilterEntry[]): Generator<void> {
   }
 }
 function runScheduledScan(deadline?: IdleDeadline): void {
-  _scheduledScan = null;
-  if (!_performanceTuningActive) {
+  scheduledScan = null;
+  if (!neoFeatureActive) {
     return;
   }
-  if (!_scanIterator) {
-    const scope = _pendingScanScope;
-    _pendingScanScope = null;
+  if (!scanIterator) {
+    const scope = pendingScanScope;
+    pendingScanScope = null;
     if (scope === null) {
       return;
     }
-    _scanIterator = removeMatchingRules(scope === 'all' ? undefined : _dynamicRuleFilters);
+    scanIterator = removeMatchingRules(scope === 'all' ? undefined : dynamicRuleFilters);
   }
   const startTime = performance.now();
   for (let count = 0; count < 200; count++) {
     if (count > 0 && (performance.now() - startTime >= 4 || (deadline && !deadline.didTimeout && deadline.timeRemaining() < 1))) {
       break;
     }
-    if (_scanIterator.next().done) {
-      _scanIterator = null;
-      const delay = _pendingScanScope === null ? 5000 : 1000;
-      _pendingScanScope ??= 'dynamic';
+    if (scanIterator.next().done) {
+      scanIterator = null;
+      const delay = pendingScanScope === null ? 5000 : 1000;
+      pendingScanScope ??= 'dynamic';
       queueScan(delay);
       return;
     }
@@ -282,61 +282,61 @@ function runScheduledScan(deadline?: IdleDeadline): void {
   queueScan();
 }
 function queueScan(delay = 0): void {
-  if (_scheduledScan || !_performanceTuningActive) {
+  if (scheduledScan || !neoFeatureActive) {
     return;
   }
   if (delay > 0) {
-    _scheduledScan = {
+    scheduledScan = {
       id: window.setTimeout(() => {
-        _scheduledScan = null;
+        scheduledScan = null;
         queueScan();
       }, delay),
       kind: 'timeout',
     };
   } else if (typeof requestIdleCallback === 'function' && typeof cancelIdleCallback === 'function') {
-    _scheduledScan = {
+    scheduledScan = {
       id: requestIdleCallback(runScheduledScan, { timeout: 1000 }),
       kind: 'idle',
     };
   } else {
-    _scheduledScan = {
+    scheduledScan = {
       id: window.setTimeout(runScheduledScan, 16),
       kind: 'timeout',
     };
   }
 }
 function scheduleScan(scope: ScanScope): void {
-  if (!_performanceTuningActive) {
+  if (!neoFeatureActive) {
     return;
   }
-  if (scope === 'all' || _pendingScanScope === null) {
-    _pendingScanScope = scope;
+  if (scope === 'all' || pendingScanScope === null) {
+    pendingScanScope = scope;
   }
   queueScan();
 }
 function cancelScheduledScan(): void {
-  if (_scheduledScan?.kind === 'idle') {
-    cancelIdleCallback(_scheduledScan.id);
-  } else if (_scheduledScan) {
-    window.clearTimeout(_scheduledScan.id);
+  if (scheduledScan?.kind === 'idle') {
+    cancelIdleCallback(scheduledScan.id);
+  } else if (scheduledScan) {
+    window.clearTimeout(scheduledScan.id);
   }
-  _scheduledScan = null;
-  _pendingScanScope = null;
-  _scanIterator = null;
+  scheduledScan = null;
+  pendingScanScope = null;
+  scanIterator = null;
 }
-const _fetchListener = fetchListener();
-_fetchListener.onNotify('setUILayout', () => {
-  if (_dynamicRuleFilters.length > 0) {
+const fetchMonitor = fetchListener();
+fetchMonitor.onNotify('setUILayout', () => {
+  if (dynamicRuleFilters.length > 0) {
     scheduleScan('dynamic');
   }
 });
 export function initPerformanceTuning(): void {
-  _performanceTuningActive = true;
+  neoFeatureActive = true;
   scheduleScan('all');
-  _fetchListener.attach();
+  fetchMonitor.attach();
 }
 export function destroyPerformanceTuning(): void {
-  _performanceTuningActive = false;
+  neoFeatureActive = false;
   cancelScheduledScan();
-  _fetchListener.detach();
+  fetchMonitor.detach();
 }

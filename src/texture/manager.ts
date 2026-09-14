@@ -1,3 +1,4 @@
+import type { MenuItem } from 'siyuan';
 import {
   saveConfig,
   loadConfig,
@@ -32,7 +33,7 @@ export const textures = [customImageTexture, ...presetTextures];
 export function getTextureKey(mode: 'light' | 'dark'): 'texture-light' | 'texture-dark' {
   return mode === 'dark' ? 'texture-dark' : 'texture-light';
 }
-function buildCustomImageMenuItem(i18n: Record<string, string>): any {
+function buildCustomImageMenuItem(i18n: Record<string, string>): MenuItem {
   return {
     id: `neo-texture-${customImageTexture.key}-button`,
     icon: 'iconNeoCustomImage',
@@ -70,7 +71,7 @@ function openPresetTextureSettings(texture: PresetTextureDefinition, textureLabe
     });
   }).catch(() => {});
 }
-function buildPresetTextureMenuItem(texture: PresetTextureDefinition, i18n: Record<string, string>): any {
+function buildPresetTextureMenuItem(texture: PresetTextureDefinition, i18n: Record<string, string>): MenuItem {
   return {
     id: `neo-texture-${texture.key}-button`,
     icon: 'iconNeoTexture',
@@ -99,7 +100,7 @@ function buildPresetTextureMenuItem(texture: PresetTextureDefinition, i18n: Reco
     },
   };
 }
-export function getTextureMenuItems(i18n: Record<string, string>): any[] {
+export function getTextureMenuItems(i18n: Record<string, string>): MenuItem[] {
   return [
     buildCustomImageMenuItem(i18n),
     { type: 'separator' },
@@ -108,7 +109,7 @@ export function getTextureMenuItems(i18n: Record<string, string>): any[] {
 }
 function saveTextureSelection(textureKey: string): void {
   const texKey = getTextureKey(getThemeMode());
-  saveConfig({ [texKey]: textureKey } as Partial<Config>);
+  saveConfig({ [texKey]: textureKey });
 }
 function getCustomImagePreset(config: Config): CustomImageSource | undefined {
   const mode = getThemeMode();
@@ -167,22 +168,22 @@ async function reloadAndApplyTexture(): Promise<void> {
   if (!isCurrent() || revision !== textureActionRevision) return;
   applyTexture(config);
 }
-let _mutationObserver: MutationObserver | null = null;
-export function initTexture(): void {
-  _mutationObserver = new MutationObserver(() => {
+let mutationObserver: MutationObserver | null = null;
+export function initTexture(): Promise<void> {
+  mutationObserver = new MutationObserver(() => {
     reloadAndApplyTexture().catch(() => {});
   });
-  _mutationObserver.observe(document.documentElement, {
+  mutationObserver.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['data-theme-mode'],
   });
-  reloadAndApplyTexture().catch(() => {});
+  return reloadAndApplyTexture();
 }
 export function destroyTexture(): void {
   textureActionRevision++;
   disableTexture();
-  if (_mutationObserver) {
-    _mutationObserver.disconnect();
-    _mutationObserver = null;
+  if (mutationObserver) {
+    mutationObserver.disconnect();
+    mutationObserver = null;
   }
 }

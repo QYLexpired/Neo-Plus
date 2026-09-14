@@ -15,19 +15,19 @@ function applySystemAccentColor(): void {
     document.documentElement.style.setProperty('--neo-followsystem-base-color', color);
   }
 }
-let _focusHandler: (() => void) | null = null;
+let focusHandler: (() => void) | null = null;
 export function initFollowSystem(): void {
   if (!isDesktop()) return;
   applySystemAccentColor();
-  _focusHandler = () => {
+  focusHandler = () => {
     applySystemAccentColor();
   };
-  window.addEventListener('focus', _focusHandler);
+  window.addEventListener('focus', focusHandler);
 }
 export function destroyFollowSystem(): void {
   document.documentElement.style.removeProperty('--neo-followsystem-base-color');
-  if (_focusHandler) {
-    window.removeEventListener('focus', _focusHandler);
-    _focusHandler = null;
+  if (focusHandler) {
+    window.removeEventListener('focus', focusHandler);
+    focusHandler = null;
   }
 }

@@ -5,10 +5,10 @@ interface SavedScrollbarRule {
   index: number;
   cssText: string;
 }
-let _savedScrollbarRules: SavedScrollbarRule[] = [];
+let savedScrollbarRules: SavedScrollbarRule[] = [];
 function removeScrollbarStyles(): void {
   if (!isMac()) return;
-  _savedScrollbarRules = [];
+  savedScrollbarRules = [];
   for (let i = 0; i < document.styleSheets.length; i++) {
     const ss = document.styleSheets[i];
     try {
@@ -16,7 +16,7 @@ function removeScrollbarStyles(): void {
         const rule = ss.cssRules[j] as CSSStyleRule;
         if (rule.selectorText && rule.selectorText.includes('::-webkit-scrollbar')) {
           if (rule.style.width || rule.style.height || rule.style.backgroundColor) {
-            _savedScrollbarRules.push({ sheet: ss, index: j, cssText: rule.cssText });
+            savedScrollbarRules.push({ sheet: ss, index: j, cssText: rule.cssText });
             ss.deleteRule(j);
             j--;
           }
@@ -33,15 +33,15 @@ function removeScrollbarStyles(): void {
 }
 function restoreScrollbarStyles(): void {
   const activeSheets = new Set(Array.from(document.styleSheets));
-  for (let i = _savedScrollbarRules.length - 1; i >= 0; i--) {
-    const saved = _savedScrollbarRules[i];
+  for (let i = savedScrollbarRules.length - 1; i >= 0; i--) {
+    const saved = savedScrollbarRules[i];
     if (!activeSheets.has(saved.sheet)) continue;
     try {
       const index = Math.min(saved.index, saved.sheet.cssRules.length);
       saved.sheet.insertRule(saved.cssText, index);
     } catch {}
   }
-  _savedScrollbarRules = [];
+  savedScrollbarRules = [];
 }
 export function initHideScrollbar(): void {
   removeScrollbarStyles();

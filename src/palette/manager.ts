@@ -1,3 +1,4 @@
+import type { MenuItem } from 'siyuan';
 import { getPlugin } from '../main/context';
 import { loadConfig, saveConfig, flushConfigSave, type Config } from '../main/data';
 import {
@@ -83,7 +84,7 @@ export function switchToPlan(plan: Plan): void {
   const configKey: 'color-plan-light' | 'color-plan-dark' = mode === 'dark' ? 'color-plan-dark' : 'color-plan-light';
   saveConfig({ [configKey]: plan }).then(() => {
     if (!isCurrent()) return;
-    loadConfig().then((config) => {
+    return loadConfig().then((config) => {
       withViewTransition(() => {
         if (!isCurrent()) return;
         restorePalette(config);
@@ -91,13 +92,13 @@ export function switchToPlan(plan: Plan): void {
     });
   }).catch(() => {});
 }
-export function getPresetMenuItems(i18n: Record<string, string>): any[] {
+export function getPresetMenuItems(i18n: Record<string, string>): MenuItem[] {
   const mode = getThemeMode();
   const availablePresets = getPresetsByMode(mode);
   const pinnedKeys = ['default', 'classic'];
   const topLevelPresets = availablePresets.filter((p) => pinnedKeys.includes(p.key));
   const restPresets = availablePresets.filter((p) => !pinnedKeys.includes(p.key));
-  const makeItem = (preset: Preset): any => ({
+  const makeItem = (preset: Preset): MenuItem => ({
     id: `neo-palette-${preset.key}-button`,
     icon: 'iconNeoPalette',
     label: i18n[preset.nameKey],
@@ -106,8 +107,8 @@ export function getPresetMenuItems(i18n: Record<string, string>): any[] {
       return true;
     },
   });
-  const makeSubmenu = (presets: Preset[]): any[] => {
-    const submenuItems: any[] = [];
+  const makeSubmenu = (presets: Preset[]): MenuItem[] => {
+    const submenuItems: MenuItem[] = [];
     for (let i = 0; i < presets.length; i += 5) {
       submenuItems.push(...presets.slice(i, i + 5).map(makeItem));
       if (i + 5 < presets.length) {
@@ -116,7 +117,7 @@ export function getPresetMenuItems(i18n: Record<string, string>): any[] {
     }
     return submenuItems;
   };
-  const items: any[] = topLevelPresets.map(makeItem);
+  const items: MenuItem[] = topLevelPresets.map(makeItem);
   items.push({ type: 'separator' });
   const groupedPresets = new Map<string, Preset[]>();
   const ungroupedPresets: Preset[] = [];
@@ -158,30 +159,30 @@ export function getPresetMenuItems(i18n: Record<string, string>): any[] {
   }
   return items;
 }
-export function handleColorInput(value: string, cssVar: string, colorKey: string, plan: string): void {
+export function handleColorInput(value: string, cssVar: string, colorKey: ReturnType<typeof getCustomColorKey>, plan: Plan): void {
   document.documentElement.style.setProperty(cssVar, value);
   const mode = getThemeMode();
   const configKey: 'color-plan-light' | 'color-plan-dark' = mode === 'dark' ? 'color-plan-dark' : 'color-plan-light';
-  saveConfig({ [colorKey]: value, [configKey]: plan } as Partial<Config>, 200);
+  saveConfig({ [colorKey]: value, [configKey]: plan }, 200);
 }
-let _menuListenerInitialized = false;
-let _inputHandler: ((e: Event) => void) | null = null;
-let _clickHandler: ((e: Event) => void) | null = null;
-let _changeHandler: ((e: Event) => void) | null = null;
-let _dblclickHandler: ((e: Event) => void) | null = null;
-function handleSliderInput(target: HTMLInputElement, cssVar: string, configKey: string, label: string): void {
+let menuListenerInitialized = false;
+let inputHandler: ((e: Event) => void) | null = null;
+let clickHandler: ((e: Event) => void) | null = null;
+let changeHandler: ((e: Event) => void) | null = null;
+let dblclickHandler: ((e: Event) => void) | null = null;
+function handleSliderInput(target: HTMLInputElement, cssVar: string, configKey: ReturnType<typeof getSaturationKey> | ReturnType<typeof getBrightnessKey>, label: string): void {
   const num = parseFloat(target.value);
   document.documentElement.style.setProperty(cssVar, target.value);
   const tooltip = target.closest('.b3-tooltips') as HTMLElement | null;
   if (tooltip) {
     tooltip.setAttribute('aria-label', `${label}：${num.toFixed(2)}`);
   }
-  saveConfig({ [configKey]: num } as Partial<Config>, 200);
+  saveConfig({ [configKey]: num }, 200);
 }
 export function initPaletteMenuEvents(i18n: Record<string, string>): void {
-  if (_menuListenerInitialized) return;
-  _menuListenerInitialized = true;
-  _inputHandler = (e: Event) => {
+  if (menuListenerInitialized) return;
+  menuListenerInitialized = true;
+  inputHandler = (e: Event) => {
     const target = e.target as HTMLElement;
     const menuItem = target.closest('[data-id]') as HTMLElement | null;
     if (!menuItem) return;
@@ -194,14 +195,14 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
       handleSliderInput(target, '--neo-brightness', getBrightnessKey(getThemeMode()), i18n.brightness ?? 'Brightness');
     }
   };
-  _changeHandler = (e: Event) => {
+  changeHandler = (e: Event) => {
     const target = e.target;
     if (!(target instanceof HTMLInputElement)) return;
     const dataId = target.closest('[data-id]')?.getAttribute('data-id');
     if ((target.type === 'range' && (dataId === 'neo-saturation-button' || dataId === 'neo-brightness-button'))
       || (target.type === 'color' && dataId === 'neo-customcolor-button')) flushConfigSave();
   };
-  _clickHandler = (e: Event) => {
+  clickHandler = (e: Event) => {
     const target = e.target as HTMLElement;
     if (!(target instanceof HTMLInputElement && target.type === 'color')) return;
     const menuItem = target.closest('[data-id]') as HTMLElement | null;
@@ -210,7 +211,7 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     if (dataId !== 'neo-customcolor-button') return;
     e.stopPropagation();
   };
-  _dblclickHandler = (e: Event) => {
+  dblclickHandler = (e: Event) => {
     const target = e.target as HTMLElement;
     const menuItem = target.closest('[data-id]') as HTMLElement | null;
     if (!menuItem) return;
@@ -223,71 +224,72 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
       handleSliderInput(target, '--neo-brightness', getBrightnessKey(getThemeMode()), i18n.brightness ?? 'Brightness');
     }
   };
-  document.addEventListener('input', _inputHandler, true);
-  document.addEventListener('change', _changeHandler, true);
-  document.addEventListener('click', _clickHandler, true);
-  document.addEventListener('dblclick', _dblclickHandler, true);
+  document.addEventListener('input', inputHandler, true);
+  document.addEventListener('change', changeHandler, true);
+  document.addEventListener('click', clickHandler, true);
+  document.addEventListener('dblclick', dblclickHandler, true);
 }
 export function destroyPaletteMenuEvents(): void {
   flushConfigSave();
-  if (_changeHandler) {
-    document.removeEventListener('change', _changeHandler, true);
-    _changeHandler = null;
+  if (changeHandler) {
+    document.removeEventListener('change', changeHandler, true);
+    changeHandler = null;
   }
-  if (_inputHandler) {
-    document.removeEventListener('input', _inputHandler, true);
-    _inputHandler = null;
+  if (inputHandler) {
+    document.removeEventListener('input', inputHandler, true);
+    inputHandler = null;
   }
-  if (_clickHandler) {
-    document.removeEventListener('click', _clickHandler, true);
-    _clickHandler = null;
+  if (clickHandler) {
+    document.removeEventListener('click', clickHandler, true);
+    clickHandler = null;
   }
-  if (_dblclickHandler) {
-    document.removeEventListener('dblclick', _dblclickHandler, true);
-    _dblclickHandler = null;
+  if (dblclickHandler) {
+    document.removeEventListener('dblclick', dblclickHandler, true);
+    dblclickHandler = null;
   }
-  _menuListenerInitialized = false;
+  menuListenerInitialized = false;
 }
 export { createColorPickerHTML, getThemeColor } from './customcolor';
 export { createSliderHTML } from './saturation';
 export { createBrightnessSliderHTML } from './brightness';
 export { onInvertClick } from './invert';
 export { onHighContrastClick } from './highcontrast';
-let _mutationObserver: MutationObserver | null = null;
-let _lastThemeMode: string | null = null;
-export function initPalette(): void {
+let mutationObserver: MutationObserver | null = null;
+let lastThemeMode: string | null = null;
+export function initPalette(): Promise<void> | void {
   const plugin = getPlugin();
   if (!plugin) return;
   const isCurrent = createNeoLifecycleGuard();
   initPaletteMenuEvents(plugin.i18n);
-  initRandomSettings();
-  loadConfig().then((config) => {
+  const settingsReady = initRandomSettings();
+  const paletteReady = loadConfig().then((config) => {
     if (!isCurrent()) return;
     restorePalette(config);
-    _lastThemeMode = document.documentElement.getAttribute('data-theme-mode');
-    _mutationObserver = new MutationObserver(() => {
+    lastThemeMode = document.documentElement.getAttribute('data-theme-mode');
+    mutationObserver = new MutationObserver(() => {
       if (!isCurrent()) return;
       const current = document.documentElement.getAttribute('data-theme-mode');
-      if (current === _lastThemeMode) return;
-      _lastThemeMode = current;
+      if (current === lastThemeMode) return;
+      lastThemeMode = current;
       loadConfig().then((config) => {
         if (!isCurrent()) return;
         restorePalette(config);
-      });
+      }).catch(() => {});
     });
-    _mutationObserver.observe(document.documentElement, {
+    mutationObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme-mode'],
     });
   });
+  return Promise.all([settingsReady, paletteReady]).then(() => {});
 }
 export function destroyPalette(): void {
   destroyPaletteEffects();
   destroyPaletteClasses();
   destroyPaletteMenuEvents();
-  if (_mutationObserver) {
-    _mutationObserver.disconnect();
-    _mutationObserver = null;
+  if (mutationObserver) {
+    mutationObserver.disconnect();
+    mutationObserver = null;
   }
-  _lastThemeMode = null;
+  lastThemeMode = null;
 }
