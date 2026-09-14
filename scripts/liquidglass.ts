@@ -89,7 +89,7 @@ export function computeDisplacementTable(config: LiquidGlassConfig): Displacemen
     const pos2 = Math.min(1, (i + delta) / rBezel);
     const h1 = getProfileHeight(pos1, profileType);
     const h2 = getProfileHeight(pos2, profileType);
-    const slope = (h2 - h1) / (pos2 - pos1);
+    const slope = pos2 === pos1 ? 0 : (h2 - h1) / (pos2 - pos1);
     const geometricSlope = (slope * rThickness) / rBezel;
     const incidentAngle = Math.atan(geometricSlope);
     const sinRefracted = Math.sin(incidentAngle) / ior;

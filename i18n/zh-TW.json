@@ -576,7 +576,7 @@
   "customimagePath": "可填入不同類型的圖片資訊",
   "customimagePathTipTitle": "按照以下格式填入自訂紋理資訊",
   "customimagePathTipToggle": "查看說明",
-  "customimagePathTip": "1. 資源資料夾中圖片的相對路徑<br>如：assets/image.png或url(assets/image.png)<br>2. 網路圖片位址<br>如：https://picsum.photos/1920/1080或url(https://picsum.photos/1920/1080)<br>3. CSS函數<br>如：linear-gradient(to right in oklch, #f59e0b, #06b6d4 66%, #6366f1)<br>4. 純色代碼<br>如：red、#06b6d4、oklch(from blue calc(l + 0.1) c h)、color-mix(in hsl, #f59e0b, transparent)<br>5. 以上四類的組合，需用英文逗號隔開<br>如：repeating-linear-gradient(-45deg, transparent, transparent 20px, oklch(60% 0.2 10 / 0.15) 20px, oklch(60% 0.2 10 / 0.15) 40px), #8effce",
+  "customimagePathTip": "1. 資源資料夾中圖片的相對路徑<br>如：assets/image.png或url(assets/image.png)<br>2. 網路圖片位址<br>如：https://picsum.photos/1920/1080或url(https://picsum.photos/1920/1080)<br>3. CSS函數<br>如：linear-gradient(to right in oklch, #f59e0b, #06b6d4 66%, #6366f1)<br>4. 純色代碼<br>如：red、#06b6d4、oklch(from blue calc(l + 0.1) c h)、color-mix(in hsl, #f59e0b, transparent)<br>5. 以上四類的組合，需用英文逗號隔開<br>如：repeating-linear-gradient(-45deg, transparent, transparent 20px, oklch(60% 0.2 10 / 0.15) 20px, oklch(60% 0.2 10 / 0.15) 40px), #8effce<br>圖片位址包含逗號時，請用引號包住整個位址，例如：\"assets/a,b.png\"。位址中的空格可直接保留。",
   "customimageBlur": "模糊度",
   "customimageOpacity": "可見度",
   "customimageEffect": "混合模式",

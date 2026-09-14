@@ -43,7 +43,7 @@ interface CustomImageFieldDom {
 function isCssFunction(raw: string): boolean {
   if (!/^[\w-]+\(/.test(raw)) return false;
   let depth = 0;
-  for (const ch of raw) {
+  for (const ch of raw.replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '')) {
     if (ch === '(') depth++;
     else if (ch === ')') depth--;
     if (depth < 0) return false;
@@ -60,9 +60,19 @@ function splitTopLevel(raw: string): string[] {
   const parts: string[] = [];
   let depth = 0;
   let start = 0;
+  let quote = '';
   for (let i = 0; i < raw.length; i++) {
     const ch = raw[i];
-    if (ch === '(') depth++;
+    if (ch === '\\') {
+      i++;
+      continue;
+    }
+    if (quote) {
+      if (ch === quote) quote = '';
+      continue;
+    }
+    if (ch === '"' || ch === "'") quote = ch;
+    else if (ch === '(') depth++;
     else if (ch === ')') depth--;
     else if (ch === ',' && depth === 0) {
       parts.push(raw.slice(start, i));
@@ -83,7 +93,10 @@ function toInfoValue(raw: string | undefined): string {
   return parts
     .map(seg => {
       if (isColorValue(seg)) return seg;
-      return isCssFunction(seg) ? seg : `url(${seg})`;
+      if (isCssFunction(seg)) return seg;
+      if (/^(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')$/.test(seg)) return `url(${seg})`;
+      const url = seg.replace(/["\\\n\r\f]/g, ch => `\\${ch.charCodeAt(0).toString(16)} `);
+      return `url("${url}")`;
     })
     .join(', ');
 }

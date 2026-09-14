@@ -1,9 +1,10 @@
 type FetchNotificationCallback = () => void;
 type FetchResponseCallback = (response: Response, url: string, init?: RequestInit) => void;
 type RegisteredFetchCallback = FetchNotificationCallback | FetchResponseCallback;
-type FetchRegistration =
+type FetchCallback =
   | { cb: FetchNotificationCallback; needsResponse: false }
   | { cb: FetchResponseCallback; needsResponse: true };
+type FetchRegistration = FetchCallback & { active: boolean };
 let rules: Map<string, Map<RegisteredFetchCallback, FetchRegistration>> = new Map();
 interface FetchPatch {
   wrapper: typeof window.fetch;
@@ -11,7 +12,7 @@ interface FetchPatch {
   state: { active: boolean };
 }
 let currentPatch: FetchPatch | null = null;
-type PendingItem =
+type PendingItem = { registrations: FetchRegistration[] } & (
   | { cb: FetchNotificationCallback; needsResponse: false }
   | {
       cb: FetchResponseCallback;
@@ -19,9 +20,10 @@ type PendingItem =
       response: Response;
       url: string;
       init?: RequestInit;
-    };
+    }
+);
 let pendingQueue: PendingItem[] = [];
-let pendingCbs: Set<RegisteredFetchCallback> = new Set();
+let pendingCbs: Map<FetchNotificationCallback, FetchRegistration[]> = new Map();
 let rafId = 0;
 let isDestroyed = false;
 function flushPendingQueue(): void {
@@ -35,6 +37,7 @@ function flushPendingQueue(): void {
   pendingQueue = [];
   pendingCbs.clear();
   for (const item of batch) {
+    if (isDestroyed || !item.registrations.some(registration => registration.active)) continue;
     try {
       if (item.needsResponse) {
         item.cb(item.response, item.url, item.init);
@@ -49,35 +52,52 @@ function schedulePendingFlush(): void {
   if (rafId) return;
   rafId = requestAnimationFrame(flushPendingQueue);
 }
+function enqueueNotification(registration: FetchRegistration): void {
+  if (!registration.active || registration.needsResponse) return;
+  const pending = pendingCbs.get(registration.cb);
+  if (pending) {
+    if (!pending.includes(registration)) pending.push(registration);
+    return;
+  }
+  const registrations = [registration];
+  pendingCbs.set(registration.cb, registrations);
+  pendingQueue.push({ cb: registration.cb, needsResponse: false, registrations });
+}
 function registerFetch(name: string, registration: FetchRegistration): void {
   let callbacks = rules.get(name);
   if (!callbacks) {
     callbacks = new Map();
     rules.set(name, callbacks);
   }
+  const existing = callbacks.get(registration.cb);
+  if (existing?.needsResponse === registration.needsResponse) return;
+  if (existing) existing.active = false;
   callbacks.set(registration.cb, registration);
 }
 function onFetch(name: string, callback: FetchNotificationCallback): void {
-  registerFetch(name, { cb: callback, needsResponse: false });
+  registerFetch(name, { cb: callback, needsResponse: false, active: true });
 }
 function onFetchResponse(name: string, callback: FetchResponseCallback): void {
-  registerFetch(name, { cb: callback, needsResponse: true });
+  registerFetch(name, { cb: callback, needsResponse: true, active: true });
 }
 function offFetch(name: string, callback?: RegisteredFetchCallback): void {
   if (callback) {
     const callbacks = rules.get(name);
     if (callbacks) {
+      const registration = callbacks.get(callback);
+      if (registration) registration.active = false;
       callbacks.delete(callback);
       if (callbacks.size === 0) {
         rules.delete(name);
       }
     }
   } else {
+    rules.get(name)?.forEach(registration => { registration.active = false; });
     rules.delete(name);
   }
 }
 export function fetchListener() {
-  const callbacks: Array<{ name: string } & FetchRegistration> = [];
+  const callbacks: Array<{ name: string } & FetchCallback> = [];
   return {
     onNotify(name: string, cb: FetchNotificationCallback): void {
       callbacks.push({ name, cb, needsResponse: false });
@@ -123,34 +143,25 @@ export function initFetchMonitor(): void {
     });
     if (matchedCallbacks.length > 0 && state.active) {
       fetchPromise.catch(() => {});
-      const needsResponse = matchedCallbacks.some(({ needsResponse }) => needsResponse);
       fetchPromise.then((response) => {
         if (!state.active) return;
-        try {
-          let clonedResponse: Response | null = null;
-          if (needsResponse) {
-            if (response.bodyUsed) return;
-            clonedResponse = response.clone();
+        const responseCallbacks = new Map<FetchResponseCallback, FetchRegistration[]>();
+        for (const registration of matchedCallbacks) {
+          if (!registration.active) continue;
+          if (registration.needsResponse) {
+            const registrations = responseCallbacks.get(registration.cb) || [];
+            registrations.push(registration);
+            responseCallbacks.set(registration.cb, registrations);
+          } else {
+            enqueueNotification(registration);
           }
-          matchedCallbacks.forEach((registration) => {
-            if (pendingCbs.has(registration.cb)) return;
-            if (registration.needsResponse) {
-              if (!clonedResponse) return;
-              pendingCbs.add(registration.cb);
-              pendingQueue.push({
-                cb: registration.cb,
-                needsResponse: true,
-                response: clonedResponse,
-                url,
-                init,
-              });
-            } else {
-              pendingCbs.add(registration.cb);
-              pendingQueue.push({ cb: registration.cb, needsResponse: false });
-            }
-          });
-          schedulePendingFlush();
-        } catch {}
+        }
+        for (const [cb, registrations] of responseCallbacks) {
+          try {
+            pendingQueue.push({ cb, needsResponse: true, response: response.clone(), url, init, registrations });
+          } catch {}
+        }
+        if (pendingQueue.length > 0) schedulePendingFlush();
       }).catch(() => {});
     }
     return fetchPromise;
@@ -161,11 +172,7 @@ export function initFetchMonitor(): void {
 export function triggerFetchEvent(name: string): void {
   const callbacks = rules.get(name);
   if (!callbacks || callbacks.size === 0) return;
-  callbacks.forEach((registration) => {
-    if (registration.needsResponse || pendingCbs.has(registration.cb)) return;
-    pendingCbs.add(registration.cb);
-    pendingQueue.push({ cb: registration.cb, needsResponse: false });
-  });
+  callbacks.forEach(enqueueNotification);
   schedulePendingFlush();
 }
 export function destroyFetchMonitor(): void {
@@ -182,6 +189,7 @@ export function destroyFetchMonitor(): void {
   }
   pendingQueue = [];
   pendingCbs.clear();
+  rules.forEach(callbacks => callbacks.forEach(registration => { registration.active = false; }));
   rules.clear();
   currentPatch = null;
 }
