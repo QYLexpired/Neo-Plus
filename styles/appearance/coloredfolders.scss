@@ -25,7 +25,6 @@ $border-width: 3px;
     body.neo-coloredfolders-card {
         .file-tree__pins {
             margin-bottom: 16px !important;
-            border-bottom: none !important;
             padding-bottom: 0 !important;
             --_indentline-dot-trans: -12px;
             --_indentline-li-trans: 8px;
@@ -35,6 +34,7 @@ $border-width: 3px;
         }
     }
     body.neo-coloredfolders-partition {
+        --_file-tree__pins-separator-width: calc(100% + 6px);
         .sy__file,
         .fn__flex-column[data-type="sidebar-file"] {
             --_indentline-dot-trans: -10px;
@@ -67,7 +67,7 @@ $border-width: 3px;
                     &::before {
                         left: 0;
                     }
-                    & > [data-pin-heading] {
+                    .b3-list-item[data-pin-heading] {
                         margin-inline: 0;
                     }
                 }
@@ -142,6 +142,7 @@ $border-width: 3px;
         }
     }
     body.neo-coloredfolders-card {
+        --_file-tree__pins-separator-width: calc(100% - 6px);
         .sy__file,
         .fn__flex-column[data-type="sidebar-file"] {
             --_indentline-dot-trans: -10px;
@@ -158,7 +159,7 @@ $border-width: 3px;
                 &:not(:last-child) {
                     margin-bottom: 3px;
                 }
-                &.file-tree__pins > [data-pin-heading] {
+                &.file-tree__pins .b3-list-item[data-pin-heading] {
                     margin-inline: 0;
                 }
                 @for $i from 0 through 7 {
