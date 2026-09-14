@@ -24,7 +24,7 @@ $border-width: 3px;
     body.neo-coloredfolders-partition,
     body.neo-coloredfolders-card {
         .file-tree__pins {
-            margin-bottom: 16px !important;
+            margin-bottom: 2px !important;
             padding-bottom: 0 !important;
             --_indentline-dot-trans: -12px;
             --_indentline-li-trans: 8px;
@@ -34,7 +34,6 @@ $border-width: 3px;
         }
     }
     body.neo-coloredfolders-partition {
-        --_file-tree__pins-separator-width: calc(100% + 6px);
         .sy__file,
         .fn__flex-column[data-type="sidebar-file"] {
             --_indentline-dot-trans: -10px;
@@ -142,7 +141,6 @@ $border-width: 3px;
         }
     }
     body.neo-coloredfolders-card {
-        --_file-tree__pins-separator-width: calc(100% - 6px);
         .sy__file,
         .fn__flex-column[data-type="sidebar-file"] {
             --_indentline-dot-trans: -10px;
