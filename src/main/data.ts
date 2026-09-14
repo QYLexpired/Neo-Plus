@@ -114,6 +114,7 @@ interface ConfigSaveWaiter {
 let configRevision = 0;
 let persistedConfigRevision = 0;
 let configSaveLoop: Promise<void> | null = null;
+let configSaveTimer: ReturnType<typeof setTimeout> | null = null;
 let configSavePlugin: Plugin | null = null;
 let configSaveWaiters: ConfigSaveWaiter[] = [];
 function serializeConfig(value: unknown): string {
@@ -138,11 +139,11 @@ function resolveConfigSaveWaiters(revision: number, result: ConfigSaveResult): v
 }
 async function flushConfigSaves(): Promise<void> {
   try {
-    while (persistedConfigRevision < configRevision) {
+    while (persistedConfigRevision < configRevision && configSaveTimer === null) {
       let revision = configRevision;
       try {
         await readConfig();
-        if (persistedConfigRevision >= configRevision) break;
+        if (persistedConfigRevision >= configRevision || configSaveTimer !== null) break;
         revision = configRevision;
         const snapshot = { ...configCache };
         const content = serializeConfig(snapshot);
@@ -168,7 +169,7 @@ async function flushConfigSaves(): Promise<void> {
     configSaveLoop = null;
   }
 }
-function enqueueConfigSave(plugin: Plugin, keys: Array<keyof Config>): Promise<ConfigSaveResult> {
+function enqueueConfigSave(plugin: Plugin, keys: Array<keyof Config>, delay = 0): Promise<ConfigSaveResult> {
   configRevision += 1;
   const revision = configRevision;
   keys.forEach(key => configKeyRevisions.set(key, revision));
@@ -176,17 +177,25 @@ function enqueueConfigSave(plugin: Plugin, keys: Array<keyof Config>): Promise<C
   const result = new Promise<ConfigSaveResult>((resolve) => {
     configSaveWaiters.push({ revision, resolve, isCurrent: createNeoLifecycleGuard() });
   });
-  if (!configSaveLoop) {
-    configSaveLoop = Promise.resolve().then(flushConfigSaves);
-    configSaveLoop.catch(() => {});
-  }
+  if (configSaveTimer !== null) clearTimeout(configSaveTimer);
+  if (delay > 0) configSaveTimer = setTimeout(flushConfigSave, delay);
+  else flushConfigSave();
   return result;
 }
-export function saveConfig(patch: Partial<Config>): Promise<ConfigSaveResult> {
+export function flushConfigSave(): void {
+  if (configSaveTimer !== null) {
+    clearTimeout(configSaveTimer);
+    configSaveTimer = null;
+  }
+  if (configSaveLoop || configSaveWaiters.length === 0) return;
+  configSaveLoop = Promise.resolve().then(flushConfigSaves);
+  configSaveLoop.catch(() => {});
+}
+export function saveConfig(patch: Partial<Config>, delay = 0): Promise<ConfigSaveResult> {
   const plugin = getPluginOrNull();
   if (!plugin) return Promise.resolve(false);
   configCache = { ...configCache, ...patch };
-  return enqueueConfigSave(plugin, Object.keys(patch) as Array<keyof Config>);
+  return enqueueConfigSave(plugin, Object.keys(patch) as Array<keyof Config>, delay);
 }
 export async function saveConfigIfUnchanged(patch: Partial<Config>, expected: Partial<Config>): Promise<ConfigSaveResult> {
   await loadConfig();

@@ -28,6 +28,7 @@ let cachedDisplayColor = '#f44336';
 let cachedBaseColor = '';
 let lastColorFetchTime = 0;
 const colorRefreshInterval = 500;
+const trailResetInterval = 200;
 let trailOn = true;
 let waveOn = true;
 let neoFeatureActive = false;
@@ -145,14 +146,20 @@ function startFluidCursor(): void {
   }
   resizeHandler = resize;
   resize();
+  let resetTrailOnMove = false;
   function resumeAnimation(): void {
     if (animationFrameId !== null) return;
     if (!canvas || !ctx) return;
     lastTime = performance.now();
     animationFrameId = window.requestAnimationFrame(animate);
   }
-  function scheduleHideCursor(): void {
+  function getMouseEventTime(e: MouseEvent): number {
+    const now = performance.now();
+    return Number.isFinite(e.timeStamp) && e.timeStamp >= 0 && e.timeStamp <= now ? e.timeStamp : now;
+  }
+  function scheduleHideCursor(startTime = performance.now()): void {
     clearHideCursorTimeout();
+    const hideTime = startTime + 200;
     hideCursorTimeout = window.setTimeout(() => {
       hideCursorTimeout = null;
       if (isFirstMouseMove || points.length === 0) {
@@ -160,13 +167,17 @@ function startFluidCursor(): void {
         return;
       }
       isShrinking = true;
-      shrinkStartTime = performance.now();
+      shrinkStartTime = hideTime;
       resumeAnimation();
-    }, 200);
+    }, Math.max(0, hideTime - performance.now()));
   }
   mouseMoveHandler = (e: MouseEvent) => {
     if (trailOn) {
-      if (isFirstMouseMove) {
+      const eventTime = getMouseEventTime(e);
+      if (performance.now() - eventTime > trailResetInterval) return;
+      if (isFirstMouseMove || resetTrailOnMove) {
+        resetTrailOnMove = false;
+        points = [];
         isFirstMouseMove = false;
         mouse.x = e.clientX;
         mouse.y = e.clientY;
@@ -179,7 +190,7 @@ function startFluidCursor(): void {
       }
       randomCursorColor();
       isShrinking = false;
-      scheduleHideCursor();
+      scheduleHideCursor(eventTime);
       resumeAnimation();
     }
   };
@@ -188,16 +199,19 @@ function startFluidCursor(): void {
     window.addEventListener('mousemove', mouseMoveHandler, { passive: true });
   }
   mouseDownHandler = (e: MouseEvent) => {
+    const eventTime = getMouseEventTime(e);
     isMouseDown = true;
     isShrinking = false;
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-    if (waveOn) {
+    if (performance.now() - eventTime <= trailResetInterval) {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }
+    if (waveOn && performance.now() - eventTime <= 1100) {
       const invert = e.button !== 0;
       waves.push({
         x: e.clientX,
         y: e.clientY,
-        startTime: performance.now(),
+        startTime: eventTime,
         colors: [waveColor(invert, 0.7), waveColor(invert, 0.7), waveColor(invert, 0.7)],
         scale: 0.55 + Math.random() * 1.3,
         duration: 0.45 + Math.random() * 0.65,
@@ -226,6 +240,14 @@ function startFluidCursor(): void {
     const c = ctx;
     const deltaTime = (currentTime - lastTime) / 1000;
     lastTime = currentTime;
+    if (deltaTime * 1000 > trailResetInterval) {
+      resetTrailOnMove = true;
+      points.forEach(point => {
+        point.x = mouse.x;
+        point.y = mouse.y;
+      });
+      isShrinking = false;
+    }
     const timeFactor = Math.min(deltaTime * 60, 3);
     const diff = targetHueOffset - currentHueOffset;
     if (Math.abs(diff) > 0.5) {
@@ -243,7 +265,7 @@ function startFluidCursor(): void {
           const elapsed = (currentTime - shrinkStartTime) / 1000;
           const shrinkProgress = Math.min(elapsed / 0.35, 1);
           for (let i = 0; i < points.length; i++) {
-            const pull = Math.min(0.15 + (i / points.length) * 0.5, 0.65) * timeFactor;
+            const pull = shrinkProgress >= 1 ? 1 : Math.min(Math.min(0.15 + (i / points.length) * 0.5, 0.65) * timeFactor, 1);
             points[i].x += (mouse.x - points[i].x) * pull;
             points[i].y += (mouse.y - points[i].y) * pull;
           }

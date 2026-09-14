@@ -1,5 +1,5 @@
 import { getPlugin } from '../main/context';
-import { loadConfig, saveConfig, type Config } from '../main/data';
+import { loadConfig, saveConfig, flushConfigSave, type Config } from '../main/data';
 import {
   type ThemeMode,
   type Preset,
@@ -162,11 +162,12 @@ export function handleColorInput(value: string, cssVar: string, colorKey: string
   document.documentElement.style.setProperty(cssVar, value);
   const mode = getThemeMode();
   const configKey: 'color-plan-light' | 'color-plan-dark' = mode === 'dark' ? 'color-plan-dark' : 'color-plan-light';
-  saveConfig({ [colorKey]: value, [configKey]: plan } as Partial<Config>);
+  saveConfig({ [colorKey]: value, [configKey]: plan } as Partial<Config>, 200);
 }
 let _menuListenerInitialized = false;
 let _inputHandler: ((e: Event) => void) | null = null;
 let _clickHandler: ((e: Event) => void) | null = null;
+let _changeHandler: ((e: Event) => void) | null = null;
 let _dblclickHandler: ((e: Event) => void) | null = null;
 function handleSliderInput(target: HTMLInputElement, cssVar: string, configKey: string, label: string): void {
   const num = parseFloat(target.value);
@@ -175,7 +176,7 @@ function handleSliderInput(target: HTMLInputElement, cssVar: string, configKey: 
   if (tooltip) {
     tooltip.setAttribute('aria-label', `${label}：${num.toFixed(2)}`);
   }
-  saveConfig({ [configKey]: num } as Partial<Config>);
+  saveConfig({ [configKey]: num } as Partial<Config>, 200);
 }
 export function initPaletteMenuEvents(i18n: Record<string, string>): void {
   if (_menuListenerInitialized) return;
@@ -192,6 +193,13 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     } else if (dataId === 'neo-brightness-button' && target instanceof HTMLInputElement && target.type === 'range') {
       handleSliderInput(target, '--neo-brightness', getBrightnessKey(getThemeMode()), i18n.brightness ?? 'Brightness');
     }
+  };
+  _changeHandler = (e: Event) => {
+    const target = e.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    const dataId = target.closest('[data-id]')?.getAttribute('data-id');
+    if ((target.type === 'range' && (dataId === 'neo-saturation-button' || dataId === 'neo-brightness-button'))
+      || (target.type === 'color' && dataId === 'neo-customcolor-button')) flushConfigSave();
   };
   _clickHandler = (e: Event) => {
     const target = e.target as HTMLElement;
@@ -216,10 +224,16 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     }
   };
   document.addEventListener('input', _inputHandler, true);
+  document.addEventListener('change', _changeHandler, true);
   document.addEventListener('click', _clickHandler, true);
   document.addEventListener('dblclick', _dblclickHandler, true);
 }
 export function destroyPaletteMenuEvents(): void {
+  flushConfigSave();
+  if (_changeHandler) {
+    document.removeEventListener('change', _changeHandler, true);
+    _changeHandler = null;
+  }
   if (_inputHandler) {
     document.removeEventListener('input', _inputHandler, true);
     _inputHandler = null;
