@@ -1,5 +1,6 @@
-import type { Plugin } from 'siyuan';
+import { showMessage, type Plugin } from 'siyuan';
 import { getPlugin } from './context';
+import { createNeoLifecycleGuard } from './lifecycle';
 export const configKey = 'config';
 export type CustomImageConfigKey =
   | 'customimage-info'
@@ -99,85 +100,67 @@ export interface Config {
   'multicolumnslashmenu'?: boolean;
   'multicolumnslashmenu-arrowkeys'?: boolean;
 }
+export type ConfigSaveResult = 'saved' | 'temporary' | false;
 let configCache: Config = {};
-let persistedConfigCache: Config = {};
+let configFileContent: string | null = null;
 const configKeyRevisions = new Map<keyof Config, number>();
 let pendingLoadConfig: Promise<Config> | null = null;
 let configLoaded = false;
 interface ConfigSaveWaiter {
   revision: number;
-  resolve: () => void;
-  reject: (reason?: unknown) => void;
+  resolve: (result: ConfigSaveResult) => void;
+  isCurrent: () => boolean;
 }
 let configRevision = 0;
 let persistedConfigRevision = 0;
 let configSaveLoop: Promise<void> | null = null;
 let configSavePlugin: Plugin | null = null;
 let configSaveWaiters: ConfigSaveWaiter[] = [];
+function serializeConfig(value: unknown): string {
+  return JSON.stringify(value, (_, item) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
+    return Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]]));
+  });
+}
 function getPluginOrNull() {
   return getPlugin();
 }
-function resolveConfigSaveWaiters(): void {
-  const pendingWaiters: ConfigSaveWaiter[] = [];
-  for (const waiter of configSaveWaiters) {
-    if (waiter.revision <= persistedConfigRevision) {
-      waiter.resolve();
-    } else {
-      pendingWaiters.push(waiter);
-    }
-  }
-  configSaveWaiters = pendingWaiters;
-}
-function rejectConfigSaveWaiters(revision: number, reason: unknown): void {
+function resolveConfigSaveWaiters(revision: number, result: ConfigSaveResult): void {
   const pendingWaiters: ConfigSaveWaiter[] = [];
   for (const waiter of configSaveWaiters) {
     if (waiter.revision <= revision) {
-      waiter.reject(reason);
+      waiter.resolve(result);
     } else {
       pendingWaiters.push(waiter);
     }
   }
   configSaveWaiters = pendingWaiters;
-}
-async function ensureConfigLoaded(): Promise<void> {
-  const pendingLoad = pendingLoadConfig;
-  if (pendingLoad) {
-    await pendingLoad;
-  } else if (!configLoaded) {
-    await loadConfig();
-  }
-  if (!configLoaded) throw new Error('Config load unavailable');
 }
 async function flushConfigSaves(): Promise<void> {
   try {
     while (persistedConfigRevision < configRevision) {
       let revision = configRevision;
       try {
-        await ensureConfigLoaded();
+        await readConfig();
+        if (persistedConfigRevision >= configRevision) break;
         revision = configRevision;
         const snapshot = { ...configCache };
+        const content = serializeConfig(snapshot);
         const plugin = configSavePlugin;
         if (!plugin) throw new Error('Config save plugin unavailable');
         await plugin.saveData(configKey, snapshot);
-        persistedConfigCache = snapshot;
+        configFileContent = content;
         persistedConfigRevision = revision;
         for (const [key, changedAt] of configKeyRevisions) {
           if (changedAt <= revision) configKeyRevisions.delete(key);
         }
-        resolveConfigSaveWaiters();
-      } catch (error) {
-        const restored = { ...configCache };
-        for (const [key, changedAt] of configKeyRevisions) {
-          if (changedAt > revision) continue;
-          if (Object.prototype.hasOwnProperty.call(persistedConfigCache, key)) {
-            Object.assign(restored, { [key]: persistedConfigCache[key] });
-          } else {
-            delete restored[key];
-          }
-          configKeyRevisions.delete(key);
+        resolveConfigSaveWaiters(revision, 'saved');
+      } catch {
+        const plugin = configSavePlugin;
+        if (plugin && configSaveWaiters.some(waiter => waiter.revision <= revision && waiter.isCurrent())) {
+          showMessage(plugin.i18n.configSaveFailed);
         }
-        configCache = restored;
-        rejectConfigSaveWaiters(revision, error);
+        resolveConfigSaveWaiters(revision, 'temporary');
         if (configRevision <= revision) break;
       }
     }
@@ -185,55 +168,74 @@ async function flushConfigSaves(): Promise<void> {
     configSaveLoop = null;
   }
 }
-function enqueueConfigSave(plugin: Plugin, keys: Array<keyof Config>): Promise<void> {
+function enqueueConfigSave(plugin: Plugin, keys: Array<keyof Config>): Promise<ConfigSaveResult> {
   configRevision += 1;
   const revision = configRevision;
   keys.forEach(key => configKeyRevisions.set(key, revision));
   configSavePlugin = plugin;
-  const result = new Promise<void>((resolve, reject) => {
-    configSaveWaiters.push({ revision, resolve, reject });
+  const result = new Promise<ConfigSaveResult>((resolve) => {
+    configSaveWaiters.push({ revision, resolve, isCurrent: createNeoLifecycleGuard() });
   });
-  result.catch(() => {});
   if (!configSaveLoop) {
     configSaveLoop = Promise.resolve().then(flushConfigSaves);
     configSaveLoop.catch(() => {});
   }
   return result;
 }
-export function saveConfig(patch: Partial<Config>): Promise<void> {
+export function saveConfig(patch: Partial<Config>): Promise<ConfigSaveResult> {
   const plugin = getPluginOrNull();
-  if (!plugin) return Promise.resolve();
+  if (!plugin) return Promise.resolve(false);
   configCache = { ...configCache, ...patch };
   return enqueueConfigSave(plugin, Object.keys(patch) as Array<keyof Config>);
 }
-export async function saveConfigIfUnchanged(patch: Partial<Config>, expected: Partial<Config>): Promise<boolean> {
-  await ensureConfigLoaded();
+export async function saveConfigIfUnchanged(patch: Partial<Config>, expected: Partial<Config>): Promise<ConfigSaveResult> {
+  await loadConfig();
+  if (!configLoaded) throw new Error('Config load unavailable');
   if (!getPluginOrNull() || (Object.keys(expected) as Array<keyof Config>).some(key => configCache[key] !== expected[key])) return false;
-  await saveConfig(patch);
-  return true;
+  return saveConfig(patch);
 }
-export function loadConfig(): Promise<Config> {
+export function getConfig(): Config {
+  return configCache;
+}
+function readConfig(): Promise<Config> {
   if (pendingLoadConfig) return pendingLoadConfig;
   const plugin = getPluginOrNull();
-  if (!plugin) {
-    pendingLoadConfig = Promise.resolve(configCache);
-    pendingLoadConfig.finally(() => { pendingLoadConfig = null; });
-    return pendingLoadConfig;
-  }
+  if (!plugin) return Promise.reject(new Error('Config load unavailable'));
   pendingLoadConfig = plugin.loadData(configKey).then((data: Config | null) => {
-    if (!configLoaded) persistedConfigCache = { ...(data || {}) };
-    configCache = { ...(data || {}), ...configCache };
+    const loaded = { ...(data || {}) };
+    const content = serializeConfig(loaded);
+    if (configFileContent === content) return configCache;
+    if (configFileContent !== null) {
+      configKeyRevisions.clear();
+      persistedConfigRevision = configRevision;
+      resolveConfigSaveWaiters(configRevision, false);
+    }
+    configFileContent = content;
+    for (const key of Object.keys(loaded) as Array<keyof Config>) {
+      if (serializeConfig(loaded[key]) === serializeConfig(configCache[key])) {
+        Object.assign(loaded, { [key]: configCache[key] });
+      }
+    }
+    for (const key of configKeyRevisions.keys()) {
+      if (Object.prototype.hasOwnProperty.call(configCache, key)) {
+        Object.assign(loaded, { [key]: configCache[key] });
+      } else {
+        delete loaded[key];
+      }
+    }
+    configCache = loaded;
     configLoaded = true;
     return configCache;
-  }).catch(() => {
-    return configCache;
-  });
-  pendingLoadConfig.finally(() => { pendingLoadConfig = null; });
+  }).finally(() => { pendingLoadConfig = null; });
   return pendingLoadConfig;
 }
-export function deleteConfigKeys(keys: string[]): Promise<void> {
+export function loadConfig(): Promise<Config> {
+  if (configLoaded && configSaveLoop && !pendingLoadConfig) return Promise.resolve(configCache);
+  return readConfig().catch(() => configCache);
+}
+export function deleteConfigKeys(keys: string[]): Promise<ConfigSaveResult> {
   const plugin = getPluginOrNull();
-  if (!plugin) return Promise.resolve();
+  if (!plugin) return Promise.resolve(false);
   const nextConfig = { ...configCache } as Record<string, unknown>;
   for (const k of keys) {
     delete nextConfig[k];

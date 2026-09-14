@@ -1,6 +1,7 @@
 import { isMobile } from '../modules/env';
 import { saveConfig, type Config } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { getThemeMode, getHighContrastKey } from './presets';
 let neoFeatureActive = false;
 export function enableHighContrast(): void {
@@ -13,7 +14,9 @@ export function onHighContrastClick(): void {
   const mode = getThemeMode();
   if (mode !== 'light') return;
   const shouldEnable = !neoFeatureActive;
+  const isCurrent = createNeoLifecycleGuard();
   const callback = () => {
+    if (!isCurrent()) return;
     if (shouldEnable) {
       enableHighContrast();
     } else {

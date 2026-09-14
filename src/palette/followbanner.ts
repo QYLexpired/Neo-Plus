@@ -140,11 +140,24 @@ function extractBackgroundColor(el: HTMLElement): string | null {
   if (parsed) return rgbToHex(parsed.r, parsed.g, parsed.b);
   return null;
 }
+function extractGradient(background: string): string | null {
+  const match = /(?:repeating-)?(?:linear|radial|conic)-gradient\(/.exec(background);
+  if (!match) return null;
+  let depth = 1;
+  for (let index = match.index + match[0].length; index < background.length; index++) {
+    if (background[index] === '(') depth += 1;
+    else if (background[index] === ')') {
+      depth -= 1;
+      if (depth === 0) return background.slice(match.index, index + 1);
+    }
+  }
+  return null;
+}
 function extractGradientColor(el: HTMLElement): string | null {
   const style = el.style;
   const bgImage = style.backgroundImage || style.background || '';
-  const gradientMatch = bgImage.match(/(?:repeating-)?(?:linear|radial|conic)-gradient\([^)]+\)/);
-  return gradientMatch ? getValidHex(extractMainColorFromGradient(gradientMatch[0])) : null;
+  const gradient = extractGradient(bgImage);
+  return gradient ? getValidHex(extractMainColorFromGradient(gradient)) : null;
 }
 type BannerSource = HTMLVideoElement | HTMLImageElement;
 type MediaReadyResult = 'ready' | 'failed' | 'cancelled';
@@ -234,7 +247,7 @@ async function resolveBannerColor(target: BannerTarget, signal: AbortSignal): Pr
   if (source instanceof HTMLImageElement) {
     const style = source.style;
     const bgImage = style.backgroundImage || style.background || '';
-    const hasGradient = /(?:repeating-)?(?:linear|radial|conic)-gradient\([^)]+\)/.test(bgImage);
+    const hasGradient = extractGradient(bgImage) !== null;
     const sourceGradient = extractGradientColor(source);
     if (sourceGradient) return sourceGradient;
     const sourceBackground = getValidHex(extractBackgroundColor(source));

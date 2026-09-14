@@ -320,7 +320,9 @@ export function initVerticalTabs(): void {
 export function onVerticalTabsClick(): void {
   if (isMobile()) return;
   const shouldEnable = !neoFeatureActive;
+  const isCurrent = createNeoLifecycleGuard();
   withViewTransition(() => {
+    if (!isCurrent()) return;
     if (shouldEnable) {
       enableVerticalTabs();
       saveConfig({ 'verticaltabs': true } as Partial<Config>);

@@ -2,6 +2,7 @@ import { Dialog } from '../modules/dialog';
 import { getPlugin } from '../main/context';
 import {
   saveConfig,
+  getConfig,
   type Config,
   type PresetTextureSettingValue,
   type PresetTextureSettings,
@@ -183,6 +184,7 @@ export function showPresetTextureSettings(
       const input = dialog.element.querySelector(`#${getInputId(texture, setting)}`) as HTMLInputElement | HTMLSelectElement | null;
       nextValues[setting.key] = normalizeSettingValue(setting, input?.value);
     }
+    loadPresetTextureSettings(getConfig());
     presetTextureSettings = {
       ...presetTextureSettings,
       [texture.key]: nextValues,

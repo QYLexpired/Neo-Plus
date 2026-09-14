@@ -22,6 +22,11 @@ export class Dialog extends SiyuanDialog {
     this.element.addEventListener('keydown', event => {
       if (event.defaultPrevented || event.isComposing || event.key !== 'Enter'
         || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+      const target = event.target;
+      if (target instanceof Element && target.closest('textarea, select, button, a[href], summary, [role="button"], [role="link"], [role="combobox"], [role="listbox"], [role="slider"], [role="spinbutton"], [role="checkbox"], [role="radio"], [role="switch"]')) return;
+      if (target instanceof HTMLElement && target.isContentEditable) return;
+      if (target instanceof HTMLInputElement
+        && (target.list || !['text', 'search', 'email', 'url', 'tel', 'password', 'number'].includes(target.type))) return;
       event.preventDefault();
       event.stopPropagation();
       if (!isCurrent() || this.closing || event.repeat) return;

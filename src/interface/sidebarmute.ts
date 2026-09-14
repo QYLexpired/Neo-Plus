@@ -24,7 +24,9 @@ export function initSidebarMute(): void {
 export function onSidebarMuteClick(): void {
   if (isMobile()) return;
   const shouldEnable = !neoFeatureActive;
+  const isCurrent = createNeoLifecycleGuard();
   withViewTransition(() => {
+    if (!isCurrent()) return;
     if (shouldEnable) {
       enableSidebarMute();
       saveConfig({ 'sidebarmute': true } as Partial<Config>);

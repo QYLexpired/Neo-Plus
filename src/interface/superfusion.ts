@@ -90,7 +90,9 @@ export function initSuperFusion(): void {
 export function onSuperFusionClick(): void {
   if (isMobile()) return;
   const shouldEnable = !neoFeatureActive;
+  const isCurrent = createNeoLifecycleGuard();
   withViewTransition(() => {
+    if (!isCurrent()) return;
     if (shouldEnable) {
       enableSuperFusion();
       saveConfig({ 'superfusion': true } as Partial<Config>);

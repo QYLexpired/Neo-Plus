@@ -6,6 +6,8 @@ import { createNeoLifecycleGuard } from '../main/lifecycle';
 import {
   saveConfigIfUnchanged,
   loadConfig,
+  getConfig,
+  type ConfigSaveResult,
   type Config,
   type CustomImageConfigKey,
   type CustomImageValues,
@@ -525,7 +527,7 @@ export async function showCustomImageSettings(): Promise<void> {
     content: buildSettingsHTML(i18n, mode),
     destroyCallback: () => {
       presetMenu?.close();
-      if (canPreview()) applyCustomImageCss(savedValues);
+      if (canPreview()) applyCustomImageCss(getValues(getConfig(), mode));
     },
   });
   dialog.element.classList.add('neo-settings-dialog');
@@ -565,7 +567,7 @@ export async function showCustomImageSettings(): Promise<void> {
     presetButton.textContent = selected || '\u00a0';
   }
   updatePresetButton();
-  async function persist(nextPresets: Record<string, CustomImageSource>, name: string, preserveDraft = false): Promise<boolean> {
+  async function persist(nextPresets: Record<string, CustomImageSource>, name: string, preserveDraft = false): Promise<ConfigSaveResult> {
     if (!isCurrent() || saving || !dialog.element.isConnected) return false;
     saving = true;
     const controls = dialog.element.querySelectorAll<CustomImageInput | HTMLButtonElement>('input, textarea, select, button');
@@ -577,7 +579,8 @@ export async function showCustomImageSettings(): Promise<void> {
     expected[presetsKey] = config[presetsKey];
     expected[currentKey] = config[currentKey];
     try {
-      if (!await saveConfigIfUnchanged(patch, expected)) {
+      const result = await saveConfigIfUnchanged(patch, expected);
+      if (!result) {
         if (isCurrent()) showMessage(i18n.customimagePresetsChanged);
         return false;
       }
@@ -591,9 +594,8 @@ export async function showCustomImageSettings(): Promise<void> {
         setFormValues(savedValues, true);
         dirty = false;
       }
-      return true;
+      return result;
     } catch {
-      if (isCurrent()) showMessage(i18n.customimageSaveFailed);
       return false;
     } finally {
       saving = false;
@@ -652,8 +654,9 @@ export async function showCustomImageSettings(): Promise<void> {
   dialog.element.querySelector('#neo-customimage-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-customimage-update-preset')?.addEventListener('click', async () => {
     if (!selected) { showMessage(i18n.customimagePresetNotSelected); return; }
-    if (await persist({ ...presets, [selected]: buildPresetFromDom() }, selected)) {
-      showNamedMessage(i18n.customimagePresetUpdated, selected);
+    const result = await persist({ ...presets, [selected]: buildPresetFromDom() }, selected);
+    if (result) {
+      if (result === 'saved') showNamedMessage(i18n.customimagePresetUpdated, selected);
       dialog.destroy();
     }
   });
@@ -682,7 +685,7 @@ export async function showCustomImageSettings(): Promise<void> {
     if (!await confirmPresetAction(i18n.customimagePresetDeleteConfirmTitle, i18n.customimagePresetDeleteConfirmContent.replace('${name}', () => name), i18n.customimageDelete, i18n.cancel)) return;
     const next = { ...presets };
     delete next[name];
-    if (await persist(next, name === selected ? '' : selected, name !== selected)) {
+    if (await persist(next, name === selected ? '' : selected, name !== selected) === 'saved') {
       showNamedMessage(i18n.customimagePresetDeleted, name);
     }
   }
@@ -699,7 +702,7 @@ export async function showCustomImageSettings(): Promise<void> {
       return false;
     }
     const next = Object.fromEntries(Object.entries(presets).map(([key, value]) => [key === oldName ? name : key, value]));
-    return persist(next, selected === oldName ? name : selected, true);
+    return Boolean(await persist(next, selected === oldName ? name : selected, true));
   }
   function showNewPreset(source: Partial<CustomImageValues>, title: string): Promise<boolean> {
     return new Promise(resolve => {
@@ -734,8 +737,9 @@ export async function showCustomImageSettings(): Promise<void> {
         try {
           if (Object.prototype.hasOwnProperty.call(presets, name)
             && !await confirmPresetAction(i18n.customimagePresetOverwriteTitle, i18n.customimagePresetOverwriteContent.replace('${name}', () => name), i18n.confirm, i18n.cancel)) return;
-          if (await persist({ ...presets, [name]: { ...source } }, name)) {
-            showNamedMessage(i18n.customimagePresetSaved, name);
+          const result = await persist({ ...presets, [name]: { ...source } }, name);
+          if (result) {
+            if (result === 'saved') showNamedMessage(i18n.customimagePresetSaved, name);
             resolve(true);
             destroyNameDialog();
           }

@@ -84,7 +84,9 @@ export function initFrostedGlass(): void {
 }
 export function onFrostedGlassClick(): void {
   const shouldEnable = !neoFeatureActive;
+  const isCurrent = createNeoLifecycleGuard();
   withViewTransition(() => {
+    if (!isCurrent()) return;
     if (shouldEnable) {
       enableFrostedGlass();
       saveConfig({ 'frostedglass': true } as Partial<Config>);

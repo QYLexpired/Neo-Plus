@@ -125,7 +125,9 @@ export function initIde(): void {
 export function onIdeClick(): void {
   if (isMobile()) return;
   const shouldEnable = !neoFeatureActive;
+  const isCurrent = createNeoLifecycleGuard();
   withViewTransition(() => {
+    if (!isCurrent()) return;
     if (shouldEnable) {
       enableIde();
       saveConfig({ 'ide': true } as Partial<Config>);

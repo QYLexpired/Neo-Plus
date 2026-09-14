@@ -1,5 +1,6 @@
 import { saveConfig, type Config } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { getThemeMode, getInvertKey } from './presets';
 let neoFeatureActive = false;
 export function enableInvert(): void {
@@ -11,7 +12,9 @@ export async function onInvertClick(): Promise<void> {
   const mode = getThemeMode();
   if (mode !== 'dark') return;
   const shouldEnable = !neoFeatureActive;
+  const isCurrent = createNeoLifecycleGuard();
   const callback = () => {
+    if (!isCurrent()) return;
     if (shouldEnable) {
       enableInvert();
     } else {
