@@ -21,12 +21,10 @@ function removeMarkFromItem(item: HTMLElement): void {
   item.removeAttribute('neo-listbulletline-current');
   item.style.removeProperty('--neo-listbulletline-height');
 }
-function addMarkToItem(item: HTMLElement, hasNext: boolean, nextItem?: HTMLElement): void {
+function addMarkToItem(item: HTMLElement, height?: string): void {
   item.setAttribute('neo-listbulletline-node', '');
-  if (hasNext && nextItem) {
-    const currentRect = item.getBoundingClientRect();
-    const nextRect = nextItem.getBoundingClientRect();
-    item.style.setProperty('--neo-listbulletline-height', `${currentRect.top - nextRect.top}px`);
+  if (height !== undefined) {
+    item.style.setProperty('--neo-listbulletline-height', height);
     item.setAttribute('neo-listbulletline-current', '');
   }
 }
@@ -90,6 +88,7 @@ function runSelectionUpdate(clickTarget?: HTMLElement | null): void {
       node = element.parentElement;
     }
   }
+  const itemTops = currentListItems.length > 1 ? currentListItems.map((item) => item.getBoundingClientRect().top) : [];
   const currentSet = new Set(currentListItems);
   lastMarkedItems.forEach((item) => {
     if (!currentSet.has(item)) {
@@ -98,14 +97,11 @@ function runSelectionUpdate(clickTarget?: HTMLElement | null): void {
   });
   currentListItems.forEach((item, index) => {
     const hasNext = index < currentListItems.length - 1;
-    const nextItem = hasNext ? currentListItems[index + 1] : undefined;
+    const newHeight = hasNext ? `${itemTops[index] - itemTops[index + 1]}px` : undefined;
     if (!lastMarkedItems.has(item)) {
-      addMarkToItem(item, hasNext, nextItem);
+      addMarkToItem(item, newHeight);
     } else {
-      if (hasNext && nextItem) {
-        const currentRect = item.getBoundingClientRect();
-        const nextRect = nextItem.getBoundingClientRect();
-        const newHeight = `${currentRect.top - nextRect.top}px`;
+      if (newHeight !== undefined) {
         const oldHeight = item.style.getPropertyValue('--neo-listbulletline-height');
         if (oldHeight !== newHeight) {
           item.style.setProperty('--neo-listbulletline-height', newHeight);
