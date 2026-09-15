@@ -515,7 +515,9 @@ export function initFluidCursor(): Promise<void> | void {
     if (!isCurrent()) return;
     trailOn = config['fluidcursor-trail'] !== false;
     waveOn = config['fluidcursor-wave'] !== false;
-    if (config['fluidcursor'] === true) {
+    if (neoFeatureActive) {
+      applyFluidCursorOptions(trailOn, waveOn);
+    } else if (config['fluidcursor'] === true) {
       enableFluidCursor();
     }
   });
