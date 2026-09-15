@@ -31,7 +31,7 @@ while ((entryMatch = presetEntryRegex.exec(presetsSource)) !== null) {
     presetGroupMap.set(key, groupMatch[1]);
   }
 }
-const pinnedKeys = ['default', 'classic'];
+const pinnedKeys = ['default', 'classic', 'qyl'];
 const volKeys = presetKeys.filter((k) => !pinnedKeys.includes(k) && !presetGroupMap.has(k));
 const sizeMatch = presetsSource.match(/volChunkSize\s*=\s*(\d+)/);
 const volChunkSize = sizeMatch ? Number(sizeMatch[1]) : 10;
