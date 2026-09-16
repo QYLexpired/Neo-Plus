@@ -95,7 +95,7 @@ export function switchToPlan(plan: Plan): void {
 export function getPresetMenuItems(i18n: Record<string, string>): MenuItem[] {
   const mode = getThemeMode();
   const availablePresets = getPresetsByMode(mode);
-  const pinnedKeys = ['default', 'classic', 'qyl'];
+  const pinnedKeys = ['default', 'classic'];
   const topLevelPresets = availablePresets.filter((p) => pinnedKeys.includes(p.key));
   const restPresets = availablePresets.filter((p) => !pinnedKeys.includes(p.key));
   const makeItem = (preset: Preset): MenuItem => ({

@@ -687,6 +687,11 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
       nameKey: 'freeLibraryVscodeLight',
       colors: { base: '#007acc', accent: '#0071be', background: '#ffffff', surface: '#f3f3f3', onbackground: '#000000' },
     },
+    {
+      key: 'qyl-light',
+      nameKey: 'freeLibraryQylLight',
+      colors: { base: '#4c77d2', accent: '#4c77d2', background: '#f8faff', surface: '#e8edf8', onbackground: '#353c48' },
+    },
   ],
   dark: [
     {
@@ -1673,6 +1678,11 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
       key: 'vscode-dark',
       nameKey: 'freeLibraryVscodeDark',
       colors: { base: '#007acc', accent: '#2d92e6', background: '#1e1e1e', surface: '#252526', onbackground: '#d4d4d4' },
+    },
+    {
+      key: 'qyl-dark',
+      nameKey: 'freeLibraryQylDark',
+      colors: { base: '#4674c9', accent: '#4674c9', background: '#1e1e1e', surface: '#262626', onbackground: '#dadada' },
     },
   ],
 };
