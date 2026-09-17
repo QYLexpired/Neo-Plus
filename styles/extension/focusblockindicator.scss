@@ -11,17 +11,11 @@
                 width: 3.5px;
                 height: calc(100% - 1em);
                 border-radius: 8px;
-                inset-inline-start: -8px;
+                inset-inline-start: -4px;
                 top: 50%;
                 transform: translateY(-50%) scaleY(0);
                 background-color: var(--b3-theme-accent);
                 animation: neo-focusblock-entrance-vertical-line 0.3s var(--neo-ease-spring-2) forwards;
-            }
-        }
-        .agent-chat__composer-host,
-        .agent-chat__edit-editor {
-            .protyle-wysiwyg [neo-focusblock]::before {
-                inset-inline-start: -2px;
             }
         }
     }

@@ -225,7 +225,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
               <div class="config-name">${i18n.focusBlockFilter}</div>
               <div class="b3-label__text">${i18n.focusBlockFilterTip}</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:8px 16px;margin-top:8px" role="group" aria-label="${i18n.focusBlockFilter}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:8px 16px;margin-top:8px" role="group" aria-label="${i18n.focusBlockFilter}">
               ${filterSwitches}
             </div>
           </div>
