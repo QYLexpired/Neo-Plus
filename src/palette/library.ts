@@ -1622,7 +1622,7 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'winter-is-coming-dark-black',
       nameKey: 'freeLibraryWinterIsComingDarkBlack',
-      colors: { base: '#219fd5', accent: '#219fd5', background: '#282822', surface: '#0b2942', onbackground: '#a7dbf7' },
+      colors: { base: '#219fd5', accent: '#219fd5', background: '#051421', surface: '#0b2942', onbackground: '#a7dbf7' },
     },
     {
       key: 'bearded-anthracite',

@@ -138,10 +138,11 @@ function pickRandomEffects(sameAsLast: boolean): { inverted: boolean; highContra
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
   const scopeSwitches = randomPools.map(pool => `
-          <label style="display:inline-flex;align-items:center;gap:8px;white-space:nowrap;cursor:pointer">
-            <span>${i18n[`randomScope${pool.charAt(0).toUpperCase() + pool.slice(1)}`]}</span>
-            <input class="b3-switch" id="neo-random-scope-${pool}" type="checkbox">
-          </label>`).join('');
+            <label class="fn__flex" style="color:var(--b3-theme-on-surface);align-items:center">
+              <input class="b3-switch" id="neo-random-scope-${pool}" type="checkbox">
+              <span class="fn__space"></span>
+              <div class="fn__flex-1 config-item__main">${i18n[`randomScope${pool.charAt(0).toUpperCase() + pool.slice(1)}`]}</div>
+            </label>`).join('');
   const highContrastOptions = ['random', 'on', 'off']
     .map(v => `<option value="${v}">${i18n[`randomHighContrast${v.charAt(0).toUpperCase() + v.slice(1)}`]}</option>`)
     .join('');
@@ -157,10 +158,14 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
               <div class="config-name">${i18n.randomScope}</div>
               <div class="b3-label__text">${i18n.randomScopeTip}</div>
             </div>
-            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px" role="group" aria-label="${i18n.randomScope}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:8px 16px;margin-top:8px" role="group" aria-label="${i18n.randomScope}">
               ${scopeSwitches}
             </div>
           </div>
+        </div>
+      </div>
+      <div class="config-group">
+        <div class="config-items">
           <div class="b3-label config-item" style="display:flex;flex-direction:column;align-items:stretch;gap:12px">
             <div class="config-item__main">
               <div class="config-name" id="neo-random-saturation-title">${i18n.saturation}</div>
@@ -201,6 +206,10 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
               </label>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="config-group">
+        <div class="config-items">
           <label class="fn__flex b3-label config-item">
             <div class="fn__flex-1 config-item__main">
               <div class="config-name">${i18n.randomHighContrast}</div>

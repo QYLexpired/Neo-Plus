@@ -7,7 +7,7 @@
     --_coloredheadings-outline-l: calc(var(--_coloredheadings-l) - 0.05);
 }
 .neo-mode-dark {
-    --_coloredheadings-base: oklch(from var(--b3-base-color) max(l, 0.68) max(c, 0.18) h);
+    --_coloredheadings-base: oklch(from var(--b3-base-color) max(l, 0.7) max(c, 0.18) h);
     --_coloredheadings-initial-hue: h;
     --_coloredheadings-l: l;
     --_coloredheadings-c: 0.08;

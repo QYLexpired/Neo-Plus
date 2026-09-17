@@ -1,11 +1,40 @@
-import { saveConfig, loadConfig } from '../main/data';
+import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/context';
 import { getTextColor } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+type FocusBlockFilter = 'table' | 'codeblock' | 'iframe' | 'htmlblock' | 'renderblock' | 'mathblock' | 'database' | 'widget' | 'videoblock' | 'audioblock' | 'customblock';
+const focusBlockFilters: FocusBlockFilter[] = ['table', 'codeblock', 'iframe', 'htmlblock', 'renderblock', 'mathblock', 'database', 'widget', 'videoblock', 'audioblock', 'customblock'];
+const focusBlockFilterLabels: Record<FocusBlockFilter, string> = {
+  table: 'Table',
+  codeblock: 'CodeBlock',
+  iframe: 'Iframe',
+  htmlblock: 'HtmlBlock',
+  renderblock: 'RenderBlock',
+  mathblock: 'MathBlock',
+  database: 'Database',
+  widget: 'Widget',
+  videoblock: 'VideoBlock',
+  audioblock: 'AudioBlock',
+  customblock: 'CustomBlock',
+};
+const focusBlockFilterIcons: Record<FocusBlockFilter, string> = {
+  table: 'iconTable',
+  codeblock: 'iconCode',
+  iframe: 'iconGlobe',
+  htmlblock: 'iconHTML5',
+  renderblock: 'iconGraph',
+  mathblock: 'iconMath',
+  database: 'iconDatabase',
+  widget: 'iconBoth',
+  videoblock: 'iconVideo',
+  audioblock: 'iconRecord',
+  customblock: 'iconPlugin',
+};
 let focusBlockEffect: 'vertical-line' | 'shadow' | 'background' = 'vertical-line';
+let focusBlockDisabled: FocusBlockFilter[] = [];
 let updateFrame: number | null = null;
 let neoFeatureActive = false;
 let activeFocusBlock: Element | null = null;
@@ -73,14 +102,42 @@ function getFocusNode(selection: Selection | null): Node | null {
   }
   return focusNode;
 }
+function normalizeFocusBlockDisabled(value: Config['focusblockindicator-disabled']): FocusBlockFilter[] {
+  const selected = Array.isArray(value) ? value : [];
+  return focusBlockFilters.filter(filter => selected.includes(filter));
+}
+function matchesFocusBlockFilter(filter: FocusBlockFilter, block: Element): boolean {
+  const type = block.getAttribute('data-type');
+  if (filter === 'table') return type === 'NodeTable';
+  if (filter === 'iframe') return type === 'NodeIFrame';
+  if (filter === 'htmlblock') return type === 'NodeHTMLBlock';
+  if (filter === 'mathblock') return type === 'NodeMathBlock';
+  if (filter === 'database') return type === 'NodeAttributeView';
+  if (filter === 'widget') return type === 'NodeWidget';
+  if (filter === 'videoblock') return type === 'NodeVideo';
+  if (filter === 'audioblock') return type === 'NodeAudio';
+  if (filter === 'customblock') return type === 'NodeCustomBlock';
+  if (type !== 'NodeCodeBlock') return false;
+  if (filter === 'codeblock') return block.classList.contains('code-block');
+  if (filter === 'renderblock') return block.classList.contains('render-node');
+  return false;
+}
+function isFocusBlockDisabled(block: Element): boolean {
+  return focusBlockDisabled.some(filter => matchesFocusBlockFilter(filter, block));
+}
+function getFocusBlock(focusNode: Node | null): Element | null {
+  const focusElement = focusNode?.nodeType === Node.ELEMENT_NODE ? focusNode as Element : focusNode?.parentElement;
+  const block = focusElement?.closest('[data-node-id]');
+  if (!block) return null;
+  const target = block.closest('[data-sy-table-cell-inline], [data-sy-table-cell-rich]') ? block.closest('[data-node-id][data-type="NodeTable"]') ?? block : block;
+  return isFocusBlockDisabled(target) ? null : target;
+}
 function applyFocusBlock(): void {
   updateFrame = null;
   if (!neoFeatureActive) return;
   const selection = window.getSelection();
   const focusNode = getFocusNode(selection);
-  const focusElement = focusNode?.nodeType === Node.ELEMENT_NODE ? focusNode as Element : focusNode?.parentElement;
-  const curBlock = focusElement?.closest('[data-node-id]');
-  updateFocusBlock(curBlock ?? null, focusNode);
+  updateFocusBlock(getFocusBlock(focusNode), focusNode);
 }
 function scheduleFocusBlockUpdate(): void {
   if (!neoFeatureActive || updateFrame !== null) return;
@@ -115,8 +172,10 @@ export function initFocusBlockIndicator(): Promise<void> {
   return loadConfig().then((config) => {
     if (!isCurrent()) return;
     focusBlockEffect = config['focusblockindicator-effect'] || 'vertical-line';
+    focusBlockDisabled = normalizeFocusBlockDisabled(config['focusblockindicator-disabled']);
     if (neoFeatureActive) {
       applyFocusBlockEffect();
+      applyFocusBlock();
     } else if (config['focusblockindicator'] === true) {
       enableFocusBlockIndicator();
     }
@@ -135,6 +194,14 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   const effectOptions = ['vertical-line', 'shadow', 'background']
     .map(v => `<option value="${v}">${i18n[`focusBlockEffect${v.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('')}`]}</option>`)
     .join('');
+  const filterSwitches = focusBlockFilters.map(filter => `
+            <label class="fn__flex" style="color:var(--b3-theme-on-surface);align-items:center">
+              <input class="b3-switch" id="neo-focusblockindicator-disabled-${filter}" type="checkbox">
+              <span class="fn__space"></span>
+              <svg class="svg"><use xlink:href="#${focusBlockFilterIcons[filter]}"></use></svg>
+              <span class="fn__space"></span>
+              <div class="fn__flex-1 config-item__main">${i18n[`focusBlockFilter${focusBlockFilterLabels[filter]}`]}</div>
+            </label>`).join('');
   return `<div class="b3-dialog__content">
     <div class="config__tab-container">
       <div class="config-group">
@@ -149,6 +216,19 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
               ${effectOptions}
             </select>
           </label>
+        </div>
+      </div>
+      <div class="config-group">
+        <div class="config-items">
+          <div class="b3-label config-item" style="display:flex;flex-direction:column;align-items:stretch;gap:12px">
+            <div class="config-item__main">
+              <div class="config-name">${i18n.focusBlockFilter}</div>
+              <div class="b3-label__text">${i18n.focusBlockFilterTip}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:8px 16px;margin-top:8px" role="group" aria-label="${i18n.focusBlockFilter}">
+              ${filterSwitches}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -169,17 +249,33 @@ export function showFocusBlockIndicatorSettings(): void {
   dialog.element.classList.add('neo-settings-dialog');
   const effectSelect = dialog.element.querySelector('#neo-focusblockindicator-effect') as HTMLSelectElement;
   if (effectSelect) effectSelect.value = focusBlockEffect;
+  const filterSwitches = focusBlockFilters.map(filter => ({
+    filter,
+    input: dialog.element.querySelector(`#neo-focusblockindicator-disabled-${filter}`) as HTMLInputElement,
+  }));
+  for (const { filter, input } of filterSwitches) {
+    input.checked = !focusBlockDisabled.includes(filter);
+  }
   dialog.element.querySelector('#neo-focusblockindicator-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-focusblockindicator-confirm')?.addEventListener('click', () => {
+    let changed = false;
     if (effectSelect) {
       const newEffect = effectSelect.value as 'vertical-line' | 'shadow' | 'background';
       if (newEffect !== focusBlockEffect) {
         focusBlockEffect = newEffect;
         saveConfig({ 'focusblockindicator-effect': newEffect });
-        if (neoFeatureActive) {
-          applyFocusBlockEffect();
-        }
+        changed = true;
       }
+    }
+    const newDisabled = filterSwitches.filter(({ input }) => !input.checked).map(({ filter }) => filter);
+    if (newDisabled.length !== focusBlockDisabled.length || newDisabled.some(filter => !focusBlockDisabled.includes(filter))) {
+      focusBlockDisabled = newDisabled;
+      saveConfig({ 'focusblockindicator-disabled': newDisabled });
+      changed = true;
+    }
+    if (changed && neoFeatureActive) {
+      applyFocusBlockEffect();
+      applyFocusBlock();
     }
     dialog.destroy();
   });
