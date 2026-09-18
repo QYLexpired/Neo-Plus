@@ -12,17 +12,11 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     --_superfusion-frostedglass-filter: blur(3px) brightness(1.05);
     --_superfusion-frostedglass-strip: 0 1px 0 0 oklch(from var(--b3-theme-background) 0.99 c h / 0.18), 0 2px 8px 1px oklch(from var(--b3-theme-on-background) calc(l - 0.035) c h / 0.08);
     --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass) saturate(1.5);
-    .neo-mobile {
-        --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass-mobile) saturate(1.5);
-    }
 }
 .neo-mode-dark {
     --_superfusion-frostedglass-filter: blur(3px) brightness(0.9);
     --_superfusion-frostedglass-strip: 0 1px 0 0 oklch(from var(--b3-theme-on-background) l c h / 0.18), 0 2px 8px 1px oklch(from var(--b3-theme-background) calc(l - 0.1) c h / 0.42);
     --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass) saturate(1.5);
-    .neo-mobile {
-        --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass-mobile) saturate(1.5);
-    }
 }
 @mixin scrim-gradient(
     $color: var(--b3-theme-background),
@@ -154,17 +148,13 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 // 页签/标题栏融合
 @mixin superfusion-tab { // 需要融合的页签选择器
     body:not(.body--toolbar-hide) .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none),
-    .neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none)
-    /*#mobileTopBar*/
-    /*.block__popover > .block__icons*/ {
+    .neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) {
         @content;
     }
 }
 @mixin superfusion-tab-protyle { // 需要融合的protyle选择器
     body:not(.body--toolbar-hide) .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen),
-    .neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen)
-    /*.neo-mobile #editor*/
-    /*.block__popover > .block__content > .protyle:not(.fullscreen):first-child*/ {
+    .neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen) {
         @content;
     }
 }
@@ -176,16 +166,10 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 }
 @mixin superfusion-tab-protyle-x { // 需要融合的protyle选择器（顶层选择器为body类）
     &:not(.body--toolbar-hide) .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen),
-    &.neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen)
-    /*&.neo-mobile #editor*/
-    /*.block__popover > .block__content > .protyle:not(.fullscreen):first-child*/ {
+    &.neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .protyle:not(.fullscreen) {
         @content;
     }
 }
-/* 移动端特殊处理
-#mobileTopBar[aria-hidden="true"] ~ #editor {
-    --_superfusion-mobile-top-fold-fix: 94px;
-}*/
 .neo-superfusion {
     @include superfusion-tab {
         background-color: transparent;
@@ -208,8 +192,6 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     @include superfusion-tab-protyle {
         & > .protyle-breadcrumb {
             padding-top: calc($breadcrumb-height + $breadcrumb-offset + $tab-height - $breadcrumb-offset);
-            //padding-top: var(--_superfusion-mobile-top-fold-fix, calc($breadcrumb-height + $breadcrumb-offset + $tab-height - $breadcrumb-offset));
-            transition: padding 180ms;
         }
         & > .protyle-content {
             margin-top: calc($breadcrumb-height * -1 + $breadcrumb-offset - $tab-height + $breadcrumb-offset);

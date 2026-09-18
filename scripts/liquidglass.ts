@@ -151,7 +151,7 @@ export function computeDisplacementMap(config: LiquidGlassConfig): DisplacementM
 }
 export function buildFilterMarkup(config: LiquidGlassConfig, mapUrl: string, maxDisplacementPx: number): string {
   const { width, height, dispersion, dpr, filterId } = resolveConfig(config);
-  const baseScale = maxDisplacementPx / dpr;
+  const baseScale = (2 * maxDisplacementPx) / dpr;
   const mapDef =
     `<feImage href="${mapUrl}" x="0" y="0" width="${width}" height="${height}" result="mapSource" preserveAspectRatio="none" />`;
   let filterLogic = '';
@@ -250,26 +250,13 @@ const presets: LiquidGlassConfig[] = [
     height: 80,
     borderRadius: 0,
     bezelWidth: 20,
-    thickness: 60,
+    thickness: 30,
     strength: 1,
     dispersion: 0,
     ior: 1.5,
     profileType: 'convex-round',
     dpr: 2,
     filterId: 'neo-superfusion-liquidglass',
-  },
-  {
-    width: 400,
-    height: 80,
-    borderRadius: 0,
-    bezelWidth: 20,
-    thickness: 60,
-    strength: 1,
-    dispersion: 0,
-    ior: 1.5,
-    profileType: 'convex-round',
-    dpr: 2,
-    filterId: 'neo-superfusion-liquidglass-mobile',
   },
 ];
 function escapeTemplate(s: string): string {
