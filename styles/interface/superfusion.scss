@@ -98,6 +98,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
                     margin-top: calc($breadcrumb-height * -1);
                 }
                 .protyle-background__img {
+                    /*
                     &::after {
                         content: "";
                         position: absolute;
@@ -116,6 +117,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
                             transparent 100%
                         );
                     }
+                    */
                     .protyle-icons {
                         top: calc($breadcrumb-height + $breadcrumb-offset);
                     }
@@ -256,6 +258,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             height: calc($tab-height * 3);
             pointer-events: none;
             z-index: 2;
+            opacity: 0.85;
             @include scrim-gradient(var(--b3-theme-background), to bottom, adaptive);
         }
         &::after {
