@@ -64,16 +64,21 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 // 面包屑与正文融合
 .neo-superfusion {
     .protyle {
+        timeline-scope: --protyle-banner-exist;
         & > .protyle-breadcrumb {
             padding-left: $tab-offset;
             margin-top: calc($breadcrumb-height * -1);
             padding-top: calc($breadcrumb-height + $breadcrumb-offset);
-            z-index: 2;
+            z-index: 3;
             .protyle-breadcrumb__bar {
                 @include superellipse-use(8px);
                 background-color: oklch(from var(--b3-theme-background) l c h / 0.8);
                 backdrop-filter: blur(3px);
                 padding: 0 4px;
+                opacity: 1;
+                animation: neo-superfusion-breadcrumb-fade linear both;
+                animation-timeline: --protyle-banner-exist;
+                animation-range: exit 15% exit 100%;
                 &:empty {
                     visibility: hidden;
                 }
@@ -96,15 +101,27 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
                     &::after {
                         content: "";
                         position: absolute;
-                        top: calc(25vh + 2px);
-                        left: 0;
-                        width: 100%;
-                        height: 15vh;
-                        @include scrim-gradient(var(--b3-theme-background), to top, compact);
+                        inset: auto 0 -1px;
+                        height: 12vh;
                         pointer-events: none;
+                        background: linear-gradient(
+                            to top,
+                            var(--b3-theme-background) 0%,
+                            rgb(from var(--b3-theme-background) r g b / 0.96) 6%,
+                            rgb(from var(--b3-theme-background) r g b / 0.82) 16%,
+                            rgb(from var(--b3-theme-background) r g b / 0.60) 30%,
+                            rgb(from var(--b3-theme-background) r g b / 0.36) 46%,
+                            rgb(from var(--b3-theme-background) r g b / 0.16) 64%,
+                            rgb(from var(--b3-theme-background) r g b / 0.05) 80%,
+                            transparent 100%
+                        );
                     }
                     .protyle-icons {
                         top: calc($breadcrumb-height + $breadcrumb-offset);
+                    }
+                    &:not(.fn__none) {
+                            view-timeline-name: --protyle-banner-exist;
+                            view-timeline-axis: block;
                     }
                     &.fn__none + .protyle-background__ia {
                         padding-top: calc($breadcrumb-height + $breadcrumb-offset);
@@ -171,7 +188,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 .neo-superfusion {
     @include superfusion-tab {
         background-color: transparent;
-        z-index: 3;
+        z-index: 4;
         margin-bottom: calc($tab-height * -1);
         height: $tab-height;
         min-height: $tab-height;
@@ -234,16 +251,24 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
         &::before {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0 0 auto;
             width: 100%;
             height: calc($tab-height * 3);
             pointer-events: none;
-            backdrop-filter: blur(3px);
-            background-color: transparent;
-            mask: linear-gradient(black 42px, transparent);
-            @include scrim-gradient(var(--b3-theme-background), to bottom, adaptive);
             z-index: 2;
+            @include scrim-gradient(var(--b3-theme-background), to bottom, adaptive);
+        }
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto;
+            width: 100%;
+            height: calc($tab-height * 3);
+            pointer-events: none;
+            z-index: 2;
+            background: transparent;
+            backdrop-filter: blur(3px);
+            mask: linear-gradient(to bottom, black 0 28px, rgb(0 0 0 / 0.98) 42px, rgb(0 0 0 / 0.88) 58px, rgb(0 0 0 / 0.68) 76px, rgb(0 0 0 / 0.42) 94px, rgb(0 0 0 / 0.18) 112px, transparent 126px);
         }
     }
 }
@@ -278,6 +303,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             .protyle-breadcrumb__bar {
                 background-color: transparent;
                 backdrop-filter: unset;
+                animation-timeline: none;
             }
         }
     }
@@ -302,6 +328,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             .protyle-breadcrumb__bar {
                 background-color: transparent;
                 backdrop-filter: unset;
+                animation-timeline: none;
             }
         }
     }
@@ -310,7 +337,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 .neo-superfusion {
     // 伪文档面包屑插件
     .og-fake-doc-breadcrumb-container.protyle-breadcrumb {
-        z-index: 3;
+        z-index: 4;
     }
 }
 @keyframes header-parallax {
@@ -318,5 +345,21 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
         transform: scale(1.375) translateY($header-parallax);
         filter: blur(1px);
         opacity: 0;
+    }
+}
+@keyframes neo-superfusion-breadcrumb-fade {
+    0% {
+        opacity: 0;
+        pointer-events: none;
+    }
+    29.999% {
+        pointer-events: none;
+    }
+    30% {
+        pointer-events: auto;
+    }
+    100% {
+        opacity: 1;
+        pointer-events: auto;
     }
 }
