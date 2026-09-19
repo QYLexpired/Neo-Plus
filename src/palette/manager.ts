@@ -64,7 +64,7 @@ function restorePalette(config: Config): void {
     initHighContrast(config);
   }
   if (plan === 'free') {
-    scheduleFreeColorRestore(config);
+    scheduleFreeColorRestore();
   }
 }
 export function switchToPreset(key: string): void {

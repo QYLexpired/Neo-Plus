@@ -116,7 +116,7 @@ export function initFree(config: Config): void {
   applyFreeColors(colors);
   setFreePresetAttr(getCurrentPresetName(config, mode));
 }
-export function scheduleFreeColorRestore(config: Config): void {
+export function scheduleFreeColorRestore(): void {
   if (freeColorsReady || freeColorRestoreFrame || freeColorRestoreLoadHandler) return;
   const isCurrent = createNeoLifecycleGuard();
   const mode = getThemeMode();
