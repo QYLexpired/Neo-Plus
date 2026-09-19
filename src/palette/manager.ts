@@ -15,7 +15,7 @@ import {
   destroyPaletteClasses,
   volChunkSize,
 } from './presets';
-import { initFree, destroyFree } from './free';
+import { initFree, destroyFree, scheduleFreeColorRestore } from './free';
 import { initCustomColor, destroyCustomColor } from './customcolor';
 import { initFollowBanner, destroyFollowBanner } from './followbanner';
 import { initFollowSystem, destroyFollowSystem } from './followsystem';
@@ -62,6 +62,9 @@ function restorePalette(config: Config): void {
     initBrightness(config);
     initInvert(config);
     initHighContrast(config);
+  }
+  if (plan === 'free') {
+    scheduleFreeColorRestore(config);
   }
 }
 export function switchToPreset(key: string): void {

@@ -1,7 +1,9 @@
 export function withViewTransition(callback: () => void): void {
-  if (document.startViewTransition) {
-    document.startViewTransition(callback);
-  } else {
+  if (!document.startViewTransition) {
     callback();
+    return;
   }
+  const transition = document.startViewTransition(callback);
+  transition.updateCallbackDone.catch(() => {});
+  transition.finished.catch(() => {});
 }

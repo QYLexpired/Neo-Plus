@@ -5,7 +5,7 @@ import { getPlugin } from '../main/context';
 import { getConfig, loadConfig, saveConfigIfUnchanged, type ConfigSaveResult, type Config, type FreeColorKey, type FreeColors } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { paletteLibrary } from './library';
-import { getThemeMode, getPresetsByMode, type ThemeMode } from './presets';
+import { getThemeMode, getPresetsByMode, getCurrentPlan, type ThemeMode } from './presets';
 const colorFields: ReadonlyArray<readonly [FreeColorKey, string, string, string]> = [
   ['base', 'freeBase', '--b3-base-color', 'freeBaseTip'],
   ['accent', 'freeAccent', '--b3-theme-accent', 'freeAccentTip'],
@@ -13,6 +13,22 @@ const colorFields: ReadonlyArray<readonly [FreeColorKey, string, string, string]
   ['surface', 'freeSurface', '--b3-theme-surface', 'freeSurfaceTip'],
   ['onbackground', 'freeOnBackground', '--b3-theme-on-background', 'freeOnBackgroundTip'],
 ];
+let freeColorRestoreFrame = 0;
+let freeColorRestoreLoadHandler: (() => void) | null = null;
+let freeColorsReady = false;
+function isValidFreeColor(value: unknown): value is string {
+  return typeof value === 'string' && /^#[\da-f]{6}$/i.test(value);
+}
+function cancelFreeColorRestore(): void {
+  if (freeColorRestoreFrame) {
+    cancelAnimationFrame(freeColorRestoreFrame);
+    freeColorRestoreFrame = 0;
+  }
+  if (freeColorRestoreLoadHandler) {
+    window.removeEventListener('load', freeColorRestoreLoadHandler);
+    freeColorRestoreLoadHandler = null;
+  }
+}
 export function setFreePresetAttr(name: string): void {
   const value = name.trim();
   if (value) {
@@ -32,7 +48,7 @@ function readPresetColors(preset: string, mode: ThemeMode): Required<FreeColors>
     const colors = {} as Required<FreeColors>;
     for (const [key, , variable] of colorFields) {
       const value = style.getPropertyValue(variable).trim();
-      if (!/^#[\da-f]{6}$/i.test(value)) throw new Error(`Invalid preset color: ${variable}`);
+      if (!isValidFreeColor(value)) throw new Error(`Invalid preset color: ${variable}`);
       colors[key] = value;
     }
     return colors;
@@ -40,24 +56,41 @@ function readPresetColors(preset: string, mode: ThemeMode): Required<FreeColors>
     probe.remove();
   }
 }
+function tryReadPresetColors(preset: string, mode: ThemeMode): Required<FreeColors> | null {
+  try {
+    return readPresetColors(preset, mode);
+  } catch {
+    return null;
+  }
+}
 function getCurrentPresetName(config: Config, mode: ThemeMode): string {
   const presets = config[`free-presets-${mode}`] ?? {};
   const selected = config[`free-preset-current-${mode}`] ?? '';
   return Object.prototype.hasOwnProperty.call(presets, selected) ? selected : '';
 }
-function getColors(config: Config, mode: ThemeMode): Required<FreeColors> {
-  return getFreePresetColors(config, mode, getCurrentPresetName(config, mode))
-    ?? readPresetColors('default', mode);
+function getColors(config: Config, mode: ThemeMode): Required<FreeColors> | null {
+  const colors = getFreePresetColors(config, mode, getCurrentPresetName(config, mode));
+  if (colors) return colors;
+  return tryReadPresetColors('default', mode);
 }
 export function getFreePresetColors(config: Config, mode: ThemeMode, name: string): Required<FreeColors> | null {
   const presets = config[`free-presets-${mode}`] ?? {};
   if (!Object.prototype.hasOwnProperty.call(presets, name)) return null;
   const saved = presets[name];
   if (!saved) return null;
-  const colors = readPresetColors('default', mode);
+  const colors = {} as Required<FreeColors>;
+  let fallback: Required<FreeColors> | null | undefined;
   for (const [key] of colorFields) {
     const value = saved[key];
-    if (typeof value === 'string' && /^#[\da-f]{6}$/i.test(value)) colors[key] = value;
+    if (isValidFreeColor(value)) {
+      colors[key] = value;
+      continue;
+    }
+    if (fallback === undefined) {
+      fallback = tryReadPresetColors('default', mode);
+    }
+    if (!fallback) return null;
+    colors[key] = fallback[key];
   }
   return colors;
 }
@@ -65,6 +98,7 @@ export function applyFreeColors(colors: Required<FreeColors>): void {
   applyColors(colors);
 }
 export function clearFreeColors(): void {
+  freeColorsReady = false;
   for (const [, , variable] of colorFields) {
     document.documentElement.style.removeProperty(variable);
   }
@@ -76,10 +110,35 @@ function applyColors(colors: Required<FreeColors>): void {
 }
 export function initFree(config: Config): void {
   const mode = getThemeMode();
-  applyFreeColors(getColors(config, mode));
+  const colors = getColors(config, mode);
+  if (!colors) return;
+  freeColorsReady = true;
+  applyFreeColors(colors);
   setFreePresetAttr(getCurrentPresetName(config, mode));
 }
+export function scheduleFreeColorRestore(config: Config): void {
+  if (freeColorsReady || freeColorRestoreFrame || freeColorRestoreLoadHandler) return;
+  const isCurrent = createNeoLifecycleGuard();
+  const mode = getThemeMode();
+  const run = (): void => {
+    freeColorRestoreFrame = 0;
+    freeColorRestoreLoadHandler = null;
+    if (!isCurrent() || getThemeMode() !== mode) return;
+    loadConfig().then((latest) => {
+      if (!isCurrent() || getThemeMode() !== mode) return;
+      if (getCurrentPlan(latest, mode) !== 'free') return;
+      initFree(latest);
+    }).catch(() => {});
+  };
+  if (document.readyState === 'complete') {
+    freeColorRestoreFrame = requestAnimationFrame(run);
+  } else {
+    freeColorRestoreLoadHandler = run;
+    window.addEventListener('load', run, { once: true });
+  }
+}
 export function destroyFree(): void {
+  cancelFreeColorRestore();
   clearFreeColors();
   setFreePresetAttr('');
 }
@@ -292,7 +351,9 @@ export async function showFreeSettings(): Promise<void> {
   let presets = config[presetsKey] ?? {};
   let selected = config[currentKey] ?? '';
   if (!Object.prototype.hasOwnProperty.call(presets, selected)) selected = '';
-  let savedColors = getColors(config, mode);
+  const initialColors = getColors(config, mode);
+  if (!initialColors) return;
+  let savedColors = initialColors;
   const colors = { ...savedColors };
   let saving = false;
   let presetMenu: ReturnType<typeof openSearchableMenu> | null = null;
@@ -352,10 +413,11 @@ export async function showFreeSettings(): Promise<void> {
       config = { ...config, ...patch };
       presets = nextPresets;
       selected = name;
-      savedColors = getColors(config, mode);
+      const refreshed = getColors(config, mode);
+      if (refreshed) savedColors = refreshed;
       updatePresetButton();
       if (!preserveDraft) {
-        setColors(savedColors);
+        if (refreshed) setColors(refreshed);
         dirty = false;
       }
       if (canPreview()) setFreePresetAttr(selected);

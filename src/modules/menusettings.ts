@@ -11,7 +11,9 @@ function handleSettingsClick(event: MouseEvent): void {
   const handler = settingsActions.get(action);
   if (!handler) return;
   event.stopPropagation();
-  handler();
+  try {
+    Promise.resolve(handler()).catch(() => {});
+  } catch {}
 }
 export function createSettingsMenuLabel(
   action: string,

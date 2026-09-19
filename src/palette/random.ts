@@ -454,7 +454,7 @@ export function showRandomSettings(): void {
           applyRandom(config);
         });
       }
-    });
+    }).catch(() => {});
   });
 }
 export function initRandomSettings(): Promise<void> {
