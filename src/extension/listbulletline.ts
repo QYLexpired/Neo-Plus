@@ -1,6 +1,7 @@
 import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
+import { getEffectiveSelectionRange } from '../modules/getselection';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let selectionChangeHandler: (() => void) | null = null;
 let clickHandler: ((event: MouseEvent) => void) | null = null;
@@ -72,8 +73,9 @@ function runSelectionUpdate(clickTarget?: HTMLElement | null): void {
       }
       node = element.parentElement;
     }
-  } else if (selection && selection.rangeCount) {
-    let node: Node | null = getSelectionStartNode(selection.getRangeAt(0));
+  } else if (selection) {
+    const range = getEffectiveSelectionRange(selection);
+    let node: Node | null = range ? getSelectionStartNode(range) : null;
     while (node && node.nodeType !== Node.ELEMENT_NODE) {
       node = node.parentElement;
     }

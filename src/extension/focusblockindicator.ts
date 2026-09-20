@@ -1,6 +1,6 @@
 import { saveConfig, loadConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/context';
-import { getTextColor } from '../modules/getselection';
+import { getTextColor, hasMeaningfulSelection } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
@@ -74,7 +74,7 @@ function updateFocusBlock(block: Element | null, focusNode: Node | null): void {
 function getFocusNode(selection: Selection | null): Node | null {
   if (!selection || selection.rangeCount === 0) return null;
   const focusNode = selection.focusNode;
-  if (!focusNode || selection.isCollapsed) return focusNode;
+  if (!focusNode || !hasMeaningfulSelection(selection)) return focusNode;
   const range = selection.getRangeAt(0);
   if (focusNode !== range.endContainer || selection.focusOffset !== range.endOffset) return focusNode;
   if (focusNode.nodeType === Node.TEXT_NODE && selection.focusOffset > 0) return focusNode;

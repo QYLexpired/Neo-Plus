@@ -1,6 +1,6 @@
 import { saveConfig, loadConfig } from '../main/data';
 import { getPlugin } from '../main/context';
-import { getCursorRect, getTextColor, getScrollContainer, getCharWidthAtCursor } from '../modules/getselection';
+import { getCursorRect, getTextColor, getScrollContainer, getCharWidthAtCursor, hasMeaningfulSelection } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
@@ -47,17 +47,6 @@ function applySmoothCaretEase(): void {
   if (caret) {
     caret.style.setProperty('--neo-smoothcaret-ease', easeMap[smoothCaretEase] || easeMap.elegant);
   }
-}
-function hasMeaningfulSelection(selection: Selection): boolean {
-  if (selection.isCollapsed || selection.rangeCount === 0) {
-    return false;
-  }
-  const range = selection.getRangeAt(0);
-  const text = range.toString().replace(/[\u200B\uFEFF]/g, '');
-  if (text.length > 0) {
-    return true;
-  }
-  return Array.from(range.getClientRects()).some(rect => rect.width > 0 && rect.height > 0);
 }
 function startSmoothCaret(): void {
   document.getElementById('neo-smoothcaret-item')?.remove();

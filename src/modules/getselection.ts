@@ -1,3 +1,29 @@
+export function hasMeaningfulSelection(selection: Selection): boolean {
+  if (selection.isCollapsed || selection.rangeCount === 0) {
+    return false;
+  }
+  const range = selection.getRangeAt(0);
+  const text = range.toString().replace(/[\u200B\uFEFF]/g, '');
+  if (text.length > 0) {
+    return true;
+  }
+  return Array.from(range.getClientRects()).some(rect => rect.width > 0 && rect.height > 0);
+}
+export function getEffectiveSelectionRange(selection: Selection): Range | null {
+  if (selection.rangeCount === 0) return null;
+  const range = selection.getRangeAt(0);
+  if (range.collapsed || hasMeaningfulSelection(selection) || !selection.focusNode) {
+    return range;
+  }
+  const caretRange = document.createRange();
+  try {
+    caretRange.setStart(selection.focusNode, selection.focusOffset);
+    caretRange.collapse(true);
+    return caretRange;
+  } catch {
+    return range;
+  }
+}
 export function getCursorRect(): DOMRect | null {
   const sel = window.getSelection();
   if (!sel || sel.rangeCount === 0) return null;
