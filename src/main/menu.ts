@@ -76,7 +76,7 @@ export function buildMenu(
   const isCurrent = createNeoLifecycleGuard();
   menu.addItem({
     id: 'neo-base-button',
-    icon: 'iconNeoPalette',
+    icon: 'iconNeoBasePalette',
     label: i18n.basePalette,
     submenu: [
       {

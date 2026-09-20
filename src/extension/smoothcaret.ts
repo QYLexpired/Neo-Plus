@@ -48,6 +48,17 @@ function applySmoothCaretEase(): void {
     caret.style.setProperty('--neo-smoothcaret-ease', easeMap[smoothCaretEase] || easeMap.elegant);
   }
 }
+function hasMeaningfulSelection(selection: Selection): boolean {
+  if (selection.isCollapsed || selection.rangeCount === 0) {
+    return false;
+  }
+  const range = selection.getRangeAt(0);
+  const text = range.toString().replace(/[\u200B\uFEFF]/g, '');
+  if (text.length > 0) {
+    return true;
+  }
+  return Array.from(range.getClientRects()).some(rect => rect.width > 0 && rect.height > 0);
+}
 function startSmoothCaret(): void {
   document.getElementById('neo-smoothcaret-item')?.remove();
   const caretElement = document.createElement('div');
@@ -87,7 +98,7 @@ function startSmoothCaret(): void {
   function updateCaretPosition(): void {
     caretAnimationFrame = null;
     const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0 || !sel.isCollapsed) {
+    if (!sel || sel.rangeCount === 0 || hasMeaningfulSelection(sel)) {
       caretElement.classList.add('neo-smoothcaret-hidden');
       return;
     }
