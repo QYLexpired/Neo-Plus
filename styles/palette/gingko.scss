@@ -2,7 +2,7 @@
 .neo-palette-gingko {
     @include palette-common("[data-id=\"neo-palette-gingko-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #d55a5a;
+        --b3-theme-base: #d55a5a;
         --b3-theme-accent: #b44949;
         --b3-theme-background: #f7eecb;
         --b3-theme-surface: #f2e5bd;
@@ -10,7 +10,7 @@
         --neo-menu-item-primary: #9d8077;
     }
     &.neo-mode-dark {
-        --b3-base-color: #9c864b;
+        --b3-theme-base: #9c864b;
         --b3-theme-accent: #c7a753;
         --b3-theme-background: #17181c;
         --b3-theme-surface: #202228;

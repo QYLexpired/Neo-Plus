@@ -2,14 +2,14 @@
 .neo-palette-tundra {
     @include palette-common("[data-id=\"neo-palette-tundra-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #2aa198;
+        --b3-theme-base: #2aa198;
         --b3-theme-accent: #2aa198;
         --b3-theme-background: #f6f3ea;
         --b3-theme-surface: #ece8d9;
         --b3-theme-on-background: #3d4a36;
     }
     &.neo-mode-dark {
-        --b3-base-color: #8acf8e;
+        --b3-theme-base: #8acf8e;
         --b3-theme-accent: #afd9b2;
         --b3-theme-background: #292522;
         --b3-theme-surface: #34302c;

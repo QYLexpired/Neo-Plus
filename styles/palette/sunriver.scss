@@ -2,14 +2,14 @@
 .neo-palette-sunriver {
     @include palette-common("[data-id=\"neo-palette-sunriver-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #268bd2;
+        --b3-theme-base: #268bd2;
         --b3-theme-accent: #4093bd;
         --b3-theme-background: #fdf6e3;
         --b3-theme-surface: #eee8d5;
         --b3-theme-on-background: #657b83;
     }
     &.neo-mode-dark {
-        --b3-base-color: #10909c;
+        --b3-theme-base: #10909c;
         --b3-theme-accent: #12d0c9;
         --b3-theme-background: #012b36;
         --b3-theme-surface: #083642;

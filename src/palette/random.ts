@@ -10,8 +10,8 @@ import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { enableInvert, destroyInvert } from './invert';
 import { enableHighContrast, destroyHighContrast } from './highcontrast';
 import { getFreePresetColors, applyFreeColors, clearFreeColors, setFreePresetAttr } from './free';
-type RandomPool = 'preset' | 'free' | 'custom' | 'library';
-const randomPools: RandomPool[] = ['preset', 'free', 'custom', 'library'];
+type RandomPool = 'preset' | 'free' | 'basecustom' | 'library';
+const randomPools: RandomPool[] = ['preset', 'free', 'basecustom', 'library'];
 let randomScope: RandomPool[] = [...randomPools];
 let randomHighContrast: 'random' | 'on' | 'off' = 'random';
 let randomInvert: 'random' | 'on' | 'off' = 'random';
@@ -257,8 +257,8 @@ function showCurrentStateDialog(): void {
     } else if ((lastState.type === 'free' || lastState.type === 'library') && lastState.presetKey) {
       const label = lastState.type === 'library' ? i18n.freeLibrary : i18n.freePalette;
       lines.push(`${label}：${(lastState.freeName ?? lastState.presetKey).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}`);
-    } else if (lastState.type === 'custom') {
-      lines.push(`${i18n.customThemeColor}：${swatch(lastState.color ?? '')} ${lastState.color}`);
+    } else if (lastState.type === 'basecustom') {
+      lines.push(`${i18n.basecustom}：${swatch(lastState.color ?? '')} ${lastState.color}`);
       if (lastState.saturation !== undefined) {
         lines.push(`${i18n.saturation}：${lastState.saturation}`);
       }
@@ -475,7 +475,7 @@ export function initRandomSettings(): Promise<void> {
 export function destroyRandom(): void {
   neoFeatureActive = false;
   const html = document.documentElement;
-  html.style.removeProperty('--neo-custom-base-color');
+  html.style.removeProperty('--neo-base');
   html.style.removeProperty('--neo-saturation');
   html.style.removeProperty('--neo-brightness');
   clearFreeColors();
@@ -550,27 +550,27 @@ function applyFreeRandom(config: Config, mode: ThemeMode, pool: 'free' | 'librar
   setFreePresetAttr(name);
   lastState = { type: pool, presetKey: selected, freeName: name, inverted: finalInverted, highContrast: finalHighContrast };
 }
-function applyCustomRandom(): void {
+function applyBaseCustomRandom(): void {
   const html = document.documentElement;
-  html.classList.add('neo-palette-custom');
-  const color = lastState?.type === 'custom' && lastState.color
+  html.classList.add('neo-palette-basecustom');
+  const color = lastState?.type === 'basecustom' && lastState.color
     ? randomHexColorDifferentFrom(lastState.color)
     : randomHexColor();
-  const saturation = lastState?.type === 'custom' && lastState.saturation !== undefined
+  const saturation = lastState?.type === 'basecustom' && lastState.saturation !== undefined
     ? randomSaturationDifferentFrom(lastState.saturation)
     : randomSaturation();
-  const brightness = lastState?.type === 'custom' && lastState.brightness !== undefined
+  const brightness = lastState?.type === 'basecustom' && lastState.brightness !== undefined
     ? randomBrightnessDifferentFrom(lastState.brightness)
     : randomBrightness();
-  const sameAsLast = lastState?.type === 'custom'
+  const sameAsLast = lastState?.type === 'basecustom'
     && color === lastState.color
     && saturation === lastState.saturation
     && brightness === lastState.brightness;
   const { inverted: finalInverted, highContrast: finalHighContrast } = pickRandomEffects(sameAsLast);
-  html.style.setProperty('--neo-custom-base-color', color);
+  html.style.setProperty('--neo-base', color);
   html.style.setProperty('--neo-saturation', String(saturation));
   html.style.setProperty('--neo-brightness', String(brightness));
-  lastState = { type: 'custom', color, saturation, brightness, inverted: finalInverted, highContrast: finalHighContrast };
+  lastState = { type: 'basecustom', color, saturation, brightness, inverted: finalInverted, highContrast: finalHighContrast };
 }
 function applyRandom(config: Config): void {
   const html = document.documentElement;
@@ -589,7 +589,7 @@ function applyRandom(config: Config): void {
   html.classList.remove(
     ...Array.from(html.classList).filter(cls => cls.startsWith('neo-palette-') && cls !== 'neo-palette-random')
   );
-  html.style.removeProperty('--neo-custom-base-color');
+  html.style.removeProperty('--neo-base');
   html.style.removeProperty('--neo-saturation');
   html.style.removeProperty('--neo-brightness');
   clearFreeColors();
@@ -600,7 +600,7 @@ function applyRandom(config: Config): void {
   if (pool === 'preset') applyPresetRandom(mode);
   else if (pool === 'free' || pool === 'library') applyFreeRandom(config, mode, pool);
   else if (pool === 'default') applyDefaultRandom();
-  else applyCustomRandom();
+  else applyBaseCustomRandom();
 }
 export function refreshRandom(config: Config): boolean {
   if (!neoFeatureActive) return false;

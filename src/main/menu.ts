@@ -1,7 +1,7 @@
 import { Menu } from 'siyuan';
 import { getPlugin } from './context';
 import { loadConfig } from './data';
-import { createBrightnessSliderHTML, createColorPickerHTML, createSliderHTML, getPresetMenuItems, getThemeColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
+import { createBrightnessSliderHTML, createBaseCustomPickerHTML, createSliderHTML, getPresetMenuItems, getBaseCustomColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
 import { showFreeSettings } from '../palette/free';
 import { showRandomSettings } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
@@ -75,46 +75,48 @@ export function buildMenu(
   const configPromise = loadConfig();
   const isCurrent = createNeoLifecycleGuard();
   menu.addItem({
-    id: 'neo-customcolor-button',
-    iconHTML: createColorPickerHTML(),
-    label: i18n.customThemeColor,
-    click: () => {
-      switchToPlan('custom');
-      const colorInput = document.querySelector<HTMLInputElement>('[data-id="neo-customcolor-button"] input[type="color"]');
-      colorInput?.click();
-      return true;
-    },
-  });
-  configPromise.then((config) => {
-    if (!isCurrent() || !menuActive) return;
-    requestAnimationFrame(() => {
-      if (!isCurrent() || !menuActive) return;
-      const customPicker = document.querySelector<HTMLInputElement>('[data-id="neo-customcolor-button"] input[type="color"]');
-      if (customPicker) {
-        customPicker.value = getThemeColor(config);
-      }
-    });
-  });
-  menu.addItem({
-    id: 'neo-followbanner-button',
-    icon: '',
-    label: i18n.followBanner,
-    click: () => {
-      switchToPlan('followbanner');
-      return true;
-    },
-  });
-  if (isDesktop()) {
-    menu.addItem({
-      id: 'neo-followsystem-button',
-      icon: '',
-      label: i18n.followSystem,
-      click: () => {
-        switchToPlan('followsystem');
-        return true;
+    id: 'neo-base-button',
+    icon: 'iconNeoPalette',
+    label: i18n.basePalette,
+    submenu: [
+      {
+        id: 'neo-basecustom-button',
+        iconHTML: createBaseCustomPickerHTML(),
+        label: i18n.basecustom,
+        bind: (element) => {
+          configPromise.then((config) => {
+            if (!isCurrent() || !menuActive) return;
+            const colorInput = element.querySelector<HTMLInputElement>('input[type="color"]');
+            if (colorInput) colorInput.value = getBaseCustomColor(config);
+          });
+        },
+        click: () => {
+          switchToPlan('basecustom');
+          const colorInput = document.querySelector<HTMLInputElement>('[data-id="neo-basecustom-button"] input[type="color"]');
+          colorInput?.click();
+          return true;
+        },
       },
-    });
-  }
+      {
+        id: 'neo-basefollowbanner-button',
+        icon: '',
+        label: i18n.basefollowbanner,
+        click: () => {
+          switchToPlan('basefollowbanner');
+          return true;
+        },
+      },
+      ...(isDesktop() ? [{
+        id: 'neo-basefollowsystem-button',
+        icon: '',
+        label: i18n.basefollowsystem,
+        click: () => {
+          switchToPlan('basefollowsystem');
+          return true;
+        },
+      }] : []),
+    ],
+  });
   menu.addSeparator();
   if (getThemeMode() === 'dark') {
     menu.addItem({

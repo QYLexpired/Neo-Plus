@@ -1,0 +1,11 @@
+@use "manager" as *;
+.neo-palette-basefollowsystem {
+    @include palette-common("[data-id='neo-basefollowsystem-button']", "[data-id=\"neo-base-button\"]");
+    --neo-base: var(--neo-basefollowsystem-color) !important;
+    [data-id="neo-basefollowsystem-button"]::before {
+        content: "";
+    }
+}
+.b3-menu__item[data-id="neo-basefollowsystem-button"] {
+    @include palette-base-color-dot;
+}

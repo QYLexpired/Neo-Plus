@@ -12,11 +12,11 @@ function getSystemAccentColor(): string | null {
 function applySystemAccentColor(): void {
   const color = getSystemAccentColor();
   if (color) {
-    document.documentElement.style.setProperty('--neo-followsystem-base-color', color);
+    document.documentElement.style.setProperty('--neo-basefollowsystem-color', color);
   }
 }
 let focusHandler: (() => void) | null = null;
-export function initFollowSystem(): void {
+export function initBaseFollowSystem(): void {
   if (!isDesktop()) return;
   applySystemAccentColor();
   focusHandler = () => {
@@ -24,8 +24,8 @@ export function initFollowSystem(): void {
   };
   window.addEventListener('focus', focusHandler);
 }
-export function destroyFollowSystem(): void {
-  document.documentElement.style.removeProperty('--neo-followsystem-base-color');
+export function destroyBaseFollowSystem(): void {
+  document.documentElement.style.removeProperty('--neo-basefollowsystem-color');
   if (focusHandler) {
     window.removeEventListener('focus', focusHandler);
     focusHandler = null;

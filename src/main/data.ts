@@ -30,8 +30,8 @@ export type PresetTextureSettingsMap = Record<string, PresetTextureSettings>;
 export type FreeColorKey = 'base' | 'accent' | 'background' | 'surface' | 'onbackground';
 export type FreeColors = Partial<Record<FreeColorKey, string>>;
 export interface Config {
-  'custom-color-light'?: string;
-  'custom-color-dark'?: string;
+  'basecustom-color-light'?: string;
+  'basecustom-color-dark'?: string;
   'saturation-light'?: number;
   'saturation-dark'?: number;
   'brightness-light'?: number;
@@ -46,9 +46,9 @@ export interface Config {
   'free-preset-current-dark'?: string;
   'preset-light'?: string;
   'preset-dark'?: string;
-  'color-plan-light'?: 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free';
-  'color-plan-dark'?: 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free';
-  'random-scope'?: Array<'preset' | 'free' | 'custom' | 'library'>;
+  'color-plan-light'?: 'preset' | 'basecustom' | 'basefollowbanner' | 'basefollowsystem' | 'random' | 'free';
+  'color-plan-dark'?: 'preset' | 'basecustom' | 'basefollowbanner' | 'basefollowsystem' | 'random' | 'free';
+  'random-scope'?: Array<'preset' | 'free' | 'basecustom' | 'library'>;
   'random-highcontrast'?: 'random' | 'on' | 'off';
   'random-invert'?: 'random' | 'on' | 'off';
   'random-saturation-min'?: number;

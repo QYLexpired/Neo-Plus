@@ -7,7 +7,7 @@ import {
   getThemeMode,
   getPresetsByMode,
   getCurrentPlan,
-  getCustomColorKey,
+  getBaseCustomColorKey,
   getSaturationKey,
   getBrightnessKey,
   applyPreset,
@@ -16,9 +16,9 @@ import {
   volChunkSize,
 } from './presets';
 import { initFree, destroyFree, scheduleFreeColorRestore } from './free';
-import { initCustomColor, destroyCustomColor } from './customcolor';
-import { initFollowBanner, destroyFollowBanner } from './followbanner';
-import { initFollowSystem, destroyFollowSystem } from './followsystem';
+import { initBaseCustom, destroyBaseCustom } from './basecustom';
+import { initBaseFollowBanner, destroyBaseFollowBanner } from './basefollowbanner';
+import { initBaseFollowSystem, destroyBaseFollowSystem } from './basefollowsystem';
 import { initSaturation, destroySaturation } from './saturation';
 import { initBrightness, destroyBrightness } from './brightness';
 import { initInvert, destroyInvert } from './invert';
@@ -27,22 +27,22 @@ import { initRandom, destroyRandom, initRandomSettings, refreshRandom } from './
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 export type { ThemeMode, Preset, Config };
-type Plan = 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free';
+type Plan = 'basecustom' | 'basefollowbanner' | 'basefollowsystem' | 'random' | 'free';
 function initPlan(plan: Plan, config: Config): void {
   switch (plan) {
     case 'free': initFree(config); break;
-    case 'custom': initCustomColor(config); break;
-    case 'followbanner': initFollowBanner(config); break;
-    case 'followsystem': initFollowSystem(); break;
+    case 'basecustom': initBaseCustom(config); break;
+    case 'basefollowbanner': initBaseFollowBanner(config); break;
+    case 'basefollowsystem': initBaseFollowSystem(); break;
     case 'random': initRandom(config); break;
   }
 }
 function destroyPaletteEffects(): void {
   destroyFree();
   destroyRandom();
-  destroyCustomColor();
-  destroyFollowBanner();
-  destroyFollowSystem();
+  destroyBaseCustom();
+  destroyBaseFollowBanner();
+  destroyBaseFollowSystem();
   destroySaturation();
   destroyBrightness();
   destroyInvert();
@@ -162,7 +162,7 @@ export function getPresetMenuItems(i18n: Record<string, string>): MenuItem[] {
   }
   return items;
 }
-export function handleColorInput(value: string, cssVar: string, colorKey: ReturnType<typeof getCustomColorKey>, plan: Plan): void {
+export function handleColorInput(value: string, cssVar: string, colorKey: ReturnType<typeof getBaseCustomColorKey>, plan: Plan): void {
   document.documentElement.style.setProperty(cssVar, value);
   const mode = getThemeMode();
   const configKey: 'color-plan-light' | 'color-plan-dark' = mode === 'dark' ? 'color-plan-dark' : 'color-plan-light';
@@ -190,8 +190,8 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     const menuItem = target.closest('[data-id]') as HTMLElement | null;
     if (!menuItem) return;
     const dataId = menuItem.getAttribute('data-id');
-    if (dataId === 'neo-customcolor-button' && target instanceof HTMLInputElement && target.type === 'color') {
-      handleColorInput(target.value, '--neo-custom-base-color', getCustomColorKey(getThemeMode()), 'custom');
+    if (dataId === 'neo-basecustom-button' && target instanceof HTMLInputElement && target.type === 'color') {
+      handleColorInput(target.value, '--neo-base', getBaseCustomColorKey(getThemeMode()), 'basecustom');
     } else if (dataId === 'neo-saturation-button' && target instanceof HTMLInputElement && target.type === 'range') {
       handleSliderInput(target, '--neo-saturation', getSaturationKey(getThemeMode()), i18n.saturation ?? 'Saturation');
     } else if (dataId === 'neo-brightness-button' && target instanceof HTMLInputElement && target.type === 'range') {
@@ -203,7 +203,7 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     if (!(target instanceof HTMLInputElement)) return;
     const dataId = target.closest('[data-id]')?.getAttribute('data-id');
     if ((target.type === 'range' && (dataId === 'neo-saturation-button' || dataId === 'neo-brightness-button'))
-      || (target.type === 'color' && dataId === 'neo-customcolor-button')) flushConfigSave();
+      || (target.type === 'color' && dataId === 'neo-basecustom-button')) flushConfigSave();
   };
   clickHandler = (e: Event) => {
     const target = e.target as HTMLElement;
@@ -211,7 +211,7 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     const menuItem = target.closest('[data-id]') as HTMLElement | null;
     if (!menuItem) return;
     const dataId = menuItem.getAttribute('data-id');
-    if (dataId !== 'neo-customcolor-button') return;
+    if (dataId !== 'neo-basecustom-button') return;
     e.stopPropagation();
   };
   dblclickHandler = (e: Event) => {
@@ -252,7 +252,7 @@ export function destroyPaletteMenuEvents(): void {
   }
   menuListenerInitialized = false;
 }
-export { createColorPickerHTML, getThemeColor } from './customcolor';
+export { createBaseCustomPickerHTML, getBaseCustomColor } from './basecustom';
 export { createSliderHTML } from './saturation';
 export { createBrightnessSliderHTML } from './brightness';
 export { onInvertClick } from './invert';

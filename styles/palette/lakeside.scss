@@ -2,14 +2,14 @@
 .neo-palette-lakeside {
     @include palette-common("[data-id=\"neo-palette-lakeside-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #bde0e7;
+        --b3-theme-base: #bde0e7;
         --b3-theme-accent: #47a0af;
         --b3-theme-background: #fefbf6;
         --b3-theme-surface: #e2eff2;
         --b3-theme-on-background: #27535a;
     }
     &.neo-mode-dark {
-        --b3-base-color: #3c897c;
+        --b3-theme-base: #3c897c;
         --b3-theme-accent: #84eedc;
         --b3-theme-background: #0e0f1d;
         --b3-theme-surface: #131826;

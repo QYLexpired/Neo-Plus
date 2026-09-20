@@ -2,14 +2,14 @@
 .neo-palette-voyage {
     @include palette-common("[data-id=\"neo-palette-voyage-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #95b393;
+        --b3-theme-base: #95b393;
         --b3-theme-accent: #71a13d;
         --b3-theme-background: #eaf0e2;
         --b3-theme-surface: #d8e2c8;
         --b3-theme-on-background: #24364a;
     }
     &.neo-mode-dark {
-        --b3-base-color: #6c9363;
+        --b3-theme-base: #6c9363;
         --b3-theme-accent: #98ca7e;
         --b3-theme-background: #141e1e;
         --b3-theme-surface: #1e2b2a;

@@ -2,14 +2,14 @@
 .neo-palette-aerisland {
     @include palette-common("[data-id=\"neo-palette-aerisland-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #a7e1da;
+        --b3-theme-base: #a7e1da;
         --b3-theme-accent: #29b7b4;
         --b3-theme-background: #f7fcf5;
         --b3-theme-surface: #e5efdf;
         --b3-theme-on-background: #0c544c;
     }
     &.neo-mode-dark {
-        --b3-base-color: #3c8681;
+        --b3-theme-base: #3c8681;
         --b3-theme-accent: #5ecfc2;
         --b3-theme-background: #12161f;
         --b3-theme-surface: #252b3b;

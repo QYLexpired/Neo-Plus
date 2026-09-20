@@ -2,14 +2,14 @@
 .neo-palette-oxygen {
     @include palette-common("[data-id=\"neo-palette-oxygen-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #d5895c;
+        --b3-theme-base: #d5895c;
         --b3-theme-accent: #d9774a;
         --b3-theme-background: #fdf6e3;
         --b3-theme-surface: #efebd4;
         --b3-theme-on-background: #5c6a72;
     }
     &.neo-mode-dark {
-        --b3-base-color: #efa685;
+        --b3-theme-base: #efa685;
         --b3-theme-accent: #efa685;
         --b3-theme-background: #272e33;
         --b3-theme-surface: #364852;

@@ -2,7 +2,7 @@
 .neo-palette-retroconsole {
     @include palette-common("[data-id=\"neo-palette-retroconsole-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #626262;
+        --b3-theme-base: #626262;
         --b3-theme-accent: #7a0a0a;
         --b3-theme-background: #f2f2ef;
         --b3-theme-surface: #e3e3de;
@@ -12,7 +12,7 @@
         --_brutalism-gray: oklch(from var(--_brutalism-black) calc(l + 0.45) c h);
     }
     &.neo-mode-dark {
-        --b3-base-color: #d5d5d5;
+        --b3-theme-base: #d5d5d5;
         --b3-theme-accent: #ab8e8e;
         --b3-theme-background: #333333;
         --b3-theme-surface: #404040;

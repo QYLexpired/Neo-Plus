@@ -2,14 +2,14 @@
 .neo-palette-stellula {
     @include palette-common("[data-id=\"neo-palette-stellula-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #97dbde;
+        --b3-theme-base: #97dbde;
         --b3-theme-accent: #48b2ba;
         --b3-theme-background: #fff8f2;
         --b3-theme-surface: #e0ece8;
         --b3-theme-on-background: #424074;
     }
     &.neo-mode-dark {
-        --b3-base-color: #3c7e83;
+        --b3-theme-base: #3c7e83;
         --b3-theme-accent: #fc8b60;
         --b3-theme-background: #232227;
         --b3-theme-surface: #313842;

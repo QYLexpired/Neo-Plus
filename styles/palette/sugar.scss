@@ -2,7 +2,7 @@
 .neo-palette-sugar {
     @include palette-common("[data-id=\"neo-palette-sugar-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #ea566b;
+        --b3-theme-base: #ea566b;
         --b3-theme-accent: #ea566b;
         --b3-theme-background: #f9f8f5;
         --b3-theme-surface: #f3ede8;
@@ -12,7 +12,7 @@
         --neo-input-primary: #86b175;
     }
     &.neo-mode-dark {
-        --b3-base-color: #b64d5c;
+        --b3-theme-base: #b64d5c;
         --b3-theme-accent: #ff7487;
         --b3-theme-background: #1f1d1c;
         --b3-theme-surface: #282625;

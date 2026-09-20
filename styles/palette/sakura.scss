@@ -2,14 +2,14 @@
 .neo-palette-sakura {
     @include palette-common("[data-id=\"neo-palette-sakura-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #ffcaca;
+        --b3-theme-base: #ffcaca;
         --b3-theme-accent: #df8e8e;
         --b3-theme-background: #fffaf4;
         --b3-theme-surface: #ffede7;
         --b3-theme-on-background: #56487c;
     }
     &.neo-mode-dark {
-        --b3-base-color: #d6a0ab;
+        --b3-theme-base: #d6a0ab;
         --b3-theme-accent: #f5a6b4;
         --b3-theme-background: #19181b;
         --b3-theme-surface: #232126;

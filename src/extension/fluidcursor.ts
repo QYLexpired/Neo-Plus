@@ -39,7 +39,7 @@ function clearHideCursorTimeout(): void {
 }
 function getCursorColor(): string {
   const computedStyle = getComputedStyle(document.documentElement);
-  const color = computedStyle.getPropertyValue('--b3-base-color').trim();
+  const color = computedStyle.getPropertyValue('--b3-theme-base').trim();
   return color || '#6a85e3';
 }
 function refreshBaseColor(force: boolean = false): string {

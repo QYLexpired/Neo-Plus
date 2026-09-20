@@ -1,12 +1,12 @@
 @use "manager" as *;
 .neo-mode-light {
-    --_coloredlists-base: oklch(from var(--b3-base-color) clamp(0.55, l, 0.68) max(c, 0.2) h);
+    --_coloredlists-base: oklch(from var(--b3-theme-base) clamp(0.55, l, 0.68) max(c, 0.2) h);
     --_coloredlists-initial-hue: h;
     --_coloredlists-l: l;
     --_coloredlists-c: 0.08;
 }
 .neo-mode-dark {
-    --_coloredlists-base: oklch(from var(--b3-base-color) max(l, 0.7) max(c, 0.18) h);
+    --_coloredlists-base: oklch(from var(--b3-theme-base) max(l, 0.7) max(c, 0.18) h);
     --_coloredlists-initial-hue: h;
     --_coloredlists-l: l;
     --_coloredlists-c: 0.08;

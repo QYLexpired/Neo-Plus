@@ -37,7 +37,7 @@ fetchMonitor.onNotify('setBlockAttrs', () => { scheduleExtract(); });
 fetchMonitor.onNotify('getDocInfo', () => {
   if (isMobile()) scheduleExtract();
 });
-const fallbackHex = 'var(--neo-default-base-color)';
+const fallbackHex = 'var(--neo-default-base)';
 function parseHex(hex: string): { r: number; g: number; b: number } | null {
   let m = hex.match(/^#?([0-9a-fA-F]{6})$/);
   if (m) {
@@ -106,7 +106,7 @@ function getValidHex(hex: string | null): string | null {
   return rgb && !isInvalidColor(rgb.r, rgb.g, rgb.b) ? hex : null;
 }
 function applyColor(hex: string): void {
-  document.documentElement.style.setProperty('--neo-followbanner-base-color', hex);
+  document.documentElement.style.setProperty('--neo-basefollowbanner-color', hex);
 }
 function applyFallback(): void {
   applyColor(lastValidHex || fallbackHex);
@@ -291,20 +291,20 @@ function startBannerExtraction(): void {
     if (extractController === controller) extractController = null;
   });
 }
-function enableFollowBanner(): void {
+function enableBaseFollowBanner(): void {
   if (neoFeatureActive) return;
   neoFeatureActive = true;
   applyFallback();
   fetchMonitor.attach();
   scheduleExtract(500);
 }
-export function initFollowBanner(_config: Config): void {
-  enableFollowBanner();
+export function initBaseFollowBanner(_config: Config): void {
+  enableBaseFollowBanner();
 }
-export function destroyFollowBanner(): void {
+export function destroyBaseFollowBanner(): void {
   neoFeatureActive = false;
   cancelExtractionWork();
   fetchMonitor.detach();
-  document.documentElement.style.removeProperty('--neo-followbanner-base-color');
+  document.documentElement.style.removeProperty('--neo-basefollowbanner-color');
   lastValidHex = null;
 }

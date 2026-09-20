@@ -7,7 +7,7 @@ import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { paletteLibrary } from './library';
 import { getThemeMode, getPresetsByMode, getCurrentPlan, type ThemeMode } from './presets';
 const colorFields: ReadonlyArray<readonly [FreeColorKey, string, string, string]> = [
-  ['base', 'freeBase', '--b3-base-color', 'freeBaseTip'],
+  ['base', 'freeBase', '--b3-theme-base', 'freeBaseTip'],
   ['accent', 'freeAccent', '--b3-theme-accent', 'freeAccentTip'],
   ['background', 'freeBackground', '--b3-theme-background', 'freeBackgroundTip'],
   ['surface', 'freeSurface', '--b3-theme-surface', 'freeSurfaceTip'],

@@ -114,6 +114,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
                     */
                     .protyle-icons {
                         top: calc($breadcrumb-height + $breadcrumb-offset);
+                        margin-top: 0 !important;
                     }
                     &:not(.fn__none) {
                             view-timeline-name: --protyle-banner-exist;
@@ -236,7 +237,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             position: absolute;
             inset: 0 0 auto;
             width: 100%;
-            height: calc($tab-height * 3);
+            height: calc($tab-height * 2);
             pointer-events: none;
             z-index: 2;
             opacity: 0.85;
@@ -247,12 +248,12 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             position: absolute;
             inset: 0 0 auto;
             width: 100%;
-            height: calc($tab-height * 3);
+            height: calc($tab-height * 2);
             pointer-events: none;
             z-index: 2;
             background: transparent;
             backdrop-filter: blur(3px);
-            mask: linear-gradient(to bottom, black 0 28px, rgb(0 0 0 / 0.98) 42px, rgb(0 0 0 / 0.88) 58px, rgb(0 0 0 / 0.68) 76px, rgb(0 0 0 / 0.42) 94px, rgb(0 0 0 / 0.18) 112px, transparent 126px);
+            mask: linear-gradient(to bottom, black 0 20%, rgb(0 0 0 / 0.97) 28%, rgb(0 0 0 / 0.9) 36%, rgb(0 0 0 / 0.77) 45%, rgb(0 0 0 / 0.59) 55%, rgb(0 0 0 / 0.39) 66%, rgb(0 0 0 / 0.19) 78%, rgb(0 0 0 / 0.04) 90%, transparent 100%);
         }
     }
 }

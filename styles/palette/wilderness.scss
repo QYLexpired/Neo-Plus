@@ -2,14 +2,14 @@
 .neo-palette-wilderness {
     @include palette-common("[data-id=\"neo-palette-wilderness-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #beea9d;
+        --b3-theme-base: #beea9d;
         --b3-theme-accent: #16ad9e;
         --b3-theme-background: #fdf6e3;
         --b3-theme-surface: #eaedc8;
         --b3-theme-on-background: #46687c;
     }
     &.neo-mode-dark {
-        --b3-base-color: #d8ed8d;
+        --b3-theme-base: #d8ed8d;
         --b3-theme-accent: #62e9b6;
         --b3-theme-background: #19393a;
         --b3-theme-surface: #214b4c;

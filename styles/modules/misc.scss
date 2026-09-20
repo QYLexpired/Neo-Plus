@@ -46,12 +46,12 @@ html.neo-enabled::after {
 .neo-mode-light {
     .neo-colored-hue-slider--headings,
     .neo-colored-hue-slider--lists {
-        --_colored-hue-slider-base: oklch(from var(--b3-base-color) clamp(0.55, l, 0.68) max(c, 0.2) h);
+        --_colored-hue-slider-base: oklch(from var(--b3-theme-base) clamp(0.55, l, 0.68) max(c, 0.2) h);
     }
 }
 .neo-mode-dark {
     .neo-colored-hue-slider--headings,
     .neo-colored-hue-slider--lists {
-        --_colored-hue-slider-base: oklch(from var(--b3-base-color) max(l, 0.68) max(c, 0.18) h);
+        --_colored-hue-slider-base: oklch(from var(--b3-theme-base) max(l, 0.68) max(c, 0.18) h);
     }
 }

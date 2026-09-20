@@ -2,14 +2,14 @@
 .neo-palette-lavender {
     @include palette-common("[data-id=\"neo-palette-lavender-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-		--b3-base-color: #a095bd;
+		--b3-theme-base: #a095bd;
 		--b3-theme-accent: #6364dd;
 		--b3-theme-background: #faf4ed;
 		--b3-theme-surface: #f2e9e1;
 		--b3-theme-on-background: #575279;
     }
     &.neo-mode-dark {
-		--b3-base-color: #ebc3bc;
+		--b3-theme-base: #ebc3bc;
 		--b3-theme-accent: #ebc3bc;
 		--b3-theme-background: #151320;
 		--b3-theme-surface: #1f1d2e;

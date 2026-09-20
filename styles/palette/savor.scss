@@ -2,7 +2,7 @@
 .neo-palette-savor {
     @include palette-common("[data-id=\"neo-palette-savor-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #ee705b;
+        --b3-theme-base: #ee705b;
         --b3-theme-accent: #ee705b;
         --b3-theme-background: #ffffff;
         --b3-theme-surface: #f4f4f3;
@@ -12,7 +12,7 @@
         --neo-input-primary: #2eaadc;
     }
     &.neo-mode-dark {
-        --b3-base-color: #ce5f4d;
+        --b3-theme-base: #ce5f4d;
         --b3-theme-accent: #ff7d68;
         --b3-theme-background: #2f3437;
         --b3-theme-surface: #202528;

@@ -53,8 +53,8 @@ export function getPresetsByMode(mode: ThemeMode): Preset[] {
   return presets.filter((p) => p.mode === 'all' || p.mode === mode);
 }
 export { getThemeMode };
-export function getCustomColorKey(mode: ThemeMode): 'custom-color-light' | 'custom-color-dark' {
-  return mode === 'dark' ? 'custom-color-dark' : 'custom-color-light';
+export function getBaseCustomColorKey(mode: ThemeMode): 'basecustom-color-light' | 'basecustom-color-dark' {
+  return mode === 'dark' ? 'basecustom-color-dark' : 'basecustom-color-light';
 }
 export function getSaturationKey(mode: ThemeMode): 'saturation-light' | 'saturation-dark' {
   return mode === 'dark' ? 'saturation-dark' : 'saturation-light';
@@ -68,7 +68,7 @@ export function getInvertKey(mode: ThemeMode): 'invert-light' | 'invert-dark' {
 export function getHighContrastKey(mode: ThemeMode): 'highcontrast-light' | 'highcontrast-dark' {
   return mode === 'dark' ? 'highcontrast-dark' : 'highcontrast-light';
 }
-export function getCurrentPlan(config: Config, mode: ThemeMode): 'preset' | 'custom' | 'followbanner' | 'followsystem' | 'random' | 'free' {
+export function getCurrentPlan(config: Config, mode: ThemeMode): 'preset' | 'basecustom' | 'basefollowbanner' | 'basefollowsystem' | 'random' | 'free' {
   return mode === 'dark'
     ? (config['color-plan-dark'] ?? 'preset')
     : (config['color-plan-light'] ?? 'preset');
@@ -109,13 +109,13 @@ export function applyCurrentPlan(config: Config): void {
     html.classList.add(`neo-palette-${presetKey}`);
   } else if (plan === 'free') {
     html.classList.add('neo-palette-free');
-  } else if (plan === 'followbanner') {
-    html.classList.add('neo-palette-followbanner');
-  } else if (plan === 'followsystem') {
-    html.classList.add('neo-palette-followsystem');
+  } else if (plan === 'basefollowbanner') {
+    html.classList.add('neo-palette-basefollowbanner');
+  } else if (plan === 'basefollowsystem') {
+    html.classList.add('neo-palette-basefollowsystem');
   } else if (plan === 'random') {
     html.classList.add('neo-palette-random');
   } else {
-    html.classList.add('neo-palette-custom');
+    html.classList.add('neo-palette-basecustom');
   }
 }

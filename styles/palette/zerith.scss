@@ -2,14 +2,14 @@
 .neo-palette-zerith {
     @include palette-common("[data-id=\"neo-palette-zerith-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #d6eb53;
+        --b3-theme-base: #d6eb53;
         --b3-theme-accent: #85be00;
         --b3-theme-background: #f7fbfb;
         --b3-theme-surface: #e5edec;
         --b3-theme-on-background: #265970;
     }
     &.neo-mode-dark {
-        --b3-base-color: #b4cb26;
+        --b3-theme-base: #b4cb26;
         --b3-theme-accent: #dbf611;
         --b3-theme-background: #0d1721;
         --b3-theme-surface: #1c2d3c;

@@ -2,14 +2,14 @@
 .neo-palette-opalite {
     @include palette-common("[data-id=\"neo-palette-opalite-button\"]", "[data-id=\"neo-scheme-button\"]");
     &.neo-mode-light {
-        --b3-base-color: #b8d2e8;
+        --b3-theme-base: #b8d2e8;
         --b3-theme-accent: #5e7cc6;
         --b3-theme-background: #f9f7e4;
         --b3-theme-surface: #f0efd0;
         --b3-theme-on-background: #336260;
     }
     &.neo-mode-dark {
-        --b3-base-color: #9dddd0;
+        --b3-theme-base: #9dddd0;
         --b3-theme-accent: #69d7c5;
         --b3-theme-background: #2d353b;
         --b3-theme-surface: #222a2e;
