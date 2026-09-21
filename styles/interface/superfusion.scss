@@ -9,14 +9,14 @@ $header-parallax: 5vh;
 $text-shadow: 0 0 0.5px var(--b3-theme-background);
 $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 .neo-mode-light {
-    --_superfusion-frostedglass-filter: blur(3px) brightness(1.05);
-    --_superfusion-frostedglass-strip: 0 1px 0 0 oklch(from var(--b3-theme-background) 0.99 c h / 0.18), 0 2px 8px 1px oklch(from var(--b3-theme-on-background) calc(l - 0.035) c h / 0.08);
+    --_superfusion-frostedglass-strip: inset 0 -1px 0 rgb(255 255 255 / 0.2), 0 2px 6px -3px rgb(0 0 0 / 0.08), 0 8px 20px -10px rgb(0 0 0 / 0.06);
     --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass) saturate(1.5);
+    --_superfusion-liquidglass-strip: inset 0 -1px 0 rgb(255 255 255 / 0.42), inset 0 -3px 6px -4px rgb(255 255 255 / 0.24), 0 3px 8px -4px rgb(0 0 0 / 0.12), 0 10px 24px -12px rgb(0 0 0 / 0.08);
 }
 .neo-mode-dark {
-    --_superfusion-frostedglass-filter: blur(3px) brightness(0.9);
-    --_superfusion-frostedglass-strip: 0 1px 0 0 oklch(from var(--b3-theme-on-background) l c h / 0.18), 0 2px 8px 1px oklch(from var(--b3-theme-background) calc(l - 0.1) c h / 0.42);
+    --_superfusion-frostedglass-strip: inset 0 -1px 0 rgb(255 255 255 / 0.06), 0 2px 6px -3px rgb(0 0 0 / 0.2), 0 8px 20px -10px rgb(0 0 0 / 0.16);
     --_superfusion-liquidglass-filter: url(#neo-superfusion-liquidglass) saturate(1.5);
+    --_superfusion-liquidglass-strip: inset 0 -1px 0 rgb(255 255 255 / 0.14), inset 0 -3px 6px -4px rgb(255 255 255 / 0.08), 0 3px 8px -4px rgb(0 0 0 / 0.26), 0 10px 24px -12px rgb(0 0 0 / 0.2);
 }
 @mixin scrim-gradient(
     $color: var(--b3-theme-background),
@@ -58,7 +58,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 // 面包屑与正文融合
 .neo-superfusion {
     .protyle {
-        timeline-scope: --protyle-banner-exist;
+        timeline-scope: --protyle-banner-exist, --protyle-conten-scroll;
         & > .protyle-breadcrumb {
             padding-left: $tab-offset;
             margin-top: calc($breadcrumb-height * -1);
@@ -117,8 +117,8 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
                         margin-top: 0 !important;
                     }
                     &:not(.fn__none) {
-                            view-timeline-name: --protyle-banner-exist;
-                            view-timeline-axis: block;
+                        view-timeline-name: --protyle-banner-exist;
+                        view-timeline-axis: block;
                     }
                     &.fn__none + .protyle-background__ia {
                         padding-top: calc($breadcrumb-height + $breadcrumb-offset);
@@ -257,6 +257,16 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
         }
     }
 }
+@mixin superfusion-strip($shadow) {
+    --_superfusion-strip: #{$shadow};
+    box-shadow: var(--_superfusion-strip);
+    @supports (animation-timeline: --protyle-conten-scroll) and (timeline-scope: --protyle-conten-scroll) {
+        box-shadow: none;
+        animation: neo-superfusion-strip-reveal linear both, neo-superfusion-strip-banner linear both;
+        animation-timeline: --protyle-conten-scroll, --protyle-banner-exist;
+        animation-range: 16px 64px, normal;
+    }
+}
 // 毛玻璃
 .neo-superfusion-frostedglass {
     @include superfusion-tab-protyle-x {
@@ -268,21 +278,10 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             width: 100%;
             height: 80px;
             pointer-events: none;
-            backdrop-filter: var(--_superfusion-frostedglass-filter);
+            backdrop-filter: blur(3px);
             background-color: oklch(from var(--b3-theme-background) l c h / 0.8);
-            box-shadow: var(--_superfusion-frostedglass-strip);
+            @include superfusion-strip(var(--_superfusion-frostedglass-strip));
             z-index: 2;
-        }
-        &::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 160px;
-            pointer-events: none;
-            backdrop-filter: blur(40px) saturate(3.5);
-            mask: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7) 80px, black 80px, black 81px, transparent 81px, transparent 160px);
         }
         & > .protyle-breadcrumb {
             .protyle-breadcrumb__bar {
@@ -306,7 +305,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             pointer-events: none;
             backdrop-filter: var(--_superfusion-liquidglass-filter);
             background-color: oklch(from var(--b3-theme-background) l c h / 0.8);
-            box-shadow: var(--_superfusion-frostedglass-strip);
+            @include superfusion-strip(var(--_superfusion-liquidglass-strip));
             z-index: 2;
         }
         & > .protyle-breadcrumb {
@@ -323,6 +322,19 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     // 伪文档面包屑插件
     .og-fake-doc-breadcrumb-container.protyle-breadcrumb {
         z-index: 4;
+    }
+}
+@keyframes neo-superfusion-strip-reveal {
+    from {
+        box-shadow: none;
+    }
+    to {
+        box-shadow: var(--_superfusion-strip);
+    }
+}
+@keyframes neo-superfusion-strip-banner {
+    from, to {
+        box-shadow: var(--_superfusion-strip);
     }
 }
 @keyframes header-parallax {

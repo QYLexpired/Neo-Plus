@@ -1,7 +1,17 @@
 import type { Config } from '../main/data';
-import { getColor } from 'colorthief';
+import { getColor, getSwatches } from 'colorthief';
+import { loadConfig, saveConfig } from '../main/data';
+import { getPlugin } from '../main/context';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
+import { Dialog } from '../modules/dialog';
 import { fetchListener } from '../modules/fetchmonitor';
 import { isMobile } from '../modules/env';
+type ColorStyle = NonNullable<Config['basefollowbanner-colorstyle']>;
+let colorStyle: ColorStyle = 'default';
+function applySettings(): void {
+  lastValidHex = null;
+  scheduleExtract(0);
+}
 let lastValidHex: string | null = null;
 let neoFeatureActive = false;
 let extractTimer: ReturnType<typeof setTimeout> | null = null;
@@ -236,8 +246,10 @@ function isCurrentTarget(controller: AbortController, target: BannerTarget): boo
     && current.sourceUrl === target.sourceUrl;
 }
 async function resolveBannerColor(target: BannerTarget, signal: AbortSignal): Promise<string | null | undefined> {
+  const isCurrent = createNeoLifecycleGuard();
+  const style = colorStyle;
   const { banner, source } = target;
-  if (signal.aborted) return undefined;
+  if (!isCurrent() || signal.aborted) return undefined;
   if (!banner) return null;
   const bannerGradient = extractGradientColor(banner);
   if (bannerGradient) return bannerGradient;
@@ -255,11 +267,18 @@ async function resolveBannerColor(target: BannerTarget, signal: AbortSignal): Pr
     if (hasGradient) return null;
   }
   const readyResult = await waitForMediaReady(source, signal);
-  if (readyResult === 'cancelled') return undefined;
+  if (!isCurrent() || !neoFeatureActive || signal.aborted || readyResult === 'cancelled') return undefined;
   if (readyResult === 'failed') return null;
   try {
-    const result = await getColor(source, { ignoreWhite: true, minSaturation: 0.01 });
-    if (signal.aborted) return undefined;
+    if (style === 'vivid') {
+      const swatches = await getSwatches(source, { ignoreWhite: true, signal });
+      if (!isCurrent() || !neoFeatureActive || signal.aborted) return undefined;
+      const swatch = swatches?.Vibrant ?? swatches?.LightVibrant ?? swatches?.DarkVibrant;
+      const hex = getValidHex(swatch?.color.hex() ?? null);
+      if (hex) return hex;
+    }
+    const result = await getColor(source, { ignoreWhite: true, minSaturation: 0.01, signal });
+    if (!isCurrent() || !neoFeatureActive || signal.aborted) return undefined;
     if (!result) return null;
     const { r, g, b } = result.rgb();
     return isInvalidColor(r, g, b) ? null : result.hex();
@@ -268,13 +287,14 @@ async function resolveBannerColor(target: BannerTarget, signal: AbortSignal): Pr
   }
 }
 async function extractBannerAverageColor(controller: AbortController, target: BannerTarget): Promise<void> {
+  const isCurrent = createNeoLifecycleGuard();
   let hex: string | null | undefined;
   try {
     hex = await resolveBannerColor(target, controller.signal);
   } catch {
     hex = null;
   }
-  if (hex === undefined || !isCurrentTarget(controller, target)) return;
+  if (!isCurrent() || hex === undefined || !isCurrentTarget(controller, target)) return;
   if (hex) {
     lastValidHex = hex;
     applyColor(hex);
@@ -298,8 +318,13 @@ function enableBaseFollowBanner(): void {
   fetchMonitor.attach();
   scheduleExtract(500);
 }
-export function initBaseFollowBanner(_config: Config): void {
-  enableBaseFollowBanner();
+export function initBaseFollowBanner(config: Config): void {
+  colorStyle = config['basefollowbanner-colorstyle'] || 'default';
+  if (neoFeatureActive) {
+    applySettings();
+  } else {
+    enableBaseFollowBanner();
+  }
 }
 export function destroyBaseFollowBanner(): void {
   neoFeatureActive = false;
@@ -307,4 +332,50 @@ export function destroyBaseFollowBanner(): void {
   fetchMonitor.detach();
   document.documentElement.style.removeProperty('--neo-basefollowbanner-color');
   lastValidHex = null;
+}
+export async function showBaseFollowBannerSettings(): Promise<void> {
+  const isCurrent = createNeoLifecycleGuard();
+  const plugin = getPlugin();
+  if (!plugin) return;
+  const config = await loadConfig();
+  if (!isCurrent()) return;
+  const { i18n } = plugin;
+  const dialog = new Dialog({
+    title: i18n.basefollowbannerSettings,
+    content: `<div class="b3-dialog__content">
+      <div class="config__tab-container">
+        <div class="config-group">
+          <div class="config-items">
+            <label class="fn__flex b3-label config-item">
+              <div class="fn__flex-1 config-item__main">
+                <div class="config-name">${i18n.basefollowbannerColorStyle}</div>
+                <div class="b3-label__text">${i18n.basefollowbannerColorStyleTip}</div>
+              </div>
+              <span class="fn__space"></span>
+              <select class="b3-select fn__flex-center fn__size200" id="neo-basefollowbanner-colorstyle">
+                <option value="default">${i18n.basefollowbannerColorStyleDefault}</option>
+                <option value="vivid">${i18n.basefollowbannerColorStyleVivid}</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="b3-dialog__action">
+      <button class="b3-button b3-button--cancel" id="neo-basefollowbanner-cancel">${i18n.cancel}</button>
+      <span class="fn__space"></span>
+      <button class="b3-button b3-button--text" id="neo-basefollowbanner-confirm">${i18n.confirm}</button>
+    </div>`,
+  });
+  dialog.element.classList.add('neo-settings-dialog');
+  const styleSelect = dialog.element.querySelector<HTMLSelectElement>('#neo-basefollowbanner-colorstyle')!;
+  styleSelect.value = config['basefollowbanner-colorstyle'] || 'default';
+  dialog.element.querySelector('#neo-basefollowbanner-cancel')?.addEventListener('click', () => dialog.destroy());
+  dialog.element.querySelector('#neo-basefollowbanner-confirm')?.addEventListener('click', () => {
+    if (!isCurrent()) return;
+    colorStyle = styleSelect.value as ColorStyle;
+    saveConfig({ 'basefollowbanner-colorstyle': colorStyle });
+    if (neoFeatureActive) applySettings();
+    dialog.destroy();
+  });
 }

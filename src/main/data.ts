@@ -30,6 +30,7 @@ export type PresetTextureSettingsMap = Record<string, PresetTextureSettings>;
 export type FreeColorKey = 'base' | 'accent' | 'background' | 'surface' | 'onbackground';
 export type FreeColors = Partial<Record<FreeColorKey, string>>;
 export interface Config {
+  'basefollowbanner-colorstyle'?: 'default' | 'vivid';
   'basecustom-color-light'?: string;
   'basecustom-color-dark'?: string;
   'saturation-light'?: number;

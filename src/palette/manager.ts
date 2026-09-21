@@ -95,7 +95,127 @@ export function switchToPlan(plan: Plan): void {
     });
   }).catch(() => {});
 }
-export function getPresetMenuItems(i18n: Record<string, string>): MenuItem[] {
+let lastShuffledPresetKey: string | null = null;
+function createPresetSearch(presets: Preset[], i18n: Record<string, string>, onClose: () => void): [MenuItem, MenuItem] {
+  const isCurrent = createNeoLifecycleGuard();
+  let results: HTMLElement | null = null;
+  const searchItem: MenuItem = {
+    type: 'readonly',
+    iconHTML: '',
+    label: '<div class="fn__flex"><input class="b3-text-field fn__flex-1" style="min-width: 0; box-sizing: border-box" type="search" autocomplete="off" spellcheck="false"><span class="fn__space"></span><span class="block__icon block__icon--show fn__flex-center ariaLabel" id="neo-presets-search-shuffle" role="button" tabindex="0"><svg><use xlink:href="#iconDices"></use></svg></span></div>',
+    bind: (element) => {
+      const input = element.querySelector('input')!;
+      const randomButton = element.querySelector<HTMLElement>('#neo-presets-search-shuffle')!;
+      randomButton.setAttribute('aria-label', i18n.colorSchemeRandom);
+      input.placeholder = i18n.colorSchemeSearch;
+      input.setAttribute('aria-label', i18n.colorSchemeSearch);
+      input.setAttribute('role', 'combobox');
+      input.setAttribute('aria-expanded', 'false');
+      input.setAttribute('aria-controls', 'neo-presets-search-results');
+      const hiddenStates = new Map<Element, boolean>();
+      let matched: Preset[] = [];
+      let focused = 0;
+      const choose = (preset: Preset): void => {
+        if (!isCurrent()) return;
+        switchToPreset(preset.key);
+        focused = matched.indexOf(preset);
+        updateFocus();
+      };
+      const updateFocus = (): void => {
+        Array.from(results!.querySelectorAll<HTMLElement>('[role="option"]')).forEach((row, index) => {
+          row.classList.toggle('b3-menu__item--current', index === focused);
+          row.setAttribute('aria-selected', String(index === focused));
+        });
+        const row = matched.length ? results!.children[focused] : null;
+        if (row) input.setAttribute('aria-activedescendant', row.id);
+        else input.removeAttribute('aria-activedescendant');
+      };
+      const filterItems = (): void => {
+        if (!isCurrent()) return;
+        const query = input.value.trim().toLocaleLowerCase();
+        for (const sibling of Array.from(element.parentElement?.children ?? [])) {
+          if (sibling === element || !sibling.matches('[data-id^="neo-palette-"], .b3-menu__separator')) continue;
+          if (!hiddenStates.has(sibling)) hiddenStates.set(sibling, sibling.classList.contains('fn__none'));
+          sibling.classList.toggle('fn__none', !!query || hiddenStates.get(sibling)!);
+        }
+        results!.classList.toggle('fn__none', !query);
+        input.setAttribute('aria-expanded', String(!!query));
+        results!.replaceChildren();
+        matched = query ? presets.filter(preset => `${i18n[preset.nameKey]} ${preset.key}`.toLocaleLowerCase().includes(query)) : [];
+        focused = 0;
+        for (const [index, preset] of matched.entries()) {
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'b3-menu__item';
+          row.id = `neo-presets-search-option-${index}`;
+          row.dataset.id = `neo-palette-${preset.key}-button`;
+          row.setAttribute('role', 'option');
+          row.tabIndex = -1;
+          row.innerHTML = '<svg class="b3-menu__icon"><use xlink:href="#iconNeoPalette"></use></svg><span class="b3-menu__label"></span>';
+          row.querySelector('span')!.textContent = i18n[preset.nameKey];
+          row.addEventListener('click', () => choose(preset));
+          results!.append(row);
+        }
+        if (query && !matched.length) {
+          const empty = document.createElement('div');
+          empty.className = 'b3-label__text';
+          empty.setAttribute('role', 'status');
+          empty.textContent = i18n.colorSchemeSearchEmpty;
+          results!.append(empty);
+        }
+        updateFocus();
+      };
+      randomButton.addEventListener('click', () => {
+        if (!isCurrent()) return;
+        const candidates = presets.filter(preset => preset.key !== lastShuffledPresetKey);
+        if (!candidates.length) return;
+        const preset = candidates[Math.floor(Math.random() * candidates.length)];
+        lastShuffledPresetKey = preset.key;
+        switchToPreset(preset.key);
+      });
+      randomButton.addEventListener('keydown', event => {
+        event.stopPropagation();
+        if (event.isComposing || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        randomButton.click();
+      });
+      element.addEventListener('click', event => event.stopPropagation());
+      input.addEventListener('input', filterItems);
+      element.addEventListener('keydown', event => {
+        event.stopPropagation();
+        if (event.isComposing) return;
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          if (!matched.length) return;
+          focused = (focused + (event.key === 'ArrowDown' ? 1 : -1) + matched.length) % matched.length;
+          updateFocus();
+          results!.children[focused]?.scrollIntoView({ block: 'nearest' });
+        } else if (event.key === 'Enter') {
+          event.preventDefault();
+          if (matched[focused]) choose(matched[focused]);
+        } else if (event.key === 'Escape') {
+          event.preventDefault();
+          if (input.value) {
+            input.value = '';
+            filterItems();
+          } else {
+            onClose();
+          }
+        }
+      });
+    },
+  };
+  const resultsItem: MenuItem = {
+    type: 'empty',
+    label: '<div class="neo-presets-search-results fn__none" id="neo-presets-search-results" style="margin-top: 4px; max-height: 50vh; overflow-y: auto" role="listbox"></div>',
+    bind: (element) => {
+      results = element.querySelector<HTMLElement>('.neo-presets-search-results')!;
+      results.setAttribute('aria-label', i18n.colorScheme);
+    },
+  };
+  return [searchItem, resultsItem];
+}
+export function getPresetMenuItems(i18n: Record<string, string>, onClose: () => void): MenuItem[] {
   const mode = getThemeMode();
   const availablePresets = getPresetsByMode(mode);
   const pinnedKeys = ['default', 'classic'];
@@ -120,7 +240,7 @@ export function getPresetMenuItems(i18n: Record<string, string>): MenuItem[] {
     }
     return submenuItems;
   };
-  const items: MenuItem[] = topLevelPresets.map(makeItem);
+  const items: MenuItem[] = [...createPresetSearch(availablePresets, i18n, onClose), ...topLevelPresets.map(makeItem)];
   items.push({ type: 'separator' });
   const groupedPresets = new Map<string, Preset[]>();
   const ungroupedPresets: Preset[] = [];
@@ -287,6 +407,7 @@ export function initPalette(): Promise<void> | void {
   return Promise.all([settingsReady, paletteReady]).then(() => {});
 }
 export function destroyPalette(): void {
+  lastShuffledPresetKey = null;
   destroyPaletteEffects();
   destroyPaletteClasses();
   destroyPaletteMenuEvents();

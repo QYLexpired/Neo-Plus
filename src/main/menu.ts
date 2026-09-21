@@ -2,6 +2,7 @@ import { Menu } from 'siyuan';
 import { getPlugin } from './context';
 import { loadConfig } from './data';
 import { createBrightnessSliderHTML, createBaseCustomPickerHTML, createSliderHTML, getPresetMenuItems, getBaseCustomColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
+import { showBaseFollowBannerSettings } from '../palette/basefollowbanner';
 import { showFreeSettings } from '../palette/free';
 import { showRandomSettings } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
@@ -56,7 +57,7 @@ export function buildMenu(
     id: 'neo-scheme-button',
     icon: 'iconNeoPalette',
     label: i18n.colorScheme,
-    submenu: getPresetMenuItems(i18n),
+    submenu: getPresetMenuItems(i18n, () => menu.close()),
   });
   menu.addItem({
     id: 'neo-free-button',
@@ -100,7 +101,12 @@ export function buildMenu(
       {
         id: 'neo-basefollowbanner-button',
         icon: '',
-        label: i18n.basefollowbanner,
+        label: createSettingsMenuLabel(
+          'basefollowbanner',
+          i18n.basefollowbanner,
+          i18n.basefollowbannerSettings,
+          showBaseFollowBannerSettings,
+        ),
         click: () => {
           switchToPlan('basefollowbanner');
           return true;
