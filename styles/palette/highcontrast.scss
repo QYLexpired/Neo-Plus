@@ -33,9 +33,16 @@
             #toolbar .toolbar__item {
                 @include neo-highcontrast-icon;
                 &#barWorkspace {
+                    .toolbar__text {
+                        color: var(--neo-highcontrast-on-bg);
+                    }
                     &:hover {
-                        background-color: var(--b3-theme-background) !important;
-                        color: var(--neo-highcontrast-bg) !important;
+                        .toolbar__text {
+                            color: var(--neo-highcontrast-on-bg);
+                            background-image: none;
+                            background-clip: unset;
+                            -webkit-text-fill-color: unset;
+                        }
                     }
                 }
             }
