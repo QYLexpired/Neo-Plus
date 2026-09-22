@@ -20,7 +20,7 @@
                     flex: 1;
                     flex-direction: column;
                     overflow-y: scroll;
-                    // 导致闪退 @include overflow-indicator-fadein-mask($fadeout-size-l, "top bottom");
+                    // 导致闪退 @include overflow-fade-mask($fade-mask-l, "top bottom");
                     .item {
                         margin: 3px 6px !important;
                         width: calc(100% - 12px);
