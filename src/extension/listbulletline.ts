@@ -2,10 +2,12 @@ import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { getEffectiveSelectionRange } from '../modules/getselection';
+import { fetchListener } from '../modules/fetchmonitor';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let selectionChangeHandler: (() => void) | null = null;
 let clickHandler: ((event: MouseEvent) => void) | null = null;
 let updateFrame: number | null = null;
+let refreshFrame: number | null = null;
 let pendingClickTarget: HTMLElement | null = null;
 let lastMarkedItems: Set<HTMLElement> = new Set();
 let neoFeatureActive = false;
@@ -90,15 +92,19 @@ function runSelectionUpdate(clickTarget?: HTMLElement | null): void {
       node = element.parentElement;
     }
   }
-  const itemTops = currentListItems.length > 1 ? currentListItems.map((item) => item.getBoundingClientRect().top) : [];
   const currentSet = new Set(currentListItems);
   lastMarkedItems.forEach((item) => {
     if (!currentSet.has(item)) {
       removeMarkFromItem(item);
     }
   });
-  currentListItems.forEach((item, index) => {
-    const hasNext = index < currentListItems.length - 1;
+  applyBulletLineMarks(currentListItems);
+  lastMarkedItems = currentSet;
+}
+function applyBulletLineMarks(items: HTMLElement[]): void {
+  const itemTops = items.length > 1 ? items.map((item) => item.getBoundingClientRect().top) : [];
+  items.forEach((item, index) => {
+    const hasNext = index < items.length - 1;
     const newHeight = hasNext ? `${itemTops[index] - itemTops[index + 1]}px` : undefined;
     if (!lastMarkedItems.has(item)) {
       addMarkToItem(item, newHeight);
@@ -119,7 +125,6 @@ function runSelectionUpdate(clickTarget?: HTMLElement | null): void {
       }
     }
   });
-  lastMarkedItems = currentSet;
 }
 function scheduleSelectionUpdate(clickTarget: HTMLElement | null = null): void {
   if (!neoFeatureActive) return;
@@ -131,6 +136,24 @@ function scheduleSelectionUpdate(clickTarget: HTMLElement | null = null): void {
     pendingClickTarget = null;
     if (!neoFeatureActive) return;
     runSelectionUpdate(target?.isConnected ? target : null);
+  });
+}
+function refreshBulletLineHeights(): void {
+  const items = Array.from(lastMarkedItems).filter((item) => item.isConnected);
+  if (items.length === 0) {
+    clearBulletLineMarks();
+    return;
+  }
+  lastMarkedItems = new Set(items);
+  applyBulletLineMarks(items);
+}
+function scheduleBulletLineRefresh(): void {
+  if (!neoFeatureActive) return;
+  if (refreshFrame !== null) return;
+  refreshFrame = window.requestAnimationFrame(() => {
+    refreshFrame = null;
+    if (!neoFeatureActive) return;
+    refreshBulletLineHeights();
   });
 }
 function bindSelectionChange(): void {
@@ -153,6 +176,10 @@ function unbindSelectionChange(): void {
     window.cancelAnimationFrame(updateFrame);
     updateFrame = null;
   }
+  if (refreshFrame !== null) {
+    window.cancelAnimationFrame(refreshFrame);
+    refreshFrame = null;
+  }
   pendingClickTarget = null;
   if (!selectionChangeHandler) {
     clearBulletLineMarks();
@@ -166,11 +193,14 @@ function unbindSelectionChange(): void {
   selectionChangeHandler = null;
   clearBulletLineMarks();
 }
+const fetchMonitor = fetchListener();
+fetchMonitor.onNotify('setUILayout', () => { scheduleBulletLineRefresh(); });
 function enableListBulletLine(): void {
   if (neoFeatureActive) return;
   ensureCss('extension-listbulletline', featureCss['extension-listbulletline']);
   document.documentElement.classList.add('neo-listbulletline');
   neoFeatureActive = true;
+  fetchMonitor.attach();
   bindSelectionChange();
 }
 export function initListBulletLine(): Promise<void> {
@@ -194,6 +224,7 @@ export function onListBulletLineClick(): void {
 export function destroyListBulletLine(): void {
   neoFeatureActive = false;
   removeCss('extension-listbulletline');
+  fetchMonitor.detach();
   document.documentElement?.classList.remove('neo-listbulletline');
   unbindSelectionChange();
 }
