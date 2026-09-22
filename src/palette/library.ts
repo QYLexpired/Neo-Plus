@@ -710,17 +710,17 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'qyl-ocean',
       nameKey: 'freeLibraryQYLOcean',
-      colors: { base: '#73abe0', accent: '#73abe0', background: '#e2f0ff', surface: '#cce0f3', onbackground: '#0d2745' },
+      colors: { base: '#73abe0', accent: '#4e8fcd', background: '#e2f0ff', surface: '#cce0f3', onbackground: '#0d2745' },
     },
     {
       key: 'qyl-sugar',
       nameKey: 'freeLibraryQYLSugar',
-      colors: { base: '#f48bb5', accent: '#f48bb5', background: '#fff6fb', surface: '#f9e9ef', onbackground: '#5a1b34' },
+      colors: { base: '#f48bb5', accent: '#e873a2', background: '#fff6fb', surface: '#f9e9ef', onbackground: '#5a1b34' },
     },
     {
       key: 'qyl-lavender',
       nameKey: 'freeLibraryQYLLavender',
-      colors: { base: '#d394ec', accent: '#d394ec', background: '#faf3ff', surface: '#efe4ff', onbackground: '#42165a' },
+      colors: { base: '#d394ec', accent: '#c178de', background: '#faf3ff', surface: '#efe4ff', onbackground: '#42165a' },
     },
     {
       key: 'qyl-yunwu',
@@ -745,17 +745,17 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'qyl-shuanghe',
       nameKey: 'freeLibraryQYLShuanghe',
-      colors: { base: '#61beaf', accent: '#61beaf', background: '#f7f9ed', surface: '#dbeadd', onbackground: '#184134' },
+      colors: { base: '#61beaf', accent: '#45ab9b', background: '#f7f9ed', surface: '#dbeadd', onbackground: '#184134' },
     },
     {
       key: 'qyl-lime',
       nameKey: 'freeLibraryQYLLime',
-      colors: { base: '#85d200', accent: '#85d200', background: '#f8ffff', surface: '#e8f0f0', onbackground: '#456b7d' },
+      colors: { base: '#a0ee19', accent: '#70ae04', background: '#f8ffff', surface: '#e8f0f0', onbackground: '#456b7d' },
     },
     {
       key: 'qyl-huique',
       nameKey: 'freeLibraryQYLHuique',
-      colors: { base: '#66748f', accent: '#66748f', background: '#e5e8f0', surface: '#d7dce6', onbackground: '#2a354b' },
+      colors: { base: '#66748f', accent: '#558bc4', background: '#e5e8f0', surface: '#d7dce6', onbackground: '#2a354b' },
     },
     {
       key: 'qyl-autumn',
@@ -765,12 +765,12 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'qyl-memory',
       nameKey: 'freeLibraryQYLMemory',
-      colors: { base: '#83799a', accent: '#83799a', background: '#fffbf3', surface: '#faf4ed', onbackground: '#49474e' },
+      colors: { base: '#83799a', accent: '#bea07c', background: '#fffbf3', surface: '#faf4ed', onbackground: '#49474e' },
     },
     {
       key: 'qyl-lake',
       nameKey: 'freeLibraryQYLLake',
-      colors: { base: '#767cd6', accent: '#767cd6', background: '#edf1ff', surface: '#e2e7fb', onbackground: '#384051' },
+      colors: { base: '#767cd6', accent: '#619ae2', background: '#edf1ff', surface: '#e2e7fb', onbackground: '#384051' },
     },
     {
       key: 'qyl-xiangxuelan',
@@ -780,7 +780,7 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'qyl-ivory',
       nameKey: 'freeLibraryQYLIvory',
-      colors: { base: '#2f3953', accent: '#2f3953', background: '#feffff', surface: '#f5f5f5', onbackground: '#2f3953' },
+      colors: { base: '#2f3953', accent: '#0338bf', background: '#feffff', surface: '#f5f5f5', onbackground: '#2f3953' },
     },
     {
       key: 'qyl-coral',
@@ -795,17 +795,17 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'qyl-amber',
       nameKey: 'freeLibraryQYLAmber',
-      colors: { base: '#947c60', accent: '#947c60', background: '#fdf6e2', surface: '#efe8d4', onbackground: '#463829' },
+      colors: { base: '#947c60', accent: '#b29471', background: '#fdf6e2', surface: '#efe8d4', onbackground: '#463829' },
     },
     {
       key: 'qyl-cream',
       nameKey: 'freeLibraryQYLCream',
-      colors: { base: '#7db4ab', accent: '#7db4ab', background: '#fffcf0', surface: '#f2f0e5', onbackground: '#242322' },
+      colors: { base: '#7db4ab', accent: '#50a597', background: '#fffcf0', surface: '#f2f0e5', onbackground: '#242322' },
     },
     {
       key: 'qyl-biwan',
       nameKey: 'freeLibraryQYLBiwan',
-      colors: { base: '#7aa6a6', accent: '#7aa6a6', background: '#f7fbfc', surface: '#e9f1f3', onbackground: '#384f51' },
+      colors: { base: '#7aa6a6', accent: '#5ca4a4', background: '#f7fbfc', surface: '#e9f1f3', onbackground: '#384f51' },
     },
     {
       key: 'qyl-warm',
@@ -1812,97 +1812,97 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
     {
       key: 'qyl-dark-classic-blue',
       nameKey: 'freeLibraryQYLDarkClassicBlue',
-      colors: { base: '#4674c9', accent: '#4674c9', background: '#1e1e1e', surface: '#262626', onbackground: '#dadada' },
+      colors: { base: '#4674c9', accent: '#699eff', background: '#1e1e1e', surface: '#262626', onbackground: '#dadada' },
     },
     {
       key: 'qyl-dark-classic-red',
       nameKey: 'freeLibraryQYLDarkClassicRed',
-      colors: { base: '#cf5659', accent: '#cf5659', background: '#1a1a1a', surface: '#262728', onbackground: '#d6d6d6' },
+      colors: { base: '#cf5659', accent: '#f58287', background: '#1a1a1a', surface: '#262728', onbackground: '#d6d6d6' },
     },
     {
       key: 'qyl-burgundy',
       nameKey: 'freeLibraryQYLBurgundy',
-      colors: { base: '#a34c4c', accent: '#a34c4c', background: '#1d1515', surface: '#161010', onbackground: '#b5b5b5' },
+      colors: { base: '#a34c4c', accent: '#d67070', background: '#1d1515', surface: '#161010', onbackground: '#b5b5b5' },
     },
     {
       key: 'qyl-xuanqing',
       nameKey: 'freeLibraryQYLXuanqing',
-      colors: { base: '#6560d2', accent: '#6560d2', background: '#1d1c25', surface: '#2a2936', onbackground: '#b5b5b5' },
+      colors: { base: '#6560d2', accent: '#a09cff', background: '#1d1c25', surface: '#2a2936', onbackground: '#b5b5b5' },
     },
     {
       key: 'qyl-mocui',
       nameKey: 'freeLibraryQYLMocui',
-      colors: { base: '#528450', accent: '#528450', background: '#282b27', surface: '#30342e', onbackground: '#b5b5b5' },
+      colors: { base: '#528450', accent: '#93d98e', background: '#282b27', surface: '#30342e', onbackground: '#b5b5b5' },
     },
     {
       key: 'qyl-huimu',
       nameKey: 'freeLibraryQYLHuimu',
-      colors: { base: '#877b5d', accent: '#877b5d', background: '#2f2f2f', surface: '#383838', onbackground: '#dddddd' },
+      colors: { base: '#877b5d', accent: '#c1b189', background: '#2f2f2f', surface: '#383838', onbackground: '#dddddd' },
     },
     {
       key: 'qyl-wumu',
       nameKey: 'freeLibraryQYLWumu',
-      colors: { base: '#6178bd', accent: '#6178bd', background: '#282c34', surface: '#1e2227', onbackground: '#cfd7e7' },
+      colors: { base: '#6178bd', accent: '#8ca8f2', background: '#282c34', surface: '#1e2227', onbackground: '#cfd7e7' },
     },
     {
       key: 'qyl-midnight',
       nameKey: 'freeLibraryQYLMidnight',
-      colors: { base: '#4875b3', accent: '#4875b3', background: '#17181c', surface: '#07080c', onbackground: '#fbfdff' },
+      colors: { base: '#4875b3', accent: '#5d98e8', background: '#17181c', surface: '#07080c', onbackground: '#fbfdff' },
     },
     {
       key: 'qyl-cangming',
       nameKey: 'freeLibraryQYLCangming',
-      colors: { base: '#756cd9', accent: '#756cd9', background: '#282455', surface: '#191841', onbackground: '#d2deeb' },
+      colors: { base: '#756cd9', accent: '#ff9c8a', background: '#282455', surface: '#191841', onbackground: '#d2deeb' },
     },
     {
       key: 'qyl-steam',
       nameKey: 'freeLibraryQYLSteam',
-      colors: { base: '#3f7980', accent: '#3f7980', background: '#0f2839', surface: '#051e2f', onbackground: '#ebfff4' },
+      colors: { base: '#3f7980', accent: '#63c6d2', background: '#0f2839', surface: '#051e2f', onbackground: '#ebfff4' },
     },
     {
       key: 'qyl-latte',
       nameKey: 'freeLibraryQYLLatte',
-      colors: { base: '#cb9d36', accent: '#cb9d36', background: '#2b2622', surface: '#221e1b', onbackground: '#f2eedf' },
+      colors: { base: '#cb9d36', accent: '#d4ab4f', background: '#2b2622', surface: '#221e1b', onbackground: '#f2eedf' },
     },
     {
       key: 'qyl-winter',
       nameKey: 'freeLibraryQYLWinter',
-      colors: { base: '#008f98', accent: '#008f98', background: '#01172c', surface: '#00101e', onbackground: '#c8deea' },
+      colors: { base: '#008f98', accent: '#15c9d5', background: '#01172c', surface: '#00101e', onbackground: '#c8deea' },
     },
     {
       key: 'qyl-xingqiong',
       nameKey: 'freeLibraryQYLXingqiong',
-      colors: { base: '#a94255', accent: '#a94255', background: '#17151c', surface: '#2d2935', onbackground: '#d7c9c2' },
+      colors: { base: '#a94255', accent: '#d36e80', background: '#17151c', surface: '#2d2935', onbackground: '#d7c9c2' },
     },
     {
       key: 'qyl-wildness',
       nameKey: 'freeLibraryQYLWildness',
-      colors: { base: '#9db56d', accent: '#9db56d', background: '#2d353b', surface: '#232a2e', onbackground: '#ece4d0' },
+      colors: { base: '#9db56d', accent: '#b1cc7a', background: '#2d353b', surface: '#232a2e', onbackground: '#ece4d0' },
     },
     {
       key: 'qyl-marsh',
       nameKey: 'freeLibraryQYLMarsh',
-      colors: { base: '#9b815d', accent: '#9b815d', background: '#372d29', surface: '#413632', onbackground: '#ccc2b7' },
+      colors: { base: '#9b815d', accent: '#be9863', background: '#372d29', surface: '#413632', onbackground: '#ccc2b7' },
     },
     {
       key: 'qyl-gleam',
       nameKey: 'freeLibraryQYLGleam',
-      colors: { base: '#707bc2', accent: '#707bc2', background: '#31333c', surface: '#3a3c45', onbackground: '#d3d5de' },
+      colors: { base: '#707bc2', accent: '#8996e9', background: '#31333c', surface: '#3a3c45', onbackground: '#d3d5de' },
     },
     {
       key: 'qyl-yinji',
       nameKey: 'freeLibraryQYLYinJi',
-      colors: { base: '#3a8a93', accent: '#3a8a93', background: '#1d1d25', surface: '#2d3643', onbackground: '#dcc7b6' },
+      colors: { base: '#3a8a93', accent: '#4cb1bc', background: '#1d1d25', surface: '#2d3643', onbackground: '#dcc7b6' },
     },
     {
       key: 'qyl-jinzun',
       nameKey: 'freeLibraryQYLJinZun',
-      colors: { base: '#cf5747', accent: '#cf5747', background: '#2b2833', surface: '#1c1827', onbackground: '#dabcae' },
+      colors: { base: '#cf5747', accent: '#efbc6e', background: '#2b2833', surface: '#1c1827', onbackground: '#dabcae' },
     },
     {
       key: 'qyl-boai',
       nameKey: 'freeLibraryQYLBoAi',
-      colors: { base: '#8386cc', accent: '#8386cc', background: '#303446', surface: '#242634', onbackground: '#cfd7f5' },
+      colors: { base: '#8386cc', accent: '#aaadf5', background: '#303446', surface: '#242634', onbackground: '#cfd7f5' },
     },
   ],
 };
