@@ -173,13 +173,13 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
             </div>
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px" role="group" aria-labelledby="neo-random-saturation-title">
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
-                <span style="white-space:nowrap">${i18n.randomRangeMin}</span>
+                <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${i18n.randomRangeMin}</span>
                 <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-min-tooltip" aria-label="${randomSaturationMin}">
                   <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-min" min="0" max="5" step="0.01" type="range" value="${randomSaturationMin}">
                 </div>
               </label>
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
-                <span style="white-space:nowrap">${i18n.randomRangeMax}</span>
+                <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${i18n.randomRangeMax}</span>
                 <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-max-tooltip" aria-label="${randomSaturationMax}">
                   <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-max" min="0" max="5" step="0.01" type="range" value="${randomSaturationMax}">
                 </div>
@@ -193,13 +193,13 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
             </div>
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px" role="group" aria-labelledby="neo-random-brightness-title">
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
-                <span style="white-space:nowrap">${i18n.randomRangeMin}</span>
+                <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${i18n.randomRangeMin}</span>
                 <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-min-tooltip" aria-label="${randomBrightnessMin}">
                   <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-min" min="-1" max="1" step="0.01" type="range" value="${randomBrightnessMin}">
                 </div>
               </label>
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
-                <span style="white-space:nowrap">${i18n.randomRangeMax}</span>
+                <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${i18n.randomRangeMax}</span>
                 <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-max-tooltip" aria-label="${randomBrightnessMax}">
                   <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-max" min="-1" max="1" step="0.01" type="range" value="${randomBrightnessMax}">
                 </div>

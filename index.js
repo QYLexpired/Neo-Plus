@@ -144,13 +144,13 @@
             </div>
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px" role="group" aria-labelledby="neo-random-saturation-title">
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
-                <span style="white-space:nowrap">${e.randomRangeMin}</span>
+                <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${e.randomRangeMin}</span>
                 <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-min-tooltip" aria-label="${ie}">
                   <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-min" min="0" max="5" step="0.01" type="range" value="${ie}">
                 </div>
               </label>
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
-                <span style="white-space:nowrap">${e.randomRangeMax}</span>
+                <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${e.randomRangeMax}</span>
                 <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-max-tooltip" aria-label="${he}">
                   <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-max" min="0" max="5" step="0.01" type="range" value="${he}">
                 </div>
@@ -164,13 +164,13 @@
             </div>
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px" role="group" aria-labelledby="neo-random-brightness-title">
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
-                <span style="white-space:nowrap">${e.randomRangeMin}</span>
+                <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${e.randomRangeMin}</span>
                 <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-min-tooltip" aria-label="${ae}">
                   <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-min" min="-1" max="1" step="0.01" type="range" value="${ae}">
                 </div>
               </label>
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
-                <span style="white-space:nowrap">${e.randomRangeMax}</span>
+                <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${e.randomRangeMax}</span>
                 <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-max-tooltip" aria-label="${Ae}">
                   <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-max" min="-1" max="1" step="0.01" type="range" value="${Ae}">
                 </div>
