@@ -4,6 +4,7 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+import { fetchListener } from '../modules/fetchmonitor';
 interface DebouncedTask {
   schedule: () => void;
   cancel: () => void;
@@ -47,21 +48,14 @@ function updateDockExpandState(): void {
   const dockLeft = document.querySelector<HTMLElement>('#dockLeft');
   const dockRight = document.querySelector<HTMLElement>('#dockRight');
   const body = document.body;
-  let dockbExpanded = false;
-  if (dockLeft) {
-    const hasL = hasActiveItemBeforeSpace(dockLeft);
-    const hasB = hasActiveItemAfterSpace(dockLeft);
-    body.classList.toggle('neo-dockl-expand', hasL);
-    body.classList.toggle('neo-dockl-not-expand', !hasL);
-    if (hasB) dockbExpanded = true;
-  }
-  if (dockRight) {
-    const hasR = hasActiveItemBeforeSpace(dockRight);
-    const hasB = hasActiveItemAfterSpace(dockRight);
-    body.classList.toggle('neo-dockr-expand', hasR);
-    body.classList.toggle('neo-dockr-not-expand', !hasR);
-    if (hasB) dockbExpanded = true;
-  }
+  const hasL = dockLeft ? hasActiveItemBeforeSpace(dockLeft) : false;
+  const hasR = dockRight ? hasActiveItemBeforeSpace(dockRight) : false;
+  const dockbExpanded = (dockLeft ? hasActiveItemAfterSpace(dockLeft) : false)
+    || (dockRight ? hasActiveItemAfterSpace(dockRight) : false);
+  body.classList.toggle('neo-dockl-expand', hasL);
+  body.classList.toggle('neo-dockl-not-expand', !hasL);
+  body.classList.toggle('neo-dockr-expand', hasR);
+  body.classList.toggle('neo-dockr-not-expand', !hasR);
   body.classList.toggle('neo-dockb-expand', dockbExpanded);
   body.classList.toggle('neo-dockb-not-expand', !dockbExpanded);
 }
@@ -85,6 +79,8 @@ function updateDockExpandAndFloat(): void {
   updateFloatState();
 }
 const debouncedUpdate = createDebouncedTask(updateDockExpandAndFloat, 50);
+const fetchMonitor = fetchListener();
+fetchMonitor.onNotify('setUILayout', () => { debouncedUpdate.schedule(); });
 function onInteractionUp(): void {
   debouncedUpdate.schedule();
 }
@@ -105,6 +101,12 @@ function enableIde(): void {
   document.body.classList.add('neo-ide-body');
   neoFeatureActive = true;
   attachEvents();
+  fetchMonitor.attach();
+  updateDockExpandAndFloat();
+  fallbackTimer = setTimeout(() => {
+    fallbackTimer = null;
+    if (neoFeatureActive) updateDockExpandAndFloat();
+  }, 500);
 }
 export function initIde(): Promise<void> | void {
   if (isMobile()) return;
@@ -112,13 +114,11 @@ export function initIde(): Promise<void> | void {
   return loadConfig().then((config) => {
     if (!isCurrent()) return;
     if (config['ide'] === true) {
-      if (neoFeatureActive) return;
-      enableIde();
-      updateDockExpandState();
-      fallbackTimer = setTimeout(() => {
-        updateFloatState();
-        fallbackTimer = null;
-      }, 500);
+      if (neoFeatureActive) {
+        updateDockExpandAndFloat();
+      } else {
+        enableIde();
+      }
     }
   });
 }
@@ -131,11 +131,6 @@ export function onIdeClick(): void {
     if (shouldEnable) {
       enableIde();
       saveConfig({ 'ide': true });
-      updateDockExpandAndFloat();
-      fallbackTimer = setTimeout(() => {
-        updateDockExpandAndFloat();
-        fallbackTimer = null;
-      }, 200);
     } else {
       destroyIde();
       saveConfig({ 'ide': false });
@@ -151,6 +146,7 @@ export function destroyIde(): void {
   }
   debouncedUpdate.cancel();
   detachEvents();
+  fetchMonitor.detach();
   document.body.classList.remove(
     'neo-dockl-not-expand',
     'neo-dockr-not-expand',
