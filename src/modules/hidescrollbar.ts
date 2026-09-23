@@ -27,7 +27,7 @@ function removeScrollbarStyles(): void {
   if (!document.getElementById(styleId)) {
     const style = document.createElement('style');
     style.id = styleId;
-    style.textContent = `body{scrollbar-width:thin!important;scrollbar-color:var(--b3-scroll-color-hover) var(--b3-theme-background-light)!important}`;
+    style.textContent = `body{scrollbar-width:thin!important;scrollbar-color:var(--b3-scroll-color-hover) transparent !important}`;
     document.head.appendChild(style);
   }
 }
