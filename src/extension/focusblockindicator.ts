@@ -128,7 +128,7 @@ function isFocusBlockDisabled(block: Element): boolean {
 function getFocusBlock(focusNode: Node | null): Element | null {
   const focusElement = focusNode?.nodeType === Node.ELEMENT_NODE ? focusNode as Element : focusNode?.parentElement;
   const block = focusElement?.closest('[data-node-id]');
-  if (!block || block.closest('.list-mindmap__node')) return null;
+  if (!block || block.closest('.mindmap-view__node')) return null;
   const target = block.closest('[data-sy-table-cell-inline], [data-sy-table-cell-rich]') ? block.closest('[data-node-id][data-type="NodeTable"]') ?? block : block;
   return isFocusBlockDisabled(target) ? null : target;
 }
