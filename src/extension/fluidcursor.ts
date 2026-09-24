@@ -196,7 +196,7 @@ function startFluidCursor(): void {
   };
   window.addEventListener('resize', resizeHandler);
   if (trailOn) {
-    window.addEventListener('mousemove', mouseMoveHandler, { passive: true });
+    window.addEventListener('mousemove', mouseMoveHandler, { capture: true, passive: true });
   }
   mouseDownHandler = (e: MouseEvent) => {
     const eventTime = getMouseEventTime(e);
@@ -227,8 +227,8 @@ function startFluidCursor(): void {
       scheduleHideCursor();
     }
   };
-  window.addEventListener('mousedown', mouseDownHandler, { passive: true });
-  window.addEventListener('mouseup', mouseUpHandler, { passive: true });
+  window.addEventListener('mousedown', mouseDownHandler, { capture: true, passive: true });
+  window.addEventListener('mouseup', mouseUpHandler, { capture: true, passive: true });
   mouseLeaveHandler = () => {
     isShrinking = false;
     points = [];
@@ -407,15 +407,15 @@ export function destroyFluidCursor(): void {
     resizeHandler = null;
   }
   if (mouseMoveHandler) {
-    window.removeEventListener('mousemove', mouseMoveHandler);
+    window.removeEventListener('mousemove', mouseMoveHandler, true);
     mouseMoveHandler = null;
   }
   if (mouseDownHandler) {
-    window.removeEventListener('mousedown', mouseDownHandler);
+    window.removeEventListener('mousedown', mouseDownHandler, true);
     mouseDownHandler = null;
   }
   if (mouseUpHandler) {
-    window.removeEventListener('mouseup', mouseUpHandler);
+    window.removeEventListener('mouseup', mouseUpHandler, true);
     mouseUpHandler = null;
   }
   if (mouseLeaveHandler) {
