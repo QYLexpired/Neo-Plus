@@ -20,6 +20,11 @@
     .neo-mobile .agent-chat__input-area .protyle-wysiwyg {
         caret-color: currentColor !important;
     }
+    .mindmap-view__editor .protyle-wysiwyg,
+    .mindmap-view .mindmap-view__root-title,
+    .mindmap-view .mindmap-view__relation-editor {
+        caret-color: auto !important;
+    }
     #neo-smoothcaret-item {
         position: fixed;
         top: 0;

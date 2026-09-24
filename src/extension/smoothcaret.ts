@@ -94,6 +94,10 @@ function startSmoothCaret(): void {
     const focusElement = sel?.focusNode?.nodeType === Node.ELEMENT_NODE
       ? sel.focusNode as Element
       : sel?.focusNode?.parentElement;
+    if (focusElement?.closest('.mindmap-view')) {
+      caretElement.classList.add('neo-smoothcaret-hidden');
+      return;
+    }
     if (focusElement?.classList?.contains('av__cursor')) {
       caretElement.classList.add('neo-smoothcaret-hidden');
       return;

@@ -74,7 +74,7 @@ export interface Config {
   'listbulletline'?: boolean;
   'focusblockindicator'?: boolean;
   'focusblockindicator-effect'?: 'vertical-line' | 'shadow' | 'background';
-  'focusblockindicator-disabled'?: Array<'table' | 'codeblock' | 'iframe' | 'htmlblock' | 'renderblock' | 'mathblock' | 'database' | 'widget' | 'videoblock' | 'audioblock' | 'customblock'>;
+  'focusblockindicator-disabled'?: Array<'table' | 'codeblock' | 'iframe' | 'htmlblock' | 'renderblock' | 'mindmap' | 'mathblock' | 'database' | 'widget' | 'videoblock' | 'audioblock' | 'customblock'>;
   'coloredfolders'?: boolean;
   'coloredfolders-layout'?: 'partition' | 'simple' | 'card';
   'coloredfolders-colorstyle'?: 'soft' | 'default' | 'vivid';

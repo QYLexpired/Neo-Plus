@@ -5,33 +5,21 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
-type FocusBlockFilter = 'table' | 'codeblock' | 'iframe' | 'htmlblock' | 'renderblock' | 'mathblock' | 'database' | 'widget' | 'videoblock' | 'audioblock' | 'customblock';
-const focusBlockFilters: FocusBlockFilter[] = ['table', 'codeblock', 'iframe', 'htmlblock', 'renderblock', 'mathblock', 'database', 'widget', 'videoblock', 'audioblock', 'customblock'];
-const focusBlockFilterLabels: Record<FocusBlockFilter, string> = {
-  table: 'Table',
-  codeblock: 'CodeBlock',
-  iframe: 'Iframe',
-  htmlblock: 'HtmlBlock',
-  renderblock: 'RenderBlock',
-  mathblock: 'MathBlock',
-  database: 'Database',
-  widget: 'Widget',
-  videoblock: 'VideoBlock',
-  audioblock: 'AudioBlock',
-  customblock: 'CustomBlock',
-};
-const focusBlockFilterIcons: Record<FocusBlockFilter, string> = {
-  table: 'iconTable',
-  codeblock: 'iconCode',
-  iframe: 'iconGlobe',
-  htmlblock: 'iconHTML5',
-  renderblock: 'iconGraph',
-  mathblock: 'iconMath',
-  database: 'iconDatabase',
-  widget: 'iconBoth',
-  videoblock: 'iconVideo',
-  audioblock: 'iconRecord',
-  customblock: 'iconPlugin',
+type FocusBlockFilter = 'table' | 'codeblock' | 'iframe' | 'htmlblock' | 'renderblock' | 'mindmap' | 'mathblock' | 'database' | 'widget' | 'videoblock' | 'audioblock' | 'customblock';
+const focusBlockFilters: FocusBlockFilter[] = ['table', 'codeblock', 'iframe', 'htmlblock', 'renderblock', 'mindmap', 'mathblock', 'database', 'widget', 'videoblock', 'audioblock', 'customblock'];
+const focusBlockFilterDefinitions: Record<FocusBlockFilter, { label: string; icon: string; defaultEnabled: boolean }> = {
+  table: { label: 'Table', icon: 'iconTable', defaultEnabled: false },
+  codeblock: { label: 'CodeBlock', icon: 'iconCode', defaultEnabled: false },
+  iframe: { label: 'Iframe', icon: 'iconGlobe', defaultEnabled: false },
+  htmlblock: { label: 'HtmlBlock', icon: 'iconHTML5', defaultEnabled: false },
+  renderblock: { label: 'RenderBlock', icon: 'iconGraph', defaultEnabled: false },
+  mindmap: { label: 'Mindmap', icon: 'iconMindmap', defaultEnabled: false },
+  mathblock: { label: 'MathBlock', icon: 'iconMath', defaultEnabled: false },
+  database: { label: 'Database', icon: 'iconDatabase', defaultEnabled: false },
+  widget: { label: 'Widget', icon: 'iconBoth', defaultEnabled: false },
+  videoblock: { label: 'VideoBlock', icon: 'iconVideo', defaultEnabled: false },
+  audioblock: { label: 'AudioBlock', icon: 'iconRecord', defaultEnabled: false },
+  customblock: { label: 'CustomBlock', icon: 'iconPlugin', defaultEnabled: false },
 };
 let focusBlockEffect: 'vertical-line' | 'shadow' | 'background' = 'vertical-line';
 let focusBlockDisabled: FocusBlockFilter[] = [];
@@ -103,14 +91,15 @@ function getFocusNode(selection: Selection | null): Node | null {
   return focusNode;
 }
 function normalizeFocusBlockDisabled(value: Config['focusblockindicator-disabled']): FocusBlockFilter[] {
-  const selected = Array.isArray(value) ? value : [];
-  return focusBlockFilters.filter(filter => selected.includes(filter));
+  const selected = Array.isArray(value) ? value : null;
+  return focusBlockFilters.filter(filter => selected ? selected.includes(filter) : !focusBlockFilterDefinitions[filter].defaultEnabled);
 }
 function matchesFocusBlockFilter(filter: FocusBlockFilter, block: Element): boolean {
   const type = block.getAttribute('data-type');
   if (filter === 'table') return type === 'NodeTable';
   if (filter === 'iframe') return type === 'NodeIFrame';
   if (filter === 'htmlblock') return type === 'NodeHTMLBlock';
+  if (filter === 'mindmap') return type === 'NodeMindmap';
   if (filter === 'mathblock') return type === 'NodeMathBlock';
   if (filter === 'database') return type === 'NodeAttributeView';
   if (filter === 'widget') return type === 'NodeWidget';
@@ -198,9 +187,9 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
             <label class="fn__flex" style="color:var(--b3-theme-on-surface);align-items:center">
               <input class="b3-switch" id="neo-focusblockindicator-disabled-${filter}" type="checkbox">
               <span class="fn__space"></span>
-              <svg class="svg"><use xlink:href="#${focusBlockFilterIcons[filter]}"></use></svg>
+              <svg class="svg"><use xlink:href="#${focusBlockFilterDefinitions[filter].icon}"></use></svg>
               <span class="fn__space"></span>
-              <div class="fn__flex-1 config-item__main">${i18n[`focusBlockFilter${focusBlockFilterLabels[filter]}`]}</div>
+              <div class="fn__flex-1 config-item__main">${i18n[`focusBlockFilter${focusBlockFilterDefinitions[filter].label}`]}</div>
             </label>`).join('');
   return `<div class="b3-dialog__content">
     <div class="config__tab-container">

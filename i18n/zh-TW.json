@@ -761,6 +761,7 @@
   "focusBlockFilterIframe": "iframe 塊",
   "focusBlockFilterHtmlBlock": "HTML 塊",
   "focusBlockFilterRenderBlock": "圖表塊",
+  "focusBlockFilterMindmap": "心智圖塊",
   "focusBlockFilterMathBlock": "公式塊",
   "focusBlockFilterDatabase": "資料庫",
   "focusBlockFilterWidget": "掛件塊",
