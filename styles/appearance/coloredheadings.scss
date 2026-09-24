@@ -22,7 +22,8 @@
         --_heading-color: var(--b3-theme-accent);
     }
     .b3-typography,
-    .protyle-wysiwyg {
+    .protyle-wysiwyg,
+    .mindmap-view__content {
         @for $i from 1 through 6 {
             $hue-offset: #{($i - 1) * 50};
             h#{$i},
