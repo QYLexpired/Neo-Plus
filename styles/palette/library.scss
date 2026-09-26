@@ -1,0 +1,20 @@
+@use "sass:list";
+@use "manager" as *;
+@use "_librarymap" as library;
+$library-selectors: ();
+@each $mode, $palettes in library.$palette-library {
+    @each $key, $colors in $palettes {
+        $library-selectors: list.append($library-selectors, ".neo-palette-#{$key}.neo-mode-#{$mode}", comma);
+        .neo-palette-#{$key}.neo-mode-#{$mode} {
+            @include palette-common("[data-id=\"neo-palette-#{$key}-button\"]");
+            @each $variable, $color in $colors {
+                #{$variable}: #{$color};
+            }
+        }
+    }
+}
+@if list.length($library-selectors) > 0 {
+    :is(#{$library-selectors}) {
+        @include palette-common("[data-id=\"neo-palette-group-library-button\"]", "[data-id=\"neo-scheme-button\"]");
+    }
+}

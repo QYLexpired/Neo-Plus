@@ -1,11 +1,12 @@
 import type { FreeColors } from '../main/data';
-import type { ThemeMode } from './presets';
+import type { Preset, ThemeMode } from './definitions';
 export interface PaletteLibraryItem {
   key: string;
   nameKey: string;
   colors: Required<FreeColors>;
 }
-export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
+export const libraryPresetPrefix = 'library-';
+export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = {
   light: [
     {
       key: 'obsidian-light',
@@ -821,6 +822,36 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
       key: 'qyl-afterglow',
       nameKey: 'freeLibraryQYLAfterglow',
       colors: { base: '#eb6f5c', accent: '#eb6f5c', background: '#fff9e9', surface: '#f5eacc', onbackground: '#473957' },
+    },
+    {
+      key: 'savor-forest',
+      nameKey: 'freeLibrarySavorForest',
+      colors: { base: '#a18ef9', accent: '#a18ef9', background: '#ffffff', surface: '#ebefea', onbackground: '#37352f' },
+    },
+    {
+      key: 'savor-flower',
+      nameKey: 'freeLibrarySavorFlower',
+      colors: { base: '#ff5f40', accent: '#ff5f40', background: '#fefbff', surface: '#f3eefc', onbackground: '#37352f' },
+    },
+    {
+      key: 'savor-wind',
+      nameKey: 'freeLibrarySavorWind',
+      colors: { base: '#fd5e3f', accent: '#fd5e3f', background: '#ebeaea', surface: '#d5d4d4', onbackground: '#37352f' },
+    },
+    {
+      key: 'pinkroom-pink',
+      nameKey: 'freeLibraryPinkroomPink',
+      colors: { base: '#e68d95', accent: '#2989d4', background: '#fefdfd', surface: '#ffe0e0', onbackground: '#61414b' },
+    },
+    {
+      key: 'pinkroom-blue',
+      nameKey: 'freeLibraryPinkroomBlue',
+      colors: { base: '#6ab6cd', accent: '#2989d4', background: '#fcfdfd', surface: '#e0f8ff', onbackground: '#2d4049' },
+    },
+    {
+      key: 'pinkroom-green',
+      nameKey: 'freeLibraryPinkroomGreen',
+      colors: { base: '#90cc6b', accent: '#2989d4', background: '#fcfdfc', surface: '#f7fedc', onbackground: '#3d462f' },
     },
   ],
   dark: [
@@ -1904,5 +1935,26 @@ export const paletteLibrary: Record<ThemeMode, PaletteLibraryItem[]> = {
       nameKey: 'freeLibraryQYLBoAi',
       colors: { base: '#8386cc', accent: '#aaadf5', background: '#303446', surface: '#242634', onbackground: '#cfd7f5' },
     },
+    {
+      key: 'savor-vinegar',
+      nameKey: 'freeLibrarySavorVinegar',
+      colors: { base: '#ee6f5b', accent: '#ee6f5b', background: '#222222', surface: '#141414', onbackground: '#ebebeb' },
+    },
+    {
+      key: 'savor-mountain',
+      nameKey: 'freeLibrarySavorMountain',
+      colors: { base: '#ff6000', accent: '#ff6000', background: '#2e302d', surface: '#1e211f', onbackground: '#ebebeb' },
+    },
   ],
 };
+export function getLibraryPresetKey(key: string): string {
+  return `${libraryPresetPrefix}${key}`;
+}
+export function getLibraryPresets(mode: ThemeMode): Preset[] {
+  return paletteLibrary[mode].map(item => ({
+    key: getLibraryPresetKey(item.key),
+    nameKey: item.nameKey,
+    mode,
+    group: 'library',
+  }));
+}

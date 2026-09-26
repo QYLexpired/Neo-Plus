@@ -4,6 +4,7 @@ import { loadConfig, saveConfig, flushConfigSave, type Config } from '../main/da
 import {
   type ThemeMode,
   type Preset,
+  type PresetGroup,
   getThemeMode,
   getPresetsByMode,
   getCurrentPlan,
@@ -15,6 +16,8 @@ import {
   destroyPaletteClasses,
   volChunkSize,
 } from './presets';
+import { getLibraryPresets } from './library';
+import { pinnedPresetKeys, presetGroups } from './definitions';
 import { initFree, destroyFree, scheduleFreeColorRestore } from './free';
 import { initBaseCustom, destroyBaseCustom } from './basecustom';
 import { initBaseFollowBanner, destroyBaseFollowBanner } from './basefollowbanner';
@@ -28,6 +31,17 @@ import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 export type { ThemeMode, Preset, Config };
 type Plan = 'basecustom' | 'basefollowbanner' | 'basefollowsystem' | 'random' | 'free';
+let paletteActionRevision = 0;
+let paletteInitialization: Promise<void> | null = null;
+let mutationObserver: MutationObserver | null = null;
+let lastThemeMode: string | null = null;
+function createPaletteActionGuard(): () => boolean {
+  const isCurrent = createNeoLifecycleGuard();
+  const mode = getThemeMode();
+  lastThemeMode = document.documentElement.getAttribute('data-theme-mode');
+  const revision = ++paletteActionRevision;
+  return () => isCurrent() && revision === paletteActionRevision && getThemeMode() === mode;
+}
 function initPlan(plan: Plan, config: Config): void {
   switch (plan) {
     case 'free': initFree(config); break;
@@ -68,10 +82,11 @@ function restorePalette(config: Config): void {
   }
 }
 export function switchToPreset(key: string): void {
-  const isCurrent = createNeoLifecycleGuard();
+  const canApply = createPaletteActionGuard();
   loadConfig().then((config) => {
+    if (!canApply()) return;
     withViewTransition(() => {
-      if (!isCurrent()) return;
+      if (!canApply()) return;
       destroyPaletteEffects();
       applyPreset(key);
       initSaturation(config);
@@ -82,22 +97,38 @@ export function switchToPreset(key: string): void {
   }).catch(() => {});
 }
 export function switchToPlan(plan: Plan): void {
-  const isCurrent = createNeoLifecycleGuard();
+  const canApply = createPaletteActionGuard();
   const mode = getThemeMode();
   const configKey: 'color-plan-light' | 'color-plan-dark' = mode === 'dark' ? 'color-plan-dark' : 'color-plan-light';
   saveConfig({ [configKey]: plan }).then(() => {
-    if (!isCurrent()) return;
+    if (!canApply()) return;
     return loadConfig().then((config) => {
+      if (!canApply()) return;
       withViewTransition(() => {
-        if (!isCurrent()) return;
+        if (!canApply()) return;
         restorePalette(config);
       });
     });
   }).catch(() => {});
 }
 let lastShuffledPresetKey: string | null = null;
+function pickShuffledPreset(presets: readonly Preset[]): Preset | undefined {
+  const presetCandidates = presets.filter(preset => preset.group !== 'library');
+  const libraryCandidates = presets.filter(preset => preset.group === 'library');
+  const pool = presetCandidates.length && libraryCandidates.length
+    ? (Math.random() < 0.5 ? presetCandidates : libraryCandidates)
+    : (presetCandidates.length ? presetCandidates : libraryCandidates);
+  if (!pool.length) return undefined;
+  const candidates = pool.filter(preset => preset.key !== lastShuffledPresetKey);
+  const available = candidates.length ? candidates : pool;
+  return available[Math.floor(Math.random() * available.length)];
+}
+function getPresetIcon(preset: Preset): string {
+  return preset.group ? presetGroups[preset.group].icon : 'iconNeoPalette';
+}
 function createPresetSearch(presets: Preset[], i18n: Record<string, string>, onClose: () => void): [MenuItem, MenuItem] {
   const isCurrent = createNeoLifecycleGuard();
+  const mode = getThemeMode();
   let results: HTMLElement | null = null;
   const searchItem: MenuItem = {
     type: 'readonly',
@@ -116,32 +147,33 @@ function createPresetSearch(presets: Preset[], i18n: Record<string, string>, onC
       let matched: Preset[] = [];
       let focused = 0;
       const choose = (preset: Preset): void => {
-        if (!isCurrent()) return;
+        if (!isCurrent() || getThemeMode() !== mode) return;
         switchToPreset(preset.key);
         focused = matched.indexOf(preset);
         updateFocus();
       };
       const updateFocus = (): void => {
-        Array.from(results!.querySelectorAll<HTMLElement>('[role="option"]')).forEach((row, index) => {
+        if (!results) return;
+        Array.from(results.querySelectorAll<HTMLElement>('[role="option"]')).forEach((row, index) => {
           row.classList.toggle('b3-menu__item--current', index === focused);
           row.setAttribute('aria-selected', String(index === focused));
         });
-        const row = matched.length ? results!.children[focused] : null;
+        const row = matched.length ? results.children[focused] : null;
         if (row) input.setAttribute('aria-activedescendant', row.id);
         else input.removeAttribute('aria-activedescendant');
       };
       const filterItems = (): void => {
-        if (!isCurrent()) return;
+        if (!isCurrent() || getThemeMode() !== mode || !results) return;
         const query = input.value.trim().toLocaleLowerCase();
         for (const sibling of Array.from(element.parentElement?.children ?? [])) {
           if (sibling === element || !sibling.matches('[data-id^="neo-palette-"], .b3-menu__separator')) continue;
           if (!hiddenStates.has(sibling)) hiddenStates.set(sibling, sibling.classList.contains('fn__none'));
           sibling.classList.toggle('fn__none', !!query || hiddenStates.get(sibling)!);
         }
-        results!.classList.toggle('fn__none', !query);
+        results.classList.toggle('fn__none', !query);
         input.setAttribute('aria-expanded', String(!!query));
-        results!.replaceChildren();
-        matched = query ? presets.filter(preset => `${i18n[preset.nameKey]} ${preset.key}`.toLocaleLowerCase().includes(query)) : [];
+        results.replaceChildren();
+        matched = query ? presets.filter(preset => `${i18n[preset.nameKey] ?? preset.key} ${preset.key}`.toLocaleLowerCase().includes(query)) : [];
         focused = 0;
         for (const [index, preset] of matched.entries()) {
           const row = document.createElement('button');
@@ -151,25 +183,24 @@ function createPresetSearch(presets: Preset[], i18n: Record<string, string>, onC
           row.dataset.id = `neo-palette-${preset.key}-button`;
           row.setAttribute('role', 'option');
           row.tabIndex = -1;
-          row.innerHTML = '<svg class="b3-menu__icon"><use xlink:href="#iconNeoPalette"></use></svg><span class="b3-menu__label"></span>';
-          row.querySelector('span')!.textContent = i18n[preset.nameKey];
+          row.innerHTML = `<svg class="b3-menu__icon"><use xlink:href="#${getPresetIcon(preset)}"></use></svg><span class="b3-menu__label"></span>`;
+          row.querySelector('span')!.textContent = i18n[preset.nameKey] ?? preset.key;
           row.addEventListener('click', () => choose(preset));
-          results!.append(row);
+          results.append(row);
         }
         if (query && !matched.length) {
           const empty = document.createElement('div');
           empty.className = 'b3-label__text';
           empty.setAttribute('role', 'status');
           empty.textContent = i18n.colorSchemeSearchEmpty;
-          results!.append(empty);
+          results.append(empty);
         }
         updateFocus();
       };
       randomButton.addEventListener('click', () => {
-        if (!isCurrent()) return;
-        const candidates = presets.filter(preset => preset.key !== lastShuffledPresetKey);
-        if (!candidates.length) return;
-        const preset = candidates[Math.floor(Math.random() * candidates.length)];
+        if (!isCurrent() || getThemeMode() !== mode) return;
+        const preset = pickShuffledPreset(presets);
+        if (!preset) return;
         lastShuffledPresetKey = preset.key;
         switchToPreset(preset.key);
       });
@@ -189,7 +220,7 @@ function createPresetSearch(presets: Preset[], i18n: Record<string, string>, onC
           if (!matched.length) return;
           focused = (focused + (event.key === 'ArrowDown' ? 1 : -1) + matched.length) % matched.length;
           updateFocus();
-          results!.children[focused]?.scrollIntoView({ block: 'nearest' });
+          results?.children[focused]?.scrollIntoView({ block: 'nearest' });
         } else if (event.key === 'Enter') {
           event.preventDefault();
           if (matched[focused]) choose(matched[focused]);
@@ -217,16 +248,17 @@ function createPresetSearch(presets: Preset[], i18n: Record<string, string>, onC
 }
 export function getPresetMenuItems(i18n: Record<string, string>, onClose: () => void): MenuItem[] {
   const mode = getThemeMode();
-  const availablePresets = getPresetsByMode(mode);
-  const pinnedKeys = ['default', 'classic'];
-  const topLevelPresets = availablePresets.filter((p) => pinnedKeys.includes(p.key));
-  const restPresets = availablePresets.filter((p) => !pinnedKeys.includes(p.key));
+  const libraryPresets = getLibraryPresets(mode).sort((a, b) =>
+    (i18n[a.nameKey] ?? a.key).localeCompare(i18n[b.nameKey] ?? b.key, undefined, { sensitivity: 'base' }));
+  const availablePresets = [...getPresetsByMode(mode), ...libraryPresets];
+  const topLevelPresets = availablePresets.filter((p) => pinnedPresetKeys.includes(p.key));
+  const restPresets = availablePresets.filter((p) => !pinnedPresetKeys.includes(p.key));
   const makeItem = (preset: Preset): MenuItem => ({
     id: `neo-palette-${preset.key}-button`,
-    icon: 'iconNeoPalette',
-    label: i18n[preset.nameKey],
+    icon: getPresetIcon(preset),
+    label: i18n[preset.nameKey] ?? preset.key,
     click: () => {
-      switchToPreset(preset.key);
+      if (getThemeMode() === mode) switchToPreset(preset.key);
       return true;
     },
   });
@@ -242,7 +274,7 @@ export function getPresetMenuItems(i18n: Record<string, string>, onClose: () => 
   };
   const items: MenuItem[] = [...createPresetSearch(availablePresets, i18n, onClose), ...topLevelPresets.map(makeItem)];
   items.push({ type: 'separator' });
-  const groupedPresets = new Map<string, Preset[]>();
+  const groupedPresets = new Map<PresetGroup, Preset[]>();
   const ungroupedPresets: Preset[] = [];
   for (const preset of restPresets) {
     if (preset.group) {
@@ -271,13 +303,16 @@ export function getPresetMenuItems(i18n: Record<string, string>, onClose: () => 
       submenu: makeSubmenu(group),
     });
   });
-  for (const [groupKey, groupPresets] of groupedPresets) {
-    const nameKey = `colorSchemeGroup${groupKey.charAt(0).toUpperCase()}${groupKey.slice(1)}`;
+  for (const groupKey of Object.keys(presetGroups) as PresetGroup[]) {
+    const groupPresets = groupedPresets.get(groupKey);
+    if (!groupPresets?.length) continue;
+    const group = presetGroups[groupKey];
+    if (group.separator) items.push({ type: 'separator' });
     items.push({
       id: `neo-palette-group-${groupKey}-button`,
-      icon: 'iconNeoPalette',
-      label: i18n[nameKey],
-      submenu: makeSubmenu(groupPresets),
+      icon: group.icon,
+      label: i18n[group.nameKey],
+      submenu: group.chunked ? makeSubmenu(groupPresets) : groupPresets.map(makeItem),
     });
   }
   return items;
@@ -377,25 +412,26 @@ export { createSliderHTML } from './saturation';
 export { createBrightnessSliderHTML } from './brightness';
 export { onInvertClick } from './invert';
 export { onHighContrastClick } from './highcontrast';
-let mutationObserver: MutationObserver | null = null;
-let lastThemeMode: string | null = null;
 export function initPalette(): Promise<void> | void {
   const plugin = getPlugin();
   if (!plugin) return;
+  if (paletteInitialization) return paletteInitialization;
   const isCurrent = createNeoLifecycleGuard();
+  const revision = ++paletteActionRevision;
   initPaletteMenuEvents(plugin.i18n);
   const settingsReady = initRandomSettings();
   const paletteReady = loadConfig().then((config) => {
-    if (!isCurrent()) return;
-    restorePalette(config);
+    if (!isCurrent() || paletteInitialization !== initialization) return;
+    if (revision === paletteActionRevision) restorePalette(config);
     lastThemeMode = document.documentElement.getAttribute('data-theme-mode');
     mutationObserver = new MutationObserver(() => {
-      if (!isCurrent()) return;
+      if (!isCurrent() || paletteInitialization !== initialization) return;
       const current = document.documentElement.getAttribute('data-theme-mode');
       if (current === lastThemeMode) return;
       lastThemeMode = current;
+      const canApply = createPaletteActionGuard();
       loadConfig().then((config) => {
-        if (!isCurrent()) return;
+        if (!canApply() || paletteInitialization !== initialization) return;
         restorePalette(config);
       }).catch(() => {});
     });
@@ -404,9 +440,16 @@ export function initPalette(): Promise<void> | void {
       attributeFilter: ['data-theme-mode'],
     });
   });
-  return Promise.all([settingsReady, paletteReady]).then(() => {});
+  const initialization: Promise<void> = Promise.all([settingsReady, paletteReady]).then(() => {}).catch((error) => {
+    if (paletteInitialization === initialization) destroyPalette();
+    throw error;
+  });
+  paletteInitialization = initialization;
+  return initialization;
 }
 export function destroyPalette(): void {
+  paletteActionRevision += 1;
+  paletteInitialization = null;
   lastShuffledPresetKey = null;
   destroyPaletteEffects();
   destroyPaletteClasses();

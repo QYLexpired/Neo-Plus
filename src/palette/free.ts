@@ -5,13 +5,14 @@ import { getPlugin } from '../main/context';
 import { getConfig, loadConfig, saveConfigIfUnchanged, type ConfigSaveResult, type Config, type FreeColorKey, type FreeColors } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { paletteLibrary } from './library';
+import { paletteColorVariables } from './definitions';
 import { getThemeMode, getPresetsByMode, getCurrentPlan, type ThemeMode } from './presets';
 const colorFields: ReadonlyArray<readonly [FreeColorKey, string, string, string]> = [
-  ['base', 'freeBase', '--b3-theme-base', 'freeBaseTip'],
-  ['accent', 'freeAccent', '--b3-theme-accent', 'freeAccentTip'],
-  ['background', 'freeBackground', '--b3-theme-background', 'freeBackgroundTip'],
-  ['surface', 'freeSurface', '--b3-theme-surface', 'freeSurfaceTip'],
-  ['onbackground', 'freeOnBackground', '--b3-theme-on-background', 'freeOnBackgroundTip'],
+  ['base', 'freeBase', paletteColorVariables.base, 'freeBaseTip'],
+  ['accent', 'freeAccent', paletteColorVariables.accent, 'freeAccentTip'],
+  ['background', 'freeBackground', paletteColorVariables.background, 'freeBackgroundTip'],
+  ['surface', 'freeSurface', paletteColorVariables.surface, 'freeSurfaceTip'],
+  ['onbackground', 'freeOnBackground', paletteColorVariables.onbackground, 'freeOnBackgroundTip'],
 ];
 let freeColorRestoreFrame = 0;
 let freeColorRestoreLoadHandler: (() => void) | null = null;

@@ -1,54 +1,9 @@
 import { saveConfig, type Config } from '../main/data';
 import { getThemeMode } from '../modules/thememode';
-export type ThemeMode = 'light' | 'dark';
-export type PresetMode = ThemeMode | 'all';
-export type PresetGroup = 'neuebrutalism';
-export const volChunkSize = 10;
-export interface Preset {
-  key: string;
-  nameKey: string;
-  mode: PresetMode;
-  group?: PresetGroup;
-}
-const presets: Preset[] = [
-  { key: 'default', nameKey: 'colorSchemeDefault', mode: 'all' },
-  { key: 'classic', nameKey: 'colorSchemeClassic', mode: 'all' },
-  { key: 'meridian', nameKey: 'colorSchemeMeridian', mode: 'all' },
-  { key: 'amber', nameKey: 'colorSchemeAmber', mode: 'all' },
-  { key: 'dusk', nameKey: 'colorSchemeDusk', mode: 'all' },
-  { key: 'gingko', nameKey: 'colorSchemeGingko', mode: 'all' },
-  { key: 'lavender', nameKey: 'colorSchemeLavender', mode: 'all' },
-  { key: 'midnight', nameKey: 'colorSchemeMidnight', mode: 'all' },
-  { key: 'ocean', nameKey: 'colorSchemeOcean', mode: 'all' },
-  { key: 'opalite', nameKey: 'colorSchemeOpalite', mode: 'all' },
-  { key: 'oxygen', nameKey: 'colorSchemeOxygen', mode: 'all' },
-  { key: 'sakura', nameKey: 'colorSchemeSakura', mode: 'all' },
-  { key: 'everbliss', nameKey: 'colorSchemeEverbliss', mode: 'all' },
-  { key: 'aerisland', nameKey: 'colorSchemeAerisland', mode: 'all' },
-  { key: 'zerith', nameKey: 'colorSchemeZerith', mode: 'all' },
-  { key: 'stellula', nameKey: 'colorSchemeStellula', mode: 'all' },
-  { key: 'vael', nameKey: 'colorSchemeVael', mode: 'all' },
-  { key: 'twilight', nameKey: 'colorSchemeTwilight', mode: 'all' },
-  { key: 'wilderness', nameKey: 'colorSchemeWilderness', mode: 'all' },
-  { key: 'titaniumspace', nameKey: 'colorSchemeTitaniumspace', mode: 'all' },
-  { key: 'sunriver', nameKey: 'colorSchemeSunriver', mode: 'all' },
-  { key: 'starry', nameKey: 'colorSchemeStarry', mode: 'all' },
-  { key: 'savor', nameKey: 'colorSchemeSavor', mode: 'all' },
-  { key: 'sugar', nameKey: 'colorSchemeSugar', mode: 'all' },
-  { key: 'salt', nameKey: 'colorSchemeSalt', mode: 'all' },
-  { key: 'tundra', nameKey: 'colorSchemeTundra', mode: 'all' },
-  { key: 'violet', nameKey: 'colorSchemeViolet', mode: 'all' },
-  { key: 'firefly', nameKey: 'colorSchemeFirefly', mode: 'all' },
-  { key: 'songyan', nameKey: 'colorSchemeSongyan', mode: 'all' },
-  { key: 'oldmagazine', nameKey: 'colorSchemeOldmagazine', mode: 'all' },
-  { key: 'lakeside', nameKey: 'colorSchemeLakeside', mode: 'all' },
-  { key: 'voyage', nameKey: 'colorSchemeVoyage', mode: 'all' },
-  { key: 'zine', nameKey: 'colorSchemeZine', mode: 'all', group: 'neuebrutalism' },
-  { key: 'retroconsole', nameKey: 'colorSchemeRetroconsole', mode: 'all', group: 'neuebrutalism' },
-  { key: 'bumblebee', nameKey: 'colorSchemeBumblebee', mode: 'all', group: 'neuebrutalism' },
-  { key: 'glitch', nameKey: 'colorSchemeGlitch', mode: 'all', group: 'neuebrutalism' },
-  { key: 'acid', nameKey: 'colorSchemeAcid', mode: 'all', group: 'neuebrutalism' },
-];
+import { presets, type Preset, type ThemeMode } from './definitions';
+import { getLibraryPresets } from './library';
+export type { ThemeMode, PresetMode, PresetGroup, Preset } from './definitions';
+export { volChunkSize } from './definitions';
 export function getPresetsByMode(mode: ThemeMode): Preset[] {
   return presets.filter((p) => p.mode === 'all' || p.mode === mode);
 }
@@ -69,12 +24,25 @@ export function getHighContrastKey(mode: ThemeMode): 'highcontrast-light' | 'hig
   return mode === 'dark' ? 'highcontrast-dark' : 'highcontrast-light';
 }
 export function getCurrentPlan(config: Config, mode: ThemeMode): 'preset' | 'basecustom' | 'basefollowbanner' | 'basefollowsystem' | 'random' | 'free' {
-  return mode === 'dark'
-    ? (config['color-plan-dark'] ?? 'preset')
-    : (config['color-plan-light'] ?? 'preset');
+  const plan = mode === 'dark' ? config['color-plan-dark'] : config['color-plan-light'];
+  switch (plan) {
+    case 'basecustom':
+    case 'basefollowbanner':
+    case 'basefollowsystem':
+    case 'random':
+    case 'free':
+      return plan;
+    default:
+      return 'preset';
+  }
+}
+function resolvePresetKey(key: unknown, mode: ThemeMode): string {
+  const available = [...getPresetsByMode(mode), ...getLibraryPresets(mode)];
+  return available.find(preset => preset.key === key)?.key ?? 'default';
 }
 export function getPresetKey(config: Config, mode: ThemeMode): string | undefined {
-  return mode === 'dark' ? config['preset-dark'] : config['preset-light'];
+  const key = mode === 'dark' ? config['preset-dark'] : config['preset-light'];
+  return key === undefined ? undefined : resolvePresetKey(key, mode);
 }
 function removePaletteClasses(html: HTMLElement): void {
   const classesToRemove = Array.from(html.classList).filter((cls) => cls.startsWith('neo-palette-'));
@@ -82,16 +50,17 @@ function removePaletteClasses(html: HTMLElement): void {
 }
 export function applyPreset(key: string): void {
   const mode = getThemeMode();
+  const presetKey = resolvePresetKey(key, mode);
   const html = document.documentElement;
   removePaletteClasses(html);
-  html.classList.add(`neo-palette-${key}`);
+  html.classList.add(`neo-palette-${presetKey}`);
   const patch: Partial<Config> = {};
   if (mode === 'dark') {
     patch['color-plan-dark'] = 'preset';
-    patch['preset-dark'] = key;
+    patch['preset-dark'] = presetKey;
   } else {
     patch['color-plan-light'] = 'preset';
-    patch['preset-light'] = key;
+    patch['preset-light'] = presetKey;
   }
   saveConfig(patch);
 }
