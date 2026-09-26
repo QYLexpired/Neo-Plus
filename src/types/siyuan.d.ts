@@ -6,6 +6,14 @@ declare module 'siyuan' {
   export function getBackend(): string;
   export function adaptHotkey(hotkey: string): string;
   export function openSetting(app: App): void;
+  export function openAssetPicker(options?: {
+    exts?: string[];
+    match?: {
+      field?: 'name' | 'path';
+      mode: 'prefix' | 'suffix' | 'regex';
+      value: string;
+    };
+  }): Promise<{ path: string } | null>;
   export function openMobileFileById(app: App, id: string): void;
   export function openTab<T = any>(config: {
     app: App;

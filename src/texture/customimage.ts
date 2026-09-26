@@ -1,4 +1,4 @@
-import { showMessage } from 'siyuan';
+import { openAssetPicker, showMessage } from 'siyuan';
 import { Dialog } from '../modules/dialog';
 import { openSearchableMenu, showNamedMessage } from '../modules/searchablemenu';
 import { getPlugin } from '../main/context';
@@ -319,7 +319,13 @@ function textFieldHTML(i18n: Record<string, string>, id: string, i18nKey: string
     <div class="fn__block">
         <div class="config-name">${t(i18n, i18nKey)}<span class="neo-config-name-tip" data-tip-key="${i18nTipKey}" data-tip-title="${tipTitle}">${t(i18n, 'customimagePathTipToggle')}</span></div>
         <div class="fn__hr--small"></div>
-        <textarea class="b3-text-field fn__block" id="${id}" spellcheck="false"></textarea>
+        <div class="fn__flex">
+          <button type="button" class="block__icon block__icon--show fn__flex-center ariaLabel" id="neo-customimage-asset" aria-label="${t(i18n, 'customimageAsset')}">
+            <svg aria-hidden="true"><use xlink:href="#iconImage"></use></svg>
+          </button>
+          <span class="fn__space"></span>
+          <textarea class="b3-text-field fn__block fn__flex-1" style="min-width: 0" id="${id}" spellcheck="false"></textarea>
+        </div>
     </div>
 </div>`;
   }
@@ -525,6 +531,7 @@ export async function showCustomImageSettings(): Promise<void> {
   if (!Object.prototype.hasOwnProperty.call(presets, selected)) selected = '';
   let savedValues = getValues(config, mode);
   let saving = false;
+  let pickingAsset = false;
   let presetMenu: ReturnType<typeof openSearchableMenu> | null = null;
   let closePromptOpen = false;
   let dirty = false;
@@ -545,6 +552,8 @@ export async function showCustomImageSettings(): Promise<void> {
   });
   dialog.element.classList.add('neo-settings-dialog');
   const presetButton = dialog.element.querySelector<HTMLButtonElement>('#neo-customimage-preset-select')!;
+  const assetButton = dialog.element.querySelector<HTMLButtonElement>('#neo-customimage-asset')!;
+  const pathInput = dialog.element.querySelector<HTMLTextAreaElement>('#neo-customimage-path')!;
   const fieldDom: CustomImageFieldDom[] = fieldDefs.map(f => ({
     field: f,
     input: dialog.element.querySelector('#' + f.inputId) as CustomImageInput | null,
@@ -612,7 +621,10 @@ export async function showCustomImageSettings(): Promise<void> {
       return false;
     } finally {
       saving = false;
-      controls.forEach(control => { control.disabled = false; });
+      if (isCurrent() && dialog.element.isConnected) {
+        controls.forEach(control => { control.disabled = false; });
+        assetButton.disabled = pickingAsset;
+      }
     }
   }
   setFormValues(savedValues);
@@ -631,6 +643,31 @@ export async function showCustomImageSettings(): Promise<void> {
       applyCssFromDom();
     });
   }
+  async function handleAssetClick(): Promise<void> {
+    if (!isCurrent() || saving || pickingAsset || !dialog.element.isConnected) return;
+    pickingAsset = true;
+    assetButton.disabled = true;
+    try {
+      const result = await openAssetPicker({
+        exts: ['png', 'jpg', 'jpeg', 'jpe', 'jfif', 'pjp', 'pjpeg', 'webp', 'gif', 'apng', 'svg', 'avif', 'bmp'],
+      });
+      if (!isCurrent() || !dialog.element.isConnected || saving || !result) return;
+      const path = result.path;
+      pathInput.value = /[,()"'\\\n\r\f]/.test(path)
+        ? `"${path.replace(/["\\\n\r\f]/g, ch => `\\${ch.charCodeAt(0).toString(16)} `)}"`
+        : path;
+      pathInput.dispatchEvent(new Event('input', { bubbles: true }));
+    } catch {
+      if (isCurrent() && dialog.element.isConnected) showMessage(i18n.customimageAssetPickerFailed);
+    } finally {
+      pickingAsset = false;
+      if (isCurrent() && dialog.element.isConnected) {
+        assetButton.disabled = saving;
+        if (!saving) assetButton.focus({ preventScroll: true });
+      }
+    }
+  }
+  assetButton.addEventListener('click', handleAssetClick);
   const resetFormToDefaults = (): void => {
     const currentValues = readFieldDomValues(fieldDom);
     setFormValues({ 'customimage-info': currentValues['customimage-info'] }, true);
