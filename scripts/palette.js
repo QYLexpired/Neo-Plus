@@ -24,8 +24,9 @@ export function createPaletteMaps(data, locales) {
     checkName(group.nameKey);
   }
   const presetKeys = new Set();
+  const groupStateKeys = new Set(Object.keys(presetGroups).map(group => `group-${group}`));
   for (const preset of presets) {
-    if (!validKey(preset.key) || preset.key.startsWith(libraryPresetPrefix) || presetKeys.has(preset.key)) {
+    if (!validKey(preset.key) || preset.key.startsWith(libraryPresetPrefix) || groupStateKeys.has(preset.key) || presetKeys.has(preset.key)) {
       throw new Error(`Invalid, reserved or duplicate preset key: ${preset.key}`);
     }
     if (preset.mode !== 'all' && !themeModes.includes(preset.mode)) throw new Error(`Invalid preset mode: ${preset.key}/${preset.mode}`);

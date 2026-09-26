@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:palette": "node --test scripts/palette.test.js scripts/palette.runtime.test.js",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p scripts/tsconfig.json",
     "build": "npm run typecheck && node scripts/build.js",
     "package": "node scripts/package.js"

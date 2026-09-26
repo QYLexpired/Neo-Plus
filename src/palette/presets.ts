@@ -36,31 +36,35 @@ export function getCurrentPlan(config: Config, mode: ThemeMode): 'preset' | 'bas
       return 'preset';
   }
 }
-function resolvePresetKey(key: unknown, mode: ThemeMode): string {
+function resolvePreset(key: unknown, mode: ThemeMode): Preset {
   const available = [...getPresetsByMode(mode), ...getLibraryPresets(mode)];
-  return available.find(preset => preset.key === key)?.key ?? 'default';
+  return available.find(preset => preset.key === key) ?? presets.find(preset => preset.key === 'default')!;
 }
 export function getPresetKey(config: Config, mode: ThemeMode): string | undefined {
   const key = mode === 'dark' ? config['preset-dark'] : config['preset-light'];
-  return key === undefined ? undefined : resolvePresetKey(key, mode);
+  return key === undefined ? undefined : resolvePreset(key, mode).key;
 }
 function removePaletteClasses(html: HTMLElement): void {
   const classesToRemove = Array.from(html.classList).filter((cls) => cls.startsWith('neo-palette-'));
   html.classList.remove(...classesToRemove);
 }
+function applyPresetState(html: HTMLElement, preset: Preset): void {
+  html.classList.add(`neo-palette-${preset.key}`);
+  if (preset.group) html.classList.add(`neo-palette-group-${preset.group}`);
+}
 export function applyPreset(key: string): void {
   const mode = getThemeMode();
-  const presetKey = resolvePresetKey(key, mode);
+  const preset = resolvePreset(key, mode);
   const html = document.documentElement;
   removePaletteClasses(html);
-  html.classList.add(`neo-palette-${presetKey}`);
+  applyPresetState(html, preset);
   const patch: Partial<Config> = {};
   if (mode === 'dark') {
     patch['color-plan-dark'] = 'preset';
-    patch['preset-dark'] = presetKey;
+    patch['preset-dark'] = preset.key;
   } else {
     patch['color-plan-light'] = 'preset';
-    patch['preset-light'] = presetKey;
+    patch['preset-light'] = preset.key;
   }
   saveConfig(patch);
 }
@@ -74,8 +78,7 @@ export function applyCurrentPlan(config: Config): void {
   const html = document.documentElement;
   removePaletteClasses(html);
   if (plan === 'preset') {
-    const presetKey = getPresetKey(config, mode) ?? 'default';
-    html.classList.add(`neo-palette-${presetKey}`);
+    applyPresetState(html, resolvePreset(config[`preset-${mode}`], mode));
   } else if (plan === 'free') {
     html.classList.add('neo-palette-free');
   } else if (plan === 'basefollowbanner') {
