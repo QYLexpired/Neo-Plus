@@ -74,6 +74,11 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#f29718', accent: '#a36200', background: '#fcfcfc', surface: '#f8f9fa', onbackground: '#5c6166' },
     },
     {
+      key: 'pyrokai-light',
+      nameKey: 'libraryPyrokaiLight',
+      colors: { base: '#b65318', accent: '#b65318', background: '#faf6f5', surface: '#f0edec', onbackground: '#242120' },
+    },
+    {
       key: 'cupertino-light',
       nameKey: 'libraryCupertinoLight',
       colors: { base: '#0088ff', accent: '#da0040', background: '#ffffff', surface: '#f2f2f2', onbackground: '#262626' },
@@ -142,6 +147,11 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'blue-topaz-light',
       nameKey: 'libraryBlueTopazLight',
       colors: { base: '#2f93e4', accent: '#a638d1', background: '#ffffff', surface: '#f3f3f3', onbackground: '#0e0e0e' },
+    },
+    {
+      key: 'blue-topaz-lilac-light',
+      nameKey: 'libraryBlueTopazLilacLight',
+      colors: { base: '#620ac6', accent: '#6203a2', background: '#d7c4f2', surface: '#e1cefa', onbackground: '#0e0e0e' },
     },
     {
       key: 'its-light',
@@ -374,6 +384,11 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#b57614', accent: '#ad4800', background: '#fff9e8', surface: '#f3e7c9', onbackground: '#51483f' },
     },
     {
+      key: 'anuppuccin-clean-yellow-purple-light',
+      nameKey: 'libraryAnuPpuccinCleanYellowPurpleLight',
+      colors: { base: '#b4799b', accent: '#9900ff', background: '#f8f5f1', surface: '#f1eae4', onbackground: '#333333' },
+    },
+    {
       key: 'border-eye-friendly',
       nameKey: 'libraryBorderEyeFriendly',
       colors: { base: '#6c7a45', accent: '#a24e00', background: '#f7f3e8', surface: '#ebe5d7', onbackground: '#45423b' },
@@ -474,6 +489,11 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#7c3aed', accent: '#2563eb', background: '#ffffff', surface: '#f4f4f5', onbackground: '#27272a' },
     },
     {
+      key: 'encore-atom-light',
+      nameKey: 'libraryEncoreAtomLight',
+      colors: { base: '#3398eb', accent: '#b95059', background: '#ced2da', surface: '#b8bdc6', onbackground: '#272b34' },
+    },
+    {
       key: 'magicuser-default-light',
       nameKey: 'libraryMagicUserDefaultLight',
       colors: { base: '#6758d9', accent: '#b5427d', background: '#ffffff', surface: '#f1f1f4', onbackground: '#33343a' },
@@ -532,6 +552,26 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'claude-light',
       nameKey: 'libraryClaudeLight',
       colors: { base: '#d97757', accent: '#b05333', background: '#ffffff', surface: '#f5f4ed', onbackground: '#141413' },
+    },
+    {
+      key: 'origami-sorcery-light',
+      nameKey: 'libraryOrigamiSorceryLight',
+      colors: { base: '#9a453c', accent: '#ab3d3d', background: '#dacdcd', surface: '#b9a5a5', onbackground: '#231a1a' },
+    },
+    {
+      key: 'origami-eidolon-light',
+      nameKey: 'libraryOrigamiEidolonLight',
+      colors: { base: '#61715b', accent: '#104d70', background: '#dad7cd', surface: '#b6b8a4', onbackground: '#1a231f' },
+    },
+    {
+      key: 'origami-shadow-light',
+      nameKey: 'libraryOrigamiShadowLight',
+      colors: { base: '#33538a', accent: '#27629e', background: '#cdd5da', surface: '#a6b0b9', onbackground: '#1a1f23' },
+    },
+    {
+      key: 'origami-umbra-light',
+      nameKey: 'libraryOrigamiUmbraLight',
+      colors: { base: '#5f5170', accent: '#9a3179', background: '#dbc7db', surface: '#b69fb6', onbackground: '#231a21' },
     },
     {
       key: 'underwater-octopus',
@@ -631,7 +671,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'typomagical-ficus-ruby-light',
       nameKey: 'libraryTypomagicalFicusRubyLight',
-      colors: { base: '#c94458', accent: '#800000', background: '#f5f5f5', surface: '#b0c6c2', onbackground: '#333834' },
+      colors: { base: '#c94458', accent: '#800000', background: '#f5f5f5', surface: '#c8e3de', onbackground: '#333834' },
     },
     {
       key: 'ebullientworks-light',
@@ -808,6 +848,76 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       nameKey: 'libraryPinkroomGreen',
       colors: { base: '#90cc6b', accent: '#2989d4', background: '#fcfdfc', surface: '#f7fedc', onbackground: '#3d462f' },
     },
+    {
+      key: 'willemstad-golden-hour-light',
+      nameKey: 'libraryWillemstadGoldenHourLight',
+      colors: { base: '#0d5257', accent: '#0d5257', background: '#fffceb', surface: '#ffe6b9', onbackground: '#001300' },
+    },
+    {
+      key: 'willemstad-electric-lime-light',
+      nameKey: 'libraryWillemstadElectricLimeLight',
+      colors: { base: '#0d5257', accent: '#0d5257', background: '#ffffe5', surface: '#ffeea9', onbackground: '#002100' },
+    },
+    {
+      key: 'willemstad-spring-meadow-light',
+      nameKey: 'libraryWillemstadSpringMeadowLight',
+      colors: { base: '#0d5257', accent: '#0d5257', background: '#feffef', surface: '#eef4c2', onbackground: '#001200' },
+    },
+    {
+      key: 'willemstad-tropical-lagoon-light',
+      nameKey: 'libraryWillemstadTropicalLagoonLight',
+      colors: { base: '#0d5257', accent: '#0d5257', background: '#e6ffff', surface: '#acfff4', onbackground: '#000400' },
+    },
+    {
+      key: 'willemstad-turquoise-jewel-light',
+      nameKey: 'libraryWillemstadTurquoiseJewelLight',
+      colors: { base: '#0d5257', accent: '#0d5257', background: '#f1ffff', surface: '#c4fbf9', onbackground: '#000201' },
+    },
+    {
+      key: 'willemstad-solar-flare-light',
+      nameKey: 'libraryWillemstadSolarFlareLight',
+      colors: { base: '#0d5257', accent: '#0d5257', background: '#fff99d', surface: '#ffe1bc', onbackground: '#02000e' },
+    },
+    {
+      key: 'fancy-a-story-automn-light',
+      nameKey: 'libraryFancyAStoryAutomnLight',
+      colors: { base: '#ad691f', accent: '#8a5cf5', background: '#f1f1dc', surface: '#e3dfb1', onbackground: '#4b220b' },
+    },
+    {
+      key: 'fancy-a-story-coffee-light',
+      nameKey: 'libraryFancyAStoryCoffeeLight',
+      colors: { base: '#ad661f', accent: '#8a5cf5', background: '#ece0d1', surface: '#cfc0b0', onbackground: '#38220f' },
+    },
+    {
+      key: 'fancy-a-story-candy-light',
+      nameKey: 'libraryFancyAStoryCandyLight',
+      colors: { base: '#ad1f8a', accent: '#8a5cf5', background: '#f7e5ef', surface: '#e1cad9', onbackground: '#6b3c63' },
+    },
+    {
+      key: 'shiba-inu-lily-light',
+      nameKey: 'libraryShibaInuLilyLight',
+      colors: { base: '#d06d6c', accent: '#d06d6c', background: '#f5dbc3', surface: '#f5d1b9', onbackground: '#56647a' },
+    },
+    {
+      key: 'ukiyo-cozy-typewriter-light',
+      nameKey: 'libraryUkiyoCozyTypewriterLight',
+      colors: { base: '#800000', accent: '#800000', background: '#e1c4a6', surface: '#dabb9a', onbackground: '#5f4f49' },
+    },
+    {
+      key: 'aura-obsidian-kanagawa-light',
+      nameKey: 'libraryAuraObsidianKanagawaLight',
+      colors: { base: '#e6c384', accent: '#ac8133', background: '#dcd7ba', surface: '#c8c093', onbackground: '#16161d' },
+    },
+    {
+      key: 'ono-sendai-light',
+      nameKey: 'libraryOnoSendaiLight',
+      colors: { base: '#e24822', accent: '#914a29', background: '#d1cabf', surface: '#eeb157', onbackground: '#2e3338' },
+    },
+    {
+      key: 'ultra-lobster-lobster-time-light',
+      nameKey: 'libraryUltraLobsterLobsterTimeLight',
+      colors: { base: '#339af0', accent: '#339af0', background: '#e0f2fe', surface: '#bae6fd', onbackground: '#0c4a6e' },
+    },
   ],
   dark: [
     {
@@ -919,6 +1029,11 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'monokai',
       nameKey: 'libraryMonokai',
       colors: { base: '#f92672', accent: '#ff497f', background: '#272822', surface: '#1e1f1c', onbackground: '#f8f8f2' },
+    },
+    {
+      key: 'pyrokai-dark',
+      nameKey: 'libraryPyrokaiDark',
+      colors: { base: '#ea7332', accent: '#ea7332', background: '#151312', surface: '#242120', onbackground: '#faf6f5' },
     },
     {
       key: 'nord',
@@ -1034,6 +1149,11 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'blue-topaz-dark',
       nameKey: 'libraryBlueTopazDark',
       colors: { base: '#2d82cd', accent: '#d386ea', background: '#202020', surface: '#151515', onbackground: '#c6c6c6' },
+    },
+    {
+      key: 'blue-topaz-lilac-dark',
+      nameKey: 'libraryBlueTopazLilacDark',
+      colors: { base: '#a360da', accent: '#ca91d8', background: '#462058', surface: '#462058', onbackground: '#c9b8e9' },
     },
     {
       key: 'its-dark',
@@ -1426,6 +1546,51 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#8fb573', accent: '#d7727b', background: '#162019', surface: '#1f2b22', onbackground: '#d8e2d5' },
     },
     {
+      key: 'anuppuccin-clean-yellow-purple-dark',
+      nameKey: 'libraryAnuPpuccinCleanYellowPurpleDark',
+      colors: { base: '#c3a6ff', accent: '#fde3a7', background: '#32302f', surface: '#282828', onbackground: '#dadfe1' },
+    },
+    {
+      key: 'origami-heckhound-dark',
+      nameKey: 'libraryOrigamiHeckhoundDark',
+      colors: { base: '#ff5555', accent: '#ffb86c', background: '#38040e', surface: '#640d14', onbackground: '#ff9b54' },
+    },
+    {
+      key: 'origami-siren-dark',
+      nameKey: 'libraryOrigamiSirenDark',
+      colors: { base: '#bd93f9', accent: '#ff79c6', background: '#1e1b3b', surface: '#322f5a', onbackground: '#e0e1dd' },
+    },
+    {
+      key: 'ultra-lobster-demon-queen-dark',
+      nameKey: 'libraryUltraLobsterDemonQueenDark',
+      colors: { base: '#ea4f4f', accent: '#e18ebf', background: '#542727', surface: '#472020', onbackground: '#e1dddd' },
+    },
+    {
+      key: 'ultra-lobster-succubus-dark',
+      nameKey: 'libraryUltraLobsterSuccubusDark',
+      colors: { base: '#bd93f9', accent: '#ff79c6', background: '#2a2754', surface: '#222047', onbackground: '#e0e1dd' },
+    },
+    {
+      key: 'origami-soft-dark',
+      nameKey: 'libraryOrigamiSoftDark',
+      colors: { base: '#a69ab5', accent: '#9bc7bd', background: '#423434', surface: '#574646', onbackground: '#c6b8b1' },
+    },
+    {
+      key: 'origami-shark-time-dark',
+      nameKey: 'libraryOrigamiSharkTimeDark',
+      colors: { base: '#70b4f9', accent: '#94fdff', background: '#221a1f', surface: '#5b4a5c', onbackground: '#c8e0ee' },
+    },
+    {
+      key: 'ultra-lobster-blueprint-dark',
+      nameKey: 'libraryUltraLobsterBlueprintDark',
+      colors: { base: '#0082d3', accent: '#94fdff', background: '#0069aa', surface: '#00396d', onbackground: '#c7cfdd' },
+    },
+    {
+      key: 'ultra-lobster-lobster-time-dark',
+      nameKey: 'libraryUltraLobsterLobsterTimeDark',
+      colors: { base: '#2e8ccc', accent: '#47afeb', background: '#0a1128', surface: '#1c2a52', onbackground: '#8a9ccc' },
+    },
+    {
       key: 'border-sunset',
       nameKey: 'libraryBorderSunset',
       colors: { base: '#f08c6c', accent: '#df6c93', background: '#251b21', surface: '#332129', onbackground: '#f1d9d2' },
@@ -1646,6 +1811,26 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#bba379', accent: '#d39c25', background: '#19192e', surface: '#212037', onbackground: '#ced9bf' },
     },
     {
+      key: 'underwater-catppuccin-mocha-dark',
+      nameKey: 'libraryUnderwaterCatppuccinMochaDark',
+      colors: { base: '#cba6f7', accent: '#eba0ac', background: '#1e1e2e', surface: '#11111b', onbackground: '#cdd6f4' },
+    },
+    {
+      key: 'underwater-everforest-dark',
+      nameKey: 'libraryUnderwaterEverforestDark',
+      colors: { base: '#e69875', accent: '#dbbc7f', background: '#272e33', surface: '#384b55', onbackground: '#d3c6aa' },
+    },
+    {
+      key: 'underwater-biscuit-dark',
+      nameKey: 'libraryUnderwaterBiscuitDark',
+      colors: { base: '#e46a3a', accent: '#e39c45', background: '#221e1e', surface: '#423939', onbackground: '#f4e6d2' },
+    },
+    {
+      key: 'underwater-rose-pine-moon-dark',
+      nameKey: 'libraryUnderwaterRosePineMoonDark',
+      colors: { base: '#c4a7e7', accent: '#ea9a97', background: '#2a273f', surface: '#393552', onbackground: '#e0def4' },
+    },
+    {
       key: 'golden-topaz-dark',
       nameKey: 'libraryGoldenTopazDark',
       colors: { base: '#53aaf5', accent: '#53aaf5', background: '#242424', surface: '#333333', onbackground: '#d1d1d1' },
@@ -1754,6 +1939,11 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'typomagical-ficus-ruby-dark',
       nameKey: 'libraryTypomagicalFicusRubyDark',
       colors: { base: '#f4465d', accent: '#ffb458', background: '#305654', surface: '#1e3735', onbackground: '#f9ead9' },
+    },
+    {
+      key: 'typomagical-vileplume-dark',
+      nameKey: 'libraryTypomagicalVileplumeDark',
+      colors: { base: '#b48ead', accent: '#88c0d0', background: '#212f4a', surface: '#3a527e', onbackground: '#eceff4' },
     },
     {
       key: 'ebullientworks-dark',
@@ -1869,6 +2059,241 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'savor-mountain',
       nameKey: 'librarySavorMountain',
       colors: { base: '#ff6000', accent: '#ff6000', background: '#2e302d', surface: '#1e211f', onbackground: '#ebebeb' },
+    },
+    {
+      key: 'willemstad-blood-ruby-dark',
+      nameKey: 'libraryWillemstadBloodRubyDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#28000a', surface: '#360014', onbackground: '#fff5f8' },
+    },
+    {
+      key: 'willemstad-crimson-velvet-dark',
+      nameKey: 'libraryWillemstadCrimsonVelvetDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#2f0004', surface: '#3e000d', onbackground: '#fff3f6' },
+    },
+    {
+      key: 'willemstad-sunset-dark',
+      nameKey: 'libraryWillemstadSunsetDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#130304', surface: '#230b0f', onbackground: '#ffe8f7' },
+    },
+    {
+      key: 'willemstad-burnt-sienna-dark',
+      nameKey: 'libraryWillemstadBurntSiennaDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#340000', surface: '#430000', onbackground: '#fff2f0' },
+    },
+    {
+      key: 'willemstad-apricot-dream-dark',
+      nameKey: 'libraryWillemstadApricotDreamDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#230000', surface: '#310000', onbackground: '#fff5f0' },
+    },
+    {
+      key: 'willemstad-tangerine-burst-dark',
+      nameKey: 'libraryWillemstadTangerineBurstDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#400000', surface: '#500000', onbackground: '#fff2e5' },
+    },
+    {
+      key: 'willemstad-honeydew-breeze-dark',
+      nameKey: 'libraryWillemstadHoneydewBreezeDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#170100', surface: '#230e00', onbackground: '#fdf8ec' },
+    },
+    {
+      key: 'willemstad-terracotta-red-dark',
+      nameKey: 'libraryWillemstadTerracottaRedDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000c00', surface: '#1c1300', onbackground: '#fff6f4' },
+    },
+    {
+      key: 'willemstad-canyon-sunset-dark',
+      nameKey: 'libraryWillemstadCanyonSunsetDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#110400', surface: '#2a0700', onbackground: '#fff6f4' },
+    },
+    {
+      key: 'willemstad-spice-market-dark',
+      nameKey: 'libraryWillemstadSpiceMarketDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#001100', surface: '#021b00', onbackground: '#fff6f4' },
+    },
+    {
+      key: 'willemstad-cactus-desert-dark',
+      nameKey: 'libraryWillemstadCactusDesertDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000f1c', surface: '#002207', onbackground: '#fff6f4' },
+    },
+    {
+      key: 'willemstad-shipwreck-dark',
+      nameKey: 'libraryWillemstadShipwreckDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000e1b', surface: '#002116', onbackground: '#fff7eb' },
+    },
+    {
+      key: 'willemstad-equinox-dark',
+      nameKey: 'libraryWillemstadEquinoxDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000030', surface: '#001a36', onbackground: '#fff7eb' },
+    },
+    {
+      key: 'willemstad-emerald-range-dark',
+      nameKey: 'libraryWillemstadEmeraldRangeDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#001200', surface: '#002100', onbackground: '#f2fcf3' },
+    },
+    {
+      key: 'willemstad-new-growth-dark',
+      nameKey: 'libraryWillemstadNewGrowthDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000032', surface: '#001440', onbackground: '#f1fcf4' },
+    },
+    {
+      key: 'willemstad-old-oak-dark',
+      nameKey: 'libraryWillemstadOldOakDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#030902', surface: '#0e1709', onbackground: '#f7fdd7' },
+    },
+    {
+      key: 'willemstad-tropical-lagoon-dark',
+      nameKey: 'libraryWillemstadTropicalLagoonDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#001807', surface: '#002818', onbackground: '#dcfffc' },
+    },
+    {
+      key: 'willemstad-turquoise-jewel-dark',
+      nameKey: 'libraryWillemstadTurquoiseJewelDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#001415', surface: '#002324', onbackground: '#e6fefe' },
+    },
+    {
+      key: 'willemstad-viridian-sky-dark',
+      nameKey: 'libraryWillemstadViridianSkyDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#00062a', surface: '#001b34', onbackground: '#f1fcf4' },
+    },
+    {
+      key: 'willemstad-blueberries-dark',
+      nameKey: 'libraryWillemstadBlueberriesDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#1b001b', surface: '#1b0042', onbackground: '#f1fcf4' },
+    },
+    {
+      key: 'willemstad-borealis-dark',
+      nameKey: 'libraryWillemstadBorealisDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#080031', surface: '#000947', onbackground: '#f1fcf4' },
+    },
+    {
+      key: 'willemstad-sapphire-study-dark',
+      nameKey: 'libraryWillemstadSapphireStudyDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000048', surface: '#000b4e', onbackground: '#eefaff' },
+    },
+    {
+      key: 'willemstad-powder-blue-dark',
+      nameKey: 'libraryWillemstadPowderBlueDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000d1a', surface: '#001b25', onbackground: '#edfcfe' },
+    },
+    {
+      key: 'willemstad-midnight-ocean-dark',
+      nameKey: 'libraryWillemstadMidnightOceanDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000914', surface: '#001628', onbackground: '#f1fbfa' },
+    },
+    {
+      key: 'willemstad-deep-sea-dark',
+      nameKey: 'libraryWillemstadDeepSeaDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#200007', surface: '#2e0024', onbackground: '#f4f9ff' },
+    },
+    {
+      key: 'willemstad-indigo-dusk-dark',
+      nameKey: 'libraryWillemstadIndigoDuskDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#1a0017', surface: '#260032', onbackground: '#f4f9ff' },
+    },
+    {
+      key: 'willemstad-hagia-sophia-dark',
+      nameKey: 'libraryWillemstadHagiaSophiaDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#0a0415', surface: '#160e27', onbackground: '#e6f5ff' },
+    },
+    {
+      key: 'willemstad-mystic-plum-dark',
+      nameKey: 'libraryWillemstadMysticPlumDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#1a0048', surface: '#23004e', onbackground: '#fcf5ff' },
+    },
+    {
+      key: 'willemstad-lilac-silk-dark',
+      nameKey: 'libraryWillemstadLilacSilkDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#0a002a', surface: '#140934', onbackground: '#f7f7ff' },
+    },
+    {
+      key: 'willemstad-rose-quartz-dark',
+      nameKey: 'libraryWillemstadRoseQuartzDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#14001f', surface: '#20052a', onbackground: '#fdf5ff' },
+    },
+    {
+      key: 'willemstad-cherry-blossom-dark',
+      nameKey: 'libraryWillemstadCherryBlossomDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#190010', surface: '#26051c', onbackground: '#fff5fb' },
+    },
+    {
+      key: 'willemstad-electric-violet-dark',
+      nameKey: 'libraryWillemstadElectricVioletDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#28007e', surface: '#250081', onbackground: '#f5f5ff' },
+    },
+    {
+      key: 'willemstad-hokusai-dark',
+      nameKey: 'libraryWillemstadHokusaiDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000b0b', surface: '#001a22', onbackground: '#d2feff' },
+    },
+    {
+      key: 'willemstad-ellsworth-kelly-white-blue-blue-white-dark',
+      nameKey: 'libraryWillemstadEllsworthKellyWhiteBlueBlueWhiteDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#03003b', surface: '#01004f', onbackground: '#f8f8fa' },
+    },
+    {
+      key: 'willemstad-mark-rothko-s-rothko-chapel-dark',
+      nameKey: 'libraryWillemstadMarkRothkoSRothkoChapelDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#14002c', surface: '#230031', onbackground: '#fff5f8' },
+    },
+    {
+      key: 'willemstad-syldavia-dark',
+      nameKey: 'libraryWillemstadSyldaviaDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000920', surface: '#001833', onbackground: '#ffe9c5' },
+    },
+    {
+      key: 'willemstad-bioluminescent-grotto-dark',
+      nameKey: 'libraryWillemstadBioluminescentGrottoDark',
+      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000427', surface: '#1f0924', onbackground: '#a9fffb' },
+    },
+    {
+      key: 'fancy-a-story-arctic-dark',
+      nameKey: 'libraryFancyAStoryArcticDark',
+      colors: { base: '#52cce0', accent: '#a68af9', background: '#021e22', surface: '#1d393d', onbackground: '#caf0f7' },
+    },
+    {
+      key: 'fancy-a-story-underwater-dark',
+      nameKey: 'libraryFancyAStoryUnderwaterDark',
+      colors: { base: '#5294e0', accent: '#a68af9', background: '#0a0a29', surface: '#202845', onbackground: '#b3e5ff' },
+    },
+    {
+      key: 'composer-ni-dark',
+      nameKey: 'libraryComposerNiDark',
+      colors: { base: '#bc9fd6', accent: '#d6c5e7', background: '#484879', surface: '#4e4f80', onbackground: '#f2f6ff' },
+    },
+    {
+      key: 'chime-chinchilla-dark',
+      nameKey: 'libraryChimeChinchillaDark',
+      colors: { base: '#77b6bb', accent: '#95cacb', background: '#676b6d', surface: '#5b5f60', onbackground: '#ffffff' },
+    },
+    {
+      key: 'chime-spring-dark',
+      nameKey: 'libraryChimeSpringDark',
+      colors: { base: '#c7ef71', accent: '#def59f', background: '#414e44', surface: '#37463d', onbackground: '#c5ccac' },
+    },
+    {
+      key: 'chime-novelist-dark',
+      nameKey: 'libraryChimeNovelistDark',
+      colors: { base: '#8a5cf5', accent: '#a68af9', background: '#4d3d2e', surface: '#3a2e20', onbackground: '#dacfbc' },
+    },
+    {
+      key: 'ukiyo-rose-shadow-dark',
+      nameKey: 'libraryUkiyoRoseShadowDark',
+      colors: { base: '#b884c4', accent: '#b884c4', background: '#3b252d', surface: '#412730', onbackground: '#d3a590' },
+    },
+    {
+      key: 'aura-obsidian-nord-dark',
+      nameKey: 'libraryAuraObsidianNordDark',
+      colors: { base: '#5e81ac', accent: '#8abeff', background: '#434c5e', surface: '#3b4252', onbackground: '#f0f0f0' },
+    },
+    {
+      key: 'ono-sendai-dark',
+      nameKey: 'libraryOnoSendaiDark',
+      colors: { base: '#20abe9', accent: '#28b0ff', background: '#17191a', surface: '#0f5172', onbackground: '#dcddde' },
+    },
+    {
+      key: 'origami-default-dark',
+      nameKey: 'libraryOrigamiDefaultDark',
+      colors: { base: '#f74545', accent: '#f74545', background: '#202020', surface: '#555555', onbackground: '#b3b3b3' },
     },
   ],
 };
