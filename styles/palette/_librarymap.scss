@@ -905,7 +905,7 @@ $palette-library: (
         ),
         'library-winter-is-coming-light': (
             '--b3-theme-base': #219fd5,
-            '--b3-theme-accent': #236ebf,
+            '--b3-theme-accent': #bf2371,
             '--b3-theme-background': #ffffff,
             '--b3-theme-surface': #f3f3f3,
             '--b3-theme-on-background': #236ebf,
@@ -1178,7 +1178,7 @@ $palette-library: (
         ),
         'library-willemstad-golden-hour-light': (
             '--b3-theme-base': #0d5257,
-            '--b3-theme-accent': #0d5257,
+            '--b3-theme-accent': #0f848d,
             '--b3-theme-background': #fffceb,
             '--b3-theme-surface': #ffe6b9,
             '--b3-theme-on-background': #001300,
@@ -1192,29 +1192,29 @@ $palette-library: (
         ),
         'library-willemstad-spring-meadow-light': (
             '--b3-theme-base': #0d5257,
-            '--b3-theme-accent': #0d5257,
+            '--b3-theme-accent': #0d848d,
             '--b3-theme-background': #feffef,
             '--b3-theme-surface': #eef4c2,
             '--b3-theme-on-background': #001200,
         ),
         'library-willemstad-tropical-lagoon-light': (
             '--b3-theme-base': #0d5257,
-            '--b3-theme-accent': #0d5257,
+            '--b3-theme-accent': #9e530f,
             '--b3-theme-background': #e6ffff,
             '--b3-theme-surface': #acfff4,
             '--b3-theme-on-background': #000400,
         ),
         'library-willemstad-turquoise-jewel-light': (
             '--b3-theme-base': #0d5257,
-            '--b3-theme-accent': #0d5257,
+            '--b3-theme-accent': #0966cc,
             '--b3-theme-background': #f1ffff,
             '--b3-theme-surface': #c4fbf9,
             '--b3-theme-on-background': #000201,
         ),
         'library-willemstad-solar-flare-light': (
             '--b3-theme-base': #0d5257,
-            '--b3-theme-accent': #0d5257,
-            '--b3-theme-background': #fff99d,
+            '--b3-theme-accent': #057b83,
+            '--b3-theme-background': #ffe9cc,
             '--b3-theme-surface': #ffe1bc,
             '--b3-theme-on-background': #02000e,
         ),
@@ -1754,7 +1754,7 @@ $palette-library: (
         ),
         'library-badwolf': (
             '--b3-theme-base': #0a9dff,
-            '--b3-theme-accent': #ff4255,
+            '--b3-theme-accent': #f96c7a,
             '--b3-theme-background': #1c1b1a,
             '--b3-theme-surface': #242321,
             '--b3-theme-on-background': #f8f6f2,
@@ -1901,7 +1901,7 @@ $palette-library: (
         ),
         'library-cyber-glow-dark': (
             '--b3-theme-base': #00ffff,
-            '--b3-theme-accent': #ff00ff,
+            '--b3-theme-accent': #ff75ff,
             '--b3-theme-background': #0a0a0f,
             '--b3-theme-surface': #181825,
             '--b3-theme-on-background': #e0e0e8,
@@ -2020,7 +2020,7 @@ $palette-library: (
         ),
         'library-bear-dieci': (
             '--b3-theme-base': #ff9500,
-            '--b3-theme-accent': #ff9500,
+            '--b3-theme-accent': #ffba59,
             '--b3-theme-background': #000000,
             '--b3-theme-surface': #1c1c1c,
             '--b3-theme-on-background': #ffffff,
@@ -2083,7 +2083,7 @@ $palette-library: (
         ),
         'library-vercel-dark': (
             '--b3-theme-base': #ffffff,
-            '--b3-theme-accent': #1278fc,
+            '--b3-theme-accent': #5ca3ff,
             '--b3-theme-background': #000000,
             '--b3-theme-surface': #111111,
             '--b3-theme-on-background': #ededed,
@@ -2098,7 +2098,7 @@ $palette-library: (
         'library-anuppuccin-amoled': (
             '--b3-theme-base': #87b0f9,
             '--b3-theme-accent': #cba6f7,
-            '--b3-theme-background': #0a0a0a,
+            '--b3-theme-background': #171717,
             '--b3-theme-surface': #050505,
             '--b3-theme-on-background': #ffffff,
         ),
@@ -2326,13 +2326,6 @@ $palette-library: (
             '--b3-theme-surface': #17120f,
             '--b3-theme-on-background': #e6dccb,
         ),
-        'library-its-dd-wotc-dark': (
-            '--b3-theme-base': #d33831,
-            '--b3-theme-accent': #bd9b4f,
-            '--b3-theme-background': #211c18,
-            '--b3-theme-surface': #17130f,
-            '--b3-theme-on-background': #e7ded1,
-        ),
         'library-its-vero-galaxy-dark': (
             '--b3-theme-base': #9b82ee,
             '--b3-theme-accent': #df72aa,
@@ -2379,7 +2372,7 @@ $palette-library: (
             '--b3-theme-base': #a78bfa,
             '--b3-theme-accent': #60a5fa,
             '--b3-theme-background': #000000,
-            '--b3-theme-surface': #090909,
+            '--b3-theme-surface': #151515,
             '--b3-theme-on-background': #f4f4f5,
         ),
         'library-encore-rgb': (
@@ -2627,13 +2620,6 @@ $palette-library: (
             '--b3-theme-surface': #2b2136,
             '--b3-theme-on-background': #ccbfd9,
         ),
-        'library-winter-is-coming-dark-blue': (
-            '--b3-theme-base': #219fd5,
-            '--b3-theme-accent': #219fd5,
-            '--b3-theme-background': #011627,
-            '--b3-theme-surface': #0b2942,
-            '--b3-theme-on-background': #a7dbf7,
-        ),
         'library-winter-is-coming-dark-black': (
             '--b3-theme-base': #219fd5,
             '--b3-theme-accent': #219fd5,
@@ -2680,14 +2666,14 @@ $palette-library: (
             '--b3-theme-base': #ffaa00,
             '--b3-theme-accent': #ffc25d,
             '--b3-theme-background': #201433,
-            '--b3-theme-surface': #232529,
+            '--b3-theme-surface': #272142,
             '--b3-theme-on-background': #cad3eb,
         ),
         'library-dune-midnight': (
             '--b3-theme-base': #ffd770,
             '--b3-theme-accent': #ffc25d,
             '--b3-theme-background': #141733,
-            '--b3-theme-surface': #232529,
+            '--b3-theme-surface': #1e2246,
             '--b3-theme-on-background': #cad3eb,
         ),
         'library-dune-blacky': (
@@ -3147,17 +3133,10 @@ $palette-library: (
         ),
         'library-composer-ni-dark': (
             '--b3-theme-base': #bc9fd6,
-            '--b3-theme-accent': #d6c5e7,
+            '--b3-theme-accent': #cba3f2,
             '--b3-theme-background': #484879,
             '--b3-theme-surface': #4e4f80,
             '--b3-theme-on-background': #f2f6ff,
-        ),
-        'library-chime-chinchilla-dark': (
-            '--b3-theme-base': #77b6bb,
-            '--b3-theme-accent': #95cacb,
-            '--b3-theme-background': #676b6d,
-            '--b3-theme-surface': #5b5f60,
-            '--b3-theme-on-background': #ffffff,
         ),
         'library-chime-spring-dark': (
             '--b3-theme-base': #c7ef71,
@@ -3186,13 +3165,6 @@ $palette-library: (
             '--b3-theme-background': #434c5e,
             '--b3-theme-surface': #3b4252,
             '--b3-theme-on-background': #f0f0f0,
-        ),
-        'library-ono-sendai-dark': (
-            '--b3-theme-base': #20abe9,
-            '--b3-theme-accent': #28b0ff,
-            '--b3-theme-background': #17191a,
-            '--b3-theme-surface': #0f5172,
-            '--b3-theme-on-background': #dcddde,
         ),
         'library-origami-default-dark': (
             '--b3-theme-base': #f74545,

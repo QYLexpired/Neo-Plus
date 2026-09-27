@@ -656,7 +656,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'winter-is-coming-light',
       nameKey: 'libraryWinterIsComingLight',
-      colors: { base: '#219fd5', accent: '#236ebf', background: '#ffffff', surface: '#f3f3f3', onbackground: '#236ebf' },
+      colors: { base: '#219fd5', accent: '#bf2371', background: '#ffffff', surface: '#f3f3f3', onbackground: '#236ebf' },
     },
     {
       key: 'bearded-coffee-cream',
@@ -851,7 +851,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'willemstad-golden-hour-light',
       nameKey: 'libraryWillemstadGoldenHourLight',
-      colors: { base: '#0d5257', accent: '#0d5257', background: '#fffceb', surface: '#ffe6b9', onbackground: '#001300' },
+      colors: { base: '#0d5257', accent: '#0f848d', background: '#fffceb', surface: '#ffe6b9', onbackground: '#001300' },
     },
     {
       key: 'willemstad-electric-lime-light',
@@ -861,22 +861,22 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'willemstad-spring-meadow-light',
       nameKey: 'libraryWillemstadSpringMeadowLight',
-      colors: { base: '#0d5257', accent: '#0d5257', background: '#feffef', surface: '#eef4c2', onbackground: '#001200' },
+      colors: { base: '#0d5257', accent: '#0d848d', background: '#feffef', surface: '#eef4c2', onbackground: '#001200' },
     },
     {
       key: 'willemstad-tropical-lagoon-light',
       nameKey: 'libraryWillemstadTropicalLagoonLight',
-      colors: { base: '#0d5257', accent: '#0d5257', background: '#e6ffff', surface: '#acfff4', onbackground: '#000400' },
+      colors: { base: '#0d5257', accent: '#9e530f', background: '#e6ffff', surface: '#acfff4', onbackground: '#000400' },
     },
     {
       key: 'willemstad-turquoise-jewel-light',
       nameKey: 'libraryWillemstadTurquoiseJewelLight',
-      colors: { base: '#0d5257', accent: '#0d5257', background: '#f1ffff', surface: '#c4fbf9', onbackground: '#000201' },
+      colors: { base: '#0d5257', accent: '#0966cc', background: '#f1ffff', surface: '#c4fbf9', onbackground: '#000201' },
     },
     {
       key: 'willemstad-solar-flare-light',
       nameKey: 'libraryWillemstadSolarFlareLight',
-      colors: { base: '#0d5257', accent: '#0d5257', background: '#fff99d', surface: '#ffe1bc', onbackground: '#02000e' },
+      colors: { base: '#0d5257', accent: '#057b83', background: '#ffe9cc', surface: '#ffe1bc', onbackground: '#02000e' },
     },
     {
       key: 'fancy-a-story-automn-light',
@@ -1263,7 +1263,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'badwolf',
       nameKey: 'libraryBadwolf',
-      colors: { base: '#0a9dff', accent: '#ff4255', background: '#1c1b1a', surface: '#242321', onbackground: '#f8f6f2' },
+      colors: { base: '#0a9dff', accent: '#f96c7a', background: '#1c1b1a', surface: '#242321', onbackground: '#f8f6f2' },
     },
     {
       key: 'apprentice',
@@ -1368,7 +1368,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'cyber-glow-dark',
       nameKey: 'libraryCyberGlowDark',
-      colors: { base: '#00ffff', accent: '#ff00ff', background: '#0a0a0f', surface: '#181825', onbackground: '#e0e0e8' },
+      colors: { base: '#00ffff', accent: '#ff75ff', background: '#0a0a0f', surface: '#181825', onbackground: '#e0e0e8' },
     },
     {
       key: 'prism-raven',
@@ -1453,7 +1453,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'bear-dieci',
       nameKey: 'libraryBearDieci',
-      colors: { base: '#ff9500', accent: '#ff9500', background: '#000000', surface: '#1c1c1c', onbackground: '#ffffff' },
+      colors: { base: '#ff9500', accent: '#ffba59', background: '#000000', surface: '#1c1c1c', onbackground: '#ffffff' },
     },
     {
       key: 'craft-dark',
@@ -1498,7 +1498,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'vercel-dark',
       nameKey: 'libraryVercelDark',
-      colors: { base: '#ffffff', accent: '#1278fc', background: '#000000', surface: '#111111', onbackground: '#ededed' },
+      colors: { base: '#ffffff', accent: '#5ca3ff', background: '#000000', surface: '#111111', onbackground: '#ededed' },
     },
     {
       key: 'slack-dark',
@@ -1508,7 +1508,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'anuppuccin-amoled',
       nameKey: 'libraryAnuPpuccinAMOLED',
-      colors: { base: '#87b0f9', accent: '#cba6f7', background: '#0a0a0a', surface: '#050505', onbackground: '#ffffff' },
+      colors: { base: '#87b0f9', accent: '#cba6f7', background: '#171717', surface: '#050505', onbackground: '#ffffff' },
     },
     {
       key: 'anuppuccin-biscuit-dark',
@@ -1671,11 +1671,6 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#c23b3e', accent: '#c8a55a', background: '#221b17', surface: '#17120f', onbackground: '#e6dccb' },
     },
     {
-      key: 'its-dd-wotc-dark',
-      nameKey: 'libraryITSDDWOTCDark',
-      colors: { base: '#d33831', accent: '#bd9b4f', background: '#211c18', surface: '#17130f', onbackground: '#e7ded1' },
-    },
-    {
       key: 'its-vero-galaxy-dark',
       nameKey: 'libraryITSVeroGalaxyDark',
       colors: { base: '#9b82ee', accent: '#df72aa', background: '#171421', surface: '#0f0c17', onbackground: '#e5def2' },
@@ -1708,7 +1703,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'encore-blackout',
       nameKey: 'libraryEncoreBlackout',
-      colors: { base: '#a78bfa', accent: '#60a5fa', background: '#000000', surface: '#090909', onbackground: '#f4f4f5' },
+      colors: { base: '#a78bfa', accent: '#60a5fa', background: '#000000', surface: '#151515', onbackground: '#f4f4f5' },
     },
     {
       key: 'encore-rgb',
@@ -1886,11 +1881,6 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#bf8ef1', accent: '#49e9a6', background: '#30243d', surface: '#2b2136', onbackground: '#ccbfd9' },
     },
     {
-      key: 'winter-is-coming-dark-blue',
-      nameKey: 'libraryWinterIsComingDarkBlue',
-      colors: { base: '#219fd5', accent: '#219fd5', background: '#011627', surface: '#0b2942', onbackground: '#a7dbf7' },
-    },
-    {
       key: 'winter-is-coming-dark-black',
       nameKey: 'libraryWinterIsComingDarkBlack',
       colors: { base: '#219fd5', accent: '#219fd5', background: '#051421', surface: '#0b2942', onbackground: '#a7dbf7' },
@@ -1923,12 +1913,12 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'dune-dusk',
       nameKey: 'libraryDuneDusk',
-      colors: { base: '#ffaa00', accent: '#ffc25d', background: '#201433', surface: '#232529', onbackground: '#cad3eb' },
+      colors: { base: '#ffaa00', accent: '#ffc25d', background: '#201433', surface: '#272142', onbackground: '#cad3eb' },
     },
     {
       key: 'dune-midnight',
       nameKey: 'libraryDuneMidnight',
-      colors: { base: '#ffd770', accent: '#ffc25d', background: '#141733', surface: '#232529', onbackground: '#cad3eb' },
+      colors: { base: '#ffd770', accent: '#ffc25d', background: '#141733', surface: '#1e2246', onbackground: '#cad3eb' },
     },
     {
       key: 'dune-blacky',
@@ -2258,12 +2248,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'composer-ni-dark',
       nameKey: 'libraryComposerNiDark',
-      colors: { base: '#bc9fd6', accent: '#d6c5e7', background: '#484879', surface: '#4e4f80', onbackground: '#f2f6ff' },
-    },
-    {
-      key: 'chime-chinchilla-dark',
-      nameKey: 'libraryChimeChinchillaDark',
-      colors: { base: '#77b6bb', accent: '#95cacb', background: '#676b6d', surface: '#5b5f60', onbackground: '#ffffff' },
+      colors: { base: '#bc9fd6', accent: '#cba3f2', background: '#484879', surface: '#4e4f80', onbackground: '#f2f6ff' },
     },
     {
       key: 'chime-spring-dark',
@@ -2284,11 +2269,6 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'aura-obsidian-nord-dark',
       nameKey: 'libraryAuraObsidianNordDark',
       colors: { base: '#5e81ac', accent: '#8abeff', background: '#434c5e', surface: '#3b4252', onbackground: '#f0f0f0' },
-    },
-    {
-      key: 'ono-sendai-dark',
-      nameKey: 'libraryOnoSendaiDark',
-      colors: { base: '#20abe9', accent: '#28b0ff', background: '#17191a', surface: '#0f5172', onbackground: '#dcddde' },
     },
     {
       key: 'origami-default-dark',

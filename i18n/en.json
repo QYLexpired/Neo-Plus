@@ -196,7 +196,6 @@
   "libraryNoctisUva": "Noctis Uva",
   "libraryNoctisViola": "Noctis Viola",
   "libraryWinterIsComingLight": "Winter is Coming Light",
-  "libraryWinterIsComingDarkBlue": "Winter is Coming Dark Blue",
   "libraryWinterIsComingDarkBlack": "Winter is Coming Dark Black",
   "libraryBeardedAnthracite": "Bearded Anthracite",
   "libraryBeardedCoffee": "Bearded Coffee",
@@ -323,7 +322,6 @@
   "libraryITSSlRvbGrayDark": "ITS SlRvb Gray Dark",
   "libraryITSMinimalistDark": "ITS Minimalist Dark",
   "libraryITSDDDark": "ITS D&D Dark",
-  "libraryITSDDWOTCDark": "ITS D&D WOTC Dark",
   "libraryITSVeroGalaxyDark": "ITS Vero Galaxy Dark",
   "libraryEncoreObsidianRedux": "Encore Obsidian Redux",
   "libraryEncoreCobalt": "Encore Cobalt",
@@ -859,7 +857,6 @@
   "libraryFancyAStoryArcticDark": "Fancy-a-Story Arctic Dark",
   "libraryFancyAStoryUnderwaterDark": "Fancy-a-Story Underwater Dark",
   "libraryComposerNiDark": "Composer Ní Dark",
-  "libraryChimeChinchillaDark": "Chime Chinchilla Dark",
   "libraryChimeSpringDark": "Chime Spring Dark",
   "libraryChimeNovelistDark": "Chime Novelist Dark",
   "libraryShibaInuLilyLight": "Shiba Inu Lily Light",
@@ -868,7 +865,6 @@
   "libraryAuraObsidianKanagawaLight": "Aura Obsidian Kanagawa Light",
   "libraryAuraObsidianNordDark": "Aura Obsidian Nord Dark",
   "libraryOnoSendaiLight": "Ono Sendai Light",
-  "libraryOnoSendaiDark": "Ono Sendai Dark",
   "libraryOrigamiDefaultDark": "Origami Default Dark",
   "libraryUltraLobsterLobsterTimeLight": "Ultra Lobster Lobster-Time Light"
 }
