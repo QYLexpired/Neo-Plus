@@ -194,49 +194,19 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#5079be', accent: '#9c48b7', background: '#fafafa', surface: '#eef1f4', onbackground: '#4b505b' },
     },
     {
-      key: 'gruvbox-material-light-hard-material',
-      nameKey: 'freeLibraryGruvboxMaterialLightHardMaterial',
+      key: 'gruvbox-material-light-hard',
+      nameKey: 'freeLibraryGruvboxMaterialLightHard',
       colors: { base: '#45707a', accent: '#a94489', background: '#f9f5d7', surface: '#f5edca', onbackground: '#654735' },
     },
     {
-      key: 'gruvbox-material-light-hard-mix',
-      nameKey: 'freeLibraryGruvboxMaterialLightHardMix',
-      colors: { base: '#266b79', accent: '#a23d80', background: '#f9f5d7', surface: '#f5edca', onbackground: '#514036' },
-    },
-    {
-      key: 'gruvbox-material-light-hard-original',
-      nameKey: 'freeLibraryGruvboxMaterialLightHardOriginal',
-      colors: { base: '#076678', accent: '#983375', background: '#f9f5d7', surface: '#f5edca', onbackground: '#3c3836' },
-    },
-    {
-      key: 'gruvbox-material-light-medium-material',
-      nameKey: 'freeLibraryGruvboxMaterialLightMediumMaterial',
+      key: 'gruvbox-material-light-medium',
+      nameKey: 'freeLibraryGruvboxMaterialLightMedium',
       colors: { base: '#45707a', accent: '#a64186', background: '#fbf1c7', surface: '#f4e8be', onbackground: '#654735' },
     },
     {
-      key: 'gruvbox-material-light-medium-mix',
-      nameKey: 'freeLibraryGruvboxMaterialLightMediumMix',
-      colors: { base: '#266b79', accent: '#a23d80', background: '#fbf1c7', surface: '#f4e8be', onbackground: '#514036' },
-    },
-    {
-      key: 'gruvbox-material-light-medium-original',
-      nameKey: 'freeLibraryGruvboxMaterialLightMediumOriginal',
-      colors: { base: '#076678', accent: '#983375', background: '#fbf1c7', surface: '#f4e8be', onbackground: '#3c3836' },
-    },
-    {
-      key: 'gruvbox-material-light-soft-material',
-      nameKey: 'freeLibraryGruvboxMaterialLightSoftMaterial',
+      key: 'gruvbox-material-light-soft',
+      nameKey: 'freeLibraryGruvboxMaterialLightSoft',
       colors: { base: '#45707a', accent: '#9f3b80', background: '#f2e5bc', surface: '#eddeb5', onbackground: '#654735' },
-    },
-    {
-      key: 'gruvbox-material-light-soft-mix',
-      nameKey: 'freeLibraryGruvboxMaterialLightSoftMix',
-      colors: { base: '#266b79', accent: '#9f3b7e', background: '#f2e5bc', surface: '#eddeb5', onbackground: '#514036' },
-    },
-    {
-      key: 'gruvbox-material-light-soft-original',
-      nameKey: 'freeLibraryGruvboxMaterialLightSoftOriginal',
-      colors: { base: '#076678', accent: '#983375', background: '#f2e5bc', surface: '#eddeb5', onbackground: '#3c3836' },
     },
     {
       key: 'primary-light',
@@ -657,21 +627,6 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'bearded-vivid-light',
       nameKey: 'freeLibraryBeardedVividLight',
       colors: { base: '#9c45ff', accent: '#8540ce', background: '#f4f4f4', surface: '#ebebeb', onbackground: '#181818' },
-    },
-    {
-      key: 'dune-wood',
-      nameKey: 'freeLibraryDuneWood',
-      colors: { base: '#4792b8', accent: '#620c0c', background: '#eae8d5', surface: '#899aac', onbackground: '#000000' },
-    },
-    {
-      key: 'dune-sand',
-      nameKey: 'freeLibraryDuneSand',
-      colors: { base: '#cc8c33', accent: '#620c0c', background: '#dbc7ab', surface: '#899aac', onbackground: '#000000' },
-    },
-    {
-      key: 'dune-rose',
-      nameKey: 'freeLibraryDuneRose',
-      colors: { base: '#c4523b', accent: '#620c0c', background: '#e9a791', surface: '#899aac', onbackground: '#000000' },
     },
     {
       key: 'typomagical-ficus-ruby-light',
@@ -1261,49 +1216,19 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#6cb6eb', accent: '#d38aea', background: '#2b2d3a', surface: '#333648', onbackground: '#c5cdd9' },
     },
     {
-      key: 'gruvbox-material-dark-hard-material',
-      nameKey: 'freeLibraryGruvboxMaterialDarkHardMaterial',
+      key: 'gruvbox-material-dark-hard',
+      nameKey: 'freeLibraryGruvboxMaterialDarkHard',
       colors: { base: '#7daea3', accent: '#e77699', background: '#1d2021', surface: '#282828', onbackground: '#d4be98' },
     },
     {
-      key: 'gruvbox-material-dark-hard-mix',
-      nameKey: 'freeLibraryGruvboxMaterialDarkHardMix',
-      colors: { base: '#80aa9e', accent: '#e77699', background: '#1d2021', surface: '#282828', onbackground: '#e2cca9' },
-    },
-    {
-      key: 'gruvbox-material-dark-hard-original',
-      nameKey: 'freeLibraryGruvboxMaterialDarkHardOriginal',
-      colors: { base: '#83a598', accent: '#e77699', background: '#1d2021', surface: '#282828', onbackground: '#ebdbb2' },
-    },
-    {
-      key: 'gruvbox-material-dark-medium-material',
-      nameKey: 'freeLibraryGruvboxMaterialDarkMediumMaterial',
+      key: 'gruvbox-material-dark-medium',
+      nameKey: 'freeLibraryGruvboxMaterialDarkMedium',
       colors: { base: '#7daea3', accent: '#e77699', background: '#282828', surface: '#32302f', onbackground: '#d4be98' },
     },
     {
-      key: 'gruvbox-material-dark-medium-mix',
-      nameKey: 'freeLibraryGruvboxMaterialDarkMediumMix',
-      colors: { base: '#80aa9e', accent: '#e77699', background: '#282828', surface: '#32302f', onbackground: '#e2cca9' },
-    },
-    {
-      key: 'gruvbox-material-dark-medium-original',
-      nameKey: 'freeLibraryGruvboxMaterialDarkMediumOriginal',
-      colors: { base: '#83a598', accent: '#e77699', background: '#282828', surface: '#32302f', onbackground: '#ebdbb2' },
-    },
-    {
-      key: 'gruvbox-material-dark-soft-material',
-      nameKey: 'freeLibraryGruvboxMaterialDarkSoftMaterial',
+      key: 'gruvbox-material-dark-soft',
+      nameKey: 'freeLibraryGruvboxMaterialDarkSoft',
       colors: { base: '#7daea3', accent: '#f280a2', background: '#32302f', surface: '#3c3836', onbackground: '#d4be98' },
-    },
-    {
-      key: 'gruvbox-material-dark-soft-mix',
-      nameKey: 'freeLibraryGruvboxMaterialDarkSoftMix',
-      colors: { base: '#80aa9e', accent: '#f280a2', background: '#32302f', surface: '#3c3836', onbackground: '#e2cca9' },
-    },
-    {
-      key: 'gruvbox-material-dark-soft-original',
-      nameKey: 'freeLibraryGruvboxMaterialDarkSoftOriginal',
-      colors: { base: '#83a598', accent: '#f280a2', background: '#32302f', surface: '#3c3836', onbackground: '#ebdbb2' },
     },
     {
       key: 'primary-dark',
