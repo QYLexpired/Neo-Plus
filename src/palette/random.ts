@@ -3,13 +3,13 @@ import { Dialog } from '../modules/dialog';
 import { getPlugin } from '../main/context';
 import { isMobile } from '../modules/env';
 import { withViewTransition } from '../modules/viewtransition';
-import { getThemeMode, getPresetsByMode } from './presets';
+import { getThemeMode, getBuiltinPresets } from './presets';
 import { paletteLibrary } from './library';
 import type { Preset, ThemeMode } from './presets';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { enableInvert, destroyInvert } from './invert';
 import { enableHighContrast, destroyHighContrast } from './highcontrast';
-import { getFreePresetColors, applyFreeColors, clearFreeColors, setFreePresetAttr } from './free';
+import { getFreePresetColors, applyCoreColors, clearCoreColors } from './free';
 type RandomPool = 'preset' | 'free' | 'basecustom' | 'library';
 const randomPools: RandomPool[] = ['preset', 'free', 'basecustom', 'library'];
 let randomScope: RandomPool[] = [...randomPools];
@@ -34,14 +34,14 @@ function normalizeRandomScope(value: Config['random-scope']): RandomPool[] {
 function normalizeRandomTristate(value: Config['random-highcontrast']): 'random' | 'on' | 'off' {
   return value === 'on' || value === 'off' ? value : 'random';
 }
-function readConfigRange(config: Config): { min: number; max: number } {
+function readSaturationRange(config: Config): { min: number; max: number } {
   const rawMin = config['random-saturation-min'];
   const rawMax = config['random-saturation-max'];
   const min = typeof rawMin === 'number' && !Number.isNaN(rawMin) ? clampSaturation(rawMin) : 0;
   const max = typeof rawMax === 'number' && !Number.isNaN(rawMax) ? clampSaturation(rawMax) : 5;
   return min <= max ? { min, max } : { min: max, max: min };
 }
-function readConfigBrightnessRange(config: Config): { min: number; max: number } {
+function readBrightnessRange(config: Config): { min: number; max: number } {
   const rawMin = config['random-brightness-min'];
   const rawMax = config['random-brightness-max'];
   const min = typeof rawMin === 'number' && !Number.isNaN(rawMin) ? clampBrightness(rawMin) : -1;
@@ -50,8 +50,8 @@ function readConfigBrightnessRange(config: Config): { min: number; max: number }
 }
 interface LastRandomState {
   type: RandomPool;
-  presetKey?: string;
-  freeName?: string;
+  sourceKey?: string;
+  sourceName?: string;
   color?: string;
   saturation?: number;
   brightness?: number;
@@ -251,12 +251,12 @@ function showCurrentStateDialog(): void {
   if (!lastState) {
     lines.push(i18n.randomNoState);
   } else {
-    if (lastState.type === 'preset' && lastState.presetKey) {
-      const nameKey = `colorScheme${lastState.presetKey.charAt(0).toUpperCase()}${lastState.presetKey.slice(1)}`;
-      lines.push(`${i18n.colorScheme}：${i18n[nameKey] ?? lastState.presetKey}`);
-    } else if ((lastState.type === 'free' || lastState.type === 'library') && lastState.presetKey) {
-      const label = lastState.type === 'library' ? i18n.freeLibrary : i18n.freePalette;
-      lines.push(`${label}：${(lastState.freeName ?? lastState.presetKey).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}`);
+    if (lastState.type === 'preset' && lastState.sourceKey) {
+      const nameKey = `colorScheme${lastState.sourceKey.charAt(0).toUpperCase()}${lastState.sourceKey.slice(1)}`;
+      lines.push(`${i18n.colorScheme}：${i18n[nameKey] ?? lastState.sourceKey}`);
+    } else if ((lastState.type === 'free' || lastState.type === 'library') && lastState.sourceKey) {
+      const label = lastState.type === 'library' ? i18n.library : i18n.freePalette;
+      lines.push(`${label}：${(lastState.sourceName ?? lastState.sourceKey).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}`);
     } else if (lastState.type === 'basecustom') {
       lines.push(`${i18n.basecustom}：${swatch(lastState.color ?? '')} ${lastState.color}`);
       if (lastState.saturation !== undefined) {
@@ -464,10 +464,10 @@ export function initRandomSettings(): Promise<void> {
     randomScope = normalizeRandomScope(config['random-scope']);
     randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
     randomInvert = normalizeRandomTristate(config['random-invert']);
-    const saturationRange = readConfigRange(config);
+    const saturationRange = readSaturationRange(config);
     randomSaturationMin = saturationRange.min;
     randomSaturationMax = saturationRange.max;
-    const brightnessRange = readConfigBrightnessRange(config);
+    const brightnessRange = readBrightnessRange(config);
     randomBrightnessMin = brightnessRange.min;
     randomBrightnessMax = brightnessRange.max;
   });
@@ -478,8 +478,7 @@ export function destroyRandom(): void {
   html.style.removeProperty('--neo-base');
   html.style.removeProperty('--neo-saturation');
   html.style.removeProperty('--neo-brightness');
-  clearFreeColors();
-  setFreePresetAttr('');
+  clearCoreColors();
   html.classList.remove('neo-palette-free');
   destroyInvert();
   destroyHighContrast();
@@ -490,31 +489,31 @@ function pickRandomPool(config: Config, mode: ThemeMode): RandomPool | 'default'
   const candidates = randomScope.filter(pool => {
     if (pool === 'free') return Object.keys(config[`free-presets-${mode}`] ?? {}).length > 0;
     if (pool === 'library') return paletteLibrary[mode].length > 0;
-    if (pool === 'preset') return getPresetsByMode(mode).length > 0;
+    if (pool === 'preset') return getBuiltinPresets(mode).length > 0;
     return true;
   });
   return candidates.length > 0 ? randomPick(candidates) : 'default';
 }
 function applyDefaultRandom(): void {
   document.documentElement.classList.add('neo-palette-default');
-  lastState = { type: 'preset', presetKey: 'default', inverted: false, highContrast: false };
+  lastState = { type: 'preset', sourceKey: 'default', inverted: false, highContrast: false };
 }
 function applyPresetRandom(mode: ThemeMode): void {
   const html = document.documentElement;
-  const available = getPresetsByMode(mode);
+  const available = getBuiltinPresets(mode);
   if (available.length === 0) {
     applyDefaultRandom();
     return;
   }
-  const preset = lastState?.type === 'preset' && lastState.presetKey
-    ? randomPickDifferentPreset(available, lastState.presetKey)
+  const preset = lastState?.type === 'preset' && lastState.sourceKey
+    ? randomPickDifferentPreset(available, lastState.sourceKey)
     : randomPick(available);
   html.classList.add(`neo-palette-${preset.key}`);
-  const sameAsLast = lastState?.type === 'preset' && lastState.presetKey === preset.key;
+  const sameAsLast = lastState?.type === 'preset' && lastState.sourceKey === preset.key;
   const { inverted: finalInverted, highContrast: finalHighContrast } = pickRandomEffects(sameAsLast);
-  lastState = { type: 'preset', presetKey: preset.key, inverted: finalInverted, highContrast: finalHighContrast };
+  lastState = { type: 'preset', sourceKey: preset.key, inverted: finalInverted, highContrast: finalHighContrast };
 }
-function applyFreeRandom(config: Config, mode: ThemeMode, pool: 'free' | 'library'): void {
+function applyRandomCoreColors(config: Config, mode: ThemeMode, pool: 'free' | 'library'): void {
   const candidates = pool === 'library'
     ? paletteLibrary[mode].map(item => item.key)
     : Object.keys(config[`free-presets-${mode}`] ?? {});
@@ -523,7 +522,7 @@ function applyFreeRandom(config: Config, mode: ThemeMode, pool: 'free' | 'librar
     return;
   }
   const rest = lastState?.type === pool
-    ? candidates.filter(key => key !== lastState?.presetKey)
+    ? candidates.filter(key => key !== lastState?.sourceKey)
     : candidates;
   const selected = randomPick(rest.length > 0 ? rest : candidates);
   const libraryItem = pool === 'library'
@@ -539,16 +538,15 @@ function applyFreeRandom(config: Config, mode: ThemeMode, pool: 'free' | 'librar
   const name = libraryItem
     ? (getPlugin()?.i18n[libraryItem.nameKey] ?? libraryItem.key)
     : selected;
-  const sameAsLast = lastState?.type === pool && lastState.presetKey === selected;
+  const sameAsLast = lastState?.type === pool && lastState.sourceKey === selected;
   const { inverted: finalInverted, highContrast: finalHighContrast } = pickRandomEffects(sameAsLast);
   if (finalInverted) {
-    applyFreeColors({ ...colors, background: colors.surface, surface: colors.background });
+    applyCoreColors({ ...colors, background: colors.surface, surface: colors.background });
   } else {
-    applyFreeColors(colors);
+    applyCoreColors(colors);
   }
   document.documentElement.classList.add('neo-palette-free');
-  setFreePresetAttr(name);
-  lastState = { type: pool, presetKey: selected, freeName: name, inverted: finalInverted, highContrast: finalHighContrast };
+  lastState = { type: pool, sourceKey: selected, sourceName: name, inverted: finalInverted, highContrast: finalHighContrast };
 }
 function applyBaseCustomRandom(): void {
   const html = document.documentElement;
@@ -580,10 +578,10 @@ function applyRandom(config: Config): void {
   randomScope = normalizeRandomScope(config['random-scope']);
   randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
   randomInvert = normalizeRandomTristate(config['random-invert']);
-  const saturationRange = readConfigRange(config);
+  const saturationRange = readSaturationRange(config);
   randomSaturationMin = saturationRange.min;
   randomSaturationMax = saturationRange.max;
-  const brightnessRange = readConfigBrightnessRange(config);
+  const brightnessRange = readBrightnessRange(config);
   randomBrightnessMin = brightnessRange.min;
   randomBrightnessMax = brightnessRange.max;
   html.classList.remove(
@@ -592,13 +590,12 @@ function applyRandom(config: Config): void {
   html.style.removeProperty('--neo-base');
   html.style.removeProperty('--neo-saturation');
   html.style.removeProperty('--neo-brightness');
-  clearFreeColors();
-  setFreePresetAttr('');
+  clearCoreColors();
   destroyInvert();
   destroyHighContrast();
   const pool = pickRandomPool(config, mode);
   if (pool === 'preset') applyPresetRandom(mode);
-  else if (pool === 'free' || pool === 'library') applyFreeRandom(config, mode, pool);
+  else if (pool === 'free' || pool === 'library') applyRandomCoreColors(config, mode, pool);
   else if (pool === 'default') applyDefaultRandom();
   else applyBaseCustomRandom();
 }

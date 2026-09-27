@@ -107,13 +107,13 @@ function extractMainColorFromGradient(gradientString: string): string | null {
   const parsed = parseColorToRGB(mostVibrant);
   return parsed ? rgbToHex(parsed.r, parsed.g, parsed.b) : null;
 }
-function isInvalidColor(r: number, g: number, b: number): boolean {
+function isBlackOrWhite(r: number, g: number, b: number): boolean {
   return (r === 0 && g === 0 && b === 0) || (r === 255 && g === 255 && b === 255);
 }
-function getValidHex(hex: string | null): string | null {
+function filterBannerHex(hex: string | null): string | null {
   if (!hex) return null;
   const rgb = parseHex(hex);
-  return rgb && !isInvalidColor(rgb.r, rgb.g, rgb.b) ? hex : null;
+  return rgb && !isBlackOrWhite(rgb.r, rgb.g, rgb.b) ? hex : null;
 }
 function applyColor(hex: string): void {
   document.documentElement.style.setProperty('--neo-basefollowbanner-color', hex);
@@ -167,7 +167,7 @@ function extractGradientColor(el: HTMLElement): string | null {
   const style = el.style;
   const bgImage = style.backgroundImage || style.background || '';
   const gradient = extractGradient(bgImage);
-  return gradient ? getValidHex(extractMainColorFromGradient(gradient)) : null;
+  return gradient ? filterBannerHex(extractMainColorFromGradient(gradient)) : null;
 }
 type BannerSource = HTMLVideoElement | HTMLImageElement;
 type MediaReadyResult = 'ready' | 'failed' | 'cancelled';
@@ -253,7 +253,7 @@ async function resolveBannerColor(target: BannerTarget, signal: AbortSignal): Pr
   if (!banner) return null;
   const bannerGradient = extractGradientColor(banner);
   if (bannerGradient) return bannerGradient;
-  const containerColor = getValidHex(extractBackgroundColor(banner));
+  const containerColor = filterBannerHex(extractBackgroundColor(banner));
   if (containerColor) return containerColor;
   if (!source) return null;
   if (source instanceof HTMLImageElement) {
@@ -262,7 +262,7 @@ async function resolveBannerColor(target: BannerTarget, signal: AbortSignal): Pr
     const hasGradient = extractGradient(bgImage) !== null;
     const sourceGradient = extractGradientColor(source);
     if (sourceGradient) return sourceGradient;
-    const sourceBackground = getValidHex(extractBackgroundColor(source));
+    const sourceBackground = filterBannerHex(extractBackgroundColor(source));
     if (sourceBackground) return sourceBackground;
     if (hasGradient) return null;
   }
@@ -274,19 +274,19 @@ async function resolveBannerColor(target: BannerTarget, signal: AbortSignal): Pr
       const swatches = await getSwatches(source, { ignoreWhite: true, signal });
       if (!isCurrent() || !neoFeatureActive || signal.aborted) return undefined;
       const swatch = swatches?.Vibrant ?? swatches?.LightVibrant ?? swatches?.DarkVibrant;
-      const hex = getValidHex(swatch?.color.hex() ?? null);
+      const hex = filterBannerHex(swatch?.color.hex() ?? null);
       if (hex) return hex;
     }
     const result = await getColor(source, { ignoreWhite: true, minSaturation: 0.01, signal });
     if (!isCurrent() || !neoFeatureActive || signal.aborted) return undefined;
     if (!result) return null;
     const { r, g, b } = result.rgb();
-    return isInvalidColor(r, g, b) ? null : result.hex();
+    return isBlackOrWhite(r, g, b) ? null : result.hex();
   } catch {
     return null;
   }
 }
-async function extractBannerAverageColor(controller: AbortController, target: BannerTarget): Promise<void> {
+async function applyBannerColor(controller: AbortController, target: BannerTarget): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
   let hex: string | null | undefined;
   try {
@@ -307,7 +307,7 @@ function startBannerExtraction(): void {
   const controller = new AbortController();
   const target = getBannerTarget();
   extractController = controller;
-  void extractBannerAverageColor(controller, target).finally(() => {
+  void applyBannerColor(controller, target).finally(() => {
     if (extractController === controller) extractController = null;
   });
 }

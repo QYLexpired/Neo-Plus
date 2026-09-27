@@ -1,11 +1,11 @@
 import { saveConfig, type Config } from '../main/data';
 import { getThemeMode } from '../modules/thememode';
-import { presets, type Preset, type ThemeMode } from './definitions';
+import { builtinPresets, type Preset, type ThemeMode } from './definitions';
 import { getLibraryPresets } from './library';
 export type { ThemeMode, PresetMode, PresetGroup, Preset } from './definitions';
 export { volChunkSize } from './definitions';
-export function getPresetsByMode(mode: ThemeMode): Preset[] {
-  return presets.filter((p) => p.mode === 'all' || p.mode === mode);
+export function getBuiltinPresets(mode: ThemeMode): Preset[] {
+  return builtinPresets.filter((p) => p.mode === 'all' || p.mode === mode);
 }
 export { getThemeMode };
 export function getBaseCustomColorKey(mode: ThemeMode): 'basecustom-color-light' | 'basecustom-color-dark' {
@@ -37,8 +37,8 @@ export function getCurrentPlan(config: Config, mode: ThemeMode): 'preset' | 'bas
   }
 }
 function resolvePreset(key: unknown, mode: ThemeMode): Preset {
-  const available = [...getPresetsByMode(mode), ...getLibraryPresets(mode)];
-  return available.find(preset => preset.key === key) ?? presets.find(preset => preset.key === 'default')!;
+  const available = [...getBuiltinPresets(mode), ...getLibraryPresets(mode)];
+  return available.find(preset => preset.key === key) ?? builtinPresets.find(preset => preset.key === 'default')!;
 }
 export function getPresetKey(config: Config, mode: ThemeMode): string | undefined {
   const key = mode === 'dark' ? config['preset-dark'] : config['preset-light'];

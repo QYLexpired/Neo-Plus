@@ -2,7 +2,7 @@ import { build } from 'esbuild';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 export function createPaletteMaps(data, locales) {
-  const { presets, presetGroups, pinnedPresetKeys, volChunkSize, themeModes, paletteColorVariables, paletteLibrary, libraryPresetPrefix, getLibraryPresetKey } = data;
+  const { builtinPresets, presetGroups, pinnedPresetKeys, volChunkSize, themeModes, coreColorVariables, paletteLibrary, libraryPresetPrefix, getLibraryPresetKey } = data;
   const validKey = key => typeof key === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(key);
   const checkName = nameKey => {
     if (typeof nameKey !== 'string' || !/^[a-z][a-zA-Z0-9]*$/.test(nameKey)) throw new Error(`Invalid palette name key: ${nameKey}`);
@@ -25,7 +25,7 @@ export function createPaletteMaps(data, locales) {
   }
   const presetKeys = new Set();
   const groupStateKeys = new Set(Object.keys(presetGroups).map(group => `group-${group}`));
-  for (const preset of presets) {
+  for (const preset of builtinPresets) {
     if (!validKey(preset.key) || preset.key.startsWith(libraryPresetPrefix) || groupStateKeys.has(preset.key) || presetKeys.has(preset.key)) {
       throw new Error(`Invalid, reserved or duplicate preset key: ${preset.key}`);
     }
@@ -36,9 +36,9 @@ export function createPaletteMaps(data, locales) {
     checkName(preset.nameKey);
     presetKeys.add(preset.key);
   }
-  if (!presets.some(preset => preset.key === 'default' && preset.mode === 'all')) throw new Error('Default preset must support every theme mode');
+  if (!builtinPresets.some(preset => preset.key === 'default' && preset.mode === 'all')) throw new Error('Default preset must support every theme mode');
   if (new Set(pinnedPresetKeys).size !== pinnedPresetKeys.length || pinnedPresetKeys.some(key => !presetKeys.has(key))) throw new Error('Invalid pinned preset keys');
-  const fields = Object.entries(paletteColorVariables);
+  const fields = Object.entries(coreColorVariables);
   if (!fields.length || new Set(fields.map(([, variable]) => variable)).size !== fields.length) throw new Error('Invalid palette color bindings');
   for (const [field, variable] of fields) {
     if (!/^[a-z][a-z0-9]*$/.test(field) || !/^--[a-z0-9]+(?:-[a-z0-9]+)*$/.test(variable)) throw new Error(`Invalid palette color binding: ${field}/${variable}`);
@@ -64,9 +64,9 @@ export function createPaletteMaps(data, locales) {
     }
     libraryModes.push(`    '${mode}': (\n${entries.join('\n')}\n    ),`);
   }
-  const volPresets = presets.filter(preset => !pinnedPresetKeys.includes(preset.key) && !preset.group);
+  const volPresets = builtinPresets.filter(preset => !pinnedPresetKeys.includes(preset.key) && !preset.group);
   const volEntries = volPresets.map((preset, index) => `    '${preset.key}': ${Math.floor(index / volChunkSize) + 1},`);
-  const groupEntries = presets.filter(preset => preset.group).map(preset => `    '${preset.key}': '${preset.group}',`);
+  const groupEntries = builtinPresets.filter(preset => preset.group).map(preset => `    '${preset.key}': '${preset.group}',`);
   return {
     '_volmap.scss': `$palette-vol-map: (\n${volEntries.join('\n')}\n);\n`,
     '_groupmap.scss': `$palette-group-map: (\n${groupEntries.join('\n')}\n);\n`,
@@ -92,7 +92,7 @@ export async function generatePaletteMaps(root, stylesDir) {
     locales[file.slice(0, -5)] = JSON.parse(readFileSync(resolve(root, 'i18n', file), 'utf8'));
   }
   const maps = createPaletteMaps(data, locales);
-  for (const preset of data.presets) {
+  for (const preset of data.builtinPresets) {
     if (!existsSync(resolve(stylesDir, 'palette', `${preset.key}.scss`))) throw new Error(`Missing preset stylesheet: ${preset.key}`);
   }
   for (const [file, source] of Object.entries(maps)) writeFileSync(resolve(stylesDir, 'palette', file), source);

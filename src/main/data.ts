@@ -27,8 +27,8 @@ export type CustomImageSource = Partial<Record<CustomImageConfigKey, string | nu
 export type PresetTextureSettingValue = string | number | boolean;
 export type PresetTextureSettings = Record<string, PresetTextureSettingValue>;
 export type PresetTextureSettingsMap = Record<string, PresetTextureSettings>;
-export type FreeColorKey = 'base' | 'accent' | 'background' | 'surface' | 'onbackground';
-export type FreeColors = Partial<Record<FreeColorKey, string>>;
+export type CoreColorKey = 'base' | 'accent' | 'background' | 'surface' | 'onbackground';
+export type CoreColors = Partial<Record<CoreColorKey, string>>;
 export interface Config {
   'basefollowbanner-colorstyle'?: 'default' | 'vivid';
   'basecustom-color-light'?: string;
@@ -41,8 +41,8 @@ export interface Config {
   'invert-dark'?: boolean;
   'highcontrast-light'?: boolean;
   'highcontrast-dark'?: boolean;
-  'free-presets-light'?: Record<string, FreeColors>;
-  'free-presets-dark'?: Record<string, FreeColors>;
+  'free-presets-light'?: Record<string, CoreColors>;
+  'free-presets-dark'?: Record<string, CoreColors>;
   'free-preset-current-light'?: string;
   'free-preset-current-dark'?: string;
   'preset-light'?: string;

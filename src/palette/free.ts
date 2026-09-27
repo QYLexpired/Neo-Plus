@@ -2,22 +2,22 @@ import { showMessage } from 'siyuan';
 import { Dialog } from '../modules/dialog';
 import { openSearchableMenu, showNamedMessage } from '../modules/searchablemenu';
 import { getPlugin } from '../main/context';
-import { getConfig, loadConfig, saveConfigIfUnchanged, type ConfigSaveResult, type Config, type FreeColorKey, type FreeColors } from '../main/data';
+import { getConfig, loadConfig, saveConfigIfUnchanged, type ConfigSaveResult, type Config, type CoreColorKey, type CoreColors } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { paletteLibrary } from './library';
-import { paletteColorVariables } from './definitions';
-import { getThemeMode, getPresetsByMode, getCurrentPlan, type ThemeMode } from './presets';
-const colorFields: ReadonlyArray<readonly [FreeColorKey, string, string, string]> = [
-  ['base', 'freeBase', paletteColorVariables.base, 'freeBaseTip'],
-  ['accent', 'freeAccent', paletteColorVariables.accent, 'freeAccentTip'],
-  ['background', 'freeBackground', paletteColorVariables.background, 'freeBackgroundTip'],
-  ['surface', 'freeSurface', paletteColorVariables.surface, 'freeSurfaceTip'],
-  ['onbackground', 'freeOnBackground', paletteColorVariables.onbackground, 'freeOnBackgroundTip'],
+import { coreColorVariables } from './definitions';
+import { getThemeMode, getBuiltinPresets, getCurrentPlan, type ThemeMode } from './presets';
+const freeColorFields: ReadonlyArray<readonly [CoreColorKey, string, string, string]> = [
+  ['base', 'freeBase', coreColorVariables.base, 'freeBaseTip'],
+  ['accent', 'freeAccent', coreColorVariables.accent, 'freeAccentTip'],
+  ['background', 'freeBackground', coreColorVariables.background, 'freeBackgroundTip'],
+  ['surface', 'freeSurface', coreColorVariables.surface, 'freeSurfaceTip'],
+  ['onbackground', 'freeOnBackground', coreColorVariables.onbackground, 'freeOnBackgroundTip'],
 ];
 let freeColorRestoreFrame = 0;
 let freeColorRestoreLoadHandler: (() => void) | null = null;
 let freeColorsReady = false;
-function isValidFreeColor(value: unknown): value is string {
+function isValidHexColor(value: unknown): value is string {
   return typeof value === 'string' && /^#[\da-f]{6}$/i.test(value);
 }
 function cancelFreeColorRestore(): void {
@@ -30,15 +30,7 @@ function cancelFreeColorRestore(): void {
     freeColorRestoreLoadHandler = null;
   }
 }
-export function setFreePresetAttr(name: string): void {
-  const value = name.trim();
-  if (value) {
-    document.documentElement.setAttribute('data-neo-free', value);
-  } else {
-    document.documentElement.removeAttribute('data-neo-free');
-  }
-}
-function readPresetColors(preset: string, mode: ThemeMode): Required<FreeColors> {
+function readPresetColors(preset: string, mode: ThemeMode): Required<CoreColors> {
   const probe = document.createElement('div');
   probe.hidden = true;
   probe.classList.add(`neo-palette-${preset}`, `neo-mode-${mode}`);
@@ -46,10 +38,10 @@ function readPresetColors(preset: string, mode: ThemeMode): Required<FreeColors>
   document.body.append(probe);
   try {
     const style = getComputedStyle(probe);
-    const colors = {} as Required<FreeColors>;
-    for (const [key, , variable] of colorFields) {
+    const colors = {} as Required<CoreColors>;
+    for (const [key, , variable] of freeColorFields) {
       const value = style.getPropertyValue(variable).trim();
-      if (!isValidFreeColor(value)) throw new Error(`Invalid preset color: ${variable}`);
+      if (!isValidHexColor(value)) throw new Error(`Invalid preset color: ${variable}`);
       colors[key] = value;
     }
     return colors;
@@ -57,7 +49,7 @@ function readPresetColors(preset: string, mode: ThemeMode): Required<FreeColors>
     probe.remove();
   }
 }
-function tryReadPresetColors(preset: string, mode: ThemeMode): Required<FreeColors> | null {
+function tryReadPresetColors(preset: string, mode: ThemeMode): Required<CoreColors> | null {
   try {
     return readPresetColors(preset, mode);
   } catch {
@@ -69,21 +61,21 @@ function getCurrentPresetName(config: Config, mode: ThemeMode): string {
   const selected = config[`free-preset-current-${mode}`] ?? '';
   return Object.prototype.hasOwnProperty.call(presets, selected) ? selected : '';
 }
-function getColors(config: Config, mode: ThemeMode): Required<FreeColors> | null {
+function getCurrentFreeColors(config: Config, mode: ThemeMode): Required<CoreColors> | null {
   const colors = getFreePresetColors(config, mode, getCurrentPresetName(config, mode));
   if (colors) return colors;
   return tryReadPresetColors('default', mode);
 }
-export function getFreePresetColors(config: Config, mode: ThemeMode, name: string): Required<FreeColors> | null {
+export function getFreePresetColors(config: Config, mode: ThemeMode, name: string): Required<CoreColors> | null {
   const presets = config[`free-presets-${mode}`] ?? {};
   if (!Object.prototype.hasOwnProperty.call(presets, name)) return null;
   const saved = presets[name];
   if (!saved) return null;
-  const colors = {} as Required<FreeColors>;
-  let fallback: Required<FreeColors> | null | undefined;
-  for (const [key] of colorFields) {
+  const colors = {} as Required<CoreColors>;
+  let fallback: Required<CoreColors> | null | undefined;
+  for (const [key] of freeColorFields) {
     const value = saved[key];
-    if (isValidFreeColor(value)) {
+    if (isValidHexColor(value)) {
       colors[key] = value;
       continue;
     }
@@ -95,27 +87,23 @@ export function getFreePresetColors(config: Config, mode: ThemeMode, name: strin
   }
   return colors;
 }
-export function applyFreeColors(colors: Required<FreeColors>): void {
-  applyColors(colors);
-}
-export function clearFreeColors(): void {
+export function clearCoreColors(): void {
   freeColorsReady = false;
-  for (const [, , variable] of colorFields) {
+  for (const [, , variable] of freeColorFields) {
     document.documentElement.style.removeProperty(variable);
   }
 }
-function applyColors(colors: Required<FreeColors>): void {
-  for (const [key, , variable] of colorFields) {
+export function applyCoreColors(colors: Required<CoreColors>): void {
+  for (const [key, , variable] of freeColorFields) {
     document.documentElement.style.setProperty(variable, colors[key]);
   }
 }
 export function initFree(config: Config): void {
   const mode = getThemeMode();
-  const colors = getColors(config, mode);
+  const colors = getCurrentFreeColors(config, mode);
   if (!colors) return;
   freeColorsReady = true;
-  applyFreeColors(colors);
-  setFreePresetAttr(getCurrentPresetName(config, mode));
+  applyCoreColors(colors);
 }
 export function scheduleFreeColorRestore(): void {
   if (freeColorsReady || freeColorRestoreFrame || freeColorRestoreLoadHandler) return;
@@ -140,10 +128,9 @@ export function scheduleFreeColorRestore(): void {
 }
 export function destroyFree(): void {
   cancelFreeColorRestore();
-  clearFreeColors();
-  setFreePresetAttr('');
+  clearCoreColors();
 }
-function buildSettingsHTML(i18n: Record<string, string>, colors: Required<FreeColors>, mode: ThemeMode): string {
+function buildSettingsHTML(i18n: Record<string, string>, colors: Required<CoreColors>, mode: ThemeMode): string {
   return `<div class="b3-dialog__content">
     <div class="config__tab-container">
       <div class="config-group">
@@ -162,7 +149,7 @@ function buildSettingsHTML(i18n: Record<string, string>, colors: Required<FreeCo
       <div class="config-group">
         <div class="config-title">${i18n.freeColorGroupTitle}</div>
         <div class="config-items">
-          ${colorFields.map(([key, label, , tip]) => {
+          ${freeColorFields.map(([key, label, , tip]) => {
             const color = colors[key];
             return `<div class="fn__flex b3-label config-item">
               <div class="fn__flex-1 config-item__main">
@@ -191,14 +178,14 @@ function buildSettingsHTML(i18n: Record<string, string>, colors: Required<FreeCo
 }
 function showReferencePalette(
   mode: ThemeMode,
-  onPreview: (colors: Required<FreeColors>) => void,
-  onCreate: (colors: Required<FreeColors>, suggestedName: string) => Promise<boolean>,
+  onPreview: (colors: Required<CoreColors>) => void,
+  onCreate: (colors: Required<CoreColors>, suggestedName: string) => Promise<boolean>,
   onRestore: () => void,
 ): void {
   const plugin = getPlugin();
   if (!plugin) return;
   const { i18n } = plugin;
-  const presets = getPresetsByMode(mode);
+  const builtinPresets = getBuiltinPresets(mode);
   const library = [...paletteLibrary[mode]].sort((a, b) =>
     (i18n[a.nameKey] ?? a.nameKey).localeCompare(i18n[b.nameKey] ?? b.nameKey, undefined, { sensitivity: 'base' }));
   let keepPreview = false;
@@ -223,11 +210,11 @@ function showReferencePalette(
           <div class="config-items">
             <label class="fn__flex b3-label config-item">
               <div class="fn__flex-1 config-item__main">
-                <div class="config-name">${i18n.freeLibrary}</div>
-                <div class="b3-label__text">${i18n.freeLibraryTip}</div>
+                <div class="config-name">${i18n.library}</div>
+                <div class="b3-label__text">${i18n.libraryTip}</div>
               </div>
               <span class="fn__space"></span>
-              <button type="button" class="b3-select fn__flex-center fn__size200 fn__ellipsis" style="text-align:left" id="neo-free-reference-library" aria-label="${i18n.freeLibrary}" aria-haspopup="listbox" aria-expanded="false">&nbsp;</button>
+              <button type="button" class="b3-select fn__flex-center fn__size200 fn__ellipsis" style="text-align:left" id="neo-free-reference-library" aria-label="${i18n.library}" aria-haspopup="listbox" aria-expanded="false">&nbsp;</button>
             </label>
           </div>
         </div>
@@ -256,18 +243,18 @@ function showReferencePalette(
       return item ? (i18n[item.nameKey] ?? item.key) : '';
     }
     if (source === 'preset') {
-      const preset = presets.find(candidate => candidate.key === presetButton.value);
+      const preset = builtinPresets.find(candidate => candidate.key === presetButton.value);
       return preset ? (i18n[preset.nameKey] ?? preset.key) : '';
     }
     return '';
   }
-  function getSelectedColors(): Required<FreeColors> | null {
+  function getSelectedColors(): Required<CoreColors> | null {
     if (!source) return null;
     if (source === 'library') {
       const item = library.find(candidate => candidate.key === libraryButton.value);
       return item ? { ...item.colors } : null;
     }
-    if (!presets.some(preset => preset.key === presetButton.value)) return null;
+    if (!builtinPresets.some(preset => preset.key === presetButton.value)) return null;
     try {
       return readPresetColors(presetButton.value, mode);
     } catch {
@@ -291,12 +278,12 @@ function showReferencePalette(
     if (creating) return;
     referenceMenu?.close();
     const trigger = next === 'preset' ? presetButton : libraryButton;
-    const items: ReadonlyArray<{ key: string; nameKey: string }> = next === 'preset' ? presets : library;
+    const items: ReadonlyArray<{ key: string; nameKey: string }> = next === 'preset' ? builtinPresets : library;
     referenceMenu = openSearchableMenu(
       trigger,
       items.map(item => ({ key: item.key, label: i18n[item.nameKey] ?? item.key })),
       i18n.freeReferenceSearch,
-      next === 'preset' ? i18n.colorScheme : i18n.freeLibrary,
+      next === 'preset' ? i18n.colorScheme : i18n.library,
       key => selectSource(next, key),
       () => { referenceMenu = null; },
     );
@@ -352,7 +339,7 @@ export async function showFreeSettings(): Promise<void> {
   let presets = config[presetsKey] ?? {};
   let selected = config[currentKey] ?? '';
   if (!Object.prototype.hasOwnProperty.call(presets, selected)) selected = '';
-  const initialColors = getColors(config, mode);
+  const initialColors = getCurrentFreeColors(config, mode);
   if (!initialColors) return;
   let savedColors = initialColors;
   const colors = { ...savedColors };
@@ -378,22 +365,22 @@ export async function showFreeSettings(): Promise<void> {
   });
   dialog.element.classList.add('neo-settings-dialog');
   const presetButton = dialog.element.querySelector<HTMLButtonElement>('#neo-free-preset-select')!;
-  function setColors(values: Required<FreeColors>): void {
+  function setColors(values: Required<CoreColors>): void {
     Object.assign(colors, values);
-    for (const [key] of colorFields) {
+    for (const [key] of freeColorFields) {
       const input = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}`);
       if (input) input.value = colors[key];
       const valueInput = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}-value`);
       if (valueInput) valueInput.value = colors[key];
     }
-    if (canPreview()) applyColors(colors);
+    if (canPreview()) applyCoreColors(colors);
   }
   function updatePresetButton(): void {
     presetButton.value = selected;
     presetButton.textContent = selected || '\u00a0';
   }
   updatePresetButton();
-  async function persist(nextPresets: Record<string, FreeColors>, name: string, preserveDraft = false): Promise<ConfigSaveResult> {
+  async function persist(nextPresets: Record<string, CoreColors>, name: string, preserveDraft = false): Promise<ConfigSaveResult> {
     if (!isCurrent() || saving || !dialog.element.isConnected) return false;
     saving = true;
     const controls = dialog.element.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>('input, select, button');
@@ -414,14 +401,13 @@ export async function showFreeSettings(): Promise<void> {
       config = { ...config, ...patch };
       presets = nextPresets;
       selected = name;
-      const refreshed = getColors(config, mode);
+      const refreshed = getCurrentFreeColors(config, mode);
       if (refreshed) savedColors = refreshed;
       updatePresetButton();
       if (!preserveDraft) {
         if (refreshed) setColors(refreshed);
         dirty = false;
       }
-      if (canPreview()) setFreePresetAttr(selected);
       return result;
     } catch {
       return false;
@@ -433,7 +419,7 @@ export async function showFreeSettings(): Promise<void> {
   dialog.element.querySelector('#neo-free-reference')?.addEventListener('click', () => {
     if (!isCurrent() || saving) return;
     const root = document.documentElement;
-    const variables = colorFields.map(([, , variable]) => variable);
+    const variables = freeColorFields.map(([, , variable]) => variable);
     const snapshot = variables.map(variable => [
       variable,
       root.style.getPropertyValue(variable),
@@ -450,7 +436,7 @@ export async function showFreeSettings(): Promise<void> {
       mode,
       imported => {
         if (!isCurrent() || getThemeMode() !== mode) return;
-        applyColors(imported);
+        applyCoreColors(imported);
       },
       async (imported, suggestedName) => {
         if (dirty && !await confirmPresetAction(i18n.freeUnsavedTitle, i18n.freeReferenceUnsavedContent, i18n.freeReferenceUnsavedConfirm, i18n.freeUnsavedBack)) return false;
@@ -461,7 +447,7 @@ export async function showFreeSettings(): Promise<void> {
       restorePreview,
     );
   });
-  for (const [key, , variable] of colorFields) {
+  for (const [key, , variable] of freeColorFields) {
     const input = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}`)!;
     const valueInput = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}-value`)!;
     function updateColor(value: string): void {
@@ -551,7 +537,7 @@ export async function showFreeSettings(): Promise<void> {
     const next = Object.fromEntries(Object.entries(presets).map(([key, value]) => [key === oldName ? name : key, value]));
     return Boolean(await persist(next, selected === oldName ? name : selected, true));
   }
-  function showNewPreset(source: Required<FreeColors>, title: string, suggestedName = ''): Promise<boolean> {
+  function showNewPreset(source: Required<CoreColors>, title: string, suggestedName = ''): Promise<boolean> {
     return showPresetName(title, suggestedName, async name => {
       if (Object.prototype.hasOwnProperty.call(presets, name)
         && !await confirmPresetAction(i18n.freePresetOverwriteTitle, i18n.freePresetOverwriteContent.replace('${name}', () => name), i18n.confirm, i18n.cancel)) return false;

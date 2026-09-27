@@ -1,15 +1,15 @@
-import type { FreeColorKey } from '../main/data';
+import type { CoreColorKey } from '../main/data';
 export const themeModes = ['light', 'dark'] as const;
 export type ThemeMode = typeof themeModes[number];
 export type PresetMode = ThemeMode | 'all';
 export const presetGroups = {
   neuebrutalism: { nameKey: 'colorSchemeGroupNeuebrutalism', icon: 'iconNeoPalette', separator: false, chunked: true },
-  library: { nameKey: 'freeLibrary', icon: 'iconNeoPaletteLibrary', separator: true, chunked: false },
+  library: { nameKey: 'library', icon: 'iconNeoPaletteLibrary', separator: true, chunked: false },
 } as const;
 export type PresetGroup = keyof typeof presetGroups;
 export const volChunkSize = 10;
 export const pinnedPresetKeys: readonly string[] = ['default', 'classic'];
-export const paletteColorVariables: Readonly<Record<FreeColorKey, `--${string}`>> = {
+export const coreColorVariables: Readonly<Record<CoreColorKey, `--${string}`>> = {
   base: '--b3-theme-base',
   accent: '--b3-theme-accent',
   background: '--b3-theme-background',
@@ -22,7 +22,7 @@ export interface Preset {
   mode: PresetMode;
   group?: PresetGroup;
 }
-export const presets: readonly Preset[] = [
+export const builtinPresets: readonly Preset[] = [
   { key: 'default', nameKey: 'colorSchemeDefault', mode: 'all' },
   { key: 'classic', nameKey: 'colorSchemeClassic', mode: 'all' },
   { key: 'meridian', nameKey: 'colorSchemeMeridian', mode: 'all' },

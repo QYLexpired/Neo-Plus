@@ -6,7 +6,7 @@ import {
   type Preset,
   type PresetGroup,
   getThemeMode,
-  getPresetsByMode,
+  getBuiltinPresets,
   getCurrentPlan,
   getBaseCustomColorKey,
   getSaturationKey,
@@ -250,7 +250,7 @@ export function getPresetMenuItems(i18n: Record<string, string>, onClose: () => 
   const mode = getThemeMode();
   const libraryPresets = getLibraryPresets(mode).sort((a, b) =>
     (i18n[a.nameKey] ?? a.key).localeCompare(i18n[b.nameKey] ?? b.key, undefined, { sensitivity: 'base' }));
-  const availablePresets = [...getPresetsByMode(mode), ...libraryPresets];
+  const availablePresets = [...getBuiltinPresets(mode), ...libraryPresets];
   const topLevelPresets = availablePresets.filter((p) => pinnedPresetKeys.includes(p.key));
   const restPresets = availablePresets.filter((p) => !pinnedPresetKeys.includes(p.key));
   const makeItem = (preset: Preset): MenuItem => ({
@@ -408,7 +408,7 @@ export function destroyPaletteMenuEvents(): void {
   menuListenerInitialized = false;
 }
 export { createBaseCustomPickerHTML, getBaseCustomColor } from './basecustom';
-export { createSliderHTML } from './saturation';
+export { createSaturationSliderHTML } from './saturation';
 export { createBrightnessSliderHTML } from './brightness';
 export { onInvertClick } from './invert';
 export { onHighContrastClick } from './highcontrast';

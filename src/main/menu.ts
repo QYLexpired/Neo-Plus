@@ -1,7 +1,7 @@
 import { Menu } from 'siyuan';
 import { getPlugin } from './context';
 import { loadConfig } from './data';
-import { createBrightnessSliderHTML, createBaseCustomPickerHTML, createSliderHTML, getPresetMenuItems, getBaseCustomColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
+import { createBrightnessSliderHTML, createBaseCustomPickerHTML, createSaturationSliderHTML, getPresetMenuItems, getBaseCustomColor, onInvertClick, onHighContrastClick, switchToPlan } from '../palette/manager';
 import { showBaseFollowBannerSettings } from '../palette/basefollowbanner';
 import { showFreeSettings } from '../palette/free';
 import { showRandomSettings } from '../palette/random';
@@ -148,7 +148,7 @@ export function buildMenu(
   menu.addItem({
     id: 'neo-saturation-button',
     icon: 'iconNeoSaturation',
-    label: createSliderHTML(i18n),
+    label: createSaturationSliderHTML(i18n),
     type: 'readonly',
     bind: (element) => {
       if (isMobile()) element.style.paddingInline = '8px';
