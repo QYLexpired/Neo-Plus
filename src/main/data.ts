@@ -92,6 +92,7 @@ export interface Config {
   'colorfulselection'?: boolean;
   'frostedglass'?: boolean;
   'frostedglass-scope'?: 'light' | 'global';
+  'frostedglass-luminous'?: boolean;
   'verticaltabs'?: boolean;
   'verticaltabs-mode'?: 'topLeftOnly' | 'all';
   'verticaltabs-width'?: number;

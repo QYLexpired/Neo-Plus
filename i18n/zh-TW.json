@@ -596,6 +596,8 @@
   "frostedGlassScopeTip": "設定毛玻璃材質的生效範圍",
   "frostedGlassScopeLight": "輕量",
   "frostedGlassScopeGlobal": "全域",
+  "frostedGlassLuminous": "霧光玻璃",
+  "frostedGlassLuminousTip": "使部分毛玻璃材質元素採用霧光玻璃效果",
   "texture": "紋理",
   "presetTextureSettings": "設定預設紋理",
   "presetTextureResetDefault": "恢復為預設參數",

@@ -596,6 +596,8 @@
   "frostedGlassScopeTip": "Set the scope of the frosted glass effect",
   "frostedGlassScopeLight": "Lightweight",
   "frostedGlassScopeGlobal": "Global",
+  "frostedGlassLuminous": "Luminous Glass",
+  "frostedGlassLuminousTip": "Apply a luminous glass effect to some frosted glass elements",
   "texture": "Textures",
   "presetTextureSettings": "Preset Texture Settings",
   "presetTextureResetDefault": "Reset to Default",
