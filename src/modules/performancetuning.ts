@@ -1,4 +1,5 @@
 import { fetchListener } from './fetchmonitor';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 interface StyleRuleFilter {
   selectorMatch: (selector: string) => boolean;
   cssMatch: (cssText: string) => boolean;
@@ -12,6 +13,92 @@ type ScanScope = 'all' | 'dynamic';
 interface ScheduledScan {
   id: number;
   kind: 'idle' | 'timeout';
+}
+export function createChunkedScanRunner(
+  nextScan: () => Generator<void> | null,
+  onComplete: () => void,
+) {
+  let active = false;
+  let isCurrent: (() => boolean) | null = null;
+  let scheduledScan: ScheduledScan | null = null;
+  let scanIterator: Generator<void> | null = null;
+  function canRun(guard = isCurrent): boolean {
+    return active && guard !== null && guard === isCurrent && guard();
+  }
+  function cancelScheduledScan(): void {
+    if (scheduledScan?.kind === 'idle') {
+      cancelIdleCallback(scheduledScan.id);
+    } else if (scheduledScan) {
+      window.clearTimeout(scheduledScan.id);
+    }
+    scheduledScan = null;
+  }
+  function run(deadline?: IdleDeadline): void {
+    scheduledScan = null;
+    if (!canRun()) return;
+    scanIterator ??= nextScan();
+    if (!scanIterator) return;
+    const startTime = performance.now();
+    for (let count = 0; count < 200; count++) {
+      if (count > 0 && (performance.now() - startTime >= 4 || (deadline && !deadline.didTimeout && deadline.timeRemaining() < 1))) {
+        break;
+      }
+      if (scanIterator.next().done) {
+        scanIterator = null;
+        if (canRun()) onComplete();
+        return;
+      }
+    }
+    schedule();
+  }
+  function schedule(delay = 0): void {
+    if (scheduledScan || !canRun()) return;
+    const guard = isCurrent;
+    if (delay > 0) {
+      scheduledScan = {
+        id: window.setTimeout(() => {
+          if (!canRun(guard)) return;
+          scheduledScan = null;
+          schedule();
+        }, delay),
+        kind: 'timeout',
+      };
+    } else if (typeof requestIdleCallback === 'function' && typeof cancelIdleCallback === 'function') {
+      scheduledScan = {
+        id: requestIdleCallback((deadline) => {
+          if (canRun(guard)) run(deadline);
+        }, { timeout: 1000 }),
+        kind: 'idle',
+      };
+    } else {
+      scheduledScan = {
+        id: window.setTimeout(() => {
+          if (canRun(guard)) run();
+        }, 16),
+        kind: 'timeout',
+      };
+    }
+  }
+  return {
+    start(): void {
+      if (active) return;
+      active = true;
+      isCurrent = createNeoLifecycleGuard();
+    },
+    schedule,
+    runNow(): void {
+      if (!canRun() || scanIterator) return;
+      cancelScheduledScan();
+      run();
+    },
+    isRunning(): boolean { return scanIterator !== null; },
+    stop(): void {
+      active = false;
+      isCurrent = null;
+      cancelScheduledScan();
+      scanIterator = null;
+    },
+  };
 }
 const ruleFilters: RuleFilterEntry[] = [
   {
@@ -196,8 +283,6 @@ const ruleFilters: RuleFilterEntry[] = [
 const dynamicRuleFilters = ruleFilters.filter((entry) => entry.dynamic);
 let neoFeatureActive = false;
 let pendingScanScope: ScanScope | null = null;
-let scheduledScan: ScheduledScan | null = null;
-let scanIterator: Generator<void> | null = null;
 function* processAllRules(
   rules: CSSRuleList,
   entries: RuleFilterEntry[],
@@ -253,58 +338,18 @@ function* removeMatchingRules(entries?: RuleFilterEntry[]): Generator<void> {
     } catch {}
   }
 }
-function runScheduledScan(deadline?: IdleDeadline): void {
-  scheduledScan = null;
-  if (!neoFeatureActive) {
-    return;
-  }
-  if (!scanIterator) {
+const scanRunner = createChunkedScanRunner(
+  () => {
     const scope = pendingScanScope;
     pendingScanScope = null;
-    if (scope === null) {
-      return;
-    }
-    scanIterator = removeMatchingRules(scope === 'all' ? undefined : dynamicRuleFilters);
-  }
-  const startTime = performance.now();
-  for (let count = 0; count < 200; count++) {
-    if (count > 0 && (performance.now() - startTime >= 4 || (deadline && !deadline.didTimeout && deadline.timeRemaining() < 1))) {
-      break;
-    }
-    if (scanIterator.next().done) {
-      scanIterator = null;
-      const delay = pendingScanScope === null ? 5000 : 1000;
-      pendingScanScope ??= 'dynamic';
-      queueScan(delay);
-      return;
-    }
-  }
-  queueScan();
-}
-function queueScan(delay = 0): void {
-  if (scheduledScan || !neoFeatureActive) {
-    return;
-  }
-  if (delay > 0) {
-    scheduledScan = {
-      id: window.setTimeout(() => {
-        scheduledScan = null;
-        queueScan();
-      }, delay),
-      kind: 'timeout',
-    };
-  } else if (typeof requestIdleCallback === 'function' && typeof cancelIdleCallback === 'function') {
-    scheduledScan = {
-      id: requestIdleCallback(runScheduledScan, { timeout: 1000 }),
-      kind: 'idle',
-    };
-  } else {
-    scheduledScan = {
-      id: window.setTimeout(runScheduledScan, 16),
-      kind: 'timeout',
-    };
-  }
-}
+    return scope === null ? null : removeMatchingRules(scope === 'all' ? undefined : dynamicRuleFilters);
+  },
+  () => {
+    const delay = pendingScanScope === null ? 5000 : 1000;
+    pendingScanScope ??= 'dynamic';
+    scanRunner.schedule(delay);
+  },
+);
 function scheduleScan(scope: ScanScope): void {
   if (!neoFeatureActive) {
     return;
@@ -312,17 +357,7 @@ function scheduleScan(scope: ScanScope): void {
   if (scope === 'all' || pendingScanScope === null) {
     pendingScanScope = scope;
   }
-  queueScan();
-}
-function cancelScheduledScan(): void {
-  if (scheduledScan?.kind === 'idle') {
-    cancelIdleCallback(scheduledScan.id);
-  } else if (scheduledScan) {
-    window.clearTimeout(scheduledScan.id);
-  }
-  scheduledScan = null;
-  pendingScanScope = null;
-  scanIterator = null;
+  scanRunner.schedule();
 }
 const fetchMonitor = fetchListener();
 fetchMonitor.onNotify('setUILayout', () => {
@@ -331,12 +366,15 @@ fetchMonitor.onNotify('setUILayout', () => {
   }
 });
 export function initPerformanceTuning(): void {
+  if (neoFeatureActive) return;
   neoFeatureActive = true;
+  scanRunner.start();
   scheduleScan('all');
   fetchMonitor.attach();
 }
 export function destroyPerformanceTuning(): void {
   neoFeatureActive = false;
-  cancelScheduledScan();
+  scanRunner.stop();
+  pendingScanScope = null;
   fetchMonitor.detach();
 }
