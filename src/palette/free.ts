@@ -173,7 +173,9 @@ function buildSettingsHTML(i18n: Record<string, string>, colors: Required<CoreCo
     <span class="fn__space"></span>
     <button class="b3-button" id="neo-free-new-preset">${i18n.freeNewPreset}</button>
     <span class="fn__space"></span>
-    <button class="b3-button b3-button--text" id="neo-free-confirm">${i18n.freeUpdateApply}</button>
+    <button class="b3-button" id="neo-free-update-preset" disabled>${i18n.freeUpdatePreset}</button>
+    <span class="fn__space"></span>
+    <button class="b3-button b3-button--text" id="neo-free-confirm">${i18n.confirm}</button>
   </div>`;
 }
 function showReferencePalette(
@@ -367,6 +369,10 @@ export async function showFreeSettings(): Promise<void> {
   });
   dialog.element.classList.add('neo-settings-dialog');
   const presetButton = dialog.element.querySelector<HTMLButtonElement>('#neo-free-preset-select')!;
+  const updateButton = dialog.element.querySelector<HTMLButtonElement>('#neo-free-update-preset')!;
+  function updateButtonState(): void {
+    updateButton.disabled = saving || !selected || !hasUnsavedChanges();
+  }
   function setColors(values: Required<CoreColors>): void {
     Object.assign(colors, values);
     for (const [key] of freeColorFields) {
@@ -375,11 +381,13 @@ export async function showFreeSettings(): Promise<void> {
       const valueInput = dialog.element.querySelector<HTMLInputElement>(`#neo-free-${key}-value`);
       if (valueInput) valueInput.value = colors[key];
     }
+    updateButtonState();
     if (canPreview()) applyCoreColors(colors);
   }
   function updatePresetButton(): void {
     presetButton.value = selected;
     presetButton.textContent = selected || '\u00a0';
+    updateButtonState();
   }
   updatePresetButton();
   async function persist(nextPresets: Record<string, CoreColors>, name: string, preserveDraft = false): Promise<ConfigSaveResult> {
@@ -414,7 +422,10 @@ export async function showFreeSettings(): Promise<void> {
       return false;
     } finally {
       saving = false;
-      controls.forEach(control => { control.disabled = false; });
+      if (isCurrent() && dialog.element.isConnected) {
+        controls.forEach(control => { control.disabled = false; });
+        updateButtonState();
+      }
     }
   }
   dialog.element.querySelector('#neo-free-reference')?.addEventListener('click', () => {
@@ -454,6 +465,7 @@ export async function showFreeSettings(): Promise<void> {
     function updateColor(value: string): void {
       if (!isCurrent() || saving || colors[key] === value) return;
       colors[key] = value;
+      updateButtonState();
       if (canPreview()) document.documentElement.style.setProperty(variable, value);
     }
     input.addEventListener('input', () => {
@@ -485,13 +497,19 @@ export async function showFreeSettings(): Promise<void> {
       });
   };
   dialog.element.querySelector('#neo-free-cancel')?.addEventListener('click', () => dialog.destroy());
-  dialog.element.querySelector('#neo-free-confirm')?.addEventListener('click', async () => {
+  async function updatePreset(closeDialog = false): Promise<void> {
     if (!selected) { showMessage(i18n.freePresetNotSelected); return; }
     const result = await persist({ ...presets, [selected]: { ...colors } }, selected);
     if (result) {
       if (result === 'saved') showNamedMessage(i18n.freePresetUpdated, selected);
-      dialog.destroy();
+      if (closeDialog) dialog.destroy();
     }
+  }
+  updateButton.addEventListener('click', () => {
+    if (!updateButton.disabled) void updatePreset();
+  });
+  dialog.element.querySelector('#neo-free-confirm')?.addEventListener('click', () => {
+    void updatePreset(true);
   });
   presetButton.addEventListener('click', () => {
     if (!isCurrent() || saving) return;
@@ -595,7 +613,12 @@ export async function showFreeSettings(): Promise<void> {
       confirmButton.addEventListener('click', () => { void submit(); });
     });
   }
-  dialog.element.querySelector('#neo-free-new-preset')?.addEventListener('click', () => {
-    void showNewPreset({ ...colors }, i18n.freeNewPresetTitle);
+  dialog.element.querySelector('#neo-free-new-preset')?.addEventListener('click', async () => {
+    if (!isCurrent() || saving) return;
+    if (hasUnsavedChanges()
+      && !await confirmPresetAction(i18n.freeUnsavedTitle, i18n.freeNewPresetUnsavedContent, i18n.freeNewPresetUnsavedConfirm, i18n.freeUnsavedBack)) return;
+    if (!isCurrent() || !dialog.element.isConnected) return;
+    const defaultColors = tryReadPresetColors('default', mode);
+    if (defaultColors) void showNewPreset(defaultColors, i18n.freeNewPresetTitle);
   });
 }
