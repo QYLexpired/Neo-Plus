@@ -289,8 +289,7 @@ function* processAllRules(
   parentRule: CSSRule | null,
   mediaContext: Map<RuleFilterEntry, boolean> | null,
 ): Generator<void> {
-  for (let j = 0; j < rules.length; j++) {
-    const rule = rules[j];
+  for (const rule of Array.from(rules)) {
     if (rule instanceof CSSMediaRule) {
       const childContext = new Map<RuleFilterEntry, boolean>();
       for (const entry of entries) {
@@ -311,12 +310,14 @@ function* processAllRules(
         if (selectorText && entry.filter.selectorMatch(selectorText)) {
           cssText ??= rule.cssText;
           if (entry.filter.cssMatch(cssText)) {
-            if (parentRule instanceof CSSMediaRule) {
-              parentRule.deleteRule(j);
-            } else {
-              (rule.parentStyleSheet as CSSStyleSheet).deleteRule(j);
+            const index = Array.prototype.indexOf.call(rules, rule);
+            if (index !== -1) {
+              if (parentRule instanceof CSSMediaRule) {
+                parentRule.deleteRule(index);
+              } else {
+                (rule.parentStyleSheet as CSSStyleSheet).deleteRule(index);
+              }
             }
-            j--;
             break;
           }
         }

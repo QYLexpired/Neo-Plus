@@ -1,4 +1,4 @@
-import { isMac } from '../modules/env';
+import { isMac, isMobile } from '../modules/env';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { createChunkedScanRunner } from './performancetuning';
 const styleId = 'neo-hidescrollbar-style';
@@ -16,14 +16,17 @@ function* removeScrollbarStyles(): Generator<void> {
   savedScrollbarRules = savedScrollbarRules.filter((saved) => activeSheets.has(saved.sheet));
   for (const ss of activeSheets) {
     yield;
+    const ownerNode = ss.ownerNode as HTMLElement | null;
+    if (ownerNode?.dataset.neoCss) continue;
     try {
-      for (let j = 0; j < ss.cssRules.length; j++) {
-        const rule = ss.cssRules[j] as CSSStyleRule;
+      for (const rule of Array.from(ss.cssRules) as CSSStyleRule[]) {
         if (rule.selectorText && rule.selectorText.includes('::-webkit-scrollbar')) {
           if (rule.style.width || rule.style.height || rule.style.backgroundColor) {
-            savedScrollbarRules.push({ sheet: ss, index: j, cssText: rule.cssText });
-            ss.deleteRule(j);
-            j--;
+            const index = Array.prototype.indexOf.call(ss.cssRules, rule);
+            if (index !== -1) {
+              savedScrollbarRules.push({ sheet: ss, index, cssText: rule.cssText });
+              ss.deleteRule(index);
+            }
           }
         }
         yield;
@@ -32,12 +35,28 @@ function* removeScrollbarStyles(): Generator<void> {
   }
 }
 function ensureScrollbarStyle(): void {
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `body{scrollbar-width:thin!important;scrollbar-color:var(--b3-scroll-color) transparent !important}`;
-    document.head.appendChild(style);
-  }
+  const existingStyle = document.getElementById(styleId);
+  const style = existingStyle ?? document.createElement('style');
+  style.id = styleId;
+  style.dataset.neoCss = 'modules-hidescrollbar';
+  style.textContent = isMac()
+    ? 'body{scrollbar-width:thin!important;scrollbar-color:var(--b3-scroll-color) transparent !important}'
+    : `::-webkit-scrollbar {
+  background-color: transparent !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent !important;
+  border-radius: 8px !important;
+  background-clip: padding-box !important;
+  background-color: var(--b3-scroll-color) !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  border: 2px solid transparent !important;
+  background-color: var(--b3-scroll-color-hover) !important;
+}`;
+  if (!existingStyle) document.head.appendChild(style);
 }
 const scanRunner = createChunkedScanRunner(
   () => {
@@ -62,7 +81,7 @@ function restoreScrollbarStyles(): void {
   savedScrollbarRules = [];
 }
 export function initHideScrollbar(): void {
-  if (!isMac() || active) return;
+  if (isMobile() || active) return;
   active = true;
   savedScrollbarRules = [];
   ensureScrollbarStyle();
