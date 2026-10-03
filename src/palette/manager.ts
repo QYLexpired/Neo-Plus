@@ -173,7 +173,7 @@ function createPresetSearch(presets: Preset[], i18n: Record<string, string>, onC
         results.classList.toggle('fn__none', !query);
         input.setAttribute('aria-expanded', String(!!query));
         results.replaceChildren();
-        matched = query ? presets.filter(preset => `${i18n[preset.nameKey] ?? preset.key} ${preset.key}`.toLocaleLowerCase().includes(query)) : [];
+        matched = query ? presets.filter(preset => `${i18n[preset.nameKey]} ${preset.key}`.toLocaleLowerCase().includes(query)) : [];
         focused = 0;
         for (const [index, preset] of matched.entries()) {
           const row = document.createElement('button');
@@ -184,7 +184,7 @@ function createPresetSearch(presets: Preset[], i18n: Record<string, string>, onC
           row.setAttribute('role', 'option');
           row.tabIndex = -1;
           row.innerHTML = `<svg class="b3-menu__icon"><use xlink:href="#${getPresetIcon(preset)}"></use></svg><span class="b3-menu__label"></span>`;
-          row.querySelector('span')!.textContent = i18n[preset.nameKey] ?? preset.key;
+          row.querySelector('span')!.textContent = i18n[preset.nameKey];
           row.addEventListener('click', () => choose(preset));
           results.append(row);
         }
@@ -249,14 +249,14 @@ function createPresetSearch(presets: Preset[], i18n: Record<string, string>, onC
 export function getPresetMenuItems(i18n: Record<string, string>, onClose: () => void): MenuItem[] {
   const mode = getThemeMode();
   const libraryPresets = getLibraryPresets(mode).sort((a, b) =>
-    (i18n[a.nameKey] ?? a.key).localeCompare(i18n[b.nameKey] ?? b.key, undefined, { sensitivity: 'base' }));
+    i18n[a.nameKey].localeCompare(i18n[b.nameKey], undefined, { sensitivity: 'base' }));
   const availablePresets = [...getBuiltinPresets(mode), ...libraryPresets];
   const topLevelPresets = availablePresets.filter((p) => pinnedPresetKeys.includes(p.key));
   const restPresets = availablePresets.filter((p) => !pinnedPresetKeys.includes(p.key));
   const makeItem = (preset: Preset): MenuItem => ({
     id: `neo-palette-${preset.key}-button`,
     icon: getPresetIcon(preset),
-    label: i18n[preset.nameKey] ?? preset.key,
+    label: i18n[preset.nameKey],
     click: () => {
       if (getThemeMode() === mode) switchToPreset(preset.key);
       return true;
@@ -348,9 +348,9 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     if (dataId === 'neo-basecustom-button' && target instanceof HTMLInputElement && target.type === 'color') {
       handleColorInput(target.value, '--neo-base', getBaseCustomColorKey(getThemeMode()), 'basecustom');
     } else if (dataId === 'neo-saturation-button' && target instanceof HTMLInputElement && target.type === 'range') {
-      handleSliderInput(target, '--neo-saturation', getSaturationKey(getThemeMode()), i18n.saturation ?? 'Saturation');
+      handleSliderInput(target, '--neo-saturation', getSaturationKey(getThemeMode()), i18n.saturation);
     } else if (dataId === 'neo-brightness-button' && target instanceof HTMLInputElement && target.type === 'range') {
-      handleSliderInput(target, '--neo-brightness', getBrightnessKey(getThemeMode()), i18n.brightness ?? 'Brightness');
+      handleSliderInput(target, '--neo-brightness', getBrightnessKey(getThemeMode()), i18n.brightness);
     }
   };
   changeHandler = (e: Event) => {
@@ -376,10 +376,10 @@ export function initPaletteMenuEvents(i18n: Record<string, string>): void {
     const dataId = menuItem.getAttribute('data-id');
     if (dataId === 'neo-saturation-button' && target instanceof HTMLInputElement && target.type === 'range') {
       target.value = '1';
-      handleSliderInput(target, '--neo-saturation', getSaturationKey(getThemeMode()), i18n.saturation ?? 'Saturation');
+      handleSliderInput(target, '--neo-saturation', getSaturationKey(getThemeMode()), i18n.saturation);
     } else if (dataId === 'neo-brightness-button' && target instanceof HTMLInputElement && target.type === 'range') {
       target.value = '0';
-      handleSliderInput(target, '--neo-brightness', getBrightnessKey(getThemeMode()), i18n.brightness ?? 'Brightness');
+      handleSliderInput(target, '--neo-brightness', getBrightnessKey(getThemeMode()), i18n.brightness);
     }
   };
   document.addEventListener('input', inputHandler, true);

@@ -9,8 +9,8 @@ export function initBrightness(config: Config): void {
 export function destroyBrightness(): void {
   document.documentElement.style.removeProperty('--neo-brightness');
 }
-export function createBrightnessSliderHTML(i18n?: Record<string, string>): string {
-  const label = i18n?.brightness ?? 'Brightness';
+export function createBrightnessSliderHTML(i18n: Record<string, string>): string {
+  const label = i18n.brightness;
   let currentValue = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--neo-brightness').trim());
   if (isNaN(currentValue)) currentValue = 0;
   const id = `neo-brightness-slider-${Date.now()}`;

@@ -31,7 +31,7 @@ export function buildMenu(
 ): Menu {
   const plugin = getPlugin();
   if (!plugin) {
-    throw new Error('Neo+ plugin not available');
+    throw new Error();
   }
   const { i18n } = plugin;
   let menuActive = true;

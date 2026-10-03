@@ -265,7 +265,6 @@ interface SliderConfig {
   i18nKey: string;
   i18nTipKey: string;
   tipKey?: string;
-  tipTitleKey?: string;
   min: number;
   max: number;
   step: number;
@@ -276,13 +275,10 @@ function getSliderConfig(key: string): SliderConfig | null {
   const field = fieldDefs.find(f => f.configKey === key);
   const numeric = field?.numeric;
   if (!field || !numeric || numeric.max === undefined) return null;
-  const i18nMap: Record<string, string> = {
-    'customimage-x': 'customimagePositionX',
-    'customimage-y': 'customimagePositionY',
-  };
-  const i18nKey = i18nMap[key] || ('customimage' + key.replace('customimage-', '').replace(/(^\w|-\w)/g, s => s.replace('-', '').toUpperCase()));
+  const i18nKey = key === 'customimage-x' ? 'customimagePositionX'
+    : key === 'customimage-y' ? 'customimagePositionY'
+    : 'customimage' + key.replace('customimage-', '').replace(/(^\w|-\w)/g, s => s.replace('-', '').toUpperCase());
   const tipKey = key === 'customimage-layout-opacity' ? 'customimageLayoutOpacityTip' : undefined;
-  const tipTitleKey = key === 'customimage-layout-opacity' ? 'customimageLayoutOpacity' : undefined;
   const val = field.defaultRaw;
   return {
     id: 'neo-' + key,
@@ -290,16 +286,15 @@ function getSliderConfig(key: string): SliderConfig | null {
     i18nKey,
     i18nTipKey: 'customDefaultValue',
     tipKey,
-    tipTitleKey,
     min: numeric.min, max: numeric.max, step: numeric.step, val,
     tooltipSuffix: field.tooltipSuffix,
   };
 }
 function t(i18n: Record<string, string>, key: string): string {
-  return i18n[key] || key;
+  return i18n[key];
 }
 function sliderHTML(i18n: Record<string, string>, sc: SliderConfig): string {
-  const tip = sc.tipKey ? `<span class="neo-config-name-tip" data-tip-key="${sc.tipKey}" data-tip-title="${sc.tipTitleKey ?? sc.i18nKey}">${t(i18n, 'customimagePathTipToggle')}</span>` : '';
+  const tip = sc.tipKey ? `<span class="neo-config-name-tip" data-tip-key="${sc.tipKey}" data-tip-title="${sc.i18nKey}">${t(i18n, 'customimagePathTipToggle')}</span>` : '';
   return `<label class="fn__flex b3-label config-item">
     <div class="fn__flex-1 config-item__main">
       <div class="config-name">${t(i18n, sc.i18nKey)}${tip}</div>
@@ -314,10 +309,9 @@ function sliderHTML(i18n: Record<string, string>, sc: SliderConfig): string {
 function textFieldHTML(i18n: Record<string, string>, id: string, i18nKey: string, i18nTipKey: string, multiline = false): string {
   if (multiline) {
     const tipTitleKey = i18nKey + 'TipTitle';
-    const tipTitle = tipTitleKey in i18n ? t(i18n, tipTitleKey) : t(i18n, i18nKey);
     return `<div class="b3-label config-item" data-config-item-id="${id}">
     <div class="fn__block">
-        <div class="config-name">${t(i18n, i18nKey)}<span class="neo-config-name-tip" data-tip-key="${i18nTipKey}" data-tip-title="${tipTitle}">${t(i18n, 'customimagePathTipToggle')}</span></div>
+        <div class="config-name">${t(i18n, i18nKey)}<span class="neo-config-name-tip" data-tip-key="${i18nTipKey}" data-tip-title="${tipTitleKey}">${t(i18n, 'customimagePathTipToggle')}</span></div>
         <div class="fn__hr--small"></div>
         <div class="fn__flex">
           <button type="button" class="block__icon block__icon--show fn__flex-center ariaLabel" id="neo-customimage-asset" aria-label="${t(i18n, 'customimageAsset')}">
@@ -534,7 +528,6 @@ export async function showCustomImageSettings(): Promise<void> {
   let pickingAsset = false;
   let presetMenu: ReturnType<typeof openSearchableMenu> | null = null;
   let closePromptOpen = false;
-  let dirty = false;
   function canPreview(): boolean {
     return isCurrent() && getThemeMode() === mode && neoFeatureActive;
   }
@@ -570,6 +563,10 @@ export async function showCustomImageSettings(): Promise<void> {
     }
     return preset;
   };
+  function hasUnsavedChanges(): boolean {
+    const preset = buildPresetFromDom();
+    return fieldDefs.some(({ configKey }) => preset[configKey] !== undefined && preset[configKey] !== savedValues[configKey]);
+  }
   const customFillWrap = dialog.element.querySelector('#neo-customimage-fill-custom') as HTMLElement | null;
   const updateFillCustomVisibility = (mode: string): void => {
     customFillWrap?.classList.toggle('fn__none', mode !== 'custom');
@@ -614,7 +611,6 @@ export async function showCustomImageSettings(): Promise<void> {
       updatePresetButton();
       if (!preserveDraft) {
         setFormValues(savedValues, true);
-        dirty = false;
       }
       return result;
     } catch {
@@ -635,7 +631,6 @@ export async function showCustomImageSettings(): Promise<void> {
   for (const { field, input, tooltip } of fieldDom) {
     if (!input) continue;
     input.addEventListener(field.event, () => {
-      dirty = true;
       const v = readInputValue(input);
       if (tooltip && field.tooltipSuffix !== undefined) tooltip.setAttribute('aria-label', v + field.tooltipSuffix);
       if (field.configKey === 'customimage-fill-mode') updateFillCustomVisibility(v);
@@ -674,7 +669,6 @@ export async function showCustomImageSettings(): Promise<void> {
   };
   btn('#neo-customimage-reset-preset')?.addEventListener('click', () => {
     resetFormToDefaults();
-    dirty = true;
   });
   dialog.element.querySelectorAll<HTMLElement>('[data-tip-key]').forEach(btnEl => {
     btnEl.addEventListener('click', () => {
@@ -690,7 +684,7 @@ export async function showCustomImageSettings(): Promise<void> {
   const originalDestroy = dialog.destroy.bind(dialog);
   dialog.destroy = (): void => {
     if (saving || closePromptOpen) return;
-    if (!isCurrent() || !dirty) {
+    if (!isCurrent() || !hasUnsavedChanges()) {
       originalDestroy();
       return;
     }
@@ -720,7 +714,7 @@ export async function showCustomImageSettings(): Promise<void> {
       mode === 'dark' ? i18n.customimagePresetSelectDark : i18n.customimagePresetSelectLight,
       async name => {
         if (!name || name === selected) return;
-        if (dirty && !await confirmPresetAction(i18n.customimagePresetSwitchTitle, i18n.customimagePresetSwitchContent, i18n.customimagePresetSwitchConfirm, i18n.customimagePresetSwitchCancel)) return;
+        if (hasUnsavedChanges() && !await confirmPresetAction(i18n.customimagePresetSwitchTitle, i18n.customimagePresetSwitchContent, i18n.customimagePresetSwitchConfirm, i18n.customimagePresetSwitchCancel)) return;
         await persist(presets, name);
       },
       () => { presetMenu = null; },
@@ -747,12 +741,13 @@ export async function showCustomImageSettings(): Promise<void> {
       return false;
     }
     if (name === oldName) return true;
-    if (Object.prototype.hasOwnProperty.call(presets, name)) {
-      showMessage(i18n.customimagePresetNameExists);
-      return false;
-    }
-    const next = Object.fromEntries(Object.entries(presets).map(([key, value]) => [key === oldName ? name : key, value]));
-    return Boolean(await persist(next, selected === oldName ? name : selected, true));
+    const overwrite = Object.prototype.hasOwnProperty.call(presets, name);
+    if (overwrite
+      && !await confirmPresetAction(i18n.customimagePresetOverwriteTitle, i18n.customimagePresetOverwriteContent.replace('${name}', () => name), i18n.confirm, i18n.cancel)) return false;
+    const next = Object.fromEntries(Object.entries(presets).filter(([key]) => key !== name).map(([key, value]) => [key === oldName ? name : key, value]));
+    const result = await persist(next, selected === oldName ? name : selected, selected !== name || hasUnsavedChanges());
+    if (result && overwrite) presetMenu?.close();
+    return Boolean(result);
   }
   function showNewPreset(source: Partial<CustomImageValues>, title: string): Promise<boolean> {
     return new Promise(resolve => {

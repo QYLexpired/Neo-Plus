@@ -253,10 +253,10 @@ function showCurrentStateDialog(): void {
   } else {
     if (lastState.type === 'preset' && lastState.sourceKey) {
       const nameKey = `colorScheme${lastState.sourceKey.charAt(0).toUpperCase()}${lastState.sourceKey.slice(1)}`;
-      lines.push(`${i18n.colorScheme}：${i18n[nameKey] ?? lastState.sourceKey}`);
+      lines.push(`${i18n.colorScheme}：${i18n[nameKey]}`);
     } else if ((lastState.type === 'free' || lastState.type === 'library') && lastState.sourceKey) {
       const label = lastState.type === 'library' ? i18n.library : i18n.freePalette;
-      lines.push(`${label}：${(lastState.sourceName ?? lastState.sourceKey).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}`);
+      lines.push(`${label}：${lastState.sourceName!.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}`);
     } else if (lastState.type === 'basecustom') {
       lines.push(`${i18n.basecustom}：${swatch(lastState.color ?? '')} ${lastState.color}`);
       if (lastState.saturation !== undefined) {
@@ -536,7 +536,7 @@ function applyRandomCoreColors(config: Config, mode: ThemeMode, pool: 'free' | '
     return;
   }
   const name = libraryItem
-    ? (getPlugin()?.i18n[libraryItem.nameKey] ?? libraryItem.key)
+    ? getPlugin()!.i18n[libraryItem.nameKey]
     : selected;
   const sameAsLast = lastState?.type === pool && lastState.sourceKey === selected;
   const { inverted: finalInverted, highContrast: finalHighContrast } = pickRandomEffects(sameAsLast);

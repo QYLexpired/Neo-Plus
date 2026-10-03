@@ -9,8 +9,8 @@ export function initSaturation(config: Config): void {
 export function destroySaturation(): void {
   document.documentElement.style.removeProperty('--neo-saturation');
 }
-export function createSaturationSliderHTML(i18n?: Record<string, string>): string {
-  const label = i18n?.saturation ?? 'Saturation';
+export function createSaturationSliderHTML(i18n: Record<string, string>): string {
+  const label = i18n.saturation;
   let currentValue = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--neo-saturation').trim());
   if (isNaN(currentValue)) currentValue = 1;
   const id = `neo-saturation-slider-${Date.now()}`;

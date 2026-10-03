@@ -41,7 +41,7 @@ function readPresetColors(preset: string, mode: ThemeMode): Required<CoreColors>
     const colors = {} as Required<CoreColors>;
     for (const [key, , variable] of freeColorFields) {
       const value = style.getPropertyValue(variable).trim();
-      if (!isValidHexColor(value)) throw new Error(`Invalid preset color: ${variable}`);
+      if (!isValidHexColor(value)) throw new Error();
       colors[key] = value;
     }
     return colors;
@@ -187,7 +187,7 @@ function showReferencePalette(
   const { i18n } = plugin;
   const builtinPresets = getBuiltinPresets(mode);
   const library = [...paletteLibrary[mode]].sort((a, b) =>
-    (i18n[a.nameKey] ?? a.nameKey).localeCompare(i18n[b.nameKey] ?? b.nameKey, undefined, { sensitivity: 'base' }));
+    i18n[a.nameKey].localeCompare(i18n[b.nameKey], undefined, { sensitivity: 'base' }));
   let keepPreview = false;
   let referenceMenu: ReturnType<typeof openSearchableMenu> | null = null;
   const dialog = new Dialog({
@@ -240,11 +240,11 @@ function showReferencePalette(
   function getSourceName(): string {
     if (source === 'library') {
       const item = library.find(candidate => candidate.key === libraryButton.value);
-      return item ? (i18n[item.nameKey] ?? item.key) : '';
+      return item ? i18n[item.nameKey] : '';
     }
     if (source === 'preset') {
       const preset = builtinPresets.find(candidate => candidate.key === presetButton.value);
-      return preset ? (i18n[preset.nameKey] ?? preset.key) : '';
+      return preset ? i18n[preset.nameKey] : '';
     }
     return '';
   }
@@ -281,7 +281,7 @@ function showReferencePalette(
     const items: ReadonlyArray<{ key: string; nameKey: string }> = next === 'preset' ? builtinPresets : library;
     referenceMenu = openSearchableMenu(
       trigger,
-      items.map(item => ({ key: item.key, label: i18n[item.nameKey] ?? item.key })),
+      items.map(item => ({ key: item.key, label: i18n[item.nameKey] })),
       i18n.freeReferenceSearch,
       next === 'preset' ? i18n.colorScheme : i18n.library,
       key => selectSource(next, key),
@@ -346,7 +346,9 @@ export async function showFreeSettings(): Promise<void> {
   let saving = false;
   let presetMenu: ReturnType<typeof openSearchableMenu> | null = null;
   let closePromptOpen = false;
-  let dirty = false;
+  function hasUnsavedChanges(): boolean {
+    return freeColorFields.some(([key]) => colors[key].toLowerCase() !== savedColors[key].toLowerCase());
+  }
   function canPreview(): boolean {
     return isCurrent() && getThemeMode() === mode
       && document.documentElement.classList.contains('neo-palette-free');
@@ -406,7 +408,6 @@ export async function showFreeSettings(): Promise<void> {
       updatePresetButton();
       if (!preserveDraft) {
         if (refreshed) setColors(refreshed);
-        dirty = false;
       }
       return result;
     } catch {
@@ -439,7 +440,7 @@ export async function showFreeSettings(): Promise<void> {
         applyCoreColors(imported);
       },
       async (imported, suggestedName) => {
-        if (dirty && !await confirmPresetAction(i18n.freeUnsavedTitle, i18n.freeReferenceUnsavedContent, i18n.freeReferenceUnsavedConfirm, i18n.freeUnsavedBack)) return false;
+        if (hasUnsavedChanges() && !await confirmPresetAction(i18n.freeUnsavedTitle, i18n.freeReferenceUnsavedContent, i18n.freeReferenceUnsavedConfirm, i18n.freeUnsavedBack)) return false;
         const created = await showNewPreset(imported, i18n.freeReferenceNewPreset, suggestedName);
         if (created && !canPreview()) restorePreview();
         return created;
@@ -453,7 +454,6 @@ export async function showFreeSettings(): Promise<void> {
     function updateColor(value: string): void {
       if (!isCurrent() || saving || colors[key] === value) return;
       colors[key] = value;
-      dirty = true;
       if (canPreview()) document.documentElement.style.setProperty(variable, value);
     }
     input.addEventListener('input', () => {
@@ -473,7 +473,7 @@ export async function showFreeSettings(): Promise<void> {
   const originalDestroy = dialog.destroy.bind(dialog);
   dialog.destroy = (): void => {
     if (saving || closePromptOpen) return;
-    if (!isCurrent() || !dirty) {
+    if (!isCurrent() || !hasUnsavedChanges()) {
       originalDestroy();
       return;
     }
@@ -503,7 +503,7 @@ export async function showFreeSettings(): Promise<void> {
       mode === 'dark' ? i18n.freePresetSelectDark : i18n.freePresetSelectLight,
       async name => {
         if (!name || name === selected) return;
-        if (dirty && !await confirmPresetAction(i18n.freePresetSwitchTitle, i18n.freePresetSwitchContent, i18n.freePresetSwitchConfirm, i18n.freePresetSwitchCancel)) return;
+        if (hasUnsavedChanges() && !await confirmPresetAction(i18n.freePresetSwitchTitle, i18n.freePresetSwitchContent, i18n.freePresetSwitchConfirm, i18n.freePresetSwitchCancel)) return;
         await persist(presets, name);
       },
       () => { presetMenu = null; },
@@ -530,12 +530,13 @@ export async function showFreeSettings(): Promise<void> {
       return false;
     }
     if (name === oldName) return true;
-    if (Object.prototype.hasOwnProperty.call(presets, name)) {
-      showMessage(i18n.freePresetNameExists);
-      return false;
-    }
-    const next = Object.fromEntries(Object.entries(presets).map(([key, value]) => [key === oldName ? name : key, value]));
-    return Boolean(await persist(next, selected === oldName ? name : selected, true));
+    const overwrite = Object.prototype.hasOwnProperty.call(presets, name);
+    if (overwrite
+      && !await confirmPresetAction(i18n.freePresetOverwriteTitle, i18n.freePresetOverwriteContent.replace('${name}', () => name), i18n.confirm, i18n.cancel)) return false;
+    const next = Object.fromEntries(Object.entries(presets).filter(([key]) => key !== name).map(([key, value]) => [key === oldName ? name : key, value]));
+    const result = await persist(next, selected === oldName ? name : selected, selected !== name || hasUnsavedChanges());
+    if (result && overwrite) presetMenu?.close();
+    return Boolean(result);
   }
   function showNewPreset(source: Required<CoreColors>, title: string, suggestedName = ''): Promise<boolean> {
     return showPresetName(title, suggestedName, async name => {

@@ -151,7 +151,7 @@ async function flushConfigSaves(): Promise<void> {
         const snapshot = { ...configCache };
         const content = serializeConfig(snapshot);
         const plugin = configSavePlugin;
-        if (!plugin) throw new Error('Config save plugin unavailable');
+        if (!plugin) throw new Error();
         await plugin.saveData(configKey, snapshot);
         configFileContent = content;
         persistedConfigRevision = revision;
@@ -204,7 +204,7 @@ export async function saveConfigIfUnchanged(patch: Partial<Config>, expected: Pa
   const isCurrent = createNeoLifecycleGuard();
   await loadConfig();
   if (!isCurrent()) return false;
-  if (!configLoaded) throw new Error('Config load unavailable');
+  if (!configLoaded) throw new Error();
   if (!getPluginOrNull() || (Object.keys(expected) as Array<keyof Config>).some(key => configCache[key] !== expected[key])) return false;
   return saveConfig(patch);
 }
@@ -214,7 +214,7 @@ export function getConfig(): Config {
 function readConfig(): Promise<Config> {
   if (pendingLoadConfig) return pendingLoadConfig;
   const plugin = getPluginOrNull();
-  if (!plugin) return Promise.reject(new Error('Config load unavailable'));
+  if (!plugin) return Promise.reject(new Error());
   pendingLoadConfig = plugin.loadData(configKey).then((data: Config | null) => {
     const loaded = { ...(data || {}) };
     const content = serializeConfig(loaded);
