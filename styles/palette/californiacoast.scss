@@ -1,0 +1,29 @@
+@use "manager" as *;
+.neo-palette-californiacoast {
+    @include palette-common("[data-id=\"neo-palette-californiacoast-button\"]", "[data-id=\"neo-scheme-button\"]");
+    &.neo-mode-light {
+        --b3-theme-base: #ff8a50;
+        --b3-theme-accent: #0c9b9f;
+        --b3-theme-background: #fff4d8;
+        --b3-theme-surface: #b9e4df;
+        --b3-theme-on-background: #172a32;
+        --neo-button-primary: #0fa992;
+        --_brutalism-ink: #172a32;
+        --_brutalism-highlight: #ffba8a;
+    }
+    &.neo-mode-dark {
+        --b3-theme-base: #ffb078;
+        --b3-theme-accent: #ffb078;
+        --b3-theme-background: #172a32;
+        --b3-theme-surface: #223c45;
+        --b3-theme-on-background: #fff0d1;
+        --neo-button-primary: #1d846e;
+        --_brutalism-ink: black;
+        --_brutalism-highlight: #7e604b;
+        &.neo-palette-invert {
+            --b3-theme-background: #223c45;
+            --b3-theme-surface: #172a32;
+            --b3-theme-on-background: #fff4d8;
+        }
+    }
+}

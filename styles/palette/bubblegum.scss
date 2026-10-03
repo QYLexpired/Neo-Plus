@@ -1,0 +1,29 @@
+@use "manager" as *;
+.neo-palette-bubblegum {
+    @include palette-common("[data-id=\"neo-palette-bubblegum-button\"]", "[data-id=\"neo-scheme-button\"]");
+    &.neo-mode-light {
+        --b3-theme-base: #ff5fa2;
+        --b3-theme-accent: #dc448d;
+        --b3-theme-background: #fff7df;
+        --b3-theme-surface: #ffc6dd;
+        --b3-theme-on-background: #322139;
+        --neo-button-primary: #ffe16b;
+        --_brutalism-ink: #322139;
+        --_brutalism-highlight: #ffe696;
+    }
+    &.neo-mode-dark {
+        --b3-theme-base: #ff8fbe;
+        --b3-theme-accent: #ffa7cd;
+        --b3-theme-background: #2b1d29;
+        --b3-theme-surface: #453044;
+        --b3-theme-on-background: #fff1e8;
+        --neo-button-primary: #ccb76f;
+        --_brutalism-ink: black;
+        --_brutalism-highlight: #584966;
+        &.neo-palette-invert {
+            --b3-theme-background: #453044;
+            --b3-theme-surface: #2b1d29;
+            --b3-theme-on-background: #fff7df;
+        }
+    }
+}

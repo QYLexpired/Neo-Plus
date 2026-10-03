@@ -318,11 +318,19 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     }
 }
 // 兼容性
-.neo-superfusion {
-    // 伪文档面包屑插件
-    .og-fake-doc-breadcrumb-container.protyle-breadcrumb {
-        z-index: 4;
+// 数据库吸顶
+.av__views--fixed {
+    padding-top: 82px;
+    .neo-verticaltabs & {
+        padding-top: 36px;
     }
+    .neo-ide-body.body--toolbar-hide & {
+        padding-top: 82px;
+    }
+}
+// 伪文档面包屑插件
+.og-fake-doc-breadcrumb-container.protyle-breadcrumb {
+    z-index: 4;
 }
 @keyframes neo-superfusion-strip-reveal {
     from {

@@ -8,9 +8,8 @@
         --b3-theme-surface: #ffdd00;
         --b3-theme-on-background: #17181c;
         --neo-button-primary: #ffcb00;
-        --_heading-color: #17181c;
-        --_brutalism-black: #17181c;
-        --_brutalism-gray: #ffdd00;
+        --_brutalism-ink: #17181c;
+        --_brutalism-highlight: #ffdd00;
     }
     &.neo-mode-dark {
         --b3-theme-base: #ddce78;
@@ -18,9 +17,8 @@
         --b3-theme-background: #2a2822;
         --b3-theme-surface: #373329;
         --b3-theme-on-background: #fffbe0;
-        --_heading-color: #f5edbd;
-        --_brutalism-black: black;
-        --_brutalism-gray: #75673d;
+        --_brutalism-ink: black;
+        --_brutalism-highlight: #75673d;
         &.neo-palette-invert {
             --b3-theme-background: #373329;
             --b3-theme-surface: #2a2822;

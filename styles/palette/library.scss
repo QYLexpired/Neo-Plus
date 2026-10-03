@@ -1,3 +1,4 @@
+@use "sass:map";
 @use "manager" as *;
 @use "_librarymap" as library;
 @each $mode, $palettes in library.$palette-library {
@@ -6,6 +7,12 @@
             @include palette-common("[data-id=\"neo-palette-#{$key}-button\"]");
             @each $variable, $color in $colors {
                 #{$variable}: #{$color};
+            }
+            @if $mode == 'dark' {
+                &.neo-palette-invert {
+                    --b3-theme-background: #{map.get($colors, '--b3-theme-surface')};
+                    --b3-theme-surface: #{map.get($colors, '--b3-theme-background')};
+                }
             }
         }
     }

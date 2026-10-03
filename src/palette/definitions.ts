@@ -60,4 +60,6 @@ export const builtinPresets: readonly Preset[] = [
   { key: 'bumblebee', nameKey: 'colorSchemeBumblebee', mode: 'all', group: 'neuebrutalism' },
   { key: 'glitch', nameKey: 'colorSchemeGlitch', mode: 'all', group: 'neuebrutalism' },
   { key: 'acid', nameKey: 'colorSchemeAcid', mode: 'all', group: 'neuebrutalism' },
+  { key: 'californiacoast', nameKey: 'colorSchemeCaliforniacoast', mode: 'all', group: 'neuebrutalism' },
+  { key: 'bubblegum', nameKey: 'colorSchemeBubblegum', mode: 'all', group: 'neuebrutalism' },
 ];
