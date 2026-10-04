@@ -73,7 +73,8 @@ export interface Config {
   'cardsearchlist'?: boolean;
   'listbulletline'?: boolean;
   'focusblockindicator'?: boolean;
-  'focusblockindicator-effect'?: 'vertical-line' | 'shadow' | 'background';
+  'focusblockindicator-effect'?: 'vertical-line' | 'shadow' | 'outline' | 'background';
+  'focusblockindicator-line-color'?: 'accent' | 'text';
   'focusblockindicator-disabled'?: Array<'table' | 'codeblock' | 'iframe' | 'htmlblock' | 'renderblock' | 'mindmap' | 'mathblock' | 'database' | 'widget' | 'videoblock' | 'audioblock' | 'customblock'>;
   'coloredfolders'?: boolean;
   'coloredfolders-layout'?: 'partition' | 'simple' | 'card';

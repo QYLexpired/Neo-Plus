@@ -14,7 +14,7 @@
                 inset-inline-start: -4px;
                 top: 50%;
                 transform: translateY(-50%) scaleY(0);
-                background-color: var(--b3-theme-accent);
+                background-color: var(--neo-focusblock-text-color, var(--b3-theme-accent));
                 animation: neo-focusblock-entrance-vertical-line 0.3s var(--neo-ease-spring-2) forwards;
             }
         }
@@ -33,6 +33,24 @@
                 box-shadow: var(--neo-main-shadow);
                 pointer-events: none;
                 animation: neo-focusblock-entrance-shadow 0.3s;
+            }
+        }
+    }
+    body.neo-focusblockindicator-outline {
+        .protyle-wysiwyg [neo-focusblock] {
+            &::before {
+                content: "";
+                display: block;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                inset: 0;
+                border-radius: inherit;
+                corner-shape: inherit;
+                outline: 1px solid var(--b3-border-color-trans);
+                outline-offset: -1px;
+                pointer-events: none;
+                animation: neo-focusblock-entrance-outline 0.3s;
             }
         }
     }
@@ -63,6 +81,14 @@
     }
 }
 @keyframes neo-focusblock-entrance-shadow {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes neo-focusblock-entrance-outline {
     from {
         opacity: 0;
     }
