@@ -17,7 +17,9 @@ function* removeScrollbarStyles(): Generator<void> {
   for (const ss of activeSheets) {
     yield;
     const ownerNode = ss.ownerNode as HTMLElement | null;
-    if (ownerNode?.dataset.neoCss) continue;
+    if (ownerNode && (ownerNode.dataset.neoCss || ownerNode.id === 'themeStyle')) {
+      continue;
+    }
     try {
       for (const rule of Array.from(ss.cssRules) as CSSStyleRule[]) {
         if (rule.selectorText && rule.selectorText.includes('::-webkit-scrollbar')) {

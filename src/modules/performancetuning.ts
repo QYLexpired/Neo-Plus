@@ -1,4 +1,3 @@
-import { fetchListener } from './fetchmonitor';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 interface StyleRuleFilter {
   selectorMatch: (selector: string) => boolean;
@@ -346,36 +345,19 @@ const scanRunner = createChunkedScanRunner(
     return scope === null ? null : removeMatchingRules(scope === 'all' ? undefined : dynamicRuleFilters);
   },
   () => {
-    const delay = pendingScanScope === null ? 5000 : 1000;
-    pendingScanScope ??= 'dynamic';
-    scanRunner.schedule(delay);
+    pendingScanScope = 'dynamic';
+    scanRunner.schedule(5000);
   },
 );
-function scheduleScan(scope: ScanScope): void {
-  if (!neoFeatureActive) {
-    return;
-  }
-  if (scope === 'all' || pendingScanScope === null) {
-    pendingScanScope = scope;
-  }
-  scanRunner.schedule();
-}
-const fetchMonitor = fetchListener();
-fetchMonitor.onNotify('setUILayout', () => {
-  if (dynamicRuleFilters.length > 0) {
-    scheduleScan('dynamic');
-  }
-});
 export function initPerformanceTuning(): void {
   if (neoFeatureActive) return;
   neoFeatureActive = true;
   scanRunner.start();
-  scheduleScan('all');
-  fetchMonitor.attach();
+  pendingScanScope = 'all';
+  scanRunner.schedule();
 }
 export function destroyPerformanceTuning(): void {
   neoFeatureActive = false;
   scanRunner.stop();
   pendingScanScope = null;
-  fetchMonitor.detach();
 }
