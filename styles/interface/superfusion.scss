@@ -70,9 +70,9 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
                 backdrop-filter: blur(3px);
                 padding: 0 4px;
                 opacity: 1;
-                animation: neo-superfusion-breadcrumb-fade linear both;
-                animation-timeline: --protyle-banner-exist;
-                animation-range: exit 15% exit 100%;
+                animation: neo-mask-fade-start linear alternate both, neo-mask-fade-end linear alternate-reverse both, neo-superfusion-breadcrumb-fade linear both;
+                animation-timeline: scroll(self x), scroll(self x), --protyle-banner-exist;
+                animation-range: 1px 100%, 0% calc(100% - 1px), exit 15% exit 100%;
                 &:empty {
                     visibility: hidden;
                 }
@@ -287,7 +287,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             .protyle-breadcrumb__bar {
                 background-color: transparent;
                 backdrop-filter: unset;
-                animation-timeline: none;
+                animation-timeline: scroll(self x), scroll(self x), none;
             }
         }
     }
@@ -312,7 +312,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             .protyle-breadcrumb__bar {
                 background-color: transparent;
                 backdrop-filter: unset;
-                animation-timeline: none;
+                animation-timeline: scroll(self x), scroll(self x), none;
             }
         }
     }
