@@ -1,7 +1,7 @@
 import { initEnv, destroyEnv } from '../modules/env';
 import { getThemeMode } from '../modules/thememode';
 import { initNeoIcons, destroyNeoIcons } from './icons';
-import { initTopBarButton, destroyTopBarButton } from './topbar';
+import { initTopBar, destroyTopBar } from './topbar';
 import { initStatusHidden, destroyStatusHidden } from '../modules/statushidden';
 import { initHideScrollbar, destroyHideScrollbar } from '../modules/hidescrollbar';
 import { initLayout, destroyLayout } from '../modules/layout';
@@ -61,7 +61,7 @@ const runtimeModules: readonly RuntimeModule[] = [
   { init: initEnv, destroy: destroyEnv },
   { init: initNeoIcons, destroy: destroyNeoIcons },
   { init: initMenuSettings, destroy: destroyMenuSettings },
-  { init: () => { initTopBarButton(); }, destroy: destroyTopBarButton },
+  { init: initTopBar, destroy: destroyTopBar },
   { init: initStatusHidden, destroy: destroyStatusHidden },
   { init: initHideScrollbar, destroy: destroyHideScrollbar },
   { init: initLayout, destroy: destroyLayout },

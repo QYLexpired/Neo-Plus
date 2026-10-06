@@ -3,6 +3,7 @@ import { getThemeMode } from '../modules/thememode';
 import { clearPlugin, setPlugin } from './context';
 import { initShortcuts } from './shortcut';
 import { startNeoRuntime, stopNeoRuntime, syncNeoRootMode } from './runtime';
+import { initPdfExport, destroyPdfExport } from '../modules/pdfexport';
 function isNeoTheme(): boolean {
   if (getThemeMode() === 'dark') {
     return document.documentElement.getAttribute('data-dark-theme') === 'Neo';
@@ -15,6 +16,7 @@ export class NeoPlusController {
   constructor(private readonly plugin: Plugin) {}
   init(): void {
     setPlugin(this.plugin);
+    initPdfExport();
     initShortcuts(() => this.neoThemeActive);
     this.handleThemeChange();
     this.themeObserver = new MutationObserver(() => {
@@ -28,6 +30,7 @@ export class NeoPlusController {
   destroy(): void {
     this.themeObserver?.disconnect();
     this.themeObserver = null;
+    destroyPdfExport();
     if (this.neoThemeActive) stopNeoRuntime();
     this.neoThemeActive = false;
     clearPlugin(this.plugin);
