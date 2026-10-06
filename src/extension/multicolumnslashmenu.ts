@@ -14,96 +14,15 @@ interface CenterPoint {
   x: number;
   y: number;
 }
-let isSessionActive = false;
-let pollTimerId: number | null = null;
-let pollAttempts = 0;
-let activeMenuElement: HTMLElement | null = null;
-let menuObserver: MutationObserver | null = null;
 let keydownHandler: ((evt: KeyboardEvent) => void) | null = null;
-let cachedCenters: CenterPoint[] = [];
 function findHintMenu(editor: HTMLElement): HTMLElement | null {
-  if (!editor.isConnected || !editor.classList.contains('protyle')) return null;
-  return editor.querySelector(':scope > .protyle-hint.hint--menu:not(.fn__none)');
-}
-function onMenuHidden(mutations: MutationRecord[]): void {
-  if (!isMenuVisible(activeMenuElement)) {
-    endSession();
-    return;
-  }
-  if (mutations.some((mutation) =>
-    Array.from(mutation.removedNodes).some((node) => node.contains(activeMenuElement))
-  )) {
-    observeActiveMenu();
-  }
-}
-function endSession(): void {
-  isSessionActive = false;
-  activeMenuElement = null;
-  cachedCenters = [];
-  if (pollTimerId !== null) {
-    cancelAnimationFrame(pollTimerId);
-    pollTimerId = null;
-  }
-  if (menuObserver) {
-    try {
-      menuObserver.disconnect();
-    } catch {}
-    menuObserver = null;
-  }
-}
-function isMenuVisible(el: HTMLElement | null): boolean {
-  return !!(el && document.body.contains(el) && el.classList.contains('hint--menu') && !el.classList.contains('fn__none'));
-}
-function observeActiveMenu(): void {
-  if (!menuObserver || !activeMenuElement) return;
-  menuObserver.disconnect();
-  try {
-    menuObserver.observe(activeMenuElement, { attributes: true, attributeFilter: ['class'] });
-    for (let parent = activeMenuElement.parentElement; parent; parent = parent.parentElement) {
-      menuObserver.observe(parent, { childList: true });
-      if (parent === document.body) break;
-    }
-  } catch {
-    endSession();
-  }
-}
-function attachMenuObserver(): void {
-  if (menuObserver || !activeMenuElement) return;
-  menuObserver = new MutationObserver(onMenuHidden);
-  observeActiveMenu();
-}
-function beginPollingForMenu(editor: HTMLElement): void {
-  const found = findHintMenu(editor);
-  if (found) {
-    activeMenuElement = found;
-    attachMenuObserver();
-    return;
-  }
-  pollAttempts = 0;
-  const startTime = Date.now();
-  const isCurrent = createNeoLifecycleGuard();
-  function poll(): void {
-    pollTimerId = requestAnimationFrame(() => {
-      if (!isCurrent()) return;
-      pollTimerId = null;
-      if (!neoFeatureActive || !arrowKeysOn || !isSessionActive
-        || !editor.isConnected || !editor.classList.contains('protyle')) {
-        endSession();
-        return;
-      }
-      pollAttempts++;
-      const el = findHintMenu(editor);
-      if (el) {
-        activeMenuElement = el;
-        attachMenuObserver();
-      } else if (pollAttempts >= 10 || Date.now() - startTime >= 1000) {
-        endSession();
-      } else {
-        poll();
-      }
-    });
-  }
-  poll();
+  const menu = editor.querySelector<HTMLElement>(':scope > .protyle-hint.hint--menu:not(.fn__none)');
+  if (menu || !editor.classList.contains('protyle-lite-fragment')) return menu;
+  const root = editor.classList.contains('mindmap-view__editor')
+    ? editor.closest('.mindmap-view') ?? document.body
+    : document.body;
+  const menus = root.querySelectorAll<HTMLElement>(':scope > .protyle-hint.protyle-hint--lite-overlay.hint--menu:not(.fn__none)');
+  return menus.length === 1 ? menus[0] : null;
 }
 function getListItems(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>('.b3-list-item'));
@@ -162,8 +81,8 @@ function selectClosestInDirection(
   }
   return best ? best.el : null;
 }
-function moveFocus(targetEl: HTMLElement): void {
-  const current = getFocusedItem(activeMenuElement!);
+function moveFocus(menu: HTMLElement, targetEl: HTMLElement): void {
+  const current = getFocusedItem(menu);
   if (current === targetEl) return;
   if (current) current.classList.remove('b3-list-item--focus');
   targetEl.classList.add('b3-list-item--focus');
@@ -216,55 +135,32 @@ function findEdgeInRow(
 }
 const onKeyDownCapture = (evt: KeyboardEvent): void => {
   if (!neoFeatureActive || !arrowKeysOn) return;
-  if (evt.key === 'Escape') {
-    endSession();
-    return;
-  }
-  if (evt.key !== '/' && !isSessionActive) return;
-  if (evt.key !== '/' && !directionKeys.includes(evt.key as Direction)) return;
-  if (evt.isComposing || (evt.key !== '/' && (evt.altKey || evt.shiftKey || evt.ctrlKey || evt.metaKey))) return;
-  if (evt.target instanceof HTMLInputElement || evt.target instanceof HTMLTextAreaElement) {
-    endSession();
-    return;
-  }
-  const editor = evt.target instanceof Element ? evt.target.closest<HTMLElement>('.protyle') : null;
-  if (evt.key === '/') {
-    endSession();
-    if (!editor) return;
-    isSessionActive = true;
-    beginPollingForMenu(editor);
-    return;
-  }
-  const menu = editor ? findHintMenu(editor) : null;
-  if (!menu || !isMenuVisible(menu)) {
-    endSession();
-    return;
-  }
-  if (activeMenuElement !== menu) {
-    endSession();
-    isSessionActive = true;
-    activeMenuElement = menu;
-    attachMenuObserver();
-  }
-  evt.preventDefault();
-  evt.stopPropagation();
+  if (!directionKeys.includes(evt.key as Direction) || evt.defaultPrevented || evt.isComposing
+    || evt.altKey || evt.shiftKey || evt.ctrlKey || evt.metaKey) return;
+  if (!(evt.target instanceof Element) || evt.target.closest('input, textarea, select')) return;
+  const editor = evt.target.closest<HTMLElement>('.protyle');
+  if (!editor?.isConnected || document.activeElement?.closest('.protyle') !== editor) return;
+  const menu = findHintMenu(editor);
+  if (!menu || menu.getClientRects().length === 0) return;
   const items = getListItems(menu);
   if (items.length === 0) return;
+  evt.preventDefault();
+  evt.stopPropagation();
   let focused = getFocusedItem(menu);
   if (!focused) {
     focused = items[0];
     focused.classList.add('b3-list-item--focus');
   }
-  cachedCenters = computeCenters(items);
-  const fromCenter = cachedCenters.find((c) => c.el === focused) ?? {
+  const centers = computeCenters(items);
+  const fromCenter = centers.find((c) => c.el === focused) ?? {
     el: focused,
     x: focused.getBoundingClientRect().left + focused.getBoundingClientRect().width / 2,
     y: focused.getBoundingClientRect().top + focused.getBoundingClientRect().height / 2,
   };
   const key = evt.key as Direction;
-  const target = selectClosestInDirection(cachedCenters, fromCenter, key);
+  const target = selectClosestInDirection(centers, fromCenter, key);
   if (target) {
-    moveFocus(target);
+    moveFocus(menu, target);
     return;
   }
   let fallbackTarget: HTMLElement | null = null;
@@ -273,12 +169,12 @@ const onKeyDownCapture = (evt: KeyboardEvent): void => {
   } else if (key === 'ArrowUp') {
     fallbackTarget = findPrevByDomOrder(items, focused);
   } else if (key === 'ArrowRight') {
-    fallbackTarget = findEdgeInRow(cachedCenters, fromCenter, 'leftmost');
+    fallbackTarget = findEdgeInRow(centers, fromCenter, 'leftmost');
   } else if (key === 'ArrowLeft') {
-    fallbackTarget = findEdgeInRow(cachedCenters, fromCenter, 'rightmost');
+    fallbackTarget = findEdgeInRow(centers, fromCenter, 'rightmost');
   }
   if (fallbackTarget && fallbackTarget !== focused) {
-    moveFocus(fallbackTarget);
+    moveFocus(menu, fallbackTarget);
   }
 };
 function ensureKeydownHandler(enable: boolean): void {
@@ -288,7 +184,6 @@ function ensureKeydownHandler(enable: boolean): void {
       document.addEventListener('keydown', keydownHandler, { capture: true });
     }
   } else {
-    endSession();
     if (keydownHandler) {
       document.removeEventListener('keydown', keydownHandler, { capture: true });
       keydownHandler = null;
@@ -375,6 +270,5 @@ export function destroyMulticolumnSlashMenu(): void {
   neoFeatureActive = false;
   removeCss('extension-multicolumnslashmenu');
   ensureKeydownHandler(false);
-  endSession();
   document.documentElement?.classList.remove('neo-multicolumnslashmenu');
 }

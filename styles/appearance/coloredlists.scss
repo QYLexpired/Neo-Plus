@@ -16,8 +16,8 @@
         --_coloredlists-fixed-color: var(--b3-theme-accent);
     }
     @include appearance-common('[data-id="neo-coloredlists-button"]', '[data-id="neo-appearance-button"]');
-    .protyle-wysiwyg [data-node-id].list:not(.list .list):not(.protyle-wysiwyg > .li .list) {
-        & > [data-node-id].li {
+    .protyle-wysiwyg [data-type="NodeList"].list:not(.list .list):not(.protyle-wysiwyg > .li .list) {
+        & > [data-type="NodeListItem"].li {
             @for $i from 0 through 7 {
                 $hue-offset: #{$i * 45};
                 &:nth-child(8n + #{$i + 1}) {
@@ -30,9 +30,10 @@
                         --_list-action-color: var(--neo-coloredlists-color);
                         --_list-fold-color: var(--neo-coloredlists-color);
                         --_list-fold-bg: oklch(from var(--_list-fold-color) l c h / 0.18);
-                        & + [data-node-id]:not(.list) {
+                        & + [data-type]:not(.list) {
                             color: var(--neo-coloredlists-color);
-                            & [spellcheck] {
+                            & [spellcheck],
+                            & [data-table-cell-content] {
                                 color: var(--neo-coloredlists-color);
                             }
                         }
