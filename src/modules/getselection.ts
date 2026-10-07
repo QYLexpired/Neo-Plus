@@ -24,6 +24,29 @@ export function getEffectiveSelectionRange(selection: Selection): Range | null {
     return range;
   }
 }
+function measureCursorRange(range: Range, cloneBeforeInsert: boolean): DOMRect | null {
+  const rects = range.getClientRects();
+  if (rects.length > 0 && rects[0].height > 0) {
+    return rects[0];
+  }
+  let textNode: Text | null = null;
+  try {
+    const probeRange = cloneBeforeInsert ? range.cloneRange() : range;
+    textNode = document.createTextNode('\u200B');
+    probeRange.insertNode(textNode);
+    probeRange.selectNode(textNode);
+    const rect = probeRange.getBoundingClientRect();
+    if (rect) {
+      return rect.height > 0 ? rect : new DOMRect(rect.left, rect.top, 0, rect.height);
+    }
+  } catch {
+  } finally {
+    if (textNode?.parentNode) {
+      textNode.parentNode.removeChild(textNode);
+    }
+  }
+  return null;
+}
 export function getCursorRect(): DOMRect | null {
   const sel = window.getSelection();
   if (!sel || sel.rangeCount === 0) return null;
@@ -33,55 +56,12 @@ export function getCursorRect(): DOMRect | null {
     try {
       cursorRange.setStart(sel.focusNode, sel.focusOffset);
       cursorRange.collapse(true);
-      const rects = cursorRange.getClientRects();
-      if (rects.length > 0 && rects[0].height > 0) {
-        return rects[0];
-      }
-      let textNode: Text | null = null;
-      try {
-        textNode = document.createTextNode('\u200B');
-        cursorRange.insertNode(textNode);
-        cursorRange.selectNode(textNode);
-        const rect = cursorRange.getBoundingClientRect();
-        if (rect && rect.height > 0) {
-          return rect;
-        }
-        if (rect) {
-          return new DOMRect(rect.left, rect.top, 0, rect.height);
-        }
-      } catch {
-      } finally {
-        if (textNode?.parentNode) {
-          textNode.parentNode.removeChild(textNode);
-        }
-      }
+      const rect = measureCursorRange(cursorRange, false);
+      if (rect) return rect;
     } catch {
     }
   }
-  const rects = range.getClientRects();
-  if (rects.length > 0 && rects[0].height > 0) {
-    return rects[0];
-  }
-  let textNode: Text | null = null;
-  try {
-    const cloneRange = range.cloneRange();
-    textNode = document.createTextNode('\u200B');
-    cloneRange.insertNode(textNode);
-    cloneRange.selectNode(textNode);
-    const rect = cloneRange.getBoundingClientRect();
-    if (rect && rect.height > 0) {
-      return rect;
-    }
-    if (rect) {
-      return new DOMRect(rect.left, rect.top, 0, rect.height);
-    }
-  } catch {
-  } finally {
-    if (textNode?.parentNode) {
-      textNode.parentNode.removeChild(textNode);
-    }
-  }
-  return null;
+  return measureCursorRange(range, true);
 }
 export function getTextColor(focusNode: Node | null, fallbackElement: Element): string | null {
   let textColor: string | null = null;
