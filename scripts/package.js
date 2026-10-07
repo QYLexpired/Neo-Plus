@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { existsSync } from 'fs';
+import { existsSync, rmSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -22,6 +22,7 @@ for (const file of files) {
     process.exit(1);
   }
 }
+rmSync(resolve(root, 'package.zip'), { force: true });
 console.log('Creating package.zip...');
 execSync(`zip -r package.zip ${files.join(' ')}`, { cwd: root, stdio: 'inherit' });
 console.log('Package created: package.zip');

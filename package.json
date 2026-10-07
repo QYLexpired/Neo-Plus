@@ -6,7 +6,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p scripts/tsconfig.json",
     "build": "npm run typecheck && node scripts/build.js",
-    "package": "node scripts/package.js"
+    "package": "node scripts/package.js",
+    "release": "node scripts/release.js"
   },
   "dependencies": {
     "esbuild": "^0.24.0",
