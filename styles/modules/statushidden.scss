@@ -52,7 +52,7 @@
 }
 @keyframes neo-status-expand {
     from {
-        transform: scaleX(0.4) scaleY(0.6153846154);
+        transform: scaleX(0.4) scaleY(0.5714285714);
     }
     to {
         transform: scaleX(1) scaleY(1);
@@ -60,7 +60,7 @@
 }
 @keyframes neo-status-hidden {
     from {
-        transform: scaleX(2.5) scaleY(1.625);
+        transform: scaleX(2.5) scaleY(1.75);
     }
     to {
         transform: scaleX(1) scaleY(1);
