@@ -1,15 +1,18 @@
 import { getPlugin } from './context';
 import { buildMenu } from './menu';
+const topBarId = 'Topbar';
 let topBarButton: HTMLElement | null = null;
 export function initTopBar(): void {
+  if (topBarButton) return;
   const plugin = getPlugin();
   if (!plugin) return;
   topBarButton = plugin.addTopBar({
+    id: topBarId,
     icon: 'iconNeo',
     title: 'Neo+',
     position: 'right',
     callback: openNeoMenu,
-  });
+  }) ?? null;
 }
 export function openNeoMenu(): void {
   let rect = topBarButton?.getBoundingClientRect();
@@ -24,8 +27,6 @@ export function openNeoMenu(): void {
   menu.open({ x: rect.right, y: rect.bottom, isLeft: true });
 }
 export function destroyTopBar(): void {
-  if (topBarButton) {
-    topBarButton.remove();
-    topBarButton = null;
-  }
+  topBarButton = null;
+  getPlugin()?.removeTopBar(topBarId);
 }

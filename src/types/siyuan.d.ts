@@ -77,11 +77,13 @@ declare module 'siyuan' {
     removeData(key: string): Promise<void>;
     addIcons(svg: string): void;
     addTopBar(config: {
+      id?: string;
       icon: string;
       title: string;
       position: 'left' | 'right';
       callback: () => void;
-    }): HTMLElement;
+    }): HTMLElement | undefined;
+    removeTopBar(id: string): void;
     addStatusBar(config: { element: Element }): void;
     addDock(config: {
       config: {

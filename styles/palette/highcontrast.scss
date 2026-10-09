@@ -42,6 +42,17 @@
                             background-image: none;
                             background-clip: unset;
                             -webkit-text-fill-color: unset;
+                            animation: none;
+                        }
+                    }
+                }
+                &#plugin_Neo-Plus\:Topbar {
+                    &:hover > svg {
+                        background-image: none;
+                        mask: none;
+                        animation: none;
+                        & > use {
+                            opacity: 1;
                         }
                     }
                 }
