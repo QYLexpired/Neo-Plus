@@ -1,4 +1,4 @@
-## Notes
+## <span style="font-family: neo;">Notes</span>
 - Neo+ is a companion plugin for the [Neo theme](https://github.com/QYLexpired/Neo), providing color schemes and style extensions for the Neo theme. It only takes effect when using the Neo theme.
 - Neo+ does not write or modify any document data; it only makes appearance modifications, and can be enabled or uninstalled at any time without affecting any note content.
 - Uninstalling Neo+ will NOT delete any plugin-related configuration (including free color scheme settings, custom image settings, feature toggles, and parameter settings). If you need to clean them up, delete the `/data/storage/petal/Neo-Plus/config` file in your workspace.
