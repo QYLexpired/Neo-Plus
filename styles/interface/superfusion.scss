@@ -321,7 +321,10 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 // 数据库吸顶
 .av__views--fixed {
     padding-top: 82px;
-    .neo-verticaltabs & {
+    .neo-verticaltabs-wnd & {
+        padding-top: 36px;
+    }
+    .body--toolbar-hide & {
         padding-top: 36px;
     }
     .neo-ide-body.body--toolbar-hide & {
