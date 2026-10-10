@@ -46,16 +46,6 @@
                         }
                     }
                 }
-                &#plugin_Neo-Plus\:Topbar {
-                    &:hover > svg {
-                        background-image: none;
-                        mask: none;
-                        animation: none;
-                        & > use {
-                            opacity: 1;
-                        }
-                    }
-                }
             }
             .toolbar #drag {
                 color: var(--neo-highcontrast-on-bg);
