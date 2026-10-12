@@ -13,7 +13,6 @@ import { initPalette, destroyPalette } from '../palette/manager';
 import { initTexture, destroyTexture } from '../texture/manager';
 import { initColoredLists, destroyColoredLists } from '../appearance/coloredlists';
 import { initColoredHeadings, destroyColoredHeadings } from '../appearance/coloredheadings';
-import { initColorfulSelection, destroyColorfulSelection } from '../appearance/colorfulselection';
 import { initSmoothCaret, destroySmoothCaret } from '../extension/smoothcaret';
 import { initColoredFolders, destroyColoredFolders } from '../appearance/coloredfolders';
 import { initMulticolumnSlashMenu, destroyMulticolumnSlashMenu } from '../extension/multicolumnslashmenu';
@@ -73,7 +72,6 @@ const runtimeModules: readonly RuntimeModule[] = [
   { init: initTexture, destroy: destroyTexture },
   { init: initColoredLists, destroy: destroyColoredLists },
   { init: initColoredHeadings, destroy: destroyColoredHeadings },
-  { init: initColorfulSelection, destroy: destroyColorfulSelection },
   { init: initSmoothCaret, destroy: destroySmoothCaret },
   { init: initColoredFolders, destroy: destroyColoredFolders },
   { init: initMulticolumnSlashMenu, destroy: destroyMulticolumnSlashMenu },

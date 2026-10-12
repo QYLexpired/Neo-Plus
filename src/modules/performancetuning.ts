@@ -105,6 +105,7 @@ const ruleFilters: RuleFilterEntry[] = [
       selectorMatch: (s) => s.includes('::selection'),
       cssMatch: () => true,
     },
+    dynamic: true,
   },
   {
     filter: {
@@ -183,13 +184,6 @@ const ruleFilters: RuleFilterEntry[] = [
       selectorMatch: (s) => s.includes('.annotationLayer .richText') && s.includes('> *'),
       cssMatch: () => true,
     },
-  },
-  {
-    filter: {
-      selectorMatch: (s) => s.includes('hljs') && s.includes('::selection'),
-      cssMatch: () => true,
-    },
-    dynamic: true,
   },
   {
     filter: {

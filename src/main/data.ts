@@ -90,7 +90,6 @@ export interface Config {
   'coloredheadings-colorstyle'?: 'soft' | 'default' | 'vivid';
   'coloredheadings-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
   'coloredheadings-initial-hue'?: number;
-  'colorfulselection'?: boolean;
   'frostedglass'?: boolean;
   'frostedglass-scope'?: 'light' | 'global';
   'frostedglass-luminous'?: boolean;

@@ -22,7 +22,6 @@ import { onSidebarMuteClick } from '../interface/sidebarmute';
 import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../extension/multicolumnslashmenu';
 import { onColoredListsClick, showColoredListsSettings } from '../appearance/coloredlists';
 import { onColoredHeadingsClick, showColoredHeadingsSettings } from '../appearance/coloredheadings';
-import { onColorfulSelectionClick } from '../appearance/colorfulselection';
 import { onHideToolbarClick } from '../interface/hidetoolbar';
 import { createSettingsMenuLabel } from '../modules/menusettings';
 import { createNeoLifecycleGuard } from './lifecycle';
@@ -286,15 +285,6 @@ export function buildMenu(
         ),
         click: () => {
           onColoredListsClick();
-          return true;
-        },
-      },
-      {
-        id: 'neo-colorfulselection-button',
-        icon: 'iconNeoColorfulSelection',
-        label: i18n.colorfulSelection,
-        click: () => {
-          onColorfulSelectionClick();
           return true;
         },
       },
