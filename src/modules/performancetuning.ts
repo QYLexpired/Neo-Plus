@@ -175,12 +175,6 @@ const ruleFilters: RuleFilterEntry[] = [
   },
   {
     filter: {
-      selectorMatch: (s) => s.includes('.annotationLayer .textWidgetAnnotation') && s.includes(':is('),
-      cssMatch: () => true,
-    },
-  },
-  {
-    filter: {
       selectorMatch: (s) => s.includes('.annotationLayer .richText') && s.includes('> *'),
       cssMatch: () => true,
     },
@@ -264,12 +258,6 @@ const ruleFilters: RuleFilterEntry[] = [
     filter: {
       selectorMatch: (s) => /table\s+thead\s*>\s*tr:first-child/.test(s) || /table\s+tbody:last-of-type\s*>\s*tr:last-child/.test(s),
       cssMatch: (c) => c.includes('border-top-left-radius') || c.includes('border-top-right-radius') || c.includes('border-bottom-left-radius') || c.includes('border-bottom-right-radius'),
-    },
-  },
-  {
-    filter: {
-      selectorMatch: (s) => /\.textLayer\s+:is\(span\s*,\s*br\)/.test(s),
-      cssMatch: (c) => /white-space\s*:\s*pre/.test(c),
     },
   },
 ];

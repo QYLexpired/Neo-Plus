@@ -21,12 +21,3 @@
     position: relative;
     z-index: 7;
 }
-// 替换.textLayer :is(span,br) 
-.textLayer span,
-.textLayer br  {
-    color: rgba(0,0,0,0);
-    position: absolute;
-    white-space: pre;
-    cursor: text;
-    transform-origin: 0% 0%
-}
