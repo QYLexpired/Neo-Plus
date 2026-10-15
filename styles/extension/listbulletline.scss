@@ -1,10 +1,8 @@
 @use "manager" as *;
 @use "../utils" as *;
-@use "sass:map";
 $fix-u: 0.25px;
 $fix-o: 10.25px;
 $fix-t: 7.25px;
-$fix-fontsize: calc((var(--b3-font-size-editor) - 16px) * 0.5);
 $types: (
   "u": $fix-u,
   "o": $fix-o,
@@ -19,66 +17,45 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
   #{$selector}::after {
     content: '';
     box-sizing: border-box;
-    border-left: calc(1.5px + 0.1 * #{$fix-fontsize}) solid var(--neo-coloredlists-color, var(--_list-fold-color));
-    border-bottom: calc(1.5px + 0.1 * #{$fix-fontsize}) solid var(--neo-coloredlists-color, var(--_list-fold-color));
+    border-left: 1.5px solid var(--neo-coloredlists-color, var(--_list-fold-color));
+    border-bottom: 1.5px solid var(--neo-coloredlists-color, var(--_list-fold-color));
     @include superellipse-use(0 0 0 10px);
     position: absolute;
     left: -18px;
     animation: neo-listbulletline-entrance 0.45s var(--neo-ease-spring-3);
     transform-origin: left;
   }
-  .rtl #{$selector}::after,
-  .list[style*="direction: rtl"] #{$selector}::after {
+  .protyle.rtl #{$selector}::after,
+  .list.protyle-block--rtl #{$selector}::after {
     border-left: none;
-    border-right: calc(1.5px + 0.1 * #{$fix-fontsize}) solid var(--neo-coloredlists-color, var(--_list-fold-color));
+    border-right: 1.5px solid var(--neo-coloredlists-color, var(--_list-fold-color));
     @include superellipse-use(0 0 10px 0);
     left: auto;
     right: -18px;
     transform-origin: right;
   }
-  .protyle-wysiwyg [data-node-id].li[neo-listbulletline-node] {
-    &[data-subtype="o"],
-    &[data-subtype="u"],
-    &[data-subtype="t"] {
+  .protyle-wysiwyg [data-node-id].li {
+    & > .protyle-action {
+      font-size: 16px;
+      height: calc(var(--b3-font-size-editor) * 1.625 + 8px);
+      line-height: calc(var(--b3-font-size-editor) * 1.625 + 8px);
+    }
+    &[neo-listbulletline-node][data-subtype="o"],
+    &[neo-listbulletline-node][data-subtype="u"],
+    &[neo-listbulletline-node][data-subtype="t"] {
       & > .protyle-action {
         --_list-action-color: var(--neo-coloredlists-color, var(--_list-fold-color));
       }
     }
   }
-  $width-mod: (
-    "o-o": #{$fix-fontsize},
-    "o-u": #{$fix-fontsize},
-  );
   @each $parent, $parent-fix in $types {
     @each $child, $child-fix in $types {
-      $key: "#{$parent}-#{$child}";
-      $extra: 0px;
-      @if map.has-key($width-mod, $key) {
-        $extra: map.get($width-mod, $key);
-      }
       [data-subtype="#{$parent}"] > [data-subtype="#{$child}"] > #{$selector}::after {
-        --neo-listbulletline-height-fix: calc(#{$parent-fix} + #{$fix-fontsize});
-        --neo-listbulletline-width-fix: calc(#{$child-fix} + #{$fix-fontsize});
-        width: calc(34px - var(--neo-listbulletline-width-fix) + #{$extra});
+        --neo-listbulletline-height-fix: #{$parent-fix};
+        --neo-listbulletline-width-fix: #{$child-fix};
+        width: calc(34px - var(--neo-listbulletline-width-fix));
         height: calc(var(--neo-listbulletline-height) - var(--neo-listbulletline-height-fix));
         top: calc(-1 * var(--neo-listbulletline-height) + calc((1.625em + 10px) / 2) + var(--neo-listbulletline-height-fix));
-      }
-    }
-  }
-  @each $parent, $parent-fix in $types {
-    @each $child, $child-fix in $types {
-      [data-subtype="#{$parent}"] > .protyle-action + [data-subtype="#{$child}"] > #{$selector}:first-child::after {
-        top: calc(16.75px + #{$fix-fontsize});
-        left: calc(-18px + #{$parent-fix});
-        width: calc(34px - #{$parent-fix} - var(--neo-listbulletline-width-fix));
-        border-bottom-left-radius: 0px;
-      }
-      .rtl [data-subtype="#{$parent}"] > .protyle-action + [data-subtype="#{$child}"] > #{$selector}:first-child::after,
-      .list[style*="direction: rtl"] [data-subtype="#{$parent}"] > .protyle-action + [data-subtype="#{$child}"] > #{$selector}:first-child::after {
-        left: auto;
-        right: calc(-18px + #{$parent-fix});
-        border-bottom-left-radius: unset;
-        border-bottom-right-radius: 0px;
       }
     }
   }
