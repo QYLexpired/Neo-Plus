@@ -17,7 +17,9 @@
     }
 }
 // 替换.body--toolbar-hide .toolbar > :not(#drag)
-.body--toolbar-hide #toolbar > .toolbar__item {
-    position: relative;
-    z-index: 7;
+.body--toolbar-hide #toolbar {
+    .toolbar__item {
+        position: relative;
+        z-index: 7;
+    }
 }

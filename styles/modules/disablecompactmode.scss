@@ -1,0 +1,14 @@
+.config-item[data-config-item-id="compactMode"] {
+    .config-name {
+        &::after {
+            content: "The Neo theme is not designed for compact mode";
+            margin-inline-start: 8px;
+            font-size: 12px;
+            font-weight: normal;
+            color: var(--b3-theme-warning);
+            :root:lang(zh-CN) & {
+                content: "Neo主题未适配紧凑模式";
+            }
+        }
+    }
+}

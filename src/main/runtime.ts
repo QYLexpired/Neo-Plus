@@ -1,4 +1,5 @@
 import { initEnv, destroyEnv } from '../modules/env';
+import { initDisableCompactMode, destroyDisableCompactMode } from '../modules/disablecompactmode';
 import { getThemeMode } from '../modules/thememode';
 import { initNeoIcons, destroyNeoIcons } from './icons';
 import { initTopBar, destroyTopBar } from './topbar';
@@ -58,6 +59,7 @@ const runtimeModules: readonly RuntimeModule[] = [
   { init: initBaseCss, destroy: destroyBaseCss },
   { init: initNeoRootClass, destroy: destroyNeoRootClass },
   { init: initEnv, destroy: destroyEnv },
+  { init: initDisableCompactMode, destroy: destroyDisableCompactMode },
   { init: initNeoIcons, destroy: destroyNeoIcons },
   { init: initMenuSettings, destroy: destroyMenuSettings },
   { init: initTopBar, destroy: destroyTopBar },
