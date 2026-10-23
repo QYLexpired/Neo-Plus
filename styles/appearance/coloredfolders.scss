@@ -152,7 +152,7 @@ $border-width: 3px;
             & > .fn__flex-1 > ul,
             & > .file-tree__pins {
                 margin: 0 10px;
-                @include superellipse-use(8px);
+                @include superellipse-use($radius-item);
                 outline-offset: -1px;
                 &:not(:last-child) {
                     margin-bottom: 3px;

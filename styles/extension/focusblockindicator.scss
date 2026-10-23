@@ -1,4 +1,5 @@
 @use "manager" as *;
+@use "../utils" as *;
 .neo-focusblockindicator {
     @include extension-common('[data-id="neo-focusblockindicator-button"]', '[data-id="neo-extension-button"]');
     body.neo-focusblockindicator-vertical-line {
@@ -10,7 +11,7 @@
                 pointer-events: none;
                 width: 3.5px;
                 height: calc(100% - 1em);
-                border-radius: 8px;
+                @include superellipse-use($radius-item);
                 inset-inline-start: -4px;
                 top: 50%;
                 transform: translateY(-50%) scaleY(0);

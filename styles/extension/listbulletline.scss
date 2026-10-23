@@ -19,7 +19,7 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
     box-sizing: border-box;
     border-left: 1.5px solid var(--neo-coloredlists-color, var(--_list-fold-color));
     border-bottom: 1.5px solid var(--neo-coloredlists-color, var(--_list-fold-color));
-    @include superellipse-use(0 0 0 10px);
+    @include superellipse-use(0 0 0 $radius-card);
     position: absolute;
     left: -18px;
     animation: neo-listbulletline-entrance 0.45s var(--neo-ease-spring-3);
@@ -29,7 +29,7 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
   .list.protyle-block--rtl #{$selector}::after {
     border-left: none;
     border-right: 1.5px solid var(--neo-coloredlists-color, var(--_list-fold-color));
-    @include superellipse-use(0 0 10px 0);
+    @include superellipse-use(0 0 $radius-card 0);
     left: auto;
     right: -18px;
     transform-origin: right;

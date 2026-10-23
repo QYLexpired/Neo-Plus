@@ -1,6 +1,7 @@
 @use "sass:map";
 @use "sass:list";
 @use "sass:string";
+@use "../utils" as *;
 @use "_volmap" as volmap;
 @use "_groupmap" as groupmap;
 @mixin palette-common($selectors...) {
@@ -61,7 +62,7 @@
         transform: translateY(-50%);
         width: 13px;
         height: 13px;
-        border-radius: 50%;
+        @include superellipse-use($circle);
         background-color: var(--b3-theme-base);
         .neo-mobile & {
             left: 18px;

@@ -1,3 +1,4 @@
+@use "../utils" as *;
 @mixin status-child {
     & > .toolbar__item,
     & > .status__msg,
@@ -34,7 +35,7 @@
                         height: 4px;
                         background-color: var(--_status-dot-color);
                         box-shadow: 8px 0 0 0 var(--_status-dot-color), 16px 0 0 0 var(--_status-dot-color);
-                        border-radius: 50%;
+                        @include superellipse-use($circle);
                         transform: translateX(-10px);
                         transform-origin: top center;
                         animation: neo-status-dot-fadein 0.4s var(--neo-ease-out-3), neo-status-dot-transform 0.5s var(--neo-ease-spring-3);

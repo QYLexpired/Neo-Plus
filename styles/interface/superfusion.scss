@@ -65,7 +65,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
             padding-top: calc($breadcrumb-height + $breadcrumb-offset);
             z-index: 3;
             .protyle-breadcrumb__bar {
-                @include superellipse-use(8px);
+                @include superellipse-use($radius-item);
                 background-color: oklch(from var(--b3-theme-background) l c h / 0.8);
                 backdrop-filter: blur(3px);
                 padding: 0 4px;
@@ -214,17 +214,17 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     }
     /*.block__popover {
         & > .block__icons {
-            @include superellipse-use(12px 12px 0 0);
+            @include superellipse-use($radius-box $radius-box 0 0);
         }
         & > .block__content {
-            @include superellipse-use(12px 12px 0 0);
+            @include superellipse-use($radius-box $radius-box 0 0);
             overflow: unset;
             min-height: 0;
             & > .protyle:not(.fullscreen)::before {
-                @include superellipse-use(12px 12px 0 0);
+                @include superellipse-use($radius-box $radius-box 0 0);
             }
             .protyle-content {
-                @include superellipse-use(12px 12px 0 0);
+                @include superellipse-use($radius-box $radius-box 0 0);
             }
         }
     }*/
