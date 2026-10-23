@@ -160,8 +160,8 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     }
 }
 @mixin superfusion-tab-not-protyle { // 非protyle
-    body:not(.body--toolbar-hide) .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .fn__flex-1:not(.protyle),
-    .neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .fn__flex-1:not(.protyle) {
+    body:not(.body--toolbar-hide) .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .fn__flex-1:not(.protyle):not(.dockPanel.fullscreen),
+    .neo-ide-body.body--toolbar-hide .layout__center [data-type="wnd"]:not(.neo-verticaltabs-wnd) > .fn__flex:first-child:not(.fn__none) + .layout-tab-container > .fn__flex-1:not(.protyle):not(.dockPanel.fullscreen) {
         @content;
     }
 }

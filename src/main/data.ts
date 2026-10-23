@@ -70,7 +70,6 @@ export interface Config {
   'fluidcursor'?: boolean;
   'fluidcursor-trail'?: boolean;
   'fluidcursor-wave'?: boolean;
-  'cardsearchlist'?: boolean;
   'listbulletline'?: boolean;
   'focusblockindicator'?: boolean;
   'focusblockindicator-effect'?: 'vertical-line' | 'shadow' | 'outline' | 'background';
@@ -81,15 +80,16 @@ export interface Config {
   'coloredfolders-colorstyle'?: 'soft' | 'default' | 'vivid';
   'coloredfolders-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
   'coloredfolders-initial-hue'?: number;
-  'coloredlists'?: boolean;
-  'coloredlists-colorstyle'?: 'soft' | 'default' | 'vivid';
-  'coloredlists-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
-  'coloredlists-initial-hue'?: number;
-  'coloredheadings'?: boolean;
-  'coloredheadings-outline'?: boolean;
-  'coloredheadings-colorstyle'?: 'soft' | 'default' | 'vivid';
-  'coloredheadings-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
-  'coloredheadings-initial-hue'?: number;
+  'multicolumnslashmenu'?: boolean;
+  'multicolumnslashmenu-arrowkeys'?: boolean;
+  'cardsearchlist'?: boolean;
+  'element-link-style'?: 'icon' | 'underline';
+  'element-heading-colored'?: 'off' | 'on';
+  'element-heading-colored-outline'?: 'off' | 'on';
+  'element-heading-colored-color-style'?: 'soft' | 'default' | 'vivid';
+  'element-heading-colored-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
+  'element-heading-colored-initial-hue'?: number;
+  'element-heading-level'?: 'off' | 'on';
   'frostedglass'?: boolean;
   'frostedglass-scope'?: 'light' | 'global';
   'frostedglass-luminous'?: boolean;
@@ -100,8 +100,6 @@ export interface Config {
   'superfusion-mode'?: 'blur' | 'frostedGlass' | 'liquidGlass';
   'sidebarmute'?: boolean;
   'ide'?: boolean;
-  'multicolumnslashmenu'?: boolean;
-  'multicolumnslashmenu-arrowkeys'?: boolean;
 }
 export type ConfigSaveResult = 'saved' | 'temporary' | false;
 let configCache: Config = {};

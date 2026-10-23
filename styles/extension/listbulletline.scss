@@ -17,8 +17,8 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
   #{$selector}::after {
     content: '';
     box-sizing: border-box;
-    border-left: 1.5px solid var(--neo-coloredlists-color, var(--_list-fold-color));
-    border-bottom: 1.5px solid var(--neo-coloredlists-color, var(--_list-fold-color));
+    border-left: 1.5px solid var(--_list-accent-color);
+    border-bottom: 1.5px solid var(--_list-accent-color);
     @include superellipse-use(0 0 0 $radius-card);
     position: absolute;
     left: -18px;
@@ -28,7 +28,7 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
   .protyle.rtl #{$selector}::after,
   .list.protyle-block--rtl #{$selector}::after {
     border-left: none;
-    border-right: 1.5px solid var(--neo-coloredlists-color, var(--_list-fold-color));
+    border-right: 1.5px solid var(--_list-accent-color);
     @include superellipse-use(0 0 $radius-card 0);
     left: auto;
     right: -18px;
@@ -44,7 +44,7 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
     &[neo-listbulletline-node][data-subtype="u"],
     &[neo-listbulletline-node][data-subtype="t"] {
       & > .protyle-action {
-        --_list-action-color: var(--neo-coloredlists-color, var(--_list-fold-color));
+        --_list-marker-color: var(--_list-accent-color);
       }
     }
   }

@@ -1,15 +1,16 @@
-import { type InitialHueRule, type ColorStyle, defaultInitialHue, normalizeInitialHue, normalizeColorStyle, normalizeInitialHueRule } from './color';
 import { saveConfig, loadConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { getPlugin } from '../main/context';
 import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+type InitialHueRule = 'theme' | 'fixed' | 'accent';
+type ColorStyle = 'soft' | 'default' | 'vivid';
 type ColoredFoldersLayout = 'partition' | 'simple' | 'card';
 let coloredFoldersLayout: ColoredFoldersLayout = 'partition';
 let coloredFoldersColorStyle: ColorStyle = 'default';
 let initialHueRule: InitialHueRule = 'theme';
-let initialHue = defaultInitialHue;
+let initialHue = 0;
 let neoFeatureActive = false;
 function applyLayout(): void {
   document.body.classList.toggle('neo-coloredfolders-partition', coloredFoldersLayout === 'partition');
@@ -48,10 +49,13 @@ export function initColoredFolders(): Promise<void> {
   return loadConfig().then((config) => {
     if (!isCurrent()) return;
     const savedLayout = config['coloredfolders-layout'];
+    const savedColorStyle = config['coloredfolders-colorstyle'];
+    const savedRule = config['coloredfolders-initial-hue-rule'];
+    const savedHue = Number(config['coloredfolders-initial-hue']);
     coloredFoldersLayout = savedLayout === 'simple' || savedLayout === 'card' ? savedLayout : 'partition';
-    coloredFoldersColorStyle = normalizeColorStyle(config['coloredfolders-colorstyle']);
-    initialHueRule = normalizeInitialHueRule(config['coloredfolders-initial-hue-rule']);
-    initialHue = normalizeInitialHue(config['coloredfolders-initial-hue']);
+    coloredFoldersColorStyle = savedColorStyle === 'soft' || savedColorStyle === 'vivid' ? savedColorStyle : 'default';
+    initialHueRule = savedRule === 'fixed' || savedRule === 'accent' ? savedRule : 'theme';
+    initialHue = Number.isFinite(savedHue) ? Math.min(360, Math.max(0, Math.round(savedHue))) : 0;
     if (neoFeatureActive) {
       applySettings();
     } else if (config['coloredfolders'] === true) {
@@ -148,7 +152,8 @@ export function showColoredFoldersSettings(): void {
   const hueSlider = dialog.element.querySelector('#neo-coloredfolders-initial-hue') as HTMLInputElement | null;
   const hueTooltip = dialog.element.querySelector('#neo-coloredfolders-initial-hue-tooltip') as HTMLElement | null;
   const updateColorStylePreview = (): void => {
-    hueSlider?.setAttribute('data-colorstyle', normalizeColorStyle(colorStyleSelect?.value));
+    const value = colorStyleSelect?.value;
+    hueSlider?.setAttribute('data-colorstyle', value === 'soft' || value === 'vivid' ? value : 'default');
   };
   const updateHueVisibility = (): void => {
     hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
@@ -175,9 +180,12 @@ export function showColoredFoldersSettings(): void {
   dialog.element.querySelector('#neo-coloredfolders-confirm')?.addEventListener('click', () => {
     const layoutValue = layoutSelect?.value;
     const newLayout: ColoredFoldersLayout = layoutValue === 'simple' || layoutValue === 'card' ? layoutValue : 'partition';
-    const newColorStyle = normalizeColorStyle(colorStyleSelect?.value);
-    const newRule = normalizeInitialHueRule(ruleSelect?.value);
-    const newHue = normalizeInitialHue(hueSlider?.value);
+    const colorStyle = colorStyleSelect?.value;
+    const rule = ruleSelect?.value;
+    const hue = Number(hueSlider?.value);
+    const newColorStyle = colorStyle === 'soft' || colorStyle === 'vivid' ? colorStyle : 'default';
+    const newRule = rule === 'fixed' || rule === 'accent' ? rule : 'theme';
+    const newHue = Number.isFinite(hue) ? Math.min(360, Math.max(0, Math.round(hue))) : 0;
     coloredFoldersLayout = newLayout;
     coloredFoldersColorStyle = newColorStyle;
     initialHueRule = newRule;

@@ -192,7 +192,7 @@ function ensureKeydownHandler(enable: boolean): void {
 }
 function enableMulticolumnSlashMenu(): void {
   if (neoFeatureActive) return;
-  ensureCss('extension-multicolumnslashmenu', featureCss['extension-multicolumnslashmenu']);
+  ensureCss('appearance-multicolumnslashmenu', featureCss['appearance-multicolumnslashmenu']);
   document.documentElement.classList.add('neo-multicolumnslashmenu');
   neoFeatureActive = true;
   ensureKeydownHandler(arrowKeysOn);
@@ -268,7 +268,7 @@ export function showMulticolumnSlashMenuSettings(): void {
 }
 export function destroyMulticolumnSlashMenu(): void {
   neoFeatureActive = false;
-  removeCss('extension-multicolumnslashmenu');
+  removeCss('appearance-multicolumnslashmenu');
   ensureKeydownHandler(false);
   document.documentElement?.classList.remove('neo-multicolumnslashmenu');
 }

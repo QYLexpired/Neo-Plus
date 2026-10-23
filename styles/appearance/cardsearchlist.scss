@@ -1,7 +1,7 @@
 @use "manager" as *;
 @use "../utils" as *;
 .neo-cardsearchlist {
-    @include extension-common('[data-id="neo-cardsearchlist-button"]', '[data-id="neo-extension-button"]');
+    @include appearance-common('[data-id="neo-cardsearchlist-button"]', '[data-id="neo-appearance-button"]');
     #searchList.neo-cardsearchlist,
     #searchUnRefList.neo-cardsearchlist,
     #searchAssetList.neo-cardsearchlist {

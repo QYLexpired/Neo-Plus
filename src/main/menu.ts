@@ -8,20 +8,19 @@ import { showRandomSettings } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
 import { onSmoothCaretClick, showSmoothCaretSettings } from '../extension/smoothcaret';
 import { onFluidCursorClick, showFluidCursorSettings } from '../extension/fluidcursor';
-import { onCardSearchListClick } from '../extension/cardsearchlist';
 import { onListBulletLineClick } from '../extension/listbulletline';
 import { onFocusBlockIndicatorClick, showFocusBlockIndicatorSettings } from '../extension/focusblockindicator';
 import { onFrostedGlassClick, showFrostedGlassSettings } from '../interface/frostedglass';
 import { onIdeClick } from '../interface/ide';
 import { onColoredFoldersClick, showColoredFoldersSettings } from '../appearance/coloredfolders';
+import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../appearance/multicolumnslashmenu';
+import { onCardSearchListClick } from '../appearance/cardsearchlist';
+import { showElementSettings } from '../appearance/element';
 import { onVerticalTabsClick, showVerticalTabsSettings } from '../interface/verticaltabs';
 import { onSuperFusionClick, showSuperFusionSettings } from '../interface/superfusion';
 import { isDesktop, isMobile } from '../modules/env';
 import { getThemeMode } from '../modules/thememode';
 import { onSidebarMuteClick } from '../interface/sidebarmute';
-import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../extension/multicolumnslashmenu';
-import { onColoredListsClick, showColoredListsSettings } from '../appearance/coloredlists';
-import { onColoredHeadingsClick, showColoredHeadingsSettings } from '../appearance/coloredheadings';
 import { onHideToolbarClick } from '../interface/hidetoolbar';
 import { createSettingsMenuLabel } from '../modules/menusettings';
 import { createNeoLifecycleGuard } from './lifecycle';
@@ -260,32 +259,47 @@ export function buildMenu(
           return true;
         },
       },
+      ...(!isMobile() ? [
+        {
+          id: 'neo-multicolumnslashmenu-button',
+          icon: 'iconNeoMulticolumnSlashMenu',
+          label: createSettingsMenuLabel(
+            'multicolumnSlashMenu',
+            i18n.multicolumnSlashMenu,
+            i18n.multicolumnSlashMenuSettings,
+            showMulticolumnSlashMenuSettings,
+          ),
+          click: () => {
+            onMulticolumnSlashMenuClick();
+            return true;
+          },
+        },
+      ] : []),
       {
-        id: 'neo-coloredheadings-button',
-        icon: 'iconNeoColoredHeadings',
-        label: createSettingsMenuLabel(
-          'coloredHeadings',
-          i18n.coloredHeadings,
-          i18n.coloredHeadingsSettings,
-          showColoredHeadingsSettings,
-        ),
+        id: 'neo-cardsearchlist-button',
+        icon: 'iconSearch',
+        label: i18n.cardSearchList,
         click: () => {
-          onColoredHeadingsClick();
+          onCardSearchListClick();
           return true;
         },
       },
       {
-        id: 'neo-coloredlists-button',
-        icon: 'iconNeoList',
-        label: createSettingsMenuLabel(
-          'coloredLists',
-          i18n.coloredLists,
-          i18n.coloredListsSettings,
-          showColoredListsSettings,
-        ),
-        click: () => {
-          onColoredListsClick();
-          return true;
+        id: 'neo-element-button',
+        type: 'readonly',
+        iconHTML: '',
+        label: `<button type="button" class="b3-button b3-button--outline" style="width: 100%">${i18n.elementSettings}</button>`,
+        bind: (element) => {
+          element.addEventListener('mouseenter', () => {
+            menu.element.querySelectorAll('.b3-menu__item--current').forEach((item) => {
+              item.classList.remove('b3-menu__item--current');
+            });
+          });
+          element.querySelector('button')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            menu.close();
+            showElementSettings();
+          });
         },
       },
     ],
@@ -321,31 +335,6 @@ export function buildMenu(
         ),
         click: () => {
           onFocusBlockIndicatorClick();
-          return true;
-        },
-      },
-      ...(!isMobile() ? [
-        {
-          id: 'neo-multicolumnslashmenu-button',
-          icon: 'iconNeoMulticolumnSlashMenu',
-          label: createSettingsMenuLabel(
-            'multicolumnSlashMenu',
-            i18n.multicolumnSlashMenu,
-            i18n.multicolumnSlashMenuSettings,
-            showMulticolumnSlashMenuSettings,
-          ),
-          click: () => {
-            onMulticolumnSlashMenuClick();
-            return true;
-          },
-        },
-      ] : []),
-      {
-        id: 'neo-cardsearchlist-button',
-        icon: 'iconSearch',
-        label: i18n.cardSearchList,
-        click: () => {
-          onCardSearchListClick();
           return true;
         },
       },

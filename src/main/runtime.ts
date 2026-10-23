@@ -8,15 +8,14 @@ import { initHideScrollbar, destroyHideScrollbar } from '../modules/hidescrollba
 import { initLayout, destroyLayout } from '../modules/layout';
 import { initFetchMonitor, destroyFetchMonitor } from '../modules/fetchmonitor';
 import { initPerformanceTuning, destroyPerformanceTuning } from '../modules/performancetuning';
-import { initCardSearchList, destroyCardSearchList } from '../extension/cardsearchlist';
 import { initSvgFilter, destroySvgFilter } from '../modules/svgfilter';
 import { initPalette, destroyPalette } from '../palette/manager';
 import { initTexture, destroyTexture } from '../texture/manager';
-import { initColoredLists, destroyColoredLists } from '../appearance/coloredlists';
-import { initColoredHeadings, destroyColoredHeadings } from '../appearance/coloredheadings';
-import { initSmoothCaret, destroySmoothCaret } from '../extension/smoothcaret';
 import { initColoredFolders, destroyColoredFolders } from '../appearance/coloredfolders';
-import { initMulticolumnSlashMenu, destroyMulticolumnSlashMenu } from '../extension/multicolumnslashmenu';
+import { initMulticolumnSlashMenu, destroyMulticolumnSlashMenu } from '../appearance/multicolumnslashmenu';
+import { initCardSearchList, destroyCardSearchList } from '../appearance/cardsearchlist';
+import { initElement, destroyElement } from '../appearance/element';
+import { initSmoothCaret, destroySmoothCaret } from '../extension/smoothcaret';
 import { initFrostedGlass, destroyFrostedGlass } from '../interface/frostedglass';
 import { initFluidCursor, destroyFluidCursor } from '../extension/fluidcursor';
 import { initVerticalTabs, destroyVerticalTabs } from '../interface/verticaltabs';
@@ -68,15 +67,14 @@ const runtimeModules: readonly RuntimeModule[] = [
   { init: initLayout, destroy: destroyLayout },
   { init: initFetchMonitor, destroy: destroyFetchMonitor },
   { init: initPerformanceTuning, destroy: destroyPerformanceTuning },
-  { init: initCardSearchList, destroy: destroyCardSearchList },
   { init: initSvgFilter, destroy: destroySvgFilter },
   { init: initPalette, destroy: destroyPalette },
   { init: initTexture, destroy: destroyTexture },
-  { init: initColoredLists, destroy: destroyColoredLists },
-  { init: initColoredHeadings, destroy: destroyColoredHeadings },
-  { init: initSmoothCaret, destroy: destroySmoothCaret },
   { init: initColoredFolders, destroy: destroyColoredFolders },
   { init: initMulticolumnSlashMenu, destroy: destroyMulticolumnSlashMenu },
+  { init: initCardSearchList, destroy: destroyCardSearchList },
+  { init: initElement, destroy: destroyElement },
+  { init: initSmoothCaret, destroy: destroySmoothCaret },
   { init: initFrostedGlass, destroy: destroyFrostedGlass },
   { init: initFluidCursor, destroy: destroyFluidCursor },
   { init: initVerticalTabs, destroy: destroyVerticalTabs },

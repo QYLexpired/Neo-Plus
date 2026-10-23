@@ -1,9 +1,8 @@
 import { loadConfig, type Config } from '../main/data';
-import { normalizeColorStyle, normalizeInitialHue, normalizeInitialHueRule } from '../appearance/color';
 import { coreColorVariables, type Preset } from '../palette/definitions';
 import { getCurrentPlan, getBuiltinPresets, getPresetKey } from '../palette/presets';
 import { getLibraryPresets } from '../palette/library';
-import { baseCss, featureCss } from './csschunks';
+import { baseCss } from './csschunks';
 import { isDesktop } from './env';
 interface ExportWebContents {
   id: number;
@@ -80,19 +79,27 @@ function collectPdfAppearance(config: Config): PdfAppearanceSnapshot {
     );
     if (config['highcontrast-light'] === true) snapshot.classes.push('neo-palette-highcontrast');
   }
-  for (const feature of ['coloredheadings', 'coloredlists'] as const) {
-    if (config[feature] !== true) continue;
-    snapshot.classes.push(`neo-${feature}`);
-    snapshot.styles.push({ key: `appearance-${feature}`, css: featureCss[`appearance-${feature}`] });
-    const rule = normalizeInitialHueRule(config[`${feature}-initial-hue-rule`]);
-    const colorStyle = normalizeColorStyle(config[`${feature}-colorstyle`]);
-    if (rule === 'accent') snapshot.classes.push(`neo-${feature}-accent`);
-    if (rule === 'fixed') {
-      snapshot.variables.push({ name: `--_${feature}-initial-hue`, value: String(normalizeInitialHue(config[`${feature}-initial-hue`])) });
-    }
-    if (colorStyle !== 'default') {
-      snapshot.variables.push({ name: `--_${feature}-c`, value: colorStyle === 'soft' ? '0.05' : '0.2' });
-    }
+  const savedRule = config['element-heading-colored-initial-hue-rule'];
+  const savedColorStyle = config['element-heading-colored-color-style'];
+  const hue = Number(config['element-heading-colored-initial-hue']);
+  const elementConfig = {
+    ...config,
+    'element-link-style': config['element-link-style'] === 'icon' ? 'icon' : 'underline',
+    'element-heading-colored': config['element-heading-colored'] === 'on' ? 'on' : 'off',
+    'element-heading-colored-outline': config['element-heading-colored-outline'] === 'off' ? 'off' : 'on',
+    'element-heading-colored-color-style': savedColorStyle === 'soft' || savedColorStyle === 'vivid' ? savedColorStyle : 'default',
+    'element-heading-colored-initial-hue-rule': savedRule === 'fixed' || savedRule === 'accent' ? savedRule : 'theme',
+    'element-heading-colored-initial-hue': Number.isFinite(hue) ? Math.min(360, Math.max(0, Math.round(hue))) : 0,
+    'element-heading-level': config['element-heading-level'] === 'on' ? 'on' : 'off',
+  };
+  for (const [key, value] of Object.entries(elementConfig)) {
+    if (key.startsWith('element-') && typeof value === 'string') snapshot.classes.push(`neo-${key}-${value}`);
+  }
+  if (elementConfig['element-heading-colored'] === 'on' && elementConfig['element-heading-colored-initial-hue-rule'] === 'fixed') {
+    snapshot.variables.push({
+      name: '--_element-heading-colored-initial-hue',
+      value: String(elementConfig['element-heading-colored-initial-hue']),
+    });
   }
   return snapshot;
 }

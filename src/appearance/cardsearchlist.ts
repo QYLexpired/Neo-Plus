@@ -68,7 +68,7 @@ fetchMonitor.onNotify('fullTextSearchAssetContent', onSearchActivity);
 fetchMonitor.onNotify('getRecentUpdatedBlocks', onSearchActivity);
 function enableCardSearchList(): void {
   if (neoFeatureActive) return;
-  ensureCss('extension-cardsearchlist', featureCss['extension-cardsearchlist']);
+  ensureCss('appearance-cardsearchlist', featureCss['appearance-cardsearchlist']);
   document.documentElement.classList.add('neo-cardsearchlist');
   neoFeatureActive = true;
   fetchMonitor.attach();
@@ -96,7 +96,7 @@ export function destroyCardSearchList(): void {
   neoFeatureActive = false;
   cancelSettleFallback();
   try {
-    removeCss('extension-cardsearchlist');
+    removeCss('appearance-cardsearchlist');
     fetchMonitor.detach();
     document.documentElement?.classList.remove('neo-cardsearchlist');
     searchListSelectors.forEach(selector => {

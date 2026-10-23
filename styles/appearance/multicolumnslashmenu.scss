@@ -1,6 +1,6 @@
 @use "manager" as *;
 .neo-multicolumnslashmenu {
-    @include extension-common('[data-id="neo-multicolumnslashmenu-button"]', '[data-id="neo-extension-button"]');
+    @include appearance-common('[data-id="neo-multicolumnslashmenu-button"]', '[data-id="neo-appearance-button"]');
     @mixin multicol-menu($min-width, $column-width) {
         .protyle-hint.hint--menu {   
             max-height: min(80vh, 550px);
