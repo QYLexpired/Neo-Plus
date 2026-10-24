@@ -646,8 +646,8 @@
             </div>
             <span class="fn__space"></span>
             <select class="b3-select fn__flex-center fn__size200" id="neo-element-link-style">
-              <option value="icon">${e.elementLinkStyleIcon}</option>
               <option value="underline">${e.elementLinkStyleUnderline}</option>
+              <option value="icon">${e.elementLinkStyleIcon}</option>
             </select>
           </label>
         </div>

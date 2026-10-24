@@ -82,8 +82,8 @@ function buildSettingsHTML(i18n: Record<string, string>, heading: HeadingSetting
             </div>
             <span class="fn__space"></span>
             <select class="b3-select fn__flex-center fn__size200" id="neo-element-link-style">
-              <option value="icon">${i18n.elementLinkStyleIcon}</option>
               <option value="underline">${i18n.elementLinkStyleUnderline}</option>
+              <option value="icon">${i18n.elementLinkStyleIcon}</option>
             </select>
           </label>
         </div>
