@@ -8,7 +8,7 @@ export const presetGroups = {
 } as const;
 export type PresetGroup = keyof typeof presetGroups;
 export const volChunkSize = 10;
-export const pinnedPresetKeys: readonly string[] = ['default', 'classic'];
+export const pinnedPresetKeys: readonly string[] = ['default', 'classic', 'soft'];
 export const coreColorVariables: Readonly<Record<CoreColorKey, `--${string}`>> = {
   base: '--b3-theme-base',
   accent: '--b3-theme-accent',
@@ -25,6 +25,7 @@ export interface Preset {
 export const builtinPresets: readonly Preset[] = [
   { key: 'default', nameKey: 'colorSchemeDefault', mode: 'all' },
   { key: 'classic', nameKey: 'colorSchemeClassic', mode: 'all' },
+  { key: 'soft', nameKey: 'colorSchemeSoft', mode: 'all' },
   { key: 'meridian', nameKey: 'colorSchemeMeridian', mode: 'all' },
   { key: 'amber', nameKey: 'colorSchemeAmber', mode: 'all' },
   { key: 'dusk', nameKey: 'colorSchemeDusk', mode: 'all' },

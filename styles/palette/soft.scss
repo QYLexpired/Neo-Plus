@@ -1,0 +1,24 @@
+@use "manager" as *;
+.neo-palette-soft {
+    @include palette-common("[data-id=\"neo-palette-soft-button\"]", "[data-id=\"neo-scheme-button\"]");
+    &.neo-mode-light {
+        --b3-theme-base: #b49b8e;
+        --b3-theme-accent: #a9553b;
+        --b3-theme-background: #faf9f5;
+        --b3-theme-surface: #f3f2ed;
+        --b3-theme-on-background: #3d3d38;
+        --b3-list-active: oklch(from var(--b3-theme-base) l c h / 0.2);
+    }
+    &.neo-mode-dark {
+        --b3-theme-base: #bba193;
+        --b3-theme-accent: #df9478;
+        --b3-theme-background: #262624;
+        --b3-theme-surface: #2e2e2b;
+        --b3-theme-on-background: #deddd6;
+        --b3-list-active: oklch(from var(--b3-theme-base) l c h / 0.16);
+        &.neo-palette-invert {
+            --b3-theme-background: #2e2e2b;
+            --b3-theme-surface: #262624;
+        }
+    }
+}

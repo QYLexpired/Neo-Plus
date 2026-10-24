@@ -16,7 +16,7 @@
             outline: 1px solid var(--b3-border-color-trans);
             @include superellipse-use($radius-item);
             &.b3-list-item--focus {
-                outline-color: oklch(from var(--b3-list-active) l c h / 0.25);
+                outline-color: oklch(from var(--b3-list-active) l c h / 0.32);
                 background-color: var(--b3-list-active);
             }
         }
