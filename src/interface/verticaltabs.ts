@@ -1,13 +1,15 @@
 import { isMobile } from '../modules/env';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { fetchListener } from '../modules/fetchmonitor';
 import { withViewTransition } from '../modules/viewtransition';
 import { Dialog } from '../modules/dialog';
 import { getPlugin } from '../main/context';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let neoFeatureActive = false;
+let configRevision = 0;
+let actionRevision = 0;
 let pointerDownHandler: ((e: PointerEvent) => void) | null = null;
 let dblClickHandler: ((e: MouseEvent) => void) | null = null;
 interface ActiveResizeSession {
@@ -21,11 +23,11 @@ const defaultWidth = 150;
 const minWidth = 100;
 const maxWidth = 400;
 function clampWidth(value: number): number {
-  return Math.max(minWidth, Math.min(maxWidth, Math.round(value)));
+  return Number.isFinite(value) ? Math.max(minWidth, Math.min(maxWidth, Math.round(value))) : defaultWidth;
 }
 function readConfigWidth(config: Config): number | null {
   const raw = config['verticaltabs-width'];
-  return typeof raw === 'number' && !Number.isNaN(raw) ? clampWidth(raw) : null;
+  return typeof raw === 'number' && Number.isFinite(raw) ? clampWidth(raw) : null;
 }
 let topLeftOnlyLastWidth: number | null = null;
 let configWidth: number | null = null;
@@ -43,10 +45,15 @@ function finishActiveResize(commitWidth: boolean): void {
     topLeftOnlyLastWidth = session.flexEl.getBoundingClientRect().width;
   }
 }
-function applyVerticalTabsConfig(config: Config): void {
-  configWidth = readConfigWidth(config);
-  currentMode = config['verticaltabs-mode'] || 'topLeftOnly';
+function applyVerticalTabsConfig(config: Config): boolean {
+  const width = readConfigWidth(config);
+  const mode = config['verticaltabs-mode'] === 'all' ? 'all' : 'topLeftOnly';
+  if (width === configWidth && mode === currentMode) return false;
+  finishActiveResize(false);
+  configWidth = width;
+  currentMode = mode;
   topLeftOnlyLastWidth = null;
+  return true;
 }
 function queryWnds(): NodeListOf<HTMLElement> {
   return document.querySelectorAll<HTMLElement>(wndSelector);
@@ -230,29 +237,40 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <button class="b3-button b3-button--text" id="neo-verticaltabs-confirm">${i18n.confirm}</button>
   </div>`;
 }
-export function showVerticalTabsSettings(): void {
+export async function showVerticalTabsSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  const config = getConfig();
+  const initialMode = config['verticaltabs-mode'] === 'all' ? 'all' : 'topLeftOnly';
+  const initialConfigWidth = readConfigWidth(config);
   const dialog = new Dialog({
     title: plugin.i18n.verticaltabsSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
   const modeSelect = dialog.element.querySelector('#neo-verticaltabs-mode') as HTMLSelectElement;
-  if (modeSelect) modeSelect.value = currentMode;
+  if (modeSelect) modeSelect.value = initialMode;
   const widthSlider = dialog.element.querySelector('#neo-verticaltabs-width') as HTMLInputElement;
   const widthTooltip = dialog.element.querySelector('#neo-verticaltabs-width-tooltip') as HTMLElement;
   if (widthSlider) {
-    widthSlider.value = String(configWidth ?? defaultWidth);
+    widthSlider.value = String(initialConfigWidth ?? defaultWidth);
+    widthTooltip?.setAttribute('aria-label', `${widthSlider.value}px`);
     widthSlider.addEventListener('input', () => {
       if (widthTooltip) widthTooltip.setAttribute('aria-label', `${widthSlider.value}px`);
     });
   }
   dialog.element.querySelector('#neo-verticaltabs-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-verticaltabs-confirm')?.addEventListener('click', () => {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
     if (modeSelect) {
-      const newMode = modeSelect.value as 'topLeftOnly' | 'all';
-      if (newMode !== currentMode) {
+      const newMode = modeSelect.value === 'all' ? 'all' : 'topLeftOnly';
+      if (newMode !== initialMode) {
         if (neoFeatureActive) {
           queryWnds().forEach((wnd) => {
             const firstFlex = wnd.querySelector<HTMLElement>('.fn__flex:first-child');
@@ -269,7 +287,7 @@ export function showVerticalTabsSettings(): void {
     }
     if (widthSlider) {
       const newWidth = clampWidth(Number(widthSlider.value));
-      const currentWidth = configWidth ?? defaultWidth;
+      const currentWidth = initialConfigWidth ?? defaultWidth;
       if (newWidth !== currentWidth) {
         configWidth = newWidth;
         topLeftOnlyLastWidth = null;
@@ -305,24 +323,31 @@ function enableVerticalTabs(): void {
 }
 export function initVerticalTabs(): Promise<void> | void {
   if (isMobile()) return;
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent()) return;
-    applyVerticalTabsConfig(config);
+    const config = getConfig();
+    const changed = applyVerticalTabsConfig(config);
     if (neoFeatureActive) {
-      clearVerticalTabsLayout();
-      doUpdate();
-    } else if (config['verticaltabs'] === true) {
+      if (changed) {
+        clearVerticalTabsLayout();
+        doUpdate();
+      }
+    } else if (revision === configRevision && config['verticaltabs'] === true) {
       enableVerticalTabs();
     }
   });
 }
 export function onVerticalTabsClick(): void {
   if (isMobile()) return;
+  configRevision += 1;
+  const revision = ++actionRevision;
   const shouldEnable = !neoFeatureActive;
   const isCurrent = createNeoLifecycleGuard();
   withViewTransition(() => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || revision !== actionRevision) return;
+    configRevision += 1;
     if (shouldEnable) {
       enableVerticalTabs();
       saveConfig({ 'verticaltabs': true });
@@ -334,6 +359,8 @@ export function onVerticalTabsClick(): void {
 }
 export function destroyVerticalTabs(): void {
   neoFeatureActive = false;
+  configRevision += 1;
+  actionRevision += 1;
   removeCss('interface-verticaltabs');
   fetchMonitor.detach();
   destroyResizeHandle();

@@ -8,6 +8,7 @@ const searchListSelectors = ['#searchList', '#searchAssetList', '#searchUnRefLis
 const settleInterval = 50;
 const settleLimit = 10;
 let neoFeatureActive = false;
+let configRevision = 0;
 let settleTimer: ReturnType<typeof setTimeout> | undefined;
 let settlePassesLeft = 0;
 function cancelSettleFallback(): void {
@@ -75,15 +76,17 @@ function enableCardSearchList(): void {
   onSearchActivity();
 }
 export function initCardSearchList(): Promise<void> {
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
   return loadConfig().then((config) => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || revision !== configRevision) return;
     if (config['cardsearchlist'] === true) {
       enableCardSearchList();
     }
   });
 }
 export function onCardSearchListClick(): void {
+  configRevision += 1;
   if (neoFeatureActive) {
     destroyCardSearchList();
     saveConfig({ 'cardsearchlist': false });
@@ -94,6 +97,7 @@ export function onCardSearchListClick(): void {
 }
 export function destroyCardSearchList(): void {
   neoFeatureActive = false;
+  configRevision += 1;
   cancelSettleFallback();
   try {
     removeCss('appearance-cardsearchlist');

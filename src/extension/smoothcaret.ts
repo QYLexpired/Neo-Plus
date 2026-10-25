@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig } from '../main/data';
+import { saveConfig, loadConfig, getConfig } from '../main/data';
 import { getPlugin } from '../main/context';
 import { getCursorRect, getTextColor, getScrollContainer, getCharWidthAtCursor, hasMeaningfulSelection } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
@@ -17,7 +17,17 @@ let smoothCaretMotion: 'static' | 'breathing' | 'stretch' = 'static';
 let smoothCaretEase: 'elegant' | 'shuttle' | 'drift' | 'spring' = 'elegant';
 let smoothCaretStyle: 'default' | 'neon' | 'rainbow' | 'block' | 'underline' = 'default';
 let neoFeatureActive = false;
+let configRevision = 0;
 const scrollListenerOptions: AddEventListenerOptions = { capture: true, passive: true };
+function normalizeSmoothCaretMotion(value: unknown): typeof smoothCaretMotion {
+  return value === 'breathing' || value === 'stretch' ? value : 'static';
+}
+function normalizeSmoothCaretEase(value: unknown): typeof smoothCaretEase {
+  return value === 'shuttle' || value === 'drift' || value === 'spring' ? value : 'elegant';
+}
+function normalizeSmoothCaretStyle(value: unknown): typeof smoothCaretStyle {
+  return value === 'neon' || value === 'rainbow' || value === 'block' || value === 'underline' ? value : 'default';
+}
 function applySmoothCaretMotion(): void {
   document.body.classList.remove(
     'neo-smoothcaret-motion-static',
@@ -242,9 +252,16 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <button class="b3-button b3-button--text" id="neo-smoothcaret-confirm">${i18n.confirm}</button>
   </div>`;
 }
-export function showSmoothCaretSettings(): void {
+export async function showSmoothCaretSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  const config = getConfig();
+  const initialSmoothCaretMotion = normalizeSmoothCaretMotion(config['smoothcaret-motion']);
+  const initialSmoothCaretEase = normalizeSmoothCaretEase(config['smoothcaret-ease']);
+  const initialSmoothCaretStyle = normalizeSmoothCaretStyle(config['smoothcaret-style']);
   const dialog = new Dialog({
     title: plugin.i18n.smoothCaretSettings,
     content: buildSettingsHTML(plugin.i18n),
@@ -253,14 +270,18 @@ export function showSmoothCaretSettings(): void {
   const easeSelect = dialog.element.querySelector('#neo-smoothcaret-ease') as HTMLSelectElement;
   const motionSelect = dialog.element.querySelector('#neo-smoothcaret-motion') as HTMLSelectElement;
   const styleSelect = dialog.element.querySelector('#neo-smoothcaret-style') as HTMLSelectElement;
-  if (easeSelect) easeSelect.value = smoothCaretEase;
-  if (motionSelect) motionSelect.value = smoothCaretMotion;
-  if (styleSelect) styleSelect.value = smoothCaretStyle;
+  if (easeSelect) easeSelect.value = initialSmoothCaretEase;
+  if (motionSelect) motionSelect.value = initialSmoothCaretMotion;
+  if (styleSelect) styleSelect.value = initialSmoothCaretStyle;
   dialog.element.querySelector('#neo-smoothcaret-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-smoothcaret-confirm')?.addEventListener('click', () => {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
     if (easeSelect) {
-      const newEase = easeSelect.value as 'elegant' | 'shuttle' | 'drift' | 'spring';
-      if (newEase !== smoothCaretEase) {
+      const newEase = normalizeSmoothCaretEase(easeSelect.value);
+      if (newEase !== initialSmoothCaretEase) {
         smoothCaretEase = newEase;
         saveConfig({ 'smoothcaret-ease': newEase });
         if (neoFeatureActive) {
@@ -269,8 +290,8 @@ export function showSmoothCaretSettings(): void {
       }
     }
     if (motionSelect) {
-      const newMotion = motionSelect.value as 'static' | 'breathing' | 'stretch';
-      if (newMotion !== smoothCaretMotion) {
+      const newMotion = normalizeSmoothCaretMotion(motionSelect.value);
+      if (newMotion !== initialSmoothCaretMotion) {
         smoothCaretMotion = newMotion;
         saveConfig({ 'smoothcaret-motion': newMotion });
         if (neoFeatureActive) {
@@ -279,8 +300,8 @@ export function showSmoothCaretSettings(): void {
       }
     }
     if (styleSelect) {
-      const newStyle = styleSelect.value as 'default' | 'neon' | 'rainbow' | 'block' | 'underline';
-      if (newStyle !== smoothCaretStyle) {
+      const newStyle = normalizeSmoothCaretStyle(styleSelect.value);
+      if (newStyle !== initialSmoothCaretStyle) {
         smoothCaretStyle = newStyle;
         saveConfig({ 'smoothcaret-style': newStyle });
         if (neoFeatureActive) {
@@ -293,6 +314,7 @@ export function showSmoothCaretSettings(): void {
 }
 export function destroySmoothCaret(): void {
   neoFeatureActive = false;
+  configRevision += 1;
   removeCss('extension-smoothcaret');
   document.getElementById('neo-smoothcaret-item')?.remove();
   document.documentElement.classList.remove('neo-smoothcaret');
@@ -330,22 +352,25 @@ export function destroySmoothCaret(): void {
   }
 }
 export function initSmoothCaret(): Promise<void> {
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent()) return;
-    smoothCaretMotion = config['smoothcaret-motion'] || 'static';
-    smoothCaretEase = config['smoothcaret-ease'] || 'elegant';
-    smoothCaretStyle = config['smoothcaret-style'] || 'default';
+    const config = getConfig();
+    smoothCaretMotion = normalizeSmoothCaretMotion(config['smoothcaret-motion']);
+    smoothCaretEase = normalizeSmoothCaretEase(config['smoothcaret-ease']);
+    smoothCaretStyle = normalizeSmoothCaretStyle(config['smoothcaret-style']);
     if (neoFeatureActive) {
       applySmoothCaretMotion();
       applySmoothCaretEase();
       applySmoothCaretStyle();
-    } else if (config['smoothcaret'] === true) {
+    } else if (revision === configRevision && config['smoothcaret'] === true) {
       enableSmoothCaret();
     }
   });
 }
 export function onSmoothCaretClick(): void {
+  configRevision += 1;
   if (neoFeatureActive) {
     destroySmoothCaret();
     saveConfig({ 'smoothcaret': false });

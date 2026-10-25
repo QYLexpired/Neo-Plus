@@ -1,16 +1,23 @@
-import { saveConfig, loadConfig } from '../main/data';
+import { saveConfig, loadConfig, getConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { getEffectiveSelectionRange } from '../modules/getselection';
 import { fetchListener } from '../modules/fetchmonitor';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+import { getPlugin } from '../main/context';
+import { Dialog } from '../modules/dialog';
 let selectionChangeHandler: (() => void) | null = null;
 let clickHandler: ((event: MouseEvent) => void) | null = null;
 let updateFrame: number | null = null;
 let refreshFrame: number | null = null;
 let pendingClickTarget: HTMLElement | null = null;
 let lastMarkedItems: Set<HTMLElement> = new Set();
+let drawOn = true;
 let neoFeatureActive = false;
+let configRevision = 0;
+function applyDrawClass(): void {
+  document.body.classList.toggle('neo-listbulletline-draw-on', drawOn);
+}
 function clearBulletLineMarks(): void {
   document.querySelectorAll<HTMLElement>('[neo-listbulletline-node],[neo-listbulletline-current]').forEach((element) => {
     element.removeAttribute('neo-listbulletline-node');
@@ -200,19 +207,26 @@ function enableListBulletLine(): void {
   ensureCss('extension-listbulletline', featureCss['extension-listbulletline']);
   document.documentElement.classList.add('neo-listbulletline');
   neoFeatureActive = true;
+  applyDrawClass();
   fetchMonitor.attach();
   bindSelectionChange();
 }
 export function initListBulletLine(): Promise<void> {
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent()) return;
-    if (config['listbulletline'] === true) {
+    const config = getConfig();
+    drawOn = config['listbulletline-draw'] !== false;
+    if (neoFeatureActive) {
+      applyDrawClass();
+    } else if (revision === configRevision && config['listbulletline'] === true) {
       enableListBulletLine();
     }
   });
 }
 export function onListBulletLineClick(): void {
+  configRevision += 1;
   if (neoFeatureActive) {
     destroyListBulletLine();
     saveConfig({ 'listbulletline': false });
@@ -221,10 +235,64 @@ export function onListBulletLineClick(): void {
     saveConfig({ 'listbulletline': true });
   }
 }
+function buildSettingsHTML(i18n: Record<string, string>): string {
+  return `<div class="b3-dialog__content">
+    <div class="config__tab-container">
+      <div class="config-group">
+        <div class="config-items">
+          <label class="fn__flex b3-label config-item">
+            <div class="fn__flex-1 config-item__main">
+              <div class="config-name">${i18n.listBulletLineDrawAnimation}</div>
+              <div class="b3-label__text">${i18n.listBulletLineDrawAnimationTip}</div>
+            </div>
+            <span class="fn__space"></span>
+            <input class="b3-switch fn__flex-center" id="neo-listbulletline-draw" type="checkbox">
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="b3-dialog__action">
+    <button class="b3-button b3-button--cancel" id="neo-listbulletline-cancel">${i18n.cancel}</button>
+    <span class="fn__space"></span>
+    <button class="b3-button b3-button--text" id="neo-listbulletline-confirm">${i18n.confirm}</button>
+  </div>`;
+}
+export async function showListBulletLineSettings(): Promise<void> {
+  const plugin = getPlugin();
+  if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  const config = getConfig();
+  const initialDrawOn = config['listbulletline-draw'] !== false;
+  const dialog = new Dialog({
+    title: plugin.i18n.listBulletLineSettings,
+    content: buildSettingsHTML(plugin.i18n),
+  });
+  dialog.element.classList.add('neo-settings-dialog');
+  const drawCheckbox = dialog.element.querySelector<HTMLInputElement>('#neo-listbulletline-draw');
+  if (drawCheckbox) drawCheckbox.checked = initialDrawOn;
+  dialog.element.querySelector('#neo-listbulletline-cancel')?.addEventListener('click', () => dialog.destroy());
+  dialog.element.querySelector('#neo-listbulletline-confirm')?.addEventListener('click', () => {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
+    if (drawCheckbox && drawCheckbox.checked !== initialDrawOn) {
+      drawOn = drawCheckbox.checked;
+      saveConfig({ 'listbulletline-draw': drawOn });
+      if (neoFeatureActive) applyDrawClass();
+    }
+    dialog.destroy();
+  });
+}
 export function destroyListBulletLine(): void {
   neoFeatureActive = false;
+  configRevision += 1;
   removeCss('extension-listbulletline');
   fetchMonitor.detach();
   document.documentElement?.classList.remove('neo-listbulletline');
+  document.body.classList.remove('neo-listbulletline-draw-on');
   unbindSelectionChange();
 }

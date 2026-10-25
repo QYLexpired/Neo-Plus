@@ -1,10 +1,11 @@
 import { getPlugin } from '../main/context';
-import { loadConfig, saveConfig, type Config } from '../main/data';
+import { getConfig, loadConfig, saveConfig, type Config } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { Dialog } from '../modules/dialog';
 type InitialHueRule = 'theme' | 'fixed' | 'accent';
 type ColorStyle = 'soft' | 'default' | 'vivid';
 type LinkStyle = 'icon' | 'underline';
+let configRevision = 0;
 interface HeadingSettings {
   enabled: boolean;
   outline: boolean;
@@ -57,9 +58,10 @@ function applyElementSettings(config: Config): void {
   }
 }
 export function initElement(): Promise<void> {
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
   return loadConfig().then((config) => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || revision !== configRevision) return;
     applyElementSettings(config);
   });
 }
@@ -161,9 +163,10 @@ function buildSettingsHTML(i18n: Record<string, string>, heading: HeadingSetting
 export async function showElementSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
+  const revision = configRevision;
   const isCurrent = createNeoLifecycleGuard();
   const config = await loadConfig();
-  if (!isCurrent()) return;
+  if (!isCurrent() || revision !== configRevision) return;
   const heading = readHeadingSettings(config);
   const dialog = new Dialog({
     title: `<div class="fn__flex">
@@ -221,14 +224,15 @@ export async function showElementSettings(): Promise<void> {
   });
   dialog.element.querySelector('#neo-element-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-element-confirm')?.addEventListener('click', () => {
-    if (!isCurrent()) {
+    if (!isCurrent() || !dialog.element.isConnected) {
       dialog.destroy();
       return;
     }
+    configRevision += 1;
     const colorStyle = colorStyleSelect.value;
     const rule = ruleSelect.value;
     const hue = Number(hueSlider.value);
-    const patch: Partial<Config> = {
+    const settings: Partial<Config> = {
       'element-link-style': linkStyleSelect.value === 'icon' ? 'icon' : 'underline',
       'element-heading-colored': headingSelect.value === 'on' ? 'on' : 'off',
       'element-heading-colored-outline': outlineSwitch.checked ? 'on' : 'off',
@@ -237,12 +241,18 @@ export async function showElementSettings(): Promise<void> {
       'element-heading-colored-initial-hue-rule': rule === 'fixed' || rule === 'accent' ? rule : 'theme',
       'element-heading-colored-initial-hue': Number.isFinite(hue) ? Math.min(360, Math.max(0, Math.round(hue))) : 0,
     };
-    saveConfig(patch);
-    applyElementSettings(patch);
+    const patch = Object.fromEntries(
+      Object.entries(settings).filter(([key, value]) => value !== config[key as keyof Config]),
+    ) as Partial<Config>;
+    if (Object.keys(patch).length > 0) {
+      saveConfig(patch);
+      applyElementSettings(getConfig());
+    }
     dialog.destroy();
   });
 }
 export function destroyElement(): void {
+  configRevision += 1;
   document.documentElement.classList.remove('neo-element-link-style-icon', 'neo-element-link-style-underline');
   for (const [name, values] of Object.entries(headingClassOptions)) {
     document.documentElement.classList.remove(...values.map(value => `neo-element-heading-${name}-${value}`));

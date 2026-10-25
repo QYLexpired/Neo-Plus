@@ -94,6 +94,8 @@ function detachEvents(): void {
 }
 let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
 let neoFeatureActive = false;
+let configRevision = 0;
+let actionRevision = 0;
 function enableIde(): void {
   if (neoFeatureActive) return;
   ensureCss('interface-ide', featureCss['interface-ide']);
@@ -110,9 +112,10 @@ function enableIde(): void {
 }
 export function initIde(): Promise<void> | void {
   if (isMobile()) return;
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
   return loadConfig().then((config) => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || revision !== configRevision) return;
     if (config['ide'] === true) {
       if (neoFeatureActive) {
         updateDockExpandAndFloat();
@@ -124,10 +127,13 @@ export function initIde(): Promise<void> | void {
 }
 export function onIdeClick(): void {
   if (isMobile()) return;
+  configRevision += 1;
+  const revision = ++actionRevision;
   const shouldEnable = !neoFeatureActive;
   const isCurrent = createNeoLifecycleGuard();
   withViewTransition(() => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || revision !== actionRevision) return;
+    configRevision += 1;
     if (shouldEnable) {
       enableIde();
       saveConfig({ 'ide': true });
@@ -139,6 +145,8 @@ export function onIdeClick(): void {
 }
 export function destroyIde(): void {
   neoFeatureActive = false;
+  configRevision += 1;
+  actionRevision += 1;
   removeCss('interface-ide');
   if (fallbackTimer !== null) {
     clearTimeout(fallbackTimer);

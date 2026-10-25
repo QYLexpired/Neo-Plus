@@ -9,12 +9,19 @@ $types: (
   "t": $fix-t,
 );
 $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.protyle-wysiwyg--hl):not([custom-list-view] [neo-listbulletline-current]):not(.dragover)";
+@property --_listbulletline-progress {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
 .neo-listbulletline {
   @include extension-common(
     '[data-id="neo-listbulletline-button"]',
     '[data-id="neo-extension-button"]'
   );
   #{$selector}::after {
+    --_bulletline-height: calc(var(--neo-listbulletline-height) - var(--neo-listbulletline-height-fix));
+    --_bulletline-width: calc(34px - var(--neo-listbulletline-width-fix));
     content: '';
     box-sizing: border-box;
     border-left: 1.5px solid var(--_list-accent-color);
@@ -22,8 +29,9 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
     @include superellipse-use(0 0 0 $radius-card);
     position: absolute;
     left: -18px;
-    animation: neo-listbulletline-entrance 0.45s var(--neo-ease-spring-3);
-    transform-origin: left;
+    width: var(--_bulletline-width);
+    height: var(--_bulletline-height);
+    animation: none;
   }
   .protyle.rtl #{$selector}::after,
   .list.protyle-block--rtl #{$selector}::after {
@@ -32,7 +40,36 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
     @include superellipse-use(0 0 $radius-card 0);
     left: auto;
     right: -18px;
-    transform-origin: right;
+  }
+  body.neo-listbulletline-draw-on {
+    #{$selector}::after {
+      --_bulletline-corner: #{$radius-card};
+      --_bulletline-turn: max(0px, calc(var(--_bulletline-height) - var(--_bulletline-corner)));
+      --_bulletline-distance: calc((var(--_bulletline-turn) + var(--_bulletline-width)) * var(--_listbulletline-progress));
+      --_bulletline-draw-y: min(var(--_bulletline-distance), var(--_bulletline-turn));
+      --_bulletline-draw-inline: clamp(0px, calc(var(--_bulletline-distance) - var(--_bulletline-turn)), var(--_bulletline-width));
+      --_bulletline-start: 0%;
+      --_bulletline-end: 100%;
+      --_bulletline-draw-x: var(--_bulletline-draw-inline);
+      clip-path: polygon(
+        var(--_bulletline-start) 0,
+        var(--_bulletline-end) 0,
+        var(--_bulletline-end) var(--_bulletline-draw-y),
+        var(--_bulletline-draw-x) var(--_bulletline-draw-y),
+        var(--_bulletline-draw-x) 100%,
+        var(--_bulletline-start) 100%
+      );
+      animation: neo-listbulletline-draw 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
+      @supports (corner-shape: superellipse(1.4)) {
+        --_bulletline-corner: #{$radius-card * 1.4};
+      }
+    }
+    .protyle.rtl #{$selector}::after,
+    .list.protyle-block--rtl #{$selector}::after {
+      --_bulletline-start: 100%;
+      --_bulletline-end: 0%;
+      --_bulletline-draw-x: calc(100% - var(--_bulletline-draw-inline));
+    }
   }
   .protyle-wysiwyg [data-node-id].li {
     & > .protyle-action {
@@ -53,18 +90,16 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
       [data-subtype="#{$parent}"] > [data-subtype="#{$child}"] > #{$selector}::after {
         --neo-listbulletline-height-fix: #{$parent-fix};
         --neo-listbulletline-width-fix: #{$child-fix};
-        width: calc(34px - var(--neo-listbulletline-width-fix));
-        height: calc(var(--neo-listbulletline-height) - var(--neo-listbulletline-height-fix));
         top: calc(-1 * var(--neo-listbulletline-height) + calc((1.625em + 10px) / 2) + var(--neo-listbulletline-height-fix));
       }
     }
   }
 }
-@keyframes neo-listbulletline-entrance {
-    0% {
-      transform: scaleX(0) scaleY(0.8);
-    }
-    100% {
-      transform: scaleX(1) scaleY(1);
-    }
+@keyframes neo-listbulletline-draw {
+  from {
+    --_listbulletline-progress: 0;
+  }
+  to {
+    --_listbulletline-progress: 1;
+  }
 }

@@ -1,6 +1,6 @@
 import type { MenuItem } from 'siyuan';
 import { getPlugin } from '../main/context';
-import { loadConfig, saveConfig, flushConfigSave, type Config } from '../main/data';
+import { loadConfig, getConfig, saveConfig, flushConfigSave, type Config } from '../main/data';
 import {
   type ThemeMode,
   type Preset,
@@ -62,7 +62,8 @@ function destroyPaletteEffects(): void {
   destroyInvert();
   destroyHighContrast();
 }
-function restorePalette(config: Config): void {
+function restorePalette(): void {
+  const config = getConfig();
   const mode = getThemeMode();
   const plan = getCurrentPlan(config, mode);
   if (plan === 'random' && refreshRandom(config)) return;
@@ -83,10 +84,11 @@ function restorePalette(config: Config): void {
 }
 export function switchToPreset(key: string): void {
   const canApply = createPaletteActionGuard();
-  loadConfig().then((config) => {
+  loadConfig().then(() => {
     if (!canApply()) return;
     withViewTransition(() => {
       if (!canApply()) return;
+      const config = getConfig();
       destroyPaletteEffects();
       applyPreset(key);
       initSaturation(config);
@@ -102,11 +104,11 @@ export function switchToPlan(plan: Plan): void {
   const configKey: 'color-plan-light' | 'color-plan-dark' = mode === 'dark' ? 'color-plan-dark' : 'color-plan-light';
   saveConfig({ [configKey]: plan }).then(() => {
     if (!canApply()) return;
-    return loadConfig().then((config) => {
+    return loadConfig().then(() => {
       if (!canApply()) return;
       withViewTransition(() => {
         if (!canApply()) return;
-        restorePalette(config);
+        restorePalette();
       });
     });
   }).catch(() => {});
@@ -420,9 +422,9 @@ export function initPalette(): Promise<void> | void {
   const revision = ++paletteActionRevision;
   initPaletteMenuEvents(plugin.i18n);
   const settingsReady = initRandomSettings();
-  const paletteReady = loadConfig().then((config) => {
+  const paletteReady = loadConfig().then(() => {
     if (!isCurrent() || paletteInitialization !== initialization) return;
-    if (revision === paletteActionRevision) restorePalette(config);
+    if (revision === paletteActionRevision) restorePalette();
     lastThemeMode = document.documentElement.getAttribute('data-theme-mode');
     mutationObserver = new MutationObserver(() => {
       if (!isCurrent() || paletteInitialization !== initialization) return;
@@ -430,9 +432,9 @@ export function initPalette(): Promise<void> | void {
       if (current === lastThemeMode) return;
       lastThemeMode = current;
       const canApply = createPaletteActionGuard();
-      loadConfig().then((config) => {
+      loadConfig().then(() => {
         if (!canApply() || paletteInitialization !== initialization) return;
-        restorePalette(config);
+        restorePalette();
       }).catch(() => {});
     });
     mutationObserver.observe(document.documentElement, {

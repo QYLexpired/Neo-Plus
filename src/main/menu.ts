@@ -8,7 +8,7 @@ import { showRandomSettings } from '../palette/random';
 import { getTextureMenuItems } from '../texture/manager';
 import { onSmoothCaretClick, showSmoothCaretSettings } from '../extension/smoothcaret';
 import { onFluidCursorClick, showFluidCursorSettings } from '../extension/fluidcursor';
-import { onListBulletLineClick } from '../extension/listbulletline';
+import { onListBulletLineClick, showListBulletLineSettings } from '../extension/listbulletline';
 import { onFocusBlockIndicatorClick, showFocusBlockIndicatorSettings } from '../extension/focusblockindicator';
 import { onFrostedGlassClick, showFrostedGlassSettings } from '../interface/frostedglass';
 import { onIdeClick } from '../interface/ide';
@@ -318,7 +318,12 @@ export function buildMenu(
       {
         id: 'neo-listbulletline-button',
         icon: 'iconNeoList',
-        label: i18n.listBulletLine,
+        label: createSettingsMenuLabel(
+          'listBulletLine',
+          i18n.listBulletLine,
+          i18n.listBulletLineSettings,
+          showListBulletLineSettings,
+        ),
         click: () => {
           onListBulletLineClick();
           return true;

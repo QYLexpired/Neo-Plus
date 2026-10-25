@@ -58,7 +58,7 @@
         &.layout--float {
             margin: 0;
             --_ide-dock-bg: var(--b3-theme-background);
-            .neo-frostedglass-global & {
+            .neo-frostedglass-scope-global & {
                 --_ide-dock-bg: oklch(from var(--b3-theme-background) l c h / 0.7);
             }
         }

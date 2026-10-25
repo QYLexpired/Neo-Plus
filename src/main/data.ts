@@ -71,6 +71,7 @@ export interface Config {
   'fluidcursor-trail'?: boolean;
   'fluidcursor-wave'?: boolean;
   'listbulletline'?: boolean;
+  'listbulletline-draw'?: boolean;
   'focusblockindicator'?: boolean;
   'focusblockindicator-effect'?: 'vertical-line' | 'shadow' | 'outline' | 'background';
   'focusblockindicator-line-color'?: 'accent' | 'text';

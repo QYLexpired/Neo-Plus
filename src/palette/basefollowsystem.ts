@@ -19,6 +19,7 @@ let focusHandler: (() => void) | null = null;
 export function initBaseFollowSystem(): void {
   if (!isDesktop()) return;
   applySystemAccentColor();
+  if (focusHandler) return;
   focusHandler = () => {
     applySystemAccentColor();
   };

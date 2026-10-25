@@ -1,6 +1,6 @@
 @use "manager" as *;
 @use "../utils" as *;
-@property --neo-smoothcaret-rainbow-hue {
+@property --_smoothcaret-rainbow-hue {
     syntax: '<integer>';
     inherits: false;
     initial-value: 0;
@@ -52,7 +52,7 @@
     body.neo-smoothcaret-style-rainbow {
         #neo-smoothcaret-item {
             animation: neo-smoothcaret-rainbow-hue 6s linear infinite;
-            background-color: oklch(from var(--b3-theme-accent) var(--_smoothcaret-rainbow-l) max(c, 0.45) calc(h + var(--neo-smoothcaret-rainbow-hue, 0)));
+            background-color: oklch(from var(--b3-theme-accent) var(--_smoothcaret-rainbow-l) max(c, 0.45) calc(h + var(--_smoothcaret-rainbow-hue, 0)));
         }
     }
     body.neo-smoothcaret-style-block {
@@ -93,10 +93,10 @@
 }
 @keyframes neo-smoothcaret-rainbow-hue {
     0% {
-        --neo-smoothcaret-rainbow-hue: 0;
+        --_smoothcaret-rainbow-hue: 0;
     }
     100% {
-        --neo-smoothcaret-rainbow-hue: 360;
+        --_smoothcaret-rainbow-hue: 360;
     }
 }
 @keyframes neo-smoothcaret-breath {

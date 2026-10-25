@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig } from '../main/data';
+import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { getPlugin } from '../main/context';
@@ -12,10 +12,11 @@ let coloredFoldersColorStyle: ColorStyle = 'default';
 let initialHueRule: InitialHueRule = 'theme';
 let initialHue = 0;
 let neoFeatureActive = false;
+let configRevision = 0;
 function applyLayout(): void {
-  document.body.classList.toggle('neo-coloredfolders-partition', coloredFoldersLayout === 'partition');
-  document.body.classList.toggle('neo-coloredfolders-simple', coloredFoldersLayout === 'simple');
-  document.body.classList.toggle('neo-coloredfolders-card', coloredFoldersLayout === 'card');
+  document.body.classList.toggle('neo-coloredfolders-layout-partition', coloredFoldersLayout === 'partition');
+  document.body.classList.toggle('neo-coloredfolders-layout-simple', coloredFoldersLayout === 'simple');
+  document.body.classList.toggle('neo-coloredfolders-layout-card', coloredFoldersLayout === 'card');
 }
 function applyColorStyle(): void {
   if (coloredFoldersColorStyle === 'default') {
@@ -25,7 +26,7 @@ function applyColorStyle(): void {
   document.documentElement.style.setProperty('--_coloredfolders-c', coloredFoldersColorStyle === 'soft' ? '0.08' : '0.2');
 }
 function applyInitialHue(): void {
-  document.documentElement.classList.toggle('neo-coloredfolders-accent', initialHueRule === 'accent');
+  document.documentElement.classList.toggle('neo-coloredfolders-initial-hue-rule-accent', initialHueRule === 'accent');
   if (initialHueRule === 'fixed') {
     document.documentElement.style.setProperty('--_coloredfolders-initial-hue', String(initialHue));
   } else {
@@ -45,9 +46,11 @@ function enableColoredFolders(): void {
   applySettings();
 }
 export function initColoredFolders(): Promise<void> {
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent()) return;
+    const config = getConfig();
     const savedLayout = config['coloredfolders-layout'];
     const savedColorStyle = config['coloredfolders-colorstyle'];
     const savedRule = config['coloredfolders-initial-hue-rule'];
@@ -58,12 +61,13 @@ export function initColoredFolders(): Promise<void> {
     initialHue = Number.isFinite(savedHue) ? Math.min(360, Math.max(0, Math.round(savedHue))) : 0;
     if (neoFeatureActive) {
       applySettings();
-    } else if (config['coloredfolders'] === true) {
+    } else if (revision === configRevision && config['coloredfolders'] === true) {
       enableColoredFolders();
     }
   });
 }
 export function onColoredFoldersClick(): void {
+  configRevision += 1;
   if (neoFeatureActive) {
     destroyColoredFolders();
     saveConfig({ 'coloredfolders': false });
@@ -137,9 +141,18 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <button class="b3-button b3-button--text" id="neo-coloredfolders-confirm">${i18n.confirm}</button>
   </div>`;
 }
-export function showColoredFoldersSettings(): void {
+export async function showColoredFoldersSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  const config = getConfig();
+  const savedHue = Number(config['coloredfolders-initial-hue']);
+  const initialLayout = config['coloredfolders-layout'] === 'simple' || config['coloredfolders-layout'] === 'card' ? config['coloredfolders-layout'] : 'partition';
+  const initialColorStyle = config['coloredfolders-colorstyle'] === 'soft' || config['coloredfolders-colorstyle'] === 'vivid' ? config['coloredfolders-colorstyle'] : 'default';
+  const initialRule = config['coloredfolders-initial-hue-rule'] === 'fixed' || config['coloredfolders-initial-hue-rule'] === 'accent' ? config['coloredfolders-initial-hue-rule'] : 'theme';
+  const initialHueValue = Number.isFinite(savedHue) ? Math.min(360, Math.max(0, Math.round(savedHue))) : 0;
   const dialog = new Dialog({
     title: plugin.i18n.coloredFoldersSettings,
     content: buildSettingsHTML(plugin.i18n),
@@ -159,17 +172,18 @@ export function showColoredFoldersSettings(): void {
     hueItem?.classList.toggle('fn__none', ruleSelect?.value !== 'fixed');
     colorStyleSelect?.closest('.config-item')?.classList.toggle('fn__none', ruleSelect?.value === 'accent');
   };
-  if (layoutSelect) layoutSelect.value = coloredFoldersLayout;
+  if (layoutSelect) layoutSelect.value = initialLayout;
   if (colorStyleSelect) {
-    colorStyleSelect.value = coloredFoldersColorStyle;
+    colorStyleSelect.value = initialColorStyle;
     colorStyleSelect.addEventListener('change', updateColorStylePreview);
   }
   if (ruleSelect) {
-    ruleSelect.value = initialHueRule;
+    ruleSelect.value = initialRule;
     ruleSelect.addEventListener('change', updateHueVisibility);
   }
   if (hueSlider) {
-    hueSlider.value = String(initialHue);
+    hueSlider.value = String(initialHueValue);
+    hueTooltip?.setAttribute('aria-label', `${hueSlider.value}deg`);
     hueSlider.addEventListener('input', () => {
       hueTooltip?.setAttribute('aria-label', `${hueSlider.value}deg`);
     });
@@ -178,6 +192,10 @@ export function showColoredFoldersSettings(): void {
   updateHueVisibility();
   dialog.element.querySelector('#neo-coloredfolders-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-coloredfolders-confirm')?.addEventListener('click', () => {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
     const layoutValue = layoutSelect?.value;
     const newLayout: ColoredFoldersLayout = layoutValue === 'simple' || layoutValue === 'card' ? layoutValue : 'partition';
     const colorStyle = colorStyleSelect?.value;
@@ -186,25 +204,36 @@ export function showColoredFoldersSettings(): void {
     const newColorStyle = colorStyle === 'soft' || colorStyle === 'vivid' ? colorStyle : 'default';
     const newRule = rule === 'fixed' || rule === 'accent' ? rule : 'theme';
     const newHue = Number.isFinite(hue) ? Math.min(360, Math.max(0, Math.round(hue))) : 0;
-    coloredFoldersLayout = newLayout;
-    coloredFoldersColorStyle = newColorStyle;
-    initialHueRule = newRule;
-    initialHue = newHue;
-    saveConfig({
-      'coloredfolders-layout': newLayout,
-      'coloredfolders-colorstyle': newColorStyle,
-      'coloredfolders-initial-hue-rule': newRule,
-      'coloredfolders-initial-hue': newHue,
-    });
-    if (neoFeatureActive) applySettings();
+    const patch: Partial<Config> = {};
+    if (newLayout !== initialLayout) {
+      coloredFoldersLayout = newLayout;
+      patch['coloredfolders-layout'] = newLayout;
+    }
+    if (newColorStyle !== initialColorStyle) {
+      coloredFoldersColorStyle = newColorStyle;
+      patch['coloredfolders-colorstyle'] = newColorStyle;
+    }
+    if (newRule !== initialRule) {
+      initialHueRule = newRule;
+      patch['coloredfolders-initial-hue-rule'] = newRule;
+    }
+    if (newHue !== initialHueValue) {
+      initialHue = newHue;
+      patch['coloredfolders-initial-hue'] = newHue;
+    }
+    if (Object.keys(patch).length > 0) {
+      saveConfig(patch);
+      if (neoFeatureActive) applySettings();
+    }
     dialog.destroy();
   });
 }
 export function destroyColoredFolders(): void {
   neoFeatureActive = false;
+  configRevision += 1;
   removeCss('appearance-coloredfolders');
-  document.documentElement?.classList.remove('neo-coloredfolders', 'neo-coloredfolders-accent');
-  document.body.classList.remove('neo-coloredfolders-partition', 'neo-coloredfolders-simple', 'neo-coloredfolders-card');
+  document.documentElement?.classList.remove('neo-coloredfolders', 'neo-coloredfolders-initial-hue-rule-accent');
+  document.body.classList.remove('neo-coloredfolders-layout-partition', 'neo-coloredfolders-layout-simple', 'neo-coloredfolders-layout-card');
   document.documentElement?.style.removeProperty('--_coloredfolders-initial-hue');
   document.documentElement?.style.removeProperty('--_coloredfolders-c');
 }

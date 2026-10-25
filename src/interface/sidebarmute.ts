@@ -5,6 +5,8 @@ import { saveConfig, loadConfig } from '../main/data';
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let neoFeatureActive = false;
+let configRevision = 0;
+let actionRevision = 0;
 function enableSidebarMute(): void {
   if (neoFeatureActive) return;
   ensureCss('interface-sidebarmute', featureCss['interface-sidebarmute']);
@@ -13,9 +15,10 @@ function enableSidebarMute(): void {
 }
 export function initSidebarMute(): Promise<void> | void {
   if (isMobile()) return;
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
   return loadConfig().then((config) => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || revision !== configRevision) return;
     if (config['sidebarmute'] === true) {
       enableSidebarMute();
     }
@@ -23,10 +26,13 @@ export function initSidebarMute(): Promise<void> | void {
 }
 export function onSidebarMuteClick(): void {
   if (isMobile()) return;
+  configRevision += 1;
+  const revision = ++actionRevision;
   const shouldEnable = !neoFeatureActive;
   const isCurrent = createNeoLifecycleGuard();
   withViewTransition(() => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || revision !== actionRevision) return;
+    configRevision += 1;
     if (shouldEnable) {
       enableSidebarMute();
       saveConfig({ 'sidebarmute': true });
@@ -38,6 +44,8 @@ export function onSidebarMuteClick(): void {
 }
 export function destroySidebarMute(): void {
   neoFeatureActive = false;
+  configRevision += 1;
+  actionRevision += 1;
   removeCss('interface-sidebarmute');
   document.documentElement?.classList.remove('neo-sidebarmute');
 }

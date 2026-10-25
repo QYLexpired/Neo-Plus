@@ -4,6 +4,7 @@ import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { getThemeMode, getHighContrastKey } from './presets';
 let neoFeatureActive = false;
+let actionRevision = 0;
 export function enableHighContrast(): void {
   if (isMobile() || getThemeMode() !== 'light' || neoFeatureActive) return;
   document.documentElement.classList.add('neo-palette-highcontrast');
@@ -13,10 +14,11 @@ export function onHighContrastClick(): void {
   if (isMobile()) return;
   const mode = getThemeMode();
   if (mode !== 'light') return;
+  const revision = ++actionRevision;
   const shouldEnable = !neoFeatureActive;
   const isCurrent = createNeoLifecycleGuard();
   const callback = () => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || revision !== actionRevision || getThemeMode() !== mode) return;
     if (shouldEnable) {
       enableHighContrast();
     } else {
@@ -30,16 +32,18 @@ export function onHighContrastClick(): void {
   saveConfig(patch);
 }
 export function initHighContrast(config: Config): void {
+  actionRevision += 1;
   if (isMobile()) return;
   const mode = getThemeMode();
   if (mode !== 'light') return;
   const key = getHighContrastKey(mode);
-  const enabled = config[key] ?? false;
+  const enabled = config[key] === true;
   if (enabled) {
     enableHighContrast();
   }
 }
 export function destroyHighContrast(): void {
   neoFeatureActive = false;
+  actionRevision += 1;
   document.documentElement.classList.remove('neo-palette-highcontrast');
 }

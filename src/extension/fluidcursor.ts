@@ -1,7 +1,7 @@
 import { isMobile } from '../modules/env';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig } from '../main/data';
+import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/context';
 import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
@@ -32,6 +32,7 @@ const trailResetInterval = 200;
 let trailOn = true;
 let waveOn = true;
 let neoFeatureActive = false;
+let configRevision = 0;
 function clearHideCursorTimeout(): void {
   if (hideCursorTimeout === null) return;
   clearTimeout(hideCursorTimeout);
@@ -392,6 +393,7 @@ function startFluidCursor(): void {
 }
 export function destroyFluidCursor(): void {
   neoFeatureActive = false;
+  configRevision += 1;
   removeCss('extension-fluidcursor');
   const existingCanvas = document.getElementById('neo-fluidcursor-canvas');
   if (existingCanvas) {
@@ -484,9 +486,15 @@ function buildFluidCursorSettingsHTML(i18n: Record<string, string>): string {
     <button class="b3-button b3-button--text" id="neo-fluidcursor-confirm">${i18n.confirm}</button>
   </div>`;
 }
-export function showFluidCursorSettings(): void {
+export async function showFluidCursorSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  const config = getConfig();
+  const initialTrailOn = config['fluidcursor-trail'] !== false;
+  const initialWaveOn = config['fluidcursor-wave'] !== false;
   const dialog = new Dialog({
     title: plugin.i18n.fluidCursorSettings,
     content: buildFluidCursorSettingsHTML(plugin.i18n),
@@ -494,36 +502,53 @@ export function showFluidCursorSettings(): void {
   dialog.element.classList.add('neo-settings-dialog');
   const trailCheckbox = dialog.element.querySelector('#neo-fluidcursor-trail') as HTMLInputElement;
   const waveCheckbox = dialog.element.querySelector('#neo-fluidcursor-wave') as HTMLInputElement;
-  if (trailCheckbox) trailCheckbox.checked = trailOn;
-  if (waveCheckbox) waveCheckbox.checked = waveOn;
+  if (trailCheckbox) trailCheckbox.checked = initialTrailOn;
+  if (waveCheckbox) waveCheckbox.checked = initialWaveOn;
   dialog.element.querySelector('#neo-fluidcursor-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-fluidcursor-confirm')?.addEventListener('click', () => {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
     if (trailCheckbox && waveCheckbox) {
-      saveConfig({
-        'fluidcursor-trail': trailCheckbox.checked,
-        'fluidcursor-wave': waveCheckbox.checked,
-      });
-      applyFluidCursorOptions(trailCheckbox.checked, waveCheckbox.checked);
+      const nextTrailOn = trailCheckbox.checked;
+      const nextWaveOn = waveCheckbox.checked;
+      if (nextTrailOn !== initialTrailOn || nextWaveOn !== initialWaveOn) {
+        const patch: Partial<Config> = {};
+        if (nextTrailOn !== initialTrailOn) {
+          trailOn = nextTrailOn;
+          patch['fluidcursor-trail'] = nextTrailOn;
+        }
+        if (nextWaveOn !== initialWaveOn) {
+          waveOn = nextWaveOn;
+          patch['fluidcursor-wave'] = nextWaveOn;
+        }
+        saveConfig(patch);
+        if (neoFeatureActive) restartFluidCursor();
+      }
     }
     dialog.destroy();
   });
 }
 export function initFluidCursor(): Promise<void> | void {
   if (isMobile()) return;
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent()) return;
+    const config = getConfig();
     trailOn = config['fluidcursor-trail'] !== false;
     waveOn = config['fluidcursor-wave'] !== false;
     if (neoFeatureActive) {
       applyFluidCursorOptions(trailOn, waveOn);
-    } else if (config['fluidcursor'] === true) {
+    } else if (revision === configRevision && config['fluidcursor'] === true) {
       enableFluidCursor();
     }
   });
 }
 export function onFluidCursorClick(): void {
   if (isMobile()) return;
+  configRevision += 1;
   if (neoFeatureActive) {
     destroyFluidCursor();
     saveConfig({ 'fluidcursor': false });

@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
@@ -11,8 +11,8 @@ let neoFeatureActive = false;
 let configRevision = 0;
 let actionRevision = 0;
 function applySettings(): void {
-  document.documentElement.classList.toggle('neo-frostedglass-global', frostedGlassScope === 'global');
-  document.documentElement.classList.toggle('neo-frostedglass-luminous', frostedGlassLuminous);
+  document.documentElement.classList.toggle('neo-frostedglass-scope-global', frostedGlassScope === 'global');
+  document.documentElement.classList.toggle('neo-frostedglass-luminous-on', frostedGlassLuminous);
 }
 function enableFrostedGlass(): void {
   if (neoFeatureActive) return;
@@ -57,36 +57,40 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <button class="b3-button b3-button--text" id="neo-frostedglass-confirm">${i18n.confirm}</button>
   </div>`;
 }
-export function showFrostedGlassSettings(): void {
+export async function showFrostedGlassSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
   const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  const config = getConfig();
+  const initialFrostedGlassScope = config['frostedglass-scope'] === 'global' ? 'global' : 'light';
+  const initialFrostedGlassLuminous = (config['frostedglass-luminous'] ?? true) === true;
   const dialog = new Dialog({
     title: plugin.i18n.frostedGlassSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
   const scopeSelect = dialog.element.querySelector('#neo-frostedglass-scope') as HTMLSelectElement;
-  if (scopeSelect) scopeSelect.value = frostedGlassScope;
+  if (scopeSelect) scopeSelect.value = initialFrostedGlassScope;
   const luminousSwitch = dialog.element.querySelector('#neo-frostedglass-luminous') as HTMLInputElement;
-  if (luminousSwitch) luminousSwitch.checked = frostedGlassLuminous;
+  if (luminousSwitch) luminousSwitch.checked = initialFrostedGlassLuminous;
   dialog.element.querySelector('#neo-frostedglass-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-frostedglass-confirm')?.addEventListener('click', () => {
-    if (!isCurrent()) {
+    if (!isCurrent() || !dialog.element.isConnected) {
       dialog.destroy();
       return;
     }
-    configRevision += 1;
     const patch: Partial<Config> = {};
     if (scopeSelect) {
       const newScope = scopeSelect.value === 'global' ? 'global' : 'light';
-      if (newScope !== frostedGlassScope) {
+      if (newScope !== initialFrostedGlassScope) {
         frostedGlassScope = newScope;
         patch['frostedglass-scope'] = newScope;
       }
     }
-    const newLuminous = luminousSwitch?.checked ?? frostedGlassLuminous;
-    if (newLuminous !== frostedGlassLuminous) {
+    const newLuminous = luminousSwitch?.checked ?? initialFrostedGlassLuminous;
+    if (newLuminous !== initialFrostedGlassLuminous) {
       frostedGlassLuminous = newLuminous;
       patch['frostedglass-luminous'] = newLuminous;
     }
@@ -100,13 +104,14 @@ export function showFrostedGlassSettings(): void {
 export function initFrostedGlass(): Promise<void> {
   const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
-    if (!isCurrent() || revision !== configRevision) return;
+  return loadConfig().then(() => {
+    if (!isCurrent()) return;
+    const config = getConfig();
     frostedGlassScope = config['frostedglass-scope'] === 'global' ? 'global' : 'light';
     frostedGlassLuminous = (config['frostedglass-luminous'] ?? true) === true;
     if (neoFeatureActive) {
       applySettings();
-    } else if (config['frostedglass'] === true) {
+    } else if (revision === configRevision && config['frostedglass'] === true) {
       enableFrostedGlass();
     }
   });
@@ -133,5 +138,5 @@ export function destroyFrostedGlass(): void {
   configRevision += 1;
   actionRevision += 1;
   removeCss('interface-frostedglass');
-  document.documentElement?.classList.remove('neo-frostedglass', 'neo-frostedglass-global', 'neo-frostedglass-luminous');
+  document.documentElement?.classList.remove('neo-frostedglass', 'neo-frostedglass-scope-global', 'neo-frostedglass-luminous-on');
 }

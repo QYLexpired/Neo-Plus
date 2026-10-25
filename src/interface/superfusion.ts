@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig } from '../main/data';
+import { saveConfig, loadConfig, getConfig } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
@@ -8,10 +8,15 @@ import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 let superFusionMode: 'blur' | 'frostedGlass' | 'liquidGlass' = 'blur';
 let neoFeatureActive = false;
+let configRevision = 0;
+let actionRevision = 0;
+function normalizeSuperFusionMode(value: unknown): typeof superFusionMode {
+  return value === 'frostedGlass' || value === 'liquidGlass' ? value : 'blur';
+}
 function applyModeClass(): void {
-  document.body.classList.toggle('neo-superfusion-blur', superFusionMode === 'blur');
-  document.body.classList.toggle('neo-superfusion-frostedglass', superFusionMode === 'frostedGlass');
-  document.body.classList.toggle('neo-superfusion-liquidglass', superFusionMode === 'liquidGlass');
+  document.body.classList.toggle('neo-superfusion-mode-blur', superFusionMode === 'blur');
+  document.body.classList.toggle('neo-superfusion-mode-frostedglass', superFusionMode === 'frostedGlass');
+  document.body.classList.toggle('neo-superfusion-mode-liquidglass', superFusionMode === 'liquidGlass');
 }
 function enableSuperFusion(): void {
   if (neoFeatureActive) return;
@@ -48,22 +53,31 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <button class="b3-button b3-button--text" id="neo-superfusion-confirm">${i18n.confirm}</button>
   </div>`;
 }
-export function showSuperFusionSettings(): void {
+export async function showSuperFusionSettings(): Promise<void> {
   if (isMobile()) return;
   const plugin = getPlugin();
   if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  const config = getConfig();
+  const initialSuperFusionMode = normalizeSuperFusionMode(config['superfusion-mode']);
   const dialog = new Dialog({
     title: plugin.i18n.superFusionSettings,
     content: buildSettingsHTML(plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
   const modeSelect = dialog.element.querySelector('#neo-superfusion-mode') as HTMLSelectElement;
-  if (modeSelect) modeSelect.value = superFusionMode;
+  if (modeSelect) modeSelect.value = initialSuperFusionMode;
   dialog.element.querySelector('#neo-superfusion-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-superfusion-confirm')?.addEventListener('click', () => {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
     if (modeSelect) {
-      const newMode = modeSelect.value as 'blur' | 'frostedGlass' | 'liquidGlass';
-      if (newMode !== superFusionMode) {
+      const newMode = normalizeSuperFusionMode(modeSelect.value);
+      if (newMode !== initialSuperFusionMode) {
         superFusionMode = newMode;
         saveConfig({ 'superfusion-mode': newMode });
         if (neoFeatureActive) {
@@ -76,23 +90,28 @@ export function showSuperFusionSettings(): void {
 }
 export function initSuperFusion(): Promise<void> | void {
   if (isMobile()) return;
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent()) return;
-    superFusionMode = config['superfusion-mode'] || 'blur';
+    const config = getConfig();
+    superFusionMode = normalizeSuperFusionMode(config['superfusion-mode']);
     if (neoFeatureActive) {
       applyModeClass();
-    } else if (config['superfusion'] === true) {
+    } else if (revision === configRevision && config['superfusion'] === true) {
       enableSuperFusion();
     }
   });
 }
 export function onSuperFusionClick(): void {
   if (isMobile()) return;
+  configRevision += 1;
+  const revision = ++actionRevision;
   const shouldEnable = !neoFeatureActive;
   const isCurrent = createNeoLifecycleGuard();
   withViewTransition(() => {
-    if (!isCurrent()) return;
+    if (!isCurrent() || revision !== actionRevision) return;
+    configRevision += 1;
     if (shouldEnable) {
       enableSuperFusion();
       saveConfig({ 'superfusion': true });
@@ -104,7 +123,9 @@ export function onSuperFusionClick(): void {
 }
 export function destroySuperFusion(): void {
   neoFeatureActive = false;
+  configRevision += 1;
+  actionRevision += 1;
   removeCss('interface-superfusion');
   document.documentElement?.classList.remove('neo-superfusion');
-  document.body?.classList.remove('neo-superfusion-blur', 'neo-superfusion-frostedglass', 'neo-superfusion-liquidglass');
+  document.body?.classList.remove('neo-superfusion-mode-blur', 'neo-superfusion-mode-frostedglass', 'neo-superfusion-mode-liquidglass');
 }

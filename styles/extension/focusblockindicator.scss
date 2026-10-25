@@ -2,7 +2,7 @@
 @use "../utils" as *;
 .neo-focusblockindicator {
     @include extension-common('[data-id="neo-focusblockindicator-button"]', '[data-id="neo-extension-button"]');
-    body.neo-focusblockindicator-vertical-line {
+    body.neo-focusblockindicator-effect-vertical-line {
         .protyle-wysiwyg [neo-focusblock] {
             &::before {
                 content: "";
@@ -20,7 +20,7 @@
             }
         }
     }
-    body.neo-focusblockindicator-shadow {
+    body.neo-focusblockindicator-effect-shadow {
         .protyle-wysiwyg [neo-focusblock] {
             &::before {
                 content: "";
@@ -37,7 +37,7 @@
             }
         }
     }
-    body.neo-focusblockindicator-outline {
+    body.neo-focusblockindicator-effect-outline {
         .protyle-wysiwyg [neo-focusblock] {
             &::before {
                 content: "";
@@ -55,7 +55,7 @@
             }
         }
     }
-    body.neo-focusblockindicator-background {
+    body.neo-focusblockindicator-effect-background {
         .protyle-wysiwyg [neo-focusblock] {
             &::before {
                 content: "";

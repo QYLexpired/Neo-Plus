@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/context';
 import { getTextColor, hasMeaningfulSelection } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
@@ -27,6 +27,7 @@ let focusBlockLineColor: 'accent' | 'text' = 'accent';
 let focusBlockDisabled: FocusBlockFilter[] = [];
 let updateFrame: number | null = null;
 let neoFeatureActive = false;
+let configRevision = 0;
 let activeFocusBlock: Element | null = null;
 function normalizeFocusBlockEffect(value: unknown): FocusBlockEffect {
   return value === 'shadow' || value === 'outline' || value === 'background' ? value : 'vertical-line';
@@ -35,10 +36,10 @@ function usesFocusBlockTextColor(): boolean {
   return focusBlockEffect === 'background' || (focusBlockEffect === 'vertical-line' && focusBlockLineColor === 'text');
 }
 function applyFocusBlockEffect(): void {
-  document.body.classList.toggle('neo-focusblockindicator-shadow', focusBlockEffect === 'shadow');
-  document.body.classList.toggle('neo-focusblockindicator-vertical-line', focusBlockEffect === 'vertical-line');
-  document.body.classList.toggle('neo-focusblockindicator-outline', focusBlockEffect === 'outline');
-  document.body.classList.toggle('neo-focusblockindicator-background', focusBlockEffect === 'background');
+  document.body.classList.toggle('neo-focusblockindicator-effect-shadow', focusBlockEffect === 'shadow');
+  document.body.classList.toggle('neo-focusblockindicator-effect-vertical-line', focusBlockEffect === 'vertical-line');
+  document.body.classList.toggle('neo-focusblockindicator-effect-outline', focusBlockEffect === 'outline');
+  document.body.classList.toggle('neo-focusblockindicator-effect-background', focusBlockEffect === 'background');
   if (!usesFocusBlockTextColor()) {
     document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
   }
@@ -131,7 +132,6 @@ function getFocusBlock(focusNode: Node | null): Element | null {
   return isFocusBlockDisabled(target) ? null : target;
 }
 function applyFocusBlock(): void {
-  updateFrame = null;
   if (!neoFeatureActive) return;
   const selection = window.getSelection();
   const focusNode = getFocusNode(selection);
@@ -139,7 +139,10 @@ function applyFocusBlock(): void {
 }
 function scheduleFocusBlockUpdate(): void {
   if (!neoFeatureActive || updateFrame !== null) return;
-  updateFrame = window.requestAnimationFrame(applyFocusBlock);
+  updateFrame = window.requestAnimationFrame(() => {
+    updateFrame = null;
+    applyFocusBlock();
+  });
 }
 function startObserving(): void {
   document.addEventListener('selectionchange', scheduleFocusBlockUpdate);
@@ -166,21 +169,24 @@ function stopObserving(): void {
   clearAllFocusBlocks();
 }
 export function initFocusBlockIndicator(): Promise<void> {
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent()) return;
+    const config = getConfig();
     focusBlockEffect = normalizeFocusBlockEffect(config['focusblockindicator-effect']);
     focusBlockLineColor = config['focusblockindicator-line-color'] === 'text' ? 'text' : 'accent';
     focusBlockDisabled = normalizeFocusBlockDisabled(config['focusblockindicator-disabled']);
     if (neoFeatureActive) {
       applyFocusBlockEffect();
       applyFocusBlock();
-    } else if (config['focusblockindicator'] === true) {
+    } else if (revision === configRevision && config['focusblockindicator'] === true) {
       enableFocusBlockIndicator();
     }
   });
 }
 export function onFocusBlockIndicatorClick(): void {
+  configRevision += 1;
   if (neoFeatureActive) {
     destroyFocusBlockIndicator();
     saveConfig({ 'focusblockindicator': false });
@@ -252,10 +258,16 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
     <button class="b3-button b3-button--text" id="neo-focusblockindicator-confirm">${i18n.confirm}</button>
   </div>`;
 }
-export function showFocusBlockIndicatorSettings(): void {
+export async function showFocusBlockIndicatorSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
   const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  const config = getConfig();
+  const initialFocusBlockEffect = normalizeFocusBlockEffect(config['focusblockindicator-effect']);
+  const initialFocusBlockLineColor = config['focusblockindicator-line-color'] === 'text' ? 'text' : 'accent';
+  const initialFocusBlockDisabled = normalizeFocusBlockDisabled(config['focusblockindicator-disabled']);
   const dialog = new Dialog({
     title: plugin.i18n.focusBlockIndicatorSettings,
     content: buildSettingsHTML(plugin.i18n),
@@ -267,8 +279,8 @@ export function showFocusBlockIndicatorSettings(): void {
   const updateLineColorVisibility = (): void => {
     lineColorItem?.classList.toggle('fn__none', effectSelect?.value !== 'vertical-line');
   };
-  if (effectSelect) effectSelect.value = focusBlockEffect;
-  if (lineColorSelect) lineColorSelect.value = focusBlockLineColor;
+  if (effectSelect) effectSelect.value = initialFocusBlockEffect;
+  if (lineColorSelect) lineColorSelect.value = initialFocusBlockLineColor;
   effectSelect?.addEventListener('change', updateLineColorVisibility);
   updateLineColorVisibility();
   const filterSwitches = focusBlockFilters.map(filter => ({
@@ -276,15 +288,18 @@ export function showFocusBlockIndicatorSettings(): void {
     input: dialog.element.querySelector(`#neo-focusblockindicator-disabled-${filter}`) as HTMLInputElement,
   }));
   for (const { filter, input } of filterSwitches) {
-    input.checked = !focusBlockDisabled.includes(filter);
+    input.checked = !initialFocusBlockDisabled.includes(filter);
   }
   dialog.element.querySelector('#neo-focusblockindicator-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-focusblockindicator-confirm')?.addEventListener('click', () => {
-    if (!isCurrent() || !dialog.element.isConnected) return;
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
     let changed = false;
     if (effectSelect) {
       const newEffect = normalizeFocusBlockEffect(effectSelect.value);
-      if (newEffect !== focusBlockEffect) {
+      if (newEffect !== initialFocusBlockEffect) {
         focusBlockEffect = newEffect;
         saveConfig({ 'focusblockindicator-effect': newEffect });
         changed = true;
@@ -292,14 +307,14 @@ export function showFocusBlockIndicatorSettings(): void {
     }
     if (lineColorSelect) {
       const newLineColor = lineColorSelect.value === 'text' ? 'text' : 'accent';
-      if (newLineColor !== focusBlockLineColor) {
+      if (newLineColor !== initialFocusBlockLineColor) {
         focusBlockLineColor = newLineColor;
         saveConfig({ 'focusblockindicator-line-color': newLineColor });
         changed = true;
       }
     }
     const newDisabled = filterSwitches.filter(({ input }) => !input.checked).map(({ filter }) => filter);
-    if (newDisabled.length !== focusBlockDisabled.length || newDisabled.some(filter => !focusBlockDisabled.includes(filter))) {
+    if (newDisabled.length !== initialFocusBlockDisabled.length || newDisabled.some(filter => !initialFocusBlockDisabled.includes(filter))) {
       focusBlockDisabled = newDisabled;
       saveConfig({ 'focusblockindicator-disabled': newDisabled });
       changed = true;
@@ -313,9 +328,10 @@ export function showFocusBlockIndicatorSettings(): void {
 }
 export function destroyFocusBlockIndicator(): void {
   neoFeatureActive = false;
+  configRevision += 1;
   removeCss('extension-focusblockindicator');
   document.documentElement?.classList.remove('neo-focusblockindicator');
-  document.body.classList.remove('neo-focusblockindicator-shadow', 'neo-focusblockindicator-vertical-line', 'neo-focusblockindicator-outline', 'neo-focusblockindicator-background');
+  document.body.classList.remove('neo-focusblockindicator-effect-shadow', 'neo-focusblockindicator-effect-vertical-line', 'neo-focusblockindicator-effect-outline', 'neo-focusblockindicator-effect-background');
   document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
   stopObserving();
 }

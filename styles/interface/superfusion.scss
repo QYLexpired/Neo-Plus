@@ -230,7 +230,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     }*/
 }
 // 渐进模糊
-.neo-superfusion-blur {
+.neo-superfusion-mode-blur {
     @include superfusion-tab-protyle-x {
         &::before {
             content: "";
@@ -268,7 +268,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     }
 }
 // 毛玻璃
-.neo-superfusion-frostedglass {
+.neo-superfusion-mode-frostedglass {
     @include superfusion-tab-protyle-x {
         &::before {
             content: "";
@@ -293,7 +293,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     }
 }
 // 液态玻璃
-.neo-superfusion-liquidglass {
+.neo-superfusion-mode-liquidglass {
     @include superfusion-tab-protyle-x {
         &::before {
             content: "";

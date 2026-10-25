@@ -12,7 +12,7 @@ $border-width: 3px;
     --_coloredfolders-c: 0.12;
 }
 .neo-coloredfolders {
-    &.neo-coloredfolders-accent {
+    &.neo-coloredfolders-initial-hue-rule-accent {
         --_coloredfolders-fixed-color: var(--b3-theme-accent);
         --_coloredfolders-fixed-color-0065: oklch(from var(--b3-theme-accent) l c h / 0.065);
         --_coloredfolders-fixed-color-012: oklch(from var(--b3-theme-accent) l c h / 0.12);
@@ -21,8 +21,8 @@ $border-width: 3px;
         --_coloredfolders-fixed-color-05: oklch(from var(--b3-theme-accent) l c h / 0.5);
     }
     @include appearance-common('[data-id="neo-coloredfolders-button"]', '[data-id="neo-appearance-button"]');
-    body.neo-coloredfolders-partition,
-    body.neo-coloredfolders-card {
+    body.neo-coloredfolders-layout-partition,
+    body.neo-coloredfolders-layout-card {
         .file-tree__pins {
             margin-bottom: 2px !important;
             padding-bottom: 0 !important;
@@ -33,7 +33,7 @@ $border-width: 3px;
             }
         }
     }
-    body.neo-coloredfolders-partition {
+    body.neo-coloredfolders-layout-partition {
         .sy__file,
         .fn__flex-column[data-type="sidebar-file"] {
             --_indentline-dot-trans: -10px;
@@ -109,7 +109,7 @@ $border-width: 3px;
             }
         }
     }
-    body.neo-coloredfolders-simple {
+    body.neo-coloredfolders-layout-simple {
         .sy__file,
         .fn__flex-column[data-type="sidebar-file"] {
             & > .fn__flex-1 > ul,
@@ -140,7 +140,7 @@ $border-width: 3px;
             }
         }
     }
-    body.neo-coloredfolders-card {
+    body.neo-coloredfolders-layout-card {
         .sy__file,
         .fn__flex-column[data-type="sidebar-file"] {
             --_indentline-dot-trans: -10px;

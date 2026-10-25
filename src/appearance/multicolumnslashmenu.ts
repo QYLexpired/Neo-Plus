@@ -1,7 +1,7 @@
 import { isMobile } from '../modules/env';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
-import { saveConfig, loadConfig } from '../main/data';
+import { saveConfig, loadConfig, getConfig } from '../main/data';
 import { getPlugin } from '../main/context';
 import { Dialog } from '../modules/dialog';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
@@ -9,6 +9,7 @@ type Direction = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 const directionKeys: Direction[] = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 let arrowKeysOn = true;
 let neoFeatureActive = false;
+let configRevision = 0;
 interface CenterPoint {
   el: HTMLElement;
   x: number;
@@ -199,19 +200,22 @@ function enableMulticolumnSlashMenu(): void {
 }
 export function initMulticolumnSlashMenu(): Promise<void> | void {
   if (isMobile()) return;
+  const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent()) return;
+    const config = getConfig();
     arrowKeysOn = config['multicolumnslashmenu-arrowkeys'] !== false;
     if (neoFeatureActive) {
       ensureKeydownHandler(arrowKeysOn);
-    } else if (config['multicolumnslashmenu'] === true) {
+    } else if (revision === configRevision && config['multicolumnslashmenu'] === true) {
       enableMulticolumnSlashMenu();
     }
   });
 }
 export function onMulticolumnSlashMenuClick(): void {
   if (isMobile()) return;
+  configRevision += 1;
   if (neoFeatureActive) {
     destroyMulticolumnSlashMenu();
     saveConfig({ 'multicolumnslashmenu': false });
@@ -243,24 +247,33 @@ function buildMulticolumnSlashMenuSettingsHTML(i18n: Record<string, string>): st
     <button class="b3-button b3-button--text" id="neo-multicolumnslashmenu-confirm">${i18n.confirm}</button>
   </div>`;
 }
-export function showMulticolumnSlashMenuSettings(): void {
+export async function showMulticolumnSlashMenuSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  const config = getConfig();
+  const initialArrowKeysOn = config['multicolumnslashmenu-arrowkeys'] !== false;
   const dialog = new Dialog({
     title: plugin.i18n.multicolumnSlashMenuSettings,
     content: buildMulticolumnSlashMenuSettingsHTML(plugin.i18n),
   });
   dialog.element.classList.add('neo-settings-dialog');
   const arrowKeysCheckbox = dialog.element.querySelector('#neo-multicolumnslashmenu-arrowkeys') as HTMLInputElement;
-  if (arrowKeysCheckbox) arrowKeysCheckbox.checked = arrowKeysOn;
+  if (arrowKeysCheckbox) arrowKeysCheckbox.checked = initialArrowKeysOn;
   dialog.element.querySelector('#neo-multicolumnslashmenu-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-multicolumnslashmenu-confirm')?.addEventListener('click', () => {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
     if (arrowKeysCheckbox) {
       const newValue = arrowKeysCheckbox.checked;
-      arrowKeysOn = newValue;
-      saveConfig({ 'multicolumnslashmenu-arrowkeys': newValue });
-      if (neoFeatureActive) {
-        ensureKeydownHandler(arrowKeysOn);
+      if (newValue !== initialArrowKeysOn) {
+        arrowKeysOn = newValue;
+        saveConfig({ 'multicolumnslashmenu-arrowkeys': newValue });
+        if (neoFeatureActive) ensureKeydownHandler(arrowKeysOn);
       }
     }
     dialog.destroy();
@@ -268,6 +281,7 @@ export function showMulticolumnSlashMenuSettings(): void {
 }
 export function destroyMulticolumnSlashMenu(): void {
   neoFeatureActive = false;
+  configRevision += 1;
   removeCss('appearance-multicolumnslashmenu');
   ensureKeydownHandler(false);
   document.documentElement?.classList.remove('neo-multicolumnslashmenu');
