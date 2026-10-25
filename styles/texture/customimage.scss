@@ -2,21 +2,21 @@
 .neo-texture-customimage {
     @include texture-common('[data-id="neo-texture-customimage-button"]', '[data-id="neo-texture-button"]');
     body {
-        opacity: var(--neo-customimage-layout-opacity);
+        opacity: var(--_customimage-layout-opacity);
     }
     #neo-texture-layer {
-        background: var(--neo-customimage-info);
-        background-repeat: var(--neo-customimage-repeat);
-        background-size: var(--neo-customimage-size);
-        background-position: var(--neo-customimage-x) var(--neo-customimage-y);
-        background-blend-mode: var(--neo-customimage-background-blend-mode);
-        mix-blend-mode: var(--neo-customimage-effect);
-        opacity: var(--neo-customimage-opacity);
-        filter: blur(var(--neo-customimage-blur))
-                brightness(var(--neo-customimage-brightness))
-                saturate(var(--neo-customimage-saturation))
-                contrast(var(--neo-customimage-contrast))
-                grayscale(var(--neo-customimage-grayscale))
-                hue-rotate(var(--neo-customimage-hue-rotate));
+        background: var(--_customimage-info);
+        background-repeat: var(--_customimage-repeat);
+        background-size: var(--_customimage-size);
+        background-position: var(--_customimage-x) var(--_customimage-y);
+        background-blend-mode: var(--_customimage-background-blend-mode);
+        mix-blend-mode: var(--_customimage-effect);
+        opacity: var(--_customimage-opacity);
+        filter: blur(var(--_customimage-blur))
+                brightness(var(--_customimage-brightness))
+                saturate(var(--_customimage-saturation))
+                contrast(var(--_customimage-contrast))
+                grayscale(var(--_customimage-grayscale))
+                hue-rotate(var(--_customimage-hue-rotate));
     }
 }

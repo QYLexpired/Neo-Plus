@@ -1,5 +1,5 @@
 import { liquidGlassFilters } from './liquidglassfilter';
-const svgId = 'neo-svg-filter';
+const svgId = 'neo-svgfilter';
 function injectSvgFilter(): void {
   if (document.getElementById(svgId)) return;
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

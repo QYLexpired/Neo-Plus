@@ -14,6 +14,15 @@ interface HeadingSettings {
   initialHueRule: InitialHueRule;
   initialHue: number;
 }
+type ElementConfig = Required<Pick<Config,
+  | 'element-link-style'
+  | 'element-heading-colored'
+  | 'element-heading-colored-outline'
+  | 'element-heading-level'
+  | 'element-heading-colored-color-style'
+  | 'element-heading-colored-initial-hue-rule'
+  | 'element-heading-colored-initial-hue'
+>>;
 const headingClassOptions = {
   colored: ['off', 'on'],
   'colored-outline': ['off', 'on'],
@@ -43,6 +52,18 @@ function readHeadingSettings(config: Config): HeadingSettings {
     initialHue: Number.isFinite(hue) ? Math.min(360, Math.max(0, Math.round(hue))) : 0,
   };
 }
+export function normalizeElementConfig(config: Config): ElementConfig {
+  const heading = readHeadingSettings(config);
+  return {
+    'element-link-style': config['element-link-style'] === 'icon' ? 'icon' : 'underline',
+    'element-heading-colored': heading.enabled ? 'on' : 'off',
+    'element-heading-colored-outline': heading.outline ? 'on' : 'off',
+    'element-heading-level': heading.level ? 'on' : 'off',
+    'element-heading-colored-color-style': heading.colorStyle,
+    'element-heading-colored-initial-hue-rule': heading.initialHueRule,
+    'element-heading-colored-initial-hue': heading.initialHue,
+  };
+}
 function applyElementSettings(config: Config): void {
   applyLinkStyle(config['element-link-style'] === 'icon' ? 'icon' : 'underline');
   const heading = readHeadingSettings(config);
@@ -60,9 +81,9 @@ function applyElementSettings(config: Config): void {
 export function initElement(): Promise<void> {
   const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent() || revision !== configRevision) return;
-    applyElementSettings(config);
+    applyElementSettings(getConfig());
   });
 }
 function buildSettingsHTML(i18n: Record<string, string>, heading: HeadingSettings): string {
@@ -165,8 +186,9 @@ export async function showElementSettings(): Promise<void> {
   if (!plugin) return;
   const revision = configRevision;
   const isCurrent = createNeoLifecycleGuard();
-  const config = await loadConfig();
+  await loadConfig();
   if (!isCurrent() || revision !== configRevision) return;
+  const config = normalizeElementConfig(getConfig());
   const heading = readHeadingSettings(config);
   const dialog = new Dialog({
     title: `<div class="fn__flex">
@@ -228,7 +250,6 @@ export async function showElementSettings(): Promise<void> {
       dialog.destroy();
       return;
     }
-    configRevision += 1;
     const colorStyle = colorStyleSelect.value;
     const rule = ruleSelect.value;
     const hue = Number(hueSlider.value);
@@ -242,9 +263,10 @@ export async function showElementSettings(): Promise<void> {
       'element-heading-colored-initial-hue': Number.isFinite(hue) ? Math.min(360, Math.max(0, Math.round(hue))) : 0,
     };
     const patch = Object.fromEntries(
-      Object.entries(settings).filter(([key, value]) => value !== config[key as keyof Config]),
+      Object.entries(settings).filter(([key, value]) => value !== config[key as keyof ElementConfig]),
     ) as Partial<Config>;
     if (Object.keys(patch).length > 0) {
+      configRevision += 1;
       saveConfig(patch);
       applyElementSettings(getConfig());
     }

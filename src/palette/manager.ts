@@ -29,6 +29,7 @@ import { initHighContrast, destroyHighContrast } from './highcontrast';
 import { initRandom, destroyRandom, initRandomSettings, refreshRandom } from './random';
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+import { closeNeoDialogs } from '../modules/dialog';
 export type { ThemeMode, Preset, Config };
 type Plan = 'basecustom' | 'basefollowbanner' | 'basefollowsystem' | 'random' | 'free';
 let paletteActionRevision = 0;
@@ -36,6 +37,7 @@ let paletteInitialization: Promise<void> | null = null;
 let mutationObserver: MutationObserver | null = null;
 let lastThemeMode: string | null = null;
 function createPaletteActionGuard(): () => boolean {
+  closeNeoDialogs('palette');
   const isCurrent = createNeoLifecycleGuard();
   const mode = getThemeMode();
   lastThemeMode = document.documentElement.getAttribute('data-theme-mode');
@@ -450,6 +452,7 @@ export function initPalette(): Promise<void> | void {
   return initialization;
 }
 export function destroyPalette(): void {
+  closeNeoDialogs('palette');
   paletteActionRevision += 1;
   paletteInitialization = null;
   lastShuffledPresetKey = null;

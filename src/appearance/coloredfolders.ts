@@ -76,7 +76,7 @@ export function onColoredFoldersClick(): void {
     saveConfig({ 'coloredfolders': true });
   }
 }
-function buildSettingsHTML(i18n: Record<string, string>): string {
+function buildSettingsHTML(i18n: Record<string, string>, rule: InitialHueRule, hue: number, colorStyle: ColorStyle): string {
   const layoutOptions = ['partition', 'simple', 'card']
     .map(value => `<option value="${value}">${i18n[`coloredFoldersLayout${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
@@ -86,7 +86,7 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   const ruleOptions = ['theme', 'fixed', 'accent']
     .map(value => `<option value="${value}">${i18n[`coloredFoldersInitialHueRule${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
-  const fixedHueClass = initialHueRule === 'fixed' ? '' : ' fn__none';
+  const fixedHueClass = rule === 'fixed' ? '' : ' fn__none';
   return `<div class="b3-dialog__content">
     <div class="config__tab-container">
       <div class="config-group">
@@ -127,8 +127,8 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
               <div class="b3-label__text">${i18n.coloredFoldersInitialHueTip}</div>
             </div>
             <span class="fn__space"></span>
-            <div class="b3-tooltips b3-tooltips__n fn__flex-center" id="neo-coloredfolders-initial-hue-tooltip" aria-label="${initialHue}deg">
-              <input class="b3-slider fn__size200 neo-colored-hue-slider neo-colored-hue-slider--folders" data-colorstyle="${coloredFoldersColorStyle}" id="neo-coloredfolders-initial-hue" min="0" max="360" step="1" type="range" value="${initialHue}">
+            <div class="b3-tooltips b3-tooltips__n fn__flex-center" id="neo-coloredfolders-initial-hue-tooltip" aria-label="${hue}deg">
+              <input class="b3-slider fn__size200 neo-colored-hue-slider neo-colored-hue-slider--folders" data-colorstyle="${colorStyle}" id="neo-coloredfolders-initial-hue" min="0" max="360" step="1" type="range" value="${hue}">
             </div>
           </label>
         </div>
@@ -155,7 +155,7 @@ export async function showColoredFoldersSettings(): Promise<void> {
   const initialHueValue = Number.isFinite(savedHue) ? Math.min(360, Math.max(0, Math.round(savedHue))) : 0;
   const dialog = new Dialog({
     title: plugin.i18n.coloredFoldersSettings,
-    content: buildSettingsHTML(plugin.i18n),
+    content: buildSettingsHTML(plugin.i18n, initialRule, initialHueValue, initialColorStyle),
   });
   dialog.element.classList.add('neo-settings-dialog');
   const layoutSelect = dialog.element.querySelector('#neo-coloredfolders-layout') as HTMLSelectElement | null;

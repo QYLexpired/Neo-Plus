@@ -15,7 +15,7 @@
                 inset-inline-start: -4px;
                 top: 50%;
                 transform: translateY(-50%) scaleY(0);
-                background-color: var(--neo-focusblock-text-color, var(--b3-theme-accent));
+                background-color: var(--_focusblockindicator-text-color, var(--b3-theme-accent));
                 animation: neo-focusblock-entrance-vertical-line 0.3s var(--neo-ease-spring-2) forwards;
             }
         }
@@ -66,7 +66,7 @@
                 inset: 0;
                 border-radius: inherit;
                 corner-shape: inherit;
-                background-color: oklch(from var(--neo-focusblock-text-color, currentColor) l c h / 0.08);
+                background-color: oklch(from var(--_focusblockindicator-text-color, currentColor) l c h / 0.08);
                 pointer-events: none;
                 animation: neo-focusblock-entrance-background 0.3s;
             }

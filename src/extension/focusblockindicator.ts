@@ -41,7 +41,7 @@ function applyFocusBlockEffect(): void {
   document.body.classList.toggle('neo-focusblockindicator-effect-outline', focusBlockEffect === 'outline');
   document.body.classList.toggle('neo-focusblockindicator-effect-background', focusBlockEffect === 'background');
   if (!usesFocusBlockTextColor()) {
-    document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
+    document.documentElement?.style.removeProperty('--_focusblockindicator-text-color');
   }
 }
 function clearAllFocusBlocks(): void {
@@ -50,7 +50,7 @@ function clearAllFocusBlocks(): void {
   document.querySelectorAll('[neo-focusblock]').forEach((el) => {
     el.removeAttribute('neo-focusblock');
   });
-  document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
+  document.documentElement?.style.removeProperty('--_focusblockindicator-text-color');
 }
 function updateFocusBlock(block: Element | null, focusNode: Node | null): void {
   if (activeFocusBlock !== block) {
@@ -59,14 +59,14 @@ function updateFocusBlock(block: Element | null, focusNode: Node | null): void {
     activeFocusBlock?.setAttribute('neo-focusblock', '');
   }
   if (!block || !focusNode || !usesFocusBlockTextColor()) {
-    document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
+    document.documentElement?.style.removeProperty('--_focusblockindicator-text-color');
     return;
   }
   const textColor = getTextColor(focusNode, block);
   if (textColor) {
-    document.documentElement.style.setProperty('--neo-focusblock-text-color', textColor);
+    document.documentElement.style.setProperty('--_focusblockindicator-text-color', textColor);
   } else {
-    document.documentElement.style.removeProperty('--neo-focusblock-text-color');
+    document.documentElement.style.removeProperty('--_focusblockindicator-text-color');
   }
 }
 function getFocusNode(selection: Selection | null): Node | null {
@@ -195,14 +195,14 @@ export function onFocusBlockIndicatorClick(): void {
     saveConfig({ 'focusblockindicator': true });
   }
 }
-function buildSettingsHTML(i18n: Record<string, string>): string {
+function buildSettingsHTML(i18n: Record<string, string>, effect: FocusBlockEffect): string {
   const effectOptions = ['vertical-line', 'shadow', 'outline', 'background']
     .map(v => `<option value="${v}">${i18n[`focusBlockEffect${v.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('')}`]}</option>`)
     .join('');
   const lineColorOptions = ['accent', 'text']
     .map(value => `<option value="${value}">${i18n[`focusBlockIndicatorLineColor${value.charAt(0).toUpperCase() + value.slice(1)}`]}</option>`)
     .join('');
-  const lineColorClass = focusBlockEffect === 'vertical-line' ? '' : ' fn__none';
+  const lineColorClass = effect === 'vertical-line' ? '' : ' fn__none';
   const filterSwitches = focusBlockFilters.map(filter => `
             <label class="fn__flex" style="color:var(--b3-theme-on-surface);align-items:center">
               <input class="b3-switch" id="neo-focusblockindicator-disabled-${filter}" type="checkbox">
@@ -270,7 +270,7 @@ export async function showFocusBlockIndicatorSettings(): Promise<void> {
   const initialFocusBlockDisabled = normalizeFocusBlockDisabled(config['focusblockindicator-disabled']);
   const dialog = new Dialog({
     title: plugin.i18n.focusBlockIndicatorSettings,
-    content: buildSettingsHTML(plugin.i18n),
+    content: buildSettingsHTML(plugin.i18n, initialFocusBlockEffect),
   });
   dialog.element.classList.add('neo-settings-dialog');
   const effectSelect = dialog.element.querySelector('#neo-focusblockindicator-effect') as HTMLSelectElement;
@@ -332,6 +332,6 @@ export function destroyFocusBlockIndicator(): void {
   removeCss('extension-focusblockindicator');
   document.documentElement?.classList.remove('neo-focusblockindicator');
   document.body.classList.remove('neo-focusblockindicator-effect-shadow', 'neo-focusblockindicator-effect-vertical-line', 'neo-focusblockindicator-effect-outline', 'neo-focusblockindicator-effect-background');
-  document.documentElement?.style.removeProperty('--neo-focusblock-text-color');
+  document.documentElement?.style.removeProperty('--_focusblockindicator-text-color');
   stopObserving();
 }

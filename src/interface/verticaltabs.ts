@@ -198,11 +198,10 @@ function destroyResizeHandle(): void {
     dblClickHandler = null;
   }
 }
-function buildSettingsHTML(i18n: Record<string, string>): string {
+function buildSettingsHTML(i18n: Record<string, string>, width: number): string {
   const modeOptions = ['topLeftOnly', 'all']
     .map(v => `<option value="${v}">${i18n[`verticaltabsMode${v.charAt(0).toUpperCase() + v.slice(1)}`]}</option>`)
     .join('');
-  const width = configWidth ?? defaultWidth;
   return `<div class="b3-dialog__content">
     <div class="config__tab-container">
       <div class="config-group">
@@ -248,7 +247,7 @@ export async function showVerticalTabsSettings(): Promise<void> {
   const initialConfigWidth = readConfigWidth(config);
   const dialog = new Dialog({
     title: plugin.i18n.verticaltabsSettings,
-    content: buildSettingsHTML(plugin.i18n),
+    content: buildSettingsHTML(plugin.i18n, initialConfigWidth ?? defaultWidth),
   });
   dialog.element.classList.add('neo-settings-dialog');
   const modeSelect = dialog.element.querySelector('#neo-verticaltabs-mode') as HTMLSelectElement;

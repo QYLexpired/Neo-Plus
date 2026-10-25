@@ -63,6 +63,11 @@ export function openSearchableMenu(
   onClose: () => void,
   actions: ReadonlyArray<{ label: string; icon: string } & ({ click: (key: string) => void | Promise<void> } | { rename: (key: string, name: string) => Promise<boolean> })> = [],
 ): Pick<Menu, 'close'> {
+  const plugin = getPlugin();
+  if (!plugin) {
+    onClose();
+    return { close: () => {} };
+  }
   const mobile = isMobile();
   let closed = false;
   let editing: ReturnType<typeof editMenuItemName> | null = null;
@@ -201,7 +206,7 @@ export function openSearchableMenu(
   };
   let element: HTMLElement;
   if (mobile) {
-    const i18n = getPlugin()!.i18n;
+    const i18n = plugin.i18n;
     const dialog = new Dialog({
       title: listLabel,
       content: `<div class="b3-dialog__content">${content}</div><div class="b3-dialog__action"><button type="button" class="b3-button b3-button--cancel" data-action="back">${i18n.back}</button></div>`,

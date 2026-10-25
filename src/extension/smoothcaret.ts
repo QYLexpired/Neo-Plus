@@ -55,7 +55,7 @@ function applySmoothCaretEase(): void {
   };
   const caret = document.getElementById('neo-smoothcaret-item');
   if (caret) {
-    caret.style.setProperty('--neo-smoothcaret-ease', easeMap[smoothCaretEase] || easeMap.elegant);
+    caret.style.setProperty('--_smoothcaret-ease', easeMap[smoothCaretEase] || easeMap.elegant);
   }
 }
 function startSmoothCaret(): void {
@@ -151,9 +151,9 @@ function startSmoothCaret(): void {
         caretElement.style.zIndex = (baseZIndex + 1).toString();
         const textColor = getTextColor(sel.focusNode, targetElement);
         if (textColor) {
-          caretElement.style.setProperty('--neo-smoothcaret-color', textColor);
+          caretElement.style.setProperty('--_smoothcaret-color', textColor);
         } else {
-          caretElement.style.removeProperty('--neo-smoothcaret-color');
+          caretElement.style.removeProperty('--_smoothcaret-color');
         }
         return;
       }

@@ -199,10 +199,10 @@ export function saveConfig(patch: Partial<Config>, delay = 0): Promise<ConfigSav
   configCache = { ...configCache, ...patch };
   return enqueueConfigSave(plugin, Object.keys(patch) as Array<keyof Config>, delay);
 }
-export async function saveConfigIfUnchanged(patch: Partial<Config>, expected: Partial<Config>): Promise<ConfigSaveResult> {
+export async function saveConfigIfUnchanged(patch: Partial<Config>, expected: Partial<Config>, canSave?: () => boolean): Promise<ConfigSaveResult> {
   const isCurrent = createNeoLifecycleGuard();
   await loadConfig();
-  if (!isCurrent()) return false;
+  if (!isCurrent() || canSave?.() === false) return false;
   if (!configLoaded) throw new Error();
   if (!getPluginOrNull() || (Object.keys(expected) as Array<keyof Config>).some(key => configCache[key] !== expected[key])) return false;
   return saveConfig(patch);

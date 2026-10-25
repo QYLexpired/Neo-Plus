@@ -1,4 +1,4 @@
-import { saveConfig, loadConfig, type Config } from '../main/data';
+import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { Dialog } from '../modules/dialog';
 import { getPlugin } from '../main/context';
 import { isMobile } from '../modules/env';
@@ -20,18 +20,19 @@ let randomSaturationMax: number = 5;
 let randomBrightnessMin: number = -1;
 let randomBrightnessMax: number = 1;
 let neoFeatureActive = false;
+let actionRevision = 0;
 function clampSaturation(value: number): number {
   return Math.min(5, Math.max(0, value));
 }
 function clampBrightness(value: number): number {
   return Math.min(1, Math.max(-1, value));
 }
-function normalizeRandomScope(value: Config['random-scope']): RandomPool[] {
+function normalizeRandomScope(value: unknown): RandomPool[] {
   const selected = Array.isArray(value) ? value : [];
   const pools = randomPools.filter(pool => selected.includes(pool));
   return pools.length > 0 ? pools : [...randomPools];
 }
-function normalizeRandomTristate(value: Config['random-highcontrast']): 'random' | 'on' | 'off' {
+function normalizeRandomTristate(value: unknown): 'random' | 'on' | 'off' {
   return value === 'on' || value === 'off' ? value : 'random';
 }
 function readSaturationRange(config: Config): { min: number; max: number } {
@@ -47,6 +48,29 @@ function readBrightnessRange(config: Config): { min: number; max: number } {
   const min = typeof rawMin === 'number' && !Number.isNaN(rawMin) ? clampBrightness(rawMin) : -1;
   const max = typeof rawMax === 'number' && !Number.isNaN(rawMax) ? clampBrightness(rawMax) : 1;
   return min <= max ? { min, max } : { min: max, max: min };
+}
+function readRandomSettings(config: Config) {
+  const saturation = readSaturationRange(config);
+  const brightness = readBrightnessRange(config);
+  return {
+    scope: normalizeRandomScope(config['random-scope']),
+    highContrast: normalizeRandomTristate(config['random-highcontrast']),
+    invert: normalizeRandomTristate(config['random-invert']),
+    saturationMin: saturation.min,
+    saturationMax: saturation.max,
+    brightnessMin: brightness.min,
+    brightnessMax: brightness.max,
+  };
+}
+function applyRandomSettings(config: Config): void {
+  const settings = readRandomSettings(config);
+  randomScope = settings.scope;
+  randomHighContrast = settings.highContrast;
+  randomInvert = settings.invert;
+  randomSaturationMin = settings.saturationMin;
+  randomSaturationMax = settings.saturationMax;
+  randomBrightnessMin = settings.brightnessMin;
+  randomBrightnessMax = settings.brightnessMax;
 }
 interface LastRandomState {
   type: RandomPool;
@@ -136,7 +160,7 @@ function pickRandomEffects(sameAsLast: boolean): { inverted: boolean; highContra
   if (highContrast) enableHighContrast();
   return { inverted, highContrast };
 }
-function buildSettingsHTML(i18n: Record<string, string>): string {
+function buildSettingsHTML(i18n: Record<string, string>, settings: ReturnType<typeof readRandomSettings>): string {
   const scopeSwitches = randomPools.map(pool => `
             <label class="fn__flex" style="color:var(--b3-theme-on-surface);align-items:center">
               <input class="b3-switch" id="neo-random-scope-${pool}" type="checkbox">
@@ -174,14 +198,14 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px" role="group" aria-labelledby="neo-random-saturation-title">
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
                 <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${i18n.randomRangeMin}</span>
-                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-min-tooltip" aria-label="${randomSaturationMin}">
-                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-min" min="0" max="5" step="0.01" type="range" value="${randomSaturationMin}">
+                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-min-tooltip" aria-label="${settings.saturationMin}">
+                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-min" min="0" max="5" step="0.01" type="range" value="${settings.saturationMin}">
                 </div>
               </label>
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
                 <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${i18n.randomRangeMax}</span>
-                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-max-tooltip" aria-label="${randomSaturationMax}">
-                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-max" min="0" max="5" step="0.01" type="range" value="${randomSaturationMax}">
+                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-saturation-max-tooltip" aria-label="${settings.saturationMax}">
+                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-saturation-max" min="0" max="5" step="0.01" type="range" value="${settings.saturationMax}">
                 </div>
               </label>
             </div>
@@ -194,14 +218,14 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px" role="group" aria-labelledby="neo-random-brightness-title">
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
                 <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${i18n.randomRangeMin}</span>
-                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-min-tooltip" aria-label="${randomBrightnessMin}">
-                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-min" min="-1" max="1" step="0.01" type="range" value="${randomBrightnessMin}">
+                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-min-tooltip" aria-label="${settings.brightnessMin}">
+                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-min" min="-1" max="1" step="0.01" type="range" value="${settings.brightnessMin}">
                 </div>
               </label>
               <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
                 <span style="white-space:nowrap;color:var(--b3-theme-on-surface)">${i18n.randomRangeMax}</span>
-                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-max-tooltip" aria-label="${randomBrightnessMax}">
-                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-max" min="-1" max="1" step="0.01" type="range" value="${randomBrightnessMax}">
+                <div class="b3-tooltips b3-tooltips__n" style="flex:1;min-width:0" id="neo-random-brightness-max-tooltip" aria-label="${settings.brightnessMax}">
+                  <input class="b3-slider" style="width:100%;min-width:0" id="neo-random-brightness-max" min="-1" max="1" step="0.01" type="range" value="${settings.brightnessMax}">
                 </div>
               </label>
             </div>
@@ -290,10 +314,13 @@ function showCurrentStateDialog(): void {
     content: `<div class="b3-dialog__content"><div class="b3-label__text">${lines.join('<br>')}</div></div>`,
   });
 }
-export function showRandomSettings(): void {
+export async function showRandomSettings(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
   const plugin = getPlugin();
   if (!plugin) return;
+  await loadConfig();
+  if (!isCurrent()) return;
+  const initial = readRandomSettings(getConfig());
   const dialog = new Dialog({
     title: `<div class="fn__flex">
     <div class="fn__ellipsis" style="white-space: nowrap">${plugin.i18n.randomSettings}</div>
@@ -302,7 +329,7 @@ export function showRandomSettings(): void {
     <span class="fn__space" style="width:8px"></span>
     <button class="b3-button b3-button--small fn__flex-center" id="neo-random-view-current">${plugin.i18n.randomViewCurrent}</button>
   </div>`,
-    content: buildSettingsHTML(plugin.i18n),
+    content: buildSettingsHTML(plugin.i18n, initial),
   });
   dialog.element.classList.add('neo-settings-dialog');
   dialog.element.querySelector('#neo-random-view-current')?.addEventListener('click', showCurrentStateDialog);
@@ -317,7 +344,7 @@ export function showRandomSettings(): void {
     }
   };
   for (const { pool, input } of scopeSwitches) {
-    input.checked = randomScope.includes(pool);
+    input.checked = initial.scope.includes(pool);
     input.addEventListener('change', () => {
       if (!scopeSwitches.some(({ input }) => input.checked)) input.checked = true;
       updateScopeSwitches();
@@ -325,15 +352,15 @@ export function showRandomSettings(): void {
   }
   updateScopeSwitches();
   const highContrastSelect = dialog.element.querySelector('#neo-random-highcontrast') as HTMLSelectElement;
-  if (highContrastSelect) highContrastSelect.value = randomHighContrast;
+  if (highContrastSelect) highContrastSelect.value = initial.highContrast;
   const invertSelect = dialog.element.querySelector('#neo-random-invert') as HTMLSelectElement;
-  if (invertSelect) invertSelect.value = randomInvert;
+  if (invertSelect) invertSelect.value = initial.invert;
   const saturationMinSlider = dialog.element.querySelector('#neo-random-saturation-min') as HTMLInputElement;
   const saturationMinTooltip = dialog.element.querySelector('#neo-random-saturation-min-tooltip') as HTMLElement;
   const saturationMaxSlider = dialog.element.querySelector('#neo-random-saturation-max') as HTMLInputElement;
   const saturationMaxTooltip = dialog.element.querySelector('#neo-random-saturation-max-tooltip') as HTMLElement;
   if (saturationMinSlider) {
-    saturationMinSlider.value = String(randomSaturationMin);
+    saturationMinSlider.value = String(initial.saturationMin);
     saturationMinSlider.addEventListener('input', () => {
       if (saturationMinTooltip) saturationMinTooltip.setAttribute('aria-label', saturationMinSlider.value);
       if (saturationMaxSlider && parseFloat(saturationMinSlider.value) > parseFloat(saturationMaxSlider.value)) {
@@ -343,7 +370,7 @@ export function showRandomSettings(): void {
     });
   }
   if (saturationMaxSlider) {
-    saturationMaxSlider.value = String(randomSaturationMax);
+    saturationMaxSlider.value = String(initial.saturationMax);
     saturationMaxSlider.addEventListener('input', () => {
       if (saturationMaxTooltip) saturationMaxTooltip.setAttribute('aria-label', saturationMaxSlider.value);
       if (saturationMinSlider && parseFloat(saturationMaxSlider.value) < parseFloat(saturationMinSlider.value)) {
@@ -357,7 +384,7 @@ export function showRandomSettings(): void {
   const brightnessMaxSlider = dialog.element.querySelector('#neo-random-brightness-max') as HTMLInputElement;
   const brightnessMaxTooltip = dialog.element.querySelector('#neo-random-brightness-max-tooltip') as HTMLElement;
   if (brightnessMinSlider) {
-    brightnessMinSlider.value = String(randomBrightnessMin);
+    brightnessMinSlider.value = String(initial.brightnessMin);
     brightnessMinSlider.addEventListener('input', () => {
       if (brightnessMinTooltip) brightnessMinTooltip.setAttribute('aria-label', brightnessMinSlider.value);
       if (brightnessMaxSlider && parseFloat(brightnessMinSlider.value) > parseFloat(brightnessMaxSlider.value)) {
@@ -367,7 +394,7 @@ export function showRandomSettings(): void {
     });
   }
   if (brightnessMaxSlider) {
-    brightnessMaxSlider.value = String(randomBrightnessMax);
+    brightnessMaxSlider.value = String(initial.brightnessMax);
     brightnessMaxSlider.addEventListener('input', () => {
       if (brightnessMaxTooltip) brightnessMaxTooltip.setAttribute('aria-label', brightnessMaxSlider.value);
       if (brightnessMinSlider && parseFloat(brightnessMaxSlider.value) < parseFloat(brightnessMinSlider.value)) {
@@ -400,80 +427,54 @@ export function showRandomSettings(): void {
   });
   dialog.element.querySelector('#neo-random-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-random-confirm')?.addEventListener('click', () => {
-    if (!isCurrent()) {
+    if (!isCurrent() || !dialog.element.isConnected) {
       dialog.destroy();
       return;
     }
-    const newScope = normalizeRandomScope(scopeSwitches.filter(({ input }) => input.checked).map(({ pool }) => pool));
-    randomScope = newScope;
-    saveConfig({ 'random-scope': newScope });
-    if (highContrastSelect) {
-      const newHighContrast = highContrastSelect.value as 'random' | 'on' | 'off';
-      if (newHighContrast !== randomHighContrast) {
-        randomHighContrast = newHighContrast;
-        saveConfig({ 'random-highcontrast': newHighContrast });
-      }
-    }
-    if (invertSelect) {
-      const newInvert = invertSelect.value as 'random' | 'on' | 'off';
-      if (newInvert !== randomInvert) {
-        randomInvert = newInvert;
-        saveConfig({ 'random-invert': newInvert });
-      }
-    }
-    if (saturationMinSlider && saturationMaxSlider) {
-      const newMin = clampSaturation(parseFloat(saturationMinSlider.value) || 0);
-      const newMax = clampSaturation(parseFloat(saturationMaxSlider.value) || 0);
-      if (newMin !== randomSaturationMin || newMax !== randomSaturationMax) {
-        randomSaturationMin = Math.min(newMin, newMax);
-        randomSaturationMax = Math.max(newMin, newMax);
-        saveConfig({
-          'random-saturation-min': randomSaturationMin,
-          'random-saturation-max': randomSaturationMax,
-        });
-      }
-    }
-    if (brightnessMinSlider && brightnessMaxSlider) {
-      const newMin = clampBrightness(parseFloat(brightnessMinSlider.value) || 0);
-      const newMax = clampBrightness(parseFloat(brightnessMaxSlider.value) || 0);
-      if (newMin !== randomBrightnessMin || newMax !== randomBrightnessMax) {
-        randomBrightnessMin = Math.min(newMin, newMax);
-        randomBrightnessMax = Math.max(newMin, newMax);
-        saveConfig({
-          'random-brightness-min': randomBrightnessMin,
-          'random-brightness-max': randomBrightnessMax,
+    const scope = normalizeRandomScope(scopeSwitches.filter(({ input }) => input.checked).map(({ pool }) => pool));
+    const saturation = readSaturationRange({
+      'random-saturation-min': Number(saturationMinSlider?.value),
+      'random-saturation-max': Number(saturationMaxSlider?.value),
+    });
+    const brightness = readBrightnessRange({
+      'random-brightness-min': Number(brightnessMinSlider?.value),
+      'random-brightness-max': Number(brightnessMaxSlider?.value),
+    });
+    const highContrast = normalizeRandomTristate(highContrastSelect?.value);
+    const invert = normalizeRandomTristate(invertSelect?.value);
+    const patch: Partial<Config> = {};
+    if (scope.length !== initial.scope.length || scope.some((pool, index) => pool !== initial.scope[index])) patch['random-scope'] = scope;
+    if (highContrast !== initial.highContrast) patch['random-highcontrast'] = highContrast;
+    if (invert !== initial.invert) patch['random-invert'] = invert;
+    if (saturation.min !== initial.saturationMin) patch['random-saturation-min'] = saturation.min;
+    if (saturation.max !== initial.saturationMax) patch['random-saturation-max'] = saturation.max;
+    if (brightness.min !== initial.brightnessMin) patch['random-brightness-min'] = brightness.min;
+    if (brightness.max !== initial.brightnessMax) patch['random-brightness-max'] = brightness.max;
+    if (Object.keys(patch).length > 0) {
+      saveConfig(patch);
+      applyRandomSettings(getConfig());
+      if (neoFeatureActive) {
+        const mode = getThemeMode();
+        const revision = ++actionRevision;
+        withViewTransition(() => {
+          if (!isCurrent() || !neoFeatureActive || revision !== actionRevision || getThemeMode() !== mode) return;
+          applyRandom(getConfig());
         });
       }
     }
     dialog.destroy();
-    loadConfig().then((config) => {
-      if (!isCurrent()) return;
-      if (neoFeatureActive) {
-        withViewTransition(() => {
-          if (!isCurrent() || !neoFeatureActive) return;
-          applyRandom(config);
-        });
-      }
-    }).catch(() => {});
   });
 }
 export function initRandomSettings(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
-  return loadConfig().then((config) => {
+  return loadConfig().then(() => {
     if (!isCurrent()) return;
-    randomScope = normalizeRandomScope(config['random-scope']);
-    randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
-    randomInvert = normalizeRandomTristate(config['random-invert']);
-    const saturationRange = readSaturationRange(config);
-    randomSaturationMin = saturationRange.min;
-    randomSaturationMax = saturationRange.max;
-    const brightnessRange = readBrightnessRange(config);
-    randomBrightnessMin = brightnessRange.min;
-    randomBrightnessMax = brightnessRange.max;
+    applyRandomSettings(getConfig());
   });
 }
 export function destroyRandom(): void {
   neoFeatureActive = false;
+  actionRevision += 1;
   const html = document.documentElement;
   html.style.removeProperty('--neo-base');
   html.style.removeProperty('--neo-saturation');
@@ -514,6 +515,8 @@ function applyPresetRandom(mode: ThemeMode): void {
   lastState = { type: 'preset', sourceKey: preset.key, inverted: finalInverted, highContrast: finalHighContrast };
 }
 function applyRandomCoreColors(config: Config, mode: ThemeMode, pool: 'free' | 'library'): void {
+  const plugin = getPlugin();
+  if (!plugin) return;
   const candidates = pool === 'library'
     ? paletteLibrary[mode].map(item => item.key)
     : Object.keys(config[`free-presets-${mode}`] ?? {});
@@ -536,7 +539,7 @@ function applyRandomCoreColors(config: Config, mode: ThemeMode, pool: 'free' | '
     return;
   }
   const name = libraryItem
-    ? getPlugin()!.i18n[libraryItem.nameKey]
+    ? plugin.i18n[libraryItem.nameKey]
     : selected;
   const sameAsLast = lastState?.type === pool && lastState.sourceKey === selected;
   const { inverted: finalInverted, highContrast: finalHighContrast } = pickRandomEffects(sameAsLast);
@@ -571,19 +574,12 @@ function applyBaseCustomRandom(): void {
   lastState = { type: 'basecustom', color, saturation, brightness, inverted: finalInverted, highContrast: finalHighContrast };
 }
 function applyRandom(config: Config): void {
+  actionRevision += 1;
   const html = document.documentElement;
   const mode = getThemeMode();
   if (lastMode !== mode) lastState = null;
   lastMode = mode;
-  randomScope = normalizeRandomScope(config['random-scope']);
-  randomHighContrast = normalizeRandomTristate(config['random-highcontrast']);
-  randomInvert = normalizeRandomTristate(config['random-invert']);
-  const saturationRange = readSaturationRange(config);
-  randomSaturationMin = saturationRange.min;
-  randomSaturationMax = saturationRange.max;
-  const brightnessRange = readBrightnessRange(config);
-  randomBrightnessMin = brightnessRange.min;
-  randomBrightnessMax = brightnessRange.max;
+  applyRandomSettings(config);
   html.classList.remove(
     ...Array.from(html.classList).filter(cls => cls.startsWith('neo-palette-') && cls !== 'neo-palette-random')
   );

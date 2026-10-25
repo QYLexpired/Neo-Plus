@@ -1,5 +1,5 @@
 import { showMessage } from 'siyuan';
-import { Dialog } from '../modules/dialog';
+import { Dialog, createDialogScopeGuard } from '../modules/dialog';
 import { openSearchableMenu, showNamedMessage } from '../modules/searchablemenu';
 import { getPlugin } from '../main/context';
 import { getConfig, loadConfig, saveConfigIfUnchanged, type ConfigSaveResult, type Config, type CoreColorKey, type CoreColors } from '../main/data';
@@ -183,9 +183,12 @@ function showReferencePalette(
   onPreview: (colors: Required<CoreColors>) => void,
   onCreate: (colors: Required<CoreColors>, suggestedName: string) => Promise<boolean>,
   onRestore: () => void,
-): void {
+  onClose: (dialog: Dialog) => void,
+): Dialog | null {
   const plugin = getPlugin();
-  if (!plugin) return;
+  if (!plugin) return null;
+  const isScopeCurrent = createDialogScopeGuard('palette');
+  const isCurrent = (): boolean => isScopeCurrent() && getThemeMode() === mode;
   const { i18n } = plugin;
   const builtinPresets = getBuiltinPresets(mode);
   const library = [...paletteLibrary[mode]].sort((a, b) =>
@@ -193,6 +196,7 @@ function showReferencePalette(
   let keepPreview = false;
   let referenceMenu: ReturnType<typeof openSearchableMenu> | null = null;
   const dialog = new Dialog({
+    scope: 'palette',
     title: i18n.freeReference,
     content: `<div class="b3-dialog__content">
       <div class="config__tab-container">
@@ -228,8 +232,12 @@ function showReferencePalette(
       <button class="b3-button b3-button--text" id="neo-free-reference-confirm">${i18n.freeReferenceNewPreset}</button>
     </div>`,
     destroyCallback: () => {
-      referenceMenu?.close();
-      if (!keepPreview) onRestore();
+      try {
+        referenceMenu?.close();
+        if (!keepPreview) onRestore();
+      } finally {
+        onClose(dialog);
+      }
     },
   });
   dialog.element.classList.add('neo-settings-dialog');
@@ -265,6 +273,7 @@ function showReferencePalette(
     }
   }
   function selectSource(next: 'preset' | 'library', key: string): void {
+    if (!isCurrent() || !dialog.element.isConnected) return;
     source = next;
     const active = next === 'preset' ? presetButton : libraryButton;
     const inactive = next === 'preset' ? libraryButton : presetButton;
@@ -277,7 +286,7 @@ function showReferencePalette(
     if (colors) onPreview(colors);
   }
   function openReferenceMenu(next: 'preset' | 'library'): void {
-    if (creating) return;
+    if (!isCurrent() || !dialog.element.isConnected || creating) return;
     referenceMenu?.close();
     const trigger = next === 'preset' ? presetButton : libraryButton;
     const items: ReadonlyArray<{ key: string; nameKey: string }> = next === 'preset' ? builtinPresets : library;
@@ -294,12 +303,14 @@ function showReferencePalette(
   libraryButton.addEventListener('click', () => openReferenceMenu('library'));
   dialog.element.querySelector('#neo-free-reference-cancel')?.addEventListener('click', () => dialog.destroy());
   createButton.addEventListener('click', async () => {
-    if (creating) return;
+    if (!isCurrent() || !dialog.element.isConnected || creating) return;
     const colors = getSelectedColors();
     if (!colors) return;
     creating = true;
     createButton.disabled = true;
-    if (await onCreate(colors, getSourceName())) {
+    const created = await onCreate(colors, getSourceName());
+    if (!isCurrent() || !dialog.element.isConnected) return;
+    if (created) {
       keepPreview = true;
       dialog.destroy();
       return;
@@ -307,10 +318,12 @@ function showReferencePalette(
     creating = false;
     createButton.disabled = false;
   });
+  return dialog;
 }
 function confirmPresetAction(title: string, content: string, action: string, cancel: string): Promise<boolean> {
   return new Promise(resolve => {
     const dialog = new Dialog({
+      scope: 'palette',
       title,
       content: `<div class="b3-dialog__content"></div><div class="b3-dialog__action">
         <button class="b3-button b3-button--cancel" id="neo-free-action-cancel">${cancel}</button>
@@ -331,10 +344,12 @@ function confirmPresetAction(title: string, content: string, action: string, can
 export async function showFreeSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
-  const isCurrent = createNeoLifecycleGuard();
-  let config = await loadConfig();
-  if (!isCurrent()) return;
+  const isScopeCurrent = createDialogScopeGuard('palette');
   const mode = getThemeMode();
+  const isCurrent = (): boolean => isScopeCurrent() && getThemeMode() === mode;
+  await loadConfig();
+  if (!isCurrent()) return;
+  let config = getConfig();
   const presetsKey = mode === 'dark' ? 'free-presets-dark' : 'free-presets-light';
   const currentKey = mode === 'dark' ? 'free-preset-current-dark' : 'free-preset-current-light';
   const { i18n } = plugin;
@@ -347,15 +362,18 @@ export async function showFreeSettings(): Promise<void> {
   const colors = { ...savedColors };
   let saving = false;
   let presetMenu: ReturnType<typeof openSearchableMenu> | null = null;
+  let referenceDialog: Dialog | null = null;
+  let referencePreviewActive = false;
   let closePromptOpen = false;
   function hasUnsavedChanges(): boolean {
     return freeColorFields.some(([key]) => colors[key].toLowerCase() !== savedColors[key].toLowerCase());
   }
   function canPreview(): boolean {
     return isCurrent() && getThemeMode() === mode
-      && document.documentElement.classList.contains('neo-palette-free');
+      && getCurrentPlan(getConfig(), mode) === 'free';
   }
   const dialog = new Dialog({
+    scope: 'palette',
     title: `<div class="fn__flex">
       <div class="fn__ellipsis">${i18n.freePaletteSettings}</div>
       <span class="fn__space"></span>
@@ -364,7 +382,8 @@ export async function showFreeSettings(): Promise<void> {
     content: buildSettingsHTML(i18n, colors, mode),
     destroyCallback: () => {
       presetMenu?.close();
-      if (canPreview()) initFree(getConfig());
+      referenceDialog?.destroyImmediately();
+      if (canPreview() && hasUnsavedChanges()) initFree(getConfig());
     },
   });
   dialog.element.classList.add('neo-settings-dialog');
@@ -391,7 +410,11 @@ export async function showFreeSettings(): Promise<void> {
   }
   updatePresetButton();
   async function persist(nextPresets: Record<string, CoreColors>, name: string, preserveDraft = false): Promise<ConfigSaveResult> {
-    if (!isCurrent() || saving || !dialog.element.isConnected) return false;
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroyImmediately();
+      return false;
+    }
+    if (saving) return false;
     saving = true;
     const controls = dialog.element.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>('input, select, button');
     controls.forEach(control => { control.disabled = true; });
@@ -402,12 +425,12 @@ export async function showFreeSettings(): Promise<void> {
     expected[presetsKey] = config[presetsKey];
     expected[currentKey] = config[currentKey];
     try {
-      const result = await saveConfigIfUnchanged(patch, expected);
+      const result = await saveConfigIfUnchanged(patch, expected, () => isCurrent() && dialog.element.isConnected);
       if (!result) {
         if (isCurrent()) showMessage(i18n.freePaletteChanged);
         return false;
       }
-      if (!isCurrent()) return false;
+      if (!isCurrent() || !dialog.element.isConnected) return false;
       config = { ...config, ...patch };
       presets = nextPresets;
       selected = name;
@@ -429,7 +452,8 @@ export async function showFreeSettings(): Promise<void> {
     }
   }
   dialog.element.querySelector('#neo-free-reference')?.addEventListener('click', () => {
-    if (!isCurrent() || saving) return;
+    if (!isCurrent() || !dialog.element.isConnected || saving) return;
+    referenceDialog?.destroyImmediately();
     const root = document.documentElement;
     const variables = freeColorFields.map(([, , variable]) => variable);
     const snapshot = variables.map(variable => [
@@ -438,16 +462,23 @@ export async function showFreeSettings(): Promise<void> {
       root.style.getPropertyPriority(variable),
     ] as const);
     function restorePreview(): void {
-      if (!isCurrent() || getThemeMode() !== mode) return;
+      if (!referencePreviewActive) return;
+      referencePreviewActive = false;
+      if (!canPreview()) return;
+      if (!dialog.element.isConnected) {
+        initFree(getConfig());
+        return;
+      }
       for (const [variable, value, priority] of snapshot) {
         if (value) root.style.setProperty(variable, value, priority);
         else root.style.removeProperty(variable);
       }
     }
-    showReferencePalette(
+    referenceDialog = showReferencePalette(
       mode,
       imported => {
-        if (!isCurrent() || getThemeMode() !== mode) return;
+        if (!canPreview() || !dialog.element.isConnected) return;
+        referencePreviewActive = true;
         applyCoreColors(imported);
       },
       async (imported, suggestedName) => {
@@ -457,6 +488,12 @@ export async function showFreeSettings(): Promise<void> {
         return created;
       },
       restorePreview,
+      closedDialog => {
+        if (referenceDialog === closedDialog) {
+          referenceDialog = null;
+          referencePreviewActive = false;
+        }
+      },
     );
   });
   for (const [key, , variable] of freeColorFields) {
@@ -498,6 +535,15 @@ export async function showFreeSettings(): Promise<void> {
   };
   dialog.element.querySelector('#neo-free-cancel')?.addEventListener('click', () => dialog.destroy());
   async function updatePreset(closeDialog = false): Promise<void> {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroyImmediately();
+      return;
+    }
+    if (saving) return;
+    if (!hasUnsavedChanges()) {
+      if (closeDialog) dialog.destroy();
+      return;
+    }
     if (!selected) { showMessage(i18n.freePresetNotSelected); return; }
     const result = await persist({ ...presets, [selected]: { ...colors } }, selected);
     if (result) {
@@ -569,6 +615,7 @@ export async function showFreeSettings(): Promise<void> {
   function showPresetName(title: string, suggestedName: string, onSave: (name: string) => Promise<boolean>): Promise<boolean> {
     return new Promise(resolve => {
       const nameDialog = new Dialog({
+        scope: 'palette',
         title,
         content: `<div class="b3-dialog__content"><label class="fn__flex b3-label config-item">
           <div class="fn__flex-1 config-item__main"><div class="config-name">${i18n.freePresetName}</div><div class="b3-label__text">${i18n.freePresetNameTip}</div></div>
@@ -607,7 +654,9 @@ export async function showFreeSettings(): Promise<void> {
           }
         } finally {
           submitting = false;
-          controls.forEach(control => { control.disabled = false; });
+          if (isCurrent() && nameDialog.element.isConnected) {
+            controls.forEach(control => { control.disabled = false; });
+          }
         }
       };
       confirmButton.addEventListener('click', () => { void submit(); });

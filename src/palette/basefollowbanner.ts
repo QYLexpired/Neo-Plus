@@ -1,6 +1,6 @@
 import type { Config } from '../main/data';
 import { getColor, getSwatches } from 'colorthief';
-import { loadConfig, saveConfig } from '../main/data';
+import { loadConfig, getConfig, saveConfig } from '../main/data';
 import { getPlugin } from '../main/context';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { Dialog } from '../modules/dialog';
@@ -8,6 +8,9 @@ import { fetchListener } from '../modules/fetchmonitor';
 import { isMobile } from '../modules/env';
 type ColorStyle = NonNullable<Config['basefollowbanner-colorstyle']>;
 let colorStyle: ColorStyle = 'default';
+function normalizeColorStyle(value: unknown): ColorStyle {
+  return value === 'vivid' ? 'vivid' : 'default';
+}
 function applySettings(): void {
   lastValidHex = null;
   scheduleExtract(0);
@@ -319,7 +322,7 @@ function enableBaseFollowBanner(): void {
   scheduleExtract(500);
 }
 export function initBaseFollowBanner(config: Config): void {
-  colorStyle = config['basefollowbanner-colorstyle'] || 'default';
+  colorStyle = normalizeColorStyle(config['basefollowbanner-colorstyle']);
   if (neoFeatureActive) {
     applySettings();
   } else {
@@ -337,8 +340,9 @@ export async function showBaseFollowBannerSettings(): Promise<void> {
   const isCurrent = createNeoLifecycleGuard();
   const plugin = getPlugin();
   if (!plugin) return;
-  const config = await loadConfig();
+  await loadConfig();
   if (!isCurrent()) return;
+  const initialColorStyle = normalizeColorStyle(getConfig()['basefollowbanner-colorstyle']);
   const { i18n } = plugin;
   const dialog = new Dialog({
     title: i18n.basefollowbannerSettings,
@@ -369,13 +373,19 @@ export async function showBaseFollowBannerSettings(): Promise<void> {
   });
   dialog.element.classList.add('neo-settings-dialog');
   const styleSelect = dialog.element.querySelector<HTMLSelectElement>('#neo-basefollowbanner-colorstyle')!;
-  styleSelect.value = config['basefollowbanner-colorstyle'] || 'default';
+  styleSelect.value = initialColorStyle;
   dialog.element.querySelector('#neo-basefollowbanner-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-basefollowbanner-confirm')?.addEventListener('click', () => {
-    if (!isCurrent()) return;
-    colorStyle = styleSelect.value as ColorStyle;
-    saveConfig({ 'basefollowbanner-colorstyle': colorStyle });
-    if (neoFeatureActive) applySettings();
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
+    const nextColorStyle = normalizeColorStyle(styleSelect.value);
+    if (nextColorStyle !== initialColorStyle) {
+      colorStyle = nextColorStyle;
+      saveConfig({ 'basefollowbanner-colorstyle': colorStyle });
+      if (neoFeatureActive) applySettings();
+    }
     dialog.destroy();
   });
 }

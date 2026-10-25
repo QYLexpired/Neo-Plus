@@ -1,8 +1,7 @@
 import { openAssetPicker, showMessage } from 'siyuan';
-import { Dialog } from '../modules/dialog';
+import { Dialog, createDialogScopeGuard } from '../modules/dialog';
 import { openSearchableMenu, showNamedMessage } from '../modules/searchablemenu';
 import { getPlugin } from '../main/context';
-import { createNeoLifecycleGuard } from '../main/lifecycle';
 import {
   saveConfigIfUnchanged,
   loadConfig,
@@ -103,54 +102,54 @@ function toInfoValue(raw: string | undefined): string {
 const zlevelMap: Record<string, string> = { backdrop: '-99', content: '1', topmost: '99' };
 const fieldDefs: CustomImageField[] = [
   { configKey: 'customimage-info', defaultRaw: '', css: [
-    { cssVar: '--neo-customimage-info', toCss: raw => toInfoValue(raw) },
+    { cssVar: '--_customimage-info', toCss: raw => toInfoValue(raw) },
   ], inputId: 'neo-customimage-path', tooltipId: '', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-blur', defaultRaw: '0', css: [
-    { cssVar: '--neo-customimage-blur', toCss: raw => raw + 'px' },
+    { cssVar: '--_customimage-blur', toCss: raw => raw + 'px' },
   ], numeric: { min: 0, max: 50, step: 1 }, inputId: 'neo-customimage-blur', tooltipId: 'neo-customimage-blur-tooltip', event: 'input', tooltipSuffix: 'px' },
   { configKey: 'customimage-x', defaultRaw: '50', css: [
-    { cssVar: '--neo-customimage-x', toCss: raw => raw + '%' },
+    { cssVar: '--_customimage-x', toCss: raw => raw + '%' },
   ], numeric: { min: 0, max: 100, step: 1 }, inputId: 'neo-customimage-x', tooltipId: 'neo-customimage-x-tooltip', event: 'input', tooltipSuffix: '%' },
   { configKey: 'customimage-y', defaultRaw: '50', css: [
-    { cssVar: '--neo-customimage-y', toCss: raw => raw + '%' },
+    { cssVar: '--_customimage-y', toCss: raw => raw + '%' },
   ], numeric: { min: 0, max: 100, step: 1 }, inputId: 'neo-customimage-y', tooltipId: 'neo-customimage-y-tooltip', event: 'input', tooltipSuffix: '%' },
   { configKey: 'customimage-opacity', defaultRaw: '0.12', css: [
-    { cssVar: '--neo-customimage-opacity', toCss: raw => raw },
+    { cssVar: '--_customimage-opacity', toCss: raw => raw },
   ], numeric: { min: 0, max: 0.8, step: 0.01 }, inputId: 'neo-customimage-opacity', tooltipId: 'neo-customimage-opacity-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-effect', defaultRaw: 'normal', css: [
-    { cssVar: '--neo-customimage-effect', toCss: raw => raw },
+    { cssVar: '--_customimage-effect', toCss: raw => raw },
   ], inputId: 'neo-customimage-effect', tooltipId: '', event: 'change', tooltipSuffix: '' },
   { configKey: 'customimage-background-blend-mode', defaultRaw: 'normal', css: [
-    { cssVar: '--neo-customimage-background-blend-mode', toCss: raw => raw },
+    { cssVar: '--_customimage-background-blend-mode', toCss: raw => raw },
   ], inputId: 'neo-customimage-background-blend-mode', tooltipId: '', event: 'change', tooltipSuffix: '' },
   { configKey: 'customimage-brightness', defaultRaw: '1', css: [
-    { cssVar: '--neo-customimage-brightness', toCss: raw => raw },
+    { cssVar: '--_customimage-brightness', toCss: raw => raw },
   ], numeric: { min: 0.5, max: 1.5, step: 0.01 }, inputId: 'neo-customimage-brightness', tooltipId: 'neo-customimage-brightness-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-saturation', defaultRaw: '1', css: [
-    { cssVar: '--neo-customimage-saturation', toCss: raw => raw },
+    { cssVar: '--_customimage-saturation', toCss: raw => raw },
   ], numeric: { min: 0, max: 2, step: 0.01 }, inputId: 'neo-customimage-saturation', tooltipId: 'neo-customimage-saturation-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-contrast', defaultRaw: '1', css: [
-    { cssVar: '--neo-customimage-contrast', toCss: raw => raw },
+    { cssVar: '--_customimage-contrast', toCss: raw => raw },
   ], numeric: { min: 0, max: 2, step: 0.01 }, inputId: 'neo-customimage-contrast', tooltipId: 'neo-customimage-contrast-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-grayscale', defaultRaw: '0', css: [
-    { cssVar: '--neo-customimage-grayscale', toCss: raw => raw },
+    { cssVar: '--_customimage-grayscale', toCss: raw => raw },
   ], numeric: { min: 0, max: 1, step: 0.01 }, inputId: 'neo-customimage-grayscale', tooltipId: 'neo-customimage-grayscale-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-hue-rotate', defaultRaw: '0', css: [
-    { cssVar: '--neo-customimage-hue-rotate', toCss: raw => raw + 'deg' },
+    { cssVar: '--_customimage-hue-rotate', toCss: raw => raw + 'deg' },
   ], numeric: { min: 0, max: 360, step: 1 }, inputId: 'neo-customimage-hue-rotate', tooltipId: 'neo-customimage-hue-rotate-tooltip', event: 'input', tooltipSuffix: 'deg' },
   { configKey: 'customimage-zlevel', defaultRaw: 'topmost', css: [
     { cssVar: '--neo-customimage-zlevel', toCss: raw => zlevelMap[raw] ?? zlevelMap.topmost },
   ], inputId: 'neo-customimage-zlevel', tooltipId: '', event: 'change', tooltipSuffix: '' },
   { configKey: 'customimage-layout-opacity', defaultRaw: '0.9', css: [
-    { cssVar: '--neo-customimage-layout-opacity', toCss: (raw, values) => values['customimage-zlevel'] === 'backdrop' ? raw : '1' },
+    { cssVar: '--_customimage-layout-opacity', toCss: (raw, values) => values['customimage-zlevel'] === 'backdrop' ? raw : '1' },
   ], numeric: { min: 0.5, max: 1, step: 0.01 }, inputId: 'neo-customimage-layout-opacity', tooltipId: 'neo-customimage-layout-opacity-tooltip', event: 'input', tooltipSuffix: '' },
   { configKey: 'customimage-fill-mode', defaultRaw: 'scale', css: [
-    { cssVar: '--neo-customimage-repeat', toCss: (raw, values) => {
+    { cssVar: '--_customimage-repeat', toCss: (raw, values) => {
       if (raw === 'tile') return 'repeat';
       if (raw === 'custom') return values['customimage-fill-repeat'] === 'true' ? 'repeat' : 'no-repeat';
       return 'no-repeat';
     } },
-    { cssVar: '--neo-customimage-size', toCss: (raw, values) => {
+    { cssVar: '--_customimage-size', toCss: (raw, values) => {
       if (raw === 'tile') return 'auto';
       if (raw === 'custom') {
         const width = values['customimage-fill-width'];
@@ -495,6 +494,7 @@ function buildSettingsHTML(i18n: Record<string, string>, mode: ThemeMode): strin
 function confirmPresetAction(title: string, content: string, action: string, cancel: string): Promise<boolean> {
   return new Promise(resolve => {
     const dialog = new Dialog({
+      scope: 'texture',
       title,
       content: `<div class="b3-dialog__content"></div><div class="b3-dialog__action">
         <button class="b3-button b3-button--cancel" id="neo-customimage-action-cancel">${cancel}</button>
@@ -515,10 +515,12 @@ function confirmPresetAction(title: string, content: string, action: string, can
 export async function showCustomImageSettings(): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
-  const isCurrent = createNeoLifecycleGuard();
-  let config = await loadConfig();
-  if (!isCurrent()) return;
+  const isScopeCurrent = createDialogScopeGuard('texture');
   const mode = getThemeMode();
+  const isCurrent = (): boolean => isScopeCurrent() && getThemeMode() === mode;
+  await loadConfig();
+  if (!isCurrent()) return;
+  let config = getConfig();
   const presetsKey = mode === 'dark' ? 'customimage-presets-dark' : 'customimage-presets-light';
   const currentKey = mode === 'dark' ? 'customimage-preset-current-dark' : 'customimage-preset-current-light';
   const { i18n } = plugin;
@@ -534,6 +536,7 @@ export async function showCustomImageSettings(): Promise<void> {
     return isCurrent() && getThemeMode() === mode && neoFeatureActive;
   }
   const dialog = new Dialog({
+    scope: 'texture',
     title: `<div class="fn__flex">
       <div class="fn__ellipsis">${i18n.customimageSettings}</div>
       <span class="fn__space"></span>
@@ -542,7 +545,7 @@ export async function showCustomImageSettings(): Promise<void> {
     content: buildSettingsHTML(i18n, mode),
     destroyCallback: () => {
       presetMenu?.close();
-      if (canPreview()) applyCustomImageCss(getValues(getConfig(), mode));
+      if (canPreview() && hasUnsavedChanges()) applyCustomImageCss(getValues(getConfig(), mode));
     },
   });
   dialog.element.classList.add('neo-settings-dialog');
@@ -595,7 +598,11 @@ export async function showCustomImageSettings(): Promise<void> {
   }
   updatePresetButton();
   async function persist(nextPresets: Record<string, CustomImageSource>, name: string, preserveDraft = false): Promise<ConfigSaveResult> {
-    if (!isCurrent() || saving || !dialog.element.isConnected) return false;
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroyImmediately();
+      return false;
+    }
+    if (saving) return false;
     saving = true;
     const controls = dialog.element.querySelectorAll<CustomImageInput | HTMLButtonElement>('input, textarea, select, button');
     controls.forEach(control => { control.disabled = true; });
@@ -606,12 +613,12 @@ export async function showCustomImageSettings(): Promise<void> {
     expected[presetsKey] = config[presetsKey];
     expected[currentKey] = config[currentKey];
     try {
-      const result = await saveConfigIfUnchanged(patch, expected);
+      const result = await saveConfigIfUnchanged(patch, expected, () => isCurrent() && dialog.element.isConnected);
       if (!result) {
         if (isCurrent()) showMessage(i18n.customimagePresetsChanged);
         return false;
       }
-      if (!isCurrent()) return false;
+      if (!isCurrent() || !dialog.element.isConnected) return false;
       config = { ...config, ...patch };
       presets = nextPresets;
       selected = name;
@@ -686,6 +693,7 @@ export async function showCustomImageSettings(): Promise<void> {
       const titleKey = btnEl.dataset.tipTitle;
       if (!tipKey) return;
       new Dialog({
+        scope: 'texture',
         title: titleKey ? t(i18n, titleKey) : '',
         content: `<div class="b3-dialog__content"><div class="b3-label__text">${t(i18n, tipKey)}</div></div>`,
       });
@@ -707,6 +715,15 @@ export async function showCustomImageSettings(): Promise<void> {
   };
   dialog.element.querySelector('#neo-customimage-cancel')?.addEventListener('click', () => dialog.destroy());
   async function updatePreset(closeDialog = false): Promise<void> {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroyImmediately();
+      return;
+    }
+    if (saving) return;
+    if (!hasUnsavedChanges()) {
+      if (closeDialog) dialog.destroy();
+      return;
+    }
     if (!selected) { showMessage(i18n.customimagePresetNotSelected); return; }
     const result = await persist({ ...presets, [selected]: buildPresetFromDom() }, selected);
     if (result) {
@@ -768,6 +785,7 @@ export async function showCustomImageSettings(): Promise<void> {
   function showNewPreset(): Promise<boolean> {
     return new Promise(resolve => {
       const nameDialog = new Dialog({
+        scope: 'texture',
         title: i18n.customimageNewPresetTitle,
         content: `<div class="b3-dialog__content"><label class="fn__flex b3-label config-item">
           <div class="fn__flex-1 config-item__main"><div class="config-name">${i18n.customimagePresetName}</div><div class="b3-label__text">${i18n.customimagePresetNameTip}</div></div>
@@ -806,7 +824,9 @@ export async function showCustomImageSettings(): Promise<void> {
           }
         } finally {
           submitting = false;
-          controls.forEach(control => { control.disabled = false; });
+          if (isCurrent() && nameDialog.element.isConnected) {
+            controls.forEach(control => { control.disabled = false; });
+          }
         }
       };
       confirmButton.addEventListener('click', () => { void submit(); });

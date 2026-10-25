@@ -34,8 +34,8 @@
         @include superellipse-use($radius-item);
         pointer-events: none;
         opacity: 1;
-        background-color: var(--neo-smoothcaret-color, var(--b3-theme-accent));
-        transition: translate var(--neo-smoothcaret-ease), height var(--neo-smoothcaret-ease), width var(--neo-smoothcaret-ease);
+        background-color: var(--_smoothcaret-color, var(--b3-theme-accent));
+        transition: translate var(--_smoothcaret-ease), height var(--_smoothcaret-ease), width var(--_smoothcaret-ease);
         will-change: translate, transform, height, width;
         &.neo-smoothcaret-hidden {
             opacity: 0 !important;
@@ -45,7 +45,7 @@
     }
     body.neo-smoothcaret-style-neon {
         #neo-smoothcaret-item {
-            --_smoothcaret-neno-color: oklch(from var(--neo-smoothcaret-color, var(--b3-theme-accent)) calc(l + 0.15) c h);
+            --_smoothcaret-neno-color: oklch(from var(--_smoothcaret-color, var(--b3-theme-accent)) calc(l + 0.15) c h);
             box-shadow: 0 0 4px var(--_smoothcaret-neno-color), 0 0 10px var(--_smoothcaret-neno-color), 0 0 20px var(--_smoothcaret-neno-color);
         }
     }
@@ -58,8 +58,8 @@
     body.neo-smoothcaret-style-block {
         #neo-smoothcaret-item {
             border-radius: 0;
-            background-color: oklch(from var(--neo-smoothcaret-color, var(--b3-theme-accent)) l c h / 0.2);
-            outline: 1px solid oklch(from var(--neo-smoothcaret-color, var(--b3-theme-accent)) l c h / 0.5);
+            background-color: oklch(from var(--_smoothcaret-color, var(--b3-theme-accent)) l c h / 0.2);
+            outline: 1px solid oklch(from var(--_smoothcaret-color, var(--b3-theme-accent)) l c h / 0.5);
             outline-offset: -1px;
         }
     }

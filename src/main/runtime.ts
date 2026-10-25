@@ -29,6 +29,7 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { baseCss } from '../modules/csschunks';
 import { initMenuSettings, destroyMenuSettings } from '../modules/menusettings';
 import { beginNeoLifecycle, endNeoLifecycle } from './lifecycle';
+import { closeNeoDialogs } from '../modules/dialog';
 interface RuntimeModule {
   init: () => void | PromiseLike<void>;
   destroy: () => void;
@@ -100,6 +101,7 @@ export function stopNeoRuntime(): void {
   if (!runtimeActive) return;
   runtimeActive = false;
   endNeoLifecycle();
+  closeNeoDialogs();
   for (let index = runtimeModules.length - 1; index >= 0; index--) {
     try { runtimeModules[index].destroy(); } catch {}
   }

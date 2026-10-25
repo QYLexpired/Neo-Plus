@@ -1,12 +1,36 @@
 import { Dialog as SiyuanDialog } from 'siyuan';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+type DialogScope = 'palette' | 'texture';
+type DialogOptions = ConstructorParameters<typeof SiyuanDialog>[0] & { scope?: DialogScope };
+const dialogs = new Map<Dialog, DialogScope | undefined>();
+const scopeRevisions: Record<DialogScope, number> = { palette: 0, texture: 0 };
+export function createDialogScopeGuard(scope: DialogScope): () => boolean {
+  const isCurrent = createNeoLifecycleGuard();
+  const revision = scopeRevisions[scope];
+  return () => isCurrent() && revision === scopeRevisions[scope];
+}
+export function closeNeoDialogs(scope?: DialogScope): void {
+  if (scope) scopeRevisions[scope] += 1;
+  else {
+    scopeRevisions.palette += 1;
+    scopeRevisions.texture += 1;
+  }
+  for (const [dialog, owner] of Array.from(dialogs).reverse()) {
+    if (!scope || owner === scope) {
+      try { dialog.destroyImmediately(); } catch {}
+    }
+  }
+}
 export class Dialog extends SiyuanDialog {
   private closing = false;
-  constructor(options: ConstructorParameters<typeof SiyuanDialog>[0]) {
+  constructor(options: DialogOptions) {
+    const { scope, ...dialogOptions } = options;
+    let dialog: Dialog | null = null;
     const previousFocus = document.activeElement;
     super({
-      ...options,
+      ...dialogOptions,
       destroyCallback: () => {
+        if (dialog) dialogs.delete(dialog);
         options.destroyCallback?.();
         if (previousFocus instanceof HTMLElement && previousFocus.isConnected
           && (!document.activeElement || document.activeElement === document.body)) {
@@ -17,6 +41,8 @@ export class Dialog extends SiyuanDialog {
         }
       },
     });
+    dialog = this;
+    dialogs.set(this, scope);
     const isCurrent = createNeoLifecycleGuard();
     this.element.tabIndex = -1;
     this.element.addEventListener('keydown', event => {
@@ -40,8 +66,12 @@ export class Dialog extends SiyuanDialog {
     this.element.focus({ preventScroll: true });
   }
   override destroy(): void {
+    this.destroyImmediately();
+  }
+  destroyImmediately(): void {
     if (this.closing) return;
     this.closing = true;
+    dialogs.delete(this);
     super.destroy();
   }
 }

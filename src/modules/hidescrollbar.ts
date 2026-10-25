@@ -2,18 +2,11 @@ import { isMac, isMobile } from '../modules/env';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { createChunkedScanRunner } from './performancetuning';
 const styleId = 'neo-hidescrollbar-style';
-interface SavedScrollbarRule {
-  sheet: CSSStyleSheet;
-  index: number;
-  cssText: string;
-}
-let savedScrollbarRules: SavedScrollbarRule[] = [];
 let active = false;
 let rescanTimer: ReturnType<typeof setTimeout> | null = null;
 let scanPending = false;
 function* removeScrollbarStyles(): Generator<void> {
   const activeSheets = new Set(Array.from(document.styleSheets));
-  savedScrollbarRules = savedScrollbarRules.filter((saved) => activeSheets.has(saved.sheet));
   for (const ss of activeSheets) {
     yield;
     const ownerNode = ss.ownerNode as HTMLElement | null;
@@ -26,7 +19,6 @@ function* removeScrollbarStyles(): Generator<void> {
           if (rule.style.width || rule.style.height || rule.style.backgroundColor) {
             const index = Array.prototype.indexOf.call(ss.cssRules, rule);
             if (index !== -1) {
-              savedScrollbarRules.push({ sheet: ss, index, cssText: rule.cssText });
               ss.deleteRule(index);
             }
           }
@@ -70,22 +62,9 @@ const scanRunner = createChunkedScanRunner(
     if (scanPending) scanRunner.schedule();
   },
 );
-function restoreScrollbarStyles(): void {
-  const activeSheets = new Set(Array.from(document.styleSheets));
-  for (let i = savedScrollbarRules.length - 1; i >= 0; i--) {
-    const saved = savedScrollbarRules[i];
-    if (!activeSheets.has(saved.sheet)) continue;
-    try {
-      const index = Math.min(saved.index, saved.sheet.cssRules.length);
-      saved.sheet.insertRule(saved.cssText, index);
-    } catch {}
-  }
-  savedScrollbarRules = [];
-}
 export function initHideScrollbar(): void {
   if (isMobile() || active) return;
   active = true;
-  savedScrollbarRules = [];
   ensureScrollbarStyle();
   scanRunner.start();
   scanPending = true;
@@ -108,5 +87,4 @@ export function destroyHideScrollbar(): void {
   scanPending = false;
   const el = document.getElementById(styleId);
   if (el) el.remove();
-  restoreScrollbarStyles();
 }

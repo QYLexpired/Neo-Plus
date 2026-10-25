@@ -1,4 +1,5 @@
 import { loadConfig, type Config } from '../main/data';
+import { normalizeElementConfig } from '../appearance/element';
 import { coreColorVariables, type Preset } from '../palette/definitions';
 import { getCurrentPlan, getBuiltinPresets, getPresetKey } from '../palette/presets';
 import { getLibraryPresets } from '../palette/library';
@@ -79,19 +80,7 @@ function collectPdfAppearance(config: Config): PdfAppearanceSnapshot {
     );
     if (config['highcontrast-light'] === true) snapshot.classes.push('neo-palette-highcontrast');
   }
-  const savedRule = config['element-heading-colored-initial-hue-rule'];
-  const savedColorStyle = config['element-heading-colored-color-style'];
-  const hue = Number(config['element-heading-colored-initial-hue']);
-  const elementConfig = {
-    ...config,
-    'element-link-style': config['element-link-style'] === 'icon' ? 'icon' : 'underline',
-    'element-heading-colored': config['element-heading-colored'] === 'on' ? 'on' : 'off',
-    'element-heading-colored-outline': config['element-heading-colored-outline'] === 'off' ? 'off' : 'on',
-    'element-heading-colored-color-style': savedColorStyle === 'soft' || savedColorStyle === 'vivid' ? savedColorStyle : 'default',
-    'element-heading-colored-initial-hue-rule': savedRule === 'fixed' || savedRule === 'accent' ? savedRule : 'theme',
-    'element-heading-colored-initial-hue': Number.isFinite(hue) ? Math.min(360, Math.max(0, Math.round(hue))) : 0,
-    'element-heading-level': config['element-heading-level'] === 'on' ? 'on' : 'off',
-  };
+  const elementConfig = normalizeElementConfig(config);
   for (const [key, value] of Object.entries(elementConfig)) {
     if (key.startsWith('element-') && typeof value === 'string') snapshot.classes.push(`neo-${key}-${value}`);
   }

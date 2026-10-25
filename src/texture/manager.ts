@@ -2,6 +2,7 @@ import type { MenuItem } from 'siyuan';
 import {
   saveConfig,
   loadConfig,
+  getConfig,
   type Config,
   type CustomImageSource,
 } from '../main/data';
@@ -12,6 +13,7 @@ import { showCustomImageSettings, enableCustomImage, destroyCustomImage } from '
 import { ensureTextureLayer, removeTextureLayer } from './layer';
 import { createSettingsMenuLabel } from '../modules/menusettings';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+import { closeNeoDialogs } from '../modules/dialog';
 import {
   getPresetTextureDefinition,
   presetTextures,
@@ -29,6 +31,13 @@ const customImageTexture = {
 } as const;
 let neoActiveTextureKey: string | null = null;
 let textureActionRevision = 0;
+function createTextureActionGuard(): () => boolean {
+  closeNeoDialogs('texture');
+  const isCurrent = createNeoLifecycleGuard();
+  const mode = getThemeMode();
+  const revision = ++textureActionRevision;
+  return () => isCurrent() && revision === textureActionRevision && getThemeMode() === mode;
+}
 export const textures = [customImageTexture, ...presetTextures];
 export function getTextureKey(mode: 'light' | 'dark'): 'texture-light' | 'texture-dark' {
   return mode === 'dark' ? 'texture-dark' : 'texture-light';
@@ -44,16 +53,15 @@ function buildCustomImageMenuItem(i18n: Record<string, string>): MenuItem {
       () => showCustomImageSettings(),
     ),
     click: () => {
-      const revision = ++textureActionRevision;
+      const canApply = createTextureActionGuard();
       if (neoActiveTextureKey === customImageTexture.key) {
         disableTexture();
         saveTextureSelection('none');
       } else {
-        const isCurrent = createNeoLifecycleGuard();
-        loadConfig().then((config) => {
-          if (!isCurrent() || revision !== textureActionRevision) return;
+        loadConfig().then(() => {
+          if (!canApply()) return;
           disableTexture();
-          enableCustomImageTexture(config);
+          enableCustomImageTexture(getConfig());
           saveTextureSelection(customImageTexture.key);
         }).catch(() => {});
       }
@@ -61,15 +69,10 @@ function buildCustomImageMenuItem(i18n: Record<string, string>): MenuItem {
     },
   };
 }
-function openPresetTextureSettings(texture: PresetTextureDefinition, textureLabel: string): void {
-  const isCurrent = createNeoLifecycleGuard();
-  loadConfig().then((config) => {
-    if (!isCurrent()) return;
-    loadPresetTextureSettings(config);
-    showPresetTextureSettings(texture, textureLabel, () => {
-      if (neoActiveTextureKey === texture.key) applyPresetTextureSettings(texture);
-    });
-  }).catch(() => {});
+function openPresetTextureSettings(texture: PresetTextureDefinition, textureLabel: string): Promise<void> {
+  return showPresetTextureSettings(texture, textureLabel, () => {
+    if (neoActiveTextureKey === texture.key) applyPresetTextureSettings(texture);
+  });
 }
 function buildPresetTextureMenuItem(texture: PresetTextureDefinition, i18n: Record<string, string>): MenuItem {
   return {
@@ -82,15 +85,14 @@ function buildPresetTextureMenuItem(texture: PresetTextureDefinition, i18n: Reco
       () => openPresetTextureSettings(texture, i18n[texture.nameKey]),
     ),
     click: () => {
-      const revision = ++textureActionRevision;
+      const canApply = createTextureActionGuard();
       if (neoActiveTextureKey === texture.key) {
         disableTexture();
         saveTextureSelection('none');
       } else {
-        const isCurrent = createNeoLifecycleGuard();
-        loadConfig().then((config) => {
-          if (!isCurrent() || revision !== textureActionRevision) return;
-          loadPresetTextureSettings(config);
+        loadConfig().then(() => {
+          if (!canApply()) return;
+          loadPresetTextureSettings(getConfig());
           disableTexture();
           enablePresetTexture(texture);
           saveTextureSelection(texture.key);
@@ -162,14 +164,14 @@ export function applyTexture(config: Config): void {
   if (texture) enablePresetTexture(texture);
 }
 async function reloadAndApplyTexture(): Promise<void> {
-  const isCurrent = createNeoLifecycleGuard();
-  const revision = ++textureActionRevision;
-  const config = await loadConfig();
-  if (!isCurrent() || revision !== textureActionRevision) return;
-  applyTexture(config);
+  const canApply = createTextureActionGuard();
+  await loadConfig();
+  if (!canApply()) return;
+  applyTexture(getConfig());
 }
 let mutationObserver: MutationObserver | null = null;
 export function initTexture(): Promise<void> {
+  if (mutationObserver) return reloadAndApplyTexture();
   mutationObserver = new MutationObserver(() => {
     reloadAndApplyTexture().catch(() => {});
   });
@@ -180,6 +182,7 @@ export function initTexture(): Promise<void> {
   return reloadAndApplyTexture();
 }
 export function destroyTexture(): void {
+  closeNeoDialogs('texture');
   textureActionRevision++;
   disableTexture();
   if (mutationObserver) {

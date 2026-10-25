@@ -11,13 +11,13 @@
     @supports (bottom: anchor(--a bottom)) {
         body:not(.neo-mobile) .status {
             transform-origin: 100% 100%;
-            &:not(.neo-status-hidden) {
+            &:not(.neo-statushidden-state-hidden) {
                 animation: neo-status-expand 0.4s var(--neo-ease-spring-2);
                 @include status-child {
                     animation: neo-status-content-fadein 0.3s var(--neo-ease-out-3), neo-status-content-transform 0.5s var(--neo-ease-spring-3);
                 }
             }
-            &.neo-status-hidden {
+            &.neo-statushidden-state-hidden {
                 &:not(:hover) {
                     height: 16px;
                     width: 32px;

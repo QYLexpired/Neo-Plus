@@ -1,7 +1,9 @@
 import { Dialog } from '../modules/dialog';
 import { getPlugin } from '../main/context';
+import { createNeoLifecycleGuard } from '../main/lifecycle';
 import {
   saveConfig,
+  loadConfig,
   getConfig,
   type Config,
   type PresetTextureSettingValue,
@@ -143,13 +145,17 @@ function buildSettingsHTML(
     <button class="b3-button b3-button--text" id="neo-preset-texture-confirm">${i18n.confirm}</button>
   </div>`;
 }
-export function showPresetTextureSettings(
+export async function showPresetTextureSettings(
   texture: PresetTextureDefinition,
   textureLabel: string,
   onApply: () => void,
-): void {
+): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
+  const isCurrent = createNeoLifecycleGuard();
+  await loadConfig();
+  if (!isCurrent()) return;
+  loadPresetTextureSettings(getConfig());
   const values = getTextureSettingValues(texture);
   const dialog = new Dialog({
     title: `<div class="fn__flex">
@@ -179,15 +185,24 @@ export function showPresetTextureSettings(
   });
   dialog.element.querySelector('#neo-preset-texture-cancel')?.addEventListener('click', () => dialog.destroy());
   dialog.element.querySelector('#neo-preset-texture-confirm')?.addEventListener('click', () => {
+    if (!isCurrent() || !dialog.element.isConnected) {
+      dialog.destroy();
+      return;
+    }
     const nextValues: PresetTextureSettings = {};
     for (const setting of texture.settings) {
       const input = dialog.element.querySelector(`#${getInputId(texture, setting)}`) as HTMLInputElement | HTMLSelectElement | null;
-      nextValues[setting.key] = normalizeSettingValue(setting, input?.value);
+      const value = normalizeSettingValue(setting, input?.value);
+      if (value !== values[setting.key]) nextValues[setting.key] = value;
+    }
+    if (Object.keys(nextValues).length === 0) {
+      dialog.destroy();
+      return;
     }
     loadPresetTextureSettings(getConfig());
     presetTextureSettings = {
       ...presetTextureSettings,
-      [texture.key]: nextValues,
+      [texture.key]: { ...presetTextureSettings[texture.key], ...nextValues },
     };
     saveConfig({
       'texture-settings': Object.fromEntries(

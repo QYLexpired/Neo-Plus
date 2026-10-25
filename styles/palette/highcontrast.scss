@@ -6,13 +6,13 @@
     }
 }
 @mixin neo-highcontrast-icon {
-    color: var(--neo-highcontrast-on-bg) !important;
+    color: var(--_highcontrast-on-bg) !important;
     svg {
-        color: var(--neo-highcontrast-on-bg) !important;
+        color: var(--_highcontrast-on-bg) !important;
     }
     &:hover {
         color: white !important;
-        background-color: oklch(from var(--neo-highcontrast-on-bg) l c h / 0.12) !important;
+        background-color: oklch(from var(--_highcontrast-on-bg) l c h / 0.12) !important;
         svg {
             color: white !important;
         }
@@ -21,11 +21,11 @@
 .neo-palette-highcontrast {
     @include palette-common("[data-id=\"neo-highcontrast-button\"]");
     &.neo-mode-light {
-        --neo-highcontrast-bg: oklch(from var(--b3-theme-base) calc(min(0.63, l) + 0.1 * var(--neo-brightness, 0)) calc(var(--neo-saturation, 2) * 0.03) h);
-        --neo-highcontrast-on-bg: var(--b3-theme-background);
+        --_highcontrast-bg: oklch(from var(--b3-theme-base) calc(min(0.63, l) + 0.1 * var(--neo-brightness, 0)) calc(var(--neo-saturation, 2) * 0.03) h);
+        --_highcontrast-on-bg: var(--b3-theme-background);
         body:not(.neo-ide-body.body--toolbar-hide):not(.neo-mobile) {
             &:not(.body--window) {
-                background-color: var(--neo-highcontrast-bg);
+                background-color: var(--_highcontrast-bg);
             }
             .layout__resize {
                 --_resize-hl: var(--b3-theme-background);
@@ -34,11 +34,11 @@
                 @include neo-highcontrast-icon;
                 &#barWorkspace {
                     .toolbar__text {
-                        color: var(--neo-highcontrast-on-bg);
+                        color: var(--_highcontrast-on-bg);
                     }
                     &:hover {
                         .toolbar__text {
-                            color: var(--neo-highcontrast-on-bg);
+                            color: var(--_highcontrast-on-bg);
                             background-image: none;
                             background-clip: unset;
                             -webkit-text-fill-color: unset;
@@ -48,7 +48,7 @@
                 }
             }
             .toolbar #drag {
-                color: var(--neo-highcontrast-on-bg);
+                color: var(--_highcontrast-on-bg);
             }
             .dock__item {
                 @include neo-highcontrast-icon;
@@ -56,13 +56,13 @@
             .dock__item--active,
             .dock__item--activefocus {
                 background-color: var(--b3-theme-background) !important;
-                color: var(--neo-highcontrast-bg) !important;
+                color: var(--_highcontrast-bg) !important;
                 svg {
-                    color: var(--neo-highcontrast-bg) !important;
+                    color: var(--_highcontrast-bg) !important;
                 }
                 &:hover {
                     background-color: var(--b3-theme-background) !important;
-                    color: var(--neo-highcontrast-bg) !important;
+                    color: var(--_highcontrast-bg) !important;
                     svg {
                         color: black !important;
                     }
@@ -72,19 +72,19 @@
                 background-color: oklch(from var(--b3-theme-background) l c h / 0.5) !important;
             }
             .status {
-                color: var(--neo-highcontrast-on-bg);
-                background-color: var(--neo-highcontrast-bg) !important;
-                --b3-theme-on-background: var(--neo-highcontrast-on-bg);
+                color: var(--_highcontrast-on-bg);
+                background-color: var(--_highcontrast-bg) !important;
+                --b3-theme-on-background: var(--_highcontrast-on-bg);
                 --b3-theme-on-surface: oklch(from var(--b3-theme-on-background) l c h / 0.65);
                 &::before {
-                    --_status-dot-color: var(--neo-highcontrast-on-bg);
+                    --_status-dot-color: var(--_highcontrast-on-bg);
                 }
                 .toolbar__item {
                     @include neo-highcontrast-icon;
                 }
                 .fn__progress > div {
-                    background-color: oklch(from var(--neo-highcontrast-on-bg) l c h / 0.6);
-                    background-image: linear-gradient(-45deg, oklch(from var(--neo-highcontrast-bg) l c h / 0.6) 25%, transparent 25%, transparent 50%, oklch(from var(--neo-highcontrast-bg) l c h / 0.6) 50%, oklch(from var(--neo-highcontrast-bg) l c h / 0.6) 75%, transparent 75%, transparent);
+                    background-color: oklch(from var(--_highcontrast-on-bg) l c h / 0.6);
+                    background-image: linear-gradient(-45deg, oklch(from var(--_highcontrast-bg) l c h / 0.6) 25%, transparent 25%, transparent 50%, oklch(from var(--_highcontrast-bg) l c h / 0.6) 50%, oklch(from var(--_highcontrast-bg) l c h / 0.6) 75%, transparent 75%, transparent);
                 }
             }
             &.body--toolbar-hide {
@@ -98,28 +98,28 @@
                                 .item__icon,
                                 .item__graphic,
                                 .item__text {
-                                    color: var(--neo-highcontrast-on-bg) !important;
+                                    color: var(--_highcontrast-on-bg) !important;
                                 }
                                 .item__close {
                                     svg {
-                                        color: var(--neo-highcontrast-on-bg) !important;
+                                        color: var(--_highcontrast-on-bg) !important;
                                     }
                                     &:hover {
                                         svg {
-                                            background-color: oklch(from var(--neo-highcontrast-on-bg) l c h / 0.12);
+                                            background-color: oklch(from var(--_highcontrast-on-bg) l c h / 0.12);
                                         }
                                     }
                                 }
                                 &.item--focus {
-                                    background-color: var(--neo-highcontrast-on-bg) !important;
+                                    background-color: var(--_highcontrast-on-bg) !important;
                                     .item__icon,
                                     .item__graphic,
                                     .item__text {
-                                        color: var(--neo-highcontrast-bg) !important;
+                                        color: var(--_highcontrast-bg) !important;
                                     }
                                     .item__close {
                                         svg {
-                                            color: var(--neo-highcontrast-bg) !important;
+                                            color: var(--_highcontrast-bg) !important;
                                         }
                                         &:hover {
                                             svg {

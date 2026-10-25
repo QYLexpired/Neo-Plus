@@ -15,9 +15,9 @@ function checkAndToggleStatus(): void {
   const statusEl = document.querySelector<HTMLElement>(statusSelector);
   if (!statusEl) return;
   if (target) {
-    statusEl.classList.add('neo-status-hidden');
+    statusEl.classList.add('neo-statushidden-state-hidden');
   } else {
-    statusEl.classList.remove('neo-status-hidden');
+    statusEl.classList.remove('neo-statushidden-state-hidden');
   }
 }
 function waitForStatusEl(): void {
@@ -52,6 +52,6 @@ export function destroyStatusHidden(): void {
   fetchMonitor.detach();
   const statusEl = document.querySelector<HTMLElement>(statusSelector);
   if (statusEl) {
-    statusEl.classList.remove('neo-status-hidden');
+    statusEl.classList.remove('neo-statushidden-state-hidden');
   }
 }
