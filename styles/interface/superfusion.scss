@@ -318,6 +318,28 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
     }
 }
 // 兼容性
+// 编辑器穿透问题
+.protyle-action--task,
+.tabs-task,
+.mindmap-view__task,
+.protyle-wysiwyg--select,
+.protyle-wysiwyg--select-mode,
+.protyle-wysiwyg--hl,
+.table__cell-rich--select,
+.table__cell-rich--select-mode,
+.table__cell-rich--hl {
+    isolation: isolate;
+}
+.protyle-content {
+    .table,
+    .av,
+    .img,
+    .sb[data-sb-layout="col"],
+    .render-node[data-type="NodeBlockQueryEmbed"],
+    .mindmap-view:not(.fullscreen) {
+        isolation: isolate;
+    }
+}
 // 数据库吸顶
 .av__views--fixed {
     padding-top: 82px;
@@ -333,7 +355,8 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 }
 // 伪文档面包屑插件
 .og-fake-doc-breadcrumb-container.protyle-breadcrumb {
-    z-index: 4;
+    z-index: 4 !important;
+    margin-bottom: -32px;
 }
 @keyframes neo-superfusion-strip-reveal {
     from {
