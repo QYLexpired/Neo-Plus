@@ -18,9 +18,7 @@
         --b3-theme-surface: #232323;
         --b3-theme-on-background: #fefefe;
         --b3-menu-background: var(--b3-theme-surface);
-        --b3-list-active: oklch(from var(--b3-theme-primary) l 0 h / 0.2);
         --neo-switch-primary: #13aa00;
-        --_heading-color: #fefefe;
         --b3-list-active: oklch(from var(--b3-theme-on-background) l c h / 0.135);
         --neo-main-shadow: 0 1px 4px oklch(from var(--b3-theme-background) calc(l - 0.1) c h / 0.55), 0.5px 0 0 0 oklch(from var(--b3-theme-background) calc(l - 0.05) c h / 0.8), -0.5px 0 0 0 oklch(from var(--b3-theme-background) calc(l - 0.05) c h / 0.8), 0 0 0 0.5px oklch(from var(--b3-theme-on-background) calc(l + 0.02) c h / 0.1) inset, 0 0.75px 1px -0.5px oklch(from var(--b3-theme-on-background) calc(l + 0.05) c h / 0.5) inset, 0 -0.75px 1px -0.5px oklch(from var(--b3-theme-on-background) calc(l + 0.05) c h / 0.5) inset;
         --neo-layout-shadow-inset: 0 0 0 0.5px oklch(from var(--b3-theme-on-background) calc(l + 0.02) c h / 0.12) inset, 0 0.75px 1px -0.5px oklch(from var(--b3-theme-on-background) calc(l + 0.05) c h / 0.5) inset, 0 -0.75px 1px -0.5px oklch(from var(--b3-theme-on-background) calc(l + 0.05) c h / 0.5) inset;

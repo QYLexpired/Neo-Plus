@@ -71,7 +71,7 @@
     &:hover,
     &.b3-menu__item--current {
         &::before {
-            outline: 1px solid oklch(from var(--neo-menu-item-primary) clamp(0, (0.72 - l) * 10000, 1) 0 0 / 0.7);
+            outline: 1px solid oklch(from var(--neo-menu-primary) clamp(0, (0.72 - l) * 10000, 1) 0 0 / 0.7);
         }
     }
 }
