@@ -58,6 +58,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 // 面包屑与正文融合
 .neo-superfusion {
     .protyle {
+        --_superfusion-av-fixed-padding: 36px;
         timeline-scope: --protyle-banner-exist, --protyle-conten-scroll;
         & > .protyle-breadcrumb {
             padding-left: $tab-offset;
@@ -191,6 +192,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
         }
     }
     @include superfusion-tab-protyle {
+        --_superfusion-av-fixed-padding: 82px;
         & > .protyle-breadcrumb {
             padding-top: calc($breadcrumb-height + $breadcrumb-offset + $tab-height - $breadcrumb-offset);
         }
@@ -342,16 +344,7 @@ $svg-shadow: drop-shadow(0 0 0.5px var(--b3-theme-background));
 }
 // 数据库吸顶
 .av__views--fixed {
-    padding-top: 82px;
-    .neo-verticaltabs-wnd & {
-        padding-top: 36px;
-    }
-    .body--toolbar-hide & {
-        padding-top: 36px;
-    }
-    .neo-ide-body.body--toolbar-hide & {
-        padding-top: 82px;
-    }
+    padding-top: var(--_superfusion-av-fixed-padding, 36px);
 }
 // 伪文档面包屑插件
 .og-fake-doc-breadcrumb-container.protyle-breadcrumb {

@@ -382,7 +382,7 @@
   "focusBlockIndicatorLineColorAccent": "强调色",
   "focusBlockIndicatorLineColorText": "跟随文字颜色",
   "focusBlockFilter": "块过滤",
-  "focusBlockFilterTip": "禁用的块不再显示聚焦块指示",
+  "focusBlockFilterTip": "开启后对应的块类型也额外添加聚焦块指示",
   "focusBlockFilterTable": "表格块",
   "focusBlockFilterCodeBlock": "代码块",
   "focusBlockFilterIframe": "iframe 块",

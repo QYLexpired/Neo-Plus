@@ -382,7 +382,7 @@
   "focusBlockIndicatorLineColorAccent": "Accent Color",
   "focusBlockIndicatorLineColorText": "Follow Text Color",
   "focusBlockFilter": "Block Filter",
-  "focusBlockFilterTip": "The focus indicator won't appear on disabled block types.",
+  "focusBlockFilterTip": "When enabled, the focus indicator also appears on blocks of the corresponding type.",
   "focusBlockFilterTable": "Table",
   "focusBlockFilterCodeBlock": "Code Block",
   "focusBlockFilterIframe": "IFrame",

@@ -382,7 +382,7 @@
   "focusBlockIndicatorLineColorAccent": "強調色",
   "focusBlockIndicatorLineColorText": "跟隨文字顏色",
   "focusBlockFilter": "塊過濾",
-  "focusBlockFilterTip": "停用的塊不再顯示聚焦塊指示",
+  "focusBlockFilterTip": "開啟後對應的塊類型也額外添加聚焦塊指示",
   "focusBlockFilterTable": "表格塊",
   "focusBlockFilterCodeBlock": "程式碼區塊",
   "focusBlockFilterIframe": "iframe 塊",
