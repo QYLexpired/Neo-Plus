@@ -204,7 +204,6 @@ export const presetTextures: readonly PresetTextureDefinition[] = [
   definePresetTexture('grid', 'textureGrid', [gridSizeSetting, gridAngleSetting, gridLineWidthSetting]),
   definePresetTexture('crossdot', 'textureCrossdot', [crossdotSpacingSetting, crossdotAngleSetting, crossdotSizeSetting]),
   definePresetTexture('wood', 'textureWood'),
-  definePresetTexture('camouflage', 'textureCamouflage'),
   definePresetTexture('granule', 'textureGranule'),
   definePresetTexture('feathery', 'textureFeathery'),
   definePresetTexture('velvet', 'textureVelvet'),

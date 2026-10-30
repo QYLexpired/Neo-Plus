@@ -27,6 +27,7 @@
         caret-color: auto !important;
     }
     #neo-smoothcaret-item {
+        --_smoothcaret-fill: var(--_smoothcaret-color, var(--b3-theme-accent));
         position: fixed;
         top: 0;
         left: 0;
@@ -34,9 +35,24 @@
         @include superellipse-use($radius-item);
         pointer-events: none;
         opacity: 1;
-        background-color: var(--_smoothcaret-color, var(--b3-theme-accent));
+        background-color: var(--_smoothcaret-fill);
         transition: translate var(--_smoothcaret-ease), height var(--_smoothcaret-ease), width var(--_smoothcaret-ease);
         will-change: translate, transform, height, width;
+        .neo-smoothcaret-trail {
+            display: none;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            fill: var(--_smoothcaret-fill);
+            polygon {
+                stroke-linejoin: round;
+            }
+        }
+        &.neo-smoothcaret-snap {
+            transition: none !important;
+        }
         &.neo-smoothcaret-hidden {
             opacity: 0 !important;
             animation: none !important;
@@ -52,15 +68,34 @@
     body.neo-smoothcaret-style-rainbow {
         #neo-smoothcaret-item {
             animation: neo-smoothcaret-rainbow-hue 6s linear infinite;
-            background-color: oklch(from var(--b3-theme-accent) var(--_smoothcaret-rainbow-l) max(c, 0.45) calc(h + var(--_smoothcaret-rainbow-hue, 0)));
+            --_smoothcaret-fill: oklch(from var(--b3-theme-accent) var(--_smoothcaret-rainbow-l) max(c, 0.45) calc(h + var(--_smoothcaret-rainbow-hue, 0)));
         }
     }
     body.neo-smoothcaret-style-block {
         #neo-smoothcaret-item {
             border-radius: 0;
-            background-color: oklch(from var(--_smoothcaret-color, var(--b3-theme-accent)) l c h / 0.2);
+            --_smoothcaret-fill: oklch(from var(--_smoothcaret-color, var(--b3-theme-accent)) l c h / 0.2);
             outline: 1px solid oklch(from var(--_smoothcaret-color, var(--b3-theme-accent)) l c h / 0.5);
             outline-offset: -1px;
+        }
+    }
+    body.neo-smoothcaret-style-gilded {
+        #neo-smoothcaret-item {
+            --_smoothcaret-fill: oklch(from var(--b3-theme-accent) clamp(0.38, l, 0.78) c h);
+            filter: url("#neo-smoothcaret-gilded-filter");
+        }
+        .neo-smoothcaret-material {
+            position: absolute;
+            pointer-events: none;
+        }
+        .neo-smoothcaret-gilded-dark {
+            flood-color: oklch(from var(--b3-theme-accent) clamp(0.12, calc(clamp(0.38, l, 0.78) - 0.2), 0.98) calc(c * 0.95) h);
+        }
+        .neo-smoothcaret-gilded-mid {
+            flood-color: oklch(from var(--b3-theme-accent) clamp(0.12, calc(clamp(0.38, l, 0.78) + 0.14), 0.98) calc(c * 0.95) h);
+        }
+        .neo-smoothcaret-gilded-light {
+            flood-color: oklch(from var(--b3-theme-accent) clamp(0.12, calc(clamp(0.38, l, 0.78) + 0.36), 0.98) calc(c * 0.4) h);
         }
     }
     body.neo-smoothcaret-style-underline {
@@ -88,6 +123,31 @@
         }
         &.neo-smoothcaret-style-rainbow.neo-smoothcaret-style-underline #neo-smoothcaret-item {
             animation: neo-smoothcaret-rainbow-hue 6s linear infinite, neo-smoothcaret-stretch-x 0.8s ease infinite;
+        }
+    }
+    body.neo-smoothcaret-motion-trail {
+        #neo-smoothcaret-item {
+            background-color: transparent;
+            box-shadow: none;
+            outline: none;
+            .neo-smoothcaret-trail {
+                display: block;
+            }
+        }
+        &.neo-smoothcaret-style-neon .neo-smoothcaret-trail {
+            filter: drop-shadow(0 0 4px var(--_smoothcaret-neno-color)) drop-shadow(0 0 10px var(--_smoothcaret-neno-color));
+        }
+        &.neo-smoothcaret-style-gilded {
+            #neo-smoothcaret-item {
+                filter: none;
+            }
+            .neo-smoothcaret-trail polygon {
+                filter: url("#neo-smoothcaret-gilded-filter");
+            }
+        }
+        &.neo-smoothcaret-style-block .neo-smoothcaret-trail polygon {
+            stroke: oklch(from var(--_smoothcaret-color, var(--b3-theme-accent)) l c h / 0.5);
+            stroke-width: 1px;
         }
     }
 }

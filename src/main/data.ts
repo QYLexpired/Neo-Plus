@@ -64,11 +64,12 @@ export interface Config {
   'customimage-preset-current-light'?: string;
   'customimage-preset-current-dark'?: string;
   'smoothcaret'?: boolean;
-  'smoothcaret-motion'?: 'static' | 'breathing' | 'stretch';
+  'smoothcaret-motion'?: 'static' | 'breathing' | 'stretch' | 'trail';
   'smoothcaret-ease'?: 'elegant' | 'shuttle' | 'drift' | 'spring';
-  'smoothcaret-style'?: 'default' | 'neon' | 'rainbow' | 'block' | 'underline';
+  'smoothcaret-style'?: 'default' | 'neon' | 'rainbow' | 'block' | 'underline' | 'gilded';
   'fluidcursor'?: boolean;
   'fluidcursor-trail'?: boolean;
+  'fluidcursor-trail-color'?: 'aurora' | 'ink' | 'rainbow' | 'neon' | 'gilded';
   'fluidcursor-wave'?: boolean;
   'listbulletline'?: boolean;
   'listbulletline-draw'?: boolean;

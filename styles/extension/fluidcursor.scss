@@ -1,4 +1,17 @@
 @use "manager" as *;
 .neo-fluidcursor {
     @include extension-common('[data-id="neo-fluidcursor-button"]', '[data-id="neo-extension-button"]');
+    .neo-fluidcursor-filters {
+        position: fixed;
+        pointer-events: none;
+    }
+    .neo-fluidcursor-refraction {
+        position: fixed;
+        top: 0;
+        left: 0;
+        border-radius: 50%;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 999999;
+    }
 }

@@ -336,7 +336,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'apple-notes-light',
       nameKey: 'libraryAppleNotesLight',
-      colors: { base: '#ffcc00', accent: '#866a00', background: '#ffffff', surface: '#f2f2f7', onbackground: '#1c1c1e' },
+      colors: { base: '#ffcc00', accent: '#cda300', background: '#ffffff', surface: '#f2f2f7', onbackground: '#1c1c1e' },
     },
     {
       key: 'heptabase-light',
@@ -351,7 +351,7 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
     {
       key: 'anytype-light',
       nameKey: 'libraryAnytypeLight',
-      colors: { base: '#ffb522', accent: '#926400', background: '#ffffff', surface: '#f2f2f2', onbackground: '#252525' },
+      colors: { base: '#ffb522', accent: '#c77700', background: '#ffffff', surface: '#f2f2f2', onbackground: '#252525' },
     },
     {
       key: 'arc-light',

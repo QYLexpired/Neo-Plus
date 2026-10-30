@@ -9,6 +9,11 @@ $types: (
   "t": $fix-t,
 );
 $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.protyle-wysiwyg--hl):not([custom-list-view] [neo-listbulletline-current]):not(.dragover)";
+@property --_listbulletline-font-size {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 16px;
+}
 @property --_listbulletline-progress {
   syntax: '<number>';
   inherits: false;
@@ -72,10 +77,11 @@ $selector: "[neo-listbulletline-current]:not(.protyle-wysiwyg--select):not(.prot
     }
   }
   .protyle-wysiwyg [data-node-id].li {
+    --_listbulletline-font-size: 1em;
     & > .protyle-action {
       font-size: 16px;
-      height: calc(var(--b3-font-size-editor) * 1.625 + 8px);
-      line-height: calc(var(--b3-font-size-editor) * 1.625 + 8px);
+      height: calc(var(--_listbulletline-font-size) * 1.625 + 8px);
+      line-height: calc(var(--_listbulletline-font-size) * 1.625 + 8px);
     }
     &[neo-listbulletline-node][data-subtype="o"],
     &[neo-listbulletline-node][data-subtype="u"],
