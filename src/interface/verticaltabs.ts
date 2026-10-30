@@ -3,10 +3,11 @@ import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { fetchListener } from '../modules/fetchmonitor';
-import { withViewTransition } from '../modules/viewtransition';
 import { Dialog } from '../modules/dialog';
 import { getPlugin } from '../main/context';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
+import { setHideToolbar } from './hidetoolbar';
+import { destroyIde } from './ide';
 let neoFeatureActive = false;
 let configRevision = 0;
 let actionRevision = 0;
@@ -340,21 +341,21 @@ export function initVerticalTabs(): Promise<void> | void {
 }
 export function onVerticalTabsClick(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
+  if (!isCurrent()) return;
   configRevision += 1;
   const revision = ++actionRevision;
-  const shouldEnable = !neoFeatureActive;
-  const isCurrent = createNeoLifecycleGuard();
-  withViewTransition(() => {
-    if (!isCurrent() || revision !== actionRevision) return;
-    configRevision += 1;
-    if (shouldEnable) {
+  if (!neoFeatureActive) {
+    setHideToolbar(false).then((applied) => {
+      if (!applied || !isCurrent() || revision !== actionRevision) return;
+      destroyIde();
       enableVerticalTabs();
-      saveConfig({ 'verticaltabs': true });
-    } else {
-      destroyVerticalTabs();
-      saveConfig({ 'verticaltabs': false });
-    }
-  });
+      saveConfig({ 'verticaltabs': true, 'ide': false });
+    });
+  } else {
+    destroyVerticalTabs();
+    saveConfig({ 'verticaltabs': false });
+  }
 }
 export function destroyVerticalTabs(): void {
   neoFeatureActive = false;

@@ -1,10 +1,11 @@
 import { isMobile } from '../modules/env';
-import { withViewTransition } from '../modules/viewtransition';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { saveConfig, loadConfig } from '../main/data';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
 import { fetchListener } from '../modules/fetchmonitor';
+import { setHideToolbar } from './hidetoolbar';
+import { destroyVerticalTabs } from './verticaltabs';
 interface DebouncedTask {
   schedule: () => void;
   cancel: () => void;
@@ -127,21 +128,21 @@ export function initIde(): Promise<void> | void {
 }
 export function onIdeClick(): void {
   if (isMobile()) return;
+  const isCurrent = createNeoLifecycleGuard();
+  if (!isCurrent()) return;
   configRevision += 1;
   const revision = ++actionRevision;
-  const shouldEnable = !neoFeatureActive;
-  const isCurrent = createNeoLifecycleGuard();
-  withViewTransition(() => {
-    if (!isCurrent() || revision !== actionRevision) return;
-    configRevision += 1;
-    if (shouldEnable) {
+  if (!neoFeatureActive) {
+    setHideToolbar(true).then((applied) => {
+      if (!applied || !isCurrent() || revision !== actionRevision) return;
+      destroyVerticalTabs();
       enableIde();
-      saveConfig({ 'ide': true });
-    } else {
-      destroyIde();
-      saveConfig({ 'ide': false });
-    }
-  });
+      saveConfig({ 'ide': true, 'verticaltabs': false });
+    });
+  } else {
+    destroyIde();
+    saveConfig({ 'ide': false });
+  }
 }
 export function destroyIde(): void {
   neoFeatureActive = false;

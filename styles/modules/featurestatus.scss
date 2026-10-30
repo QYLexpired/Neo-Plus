@@ -1,12 +1,12 @@
 // 垂直页签
 .b3-menu__item[data-id="neo-verticaltabs-button"] {
-    .body--toolbar-hide & {
+    .neo-verticaltabs .body--toolbar-hide & {
         opacity: 0.38;
     }
 }
 // IDE
 .b3-menu__item[data-id="neo-ide-button"] {
-    body:not(.body--toolbar-hide) & {
+    .neo-ide body:not(.body--toolbar-hide) & {
         opacity: 0.38;      
     }
 }

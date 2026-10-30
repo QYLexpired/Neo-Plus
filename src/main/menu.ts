@@ -178,29 +178,6 @@ export function buildMenu(
           },
         },
         {
-          id: 'neo-superfusion-button',
-          icon: 'iconNeoSuperFusion',
-          label: createSettingsMenuLabel(
-            'superFusion',
-            i18n.superFusion,
-            i18n.superFusionSettings,
-            showSuperFusionSettings,
-          ),
-          click: () => {
-            onSuperFusionClick();
-            return true;
-          },
-        },
-        {
-          id: 'neo-sidebarmute-button',
-          icon: 'iconNeoSidebarMute',
-          label: i18n.sidebarMute,
-          click: () => {
-            onSidebarMuteClick();
-            return true;
-          },
-        },
-        {
           id: 'neo-verticaltabs-button',
           icon: 'iconNeoVerticalTabs',
           label: createSettingsMenuLabel(
@@ -220,6 +197,30 @@ export function buildMenu(
           label: i18n.hideToolbar,
           click: () => {
             onHideToolbarClick();
+            return true;
+          },
+        },
+        { type: 'separator' as const },
+        {
+          id: 'neo-superfusion-button',
+          icon: 'iconNeoSuperFusion',
+          label: createSettingsMenuLabel(
+            'superFusion',
+            i18n.superFusion,
+            i18n.superFusionSettings,
+            showSuperFusionSettings,
+          ),
+          click: () => {
+            onSuperFusionClick();
+            return true;
+          },
+        },
+        {
+          id: 'neo-sidebarmute-button',
+          icon: 'iconNeoSidebarMute',
+          label: i18n.sidebarMute,
+          click: () => {
+            onSidebarMuteClick();
             return true;
           },
         },

@@ -56,6 +56,7 @@ declare module 'siyuan' {
   export function exitSiYuan(): void;
   export function saveLayout(callback: () => void): void;
   export function fetchPost(url: string, body: any, callback: (res: any) => void): void;
+  export function fetchSyncPost(url: string, body: any): Promise<{ code: number; msg: string; data: any }>;
   export const platformUtils: {
     getStorageVal(key: string): unknown;
     isHuawei(): boolean;
