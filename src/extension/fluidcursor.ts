@@ -316,22 +316,12 @@ function drawRainbowTrail(c: CanvasRenderingContext2D, centers: FluidCursorRainb
   c.fill();
 }
 function traceFluidCursorTrail(c: CanvasRenderingContext2D, left: readonly FluidCursorTrailEdgePoint[], right: readonly FluidCursorTrailEdgePoint[]): void {
+  if (left.length === 0 || left.length !== right.length) return;
   c.beginPath();
-  function addTriangle(first: FluidCursorTrailEdgePoint, second: FluidCursorTrailEdgePoint, third: FluidCursorTrailEdgePoint): void {
-    c.moveTo(first.x, first.y);
-    if ((second.x - first.x) * (third.y - first.y) - (second.y - first.y) * (third.x - first.x) < 0) {
-      c.lineTo(third.x, third.y);
-      c.lineTo(second.x, second.y);
-    } else {
-      c.lineTo(second.x, second.y);
-      c.lineTo(third.x, third.y);
-    }
-    c.closePath();
-  }
-  for (let index = 1; index < left.length; index += 1) {
-    addTriangle(left[index - 1], left[index], right[index]);
-    addTriangle(left[index - 1], right[index], right[index - 1]);
-  }
+  c.moveTo(left[0].x, left[0].y);
+  for (let index = 1; index < left.length; index += 1) c.lineTo(left[index].x, left[index].y);
+  for (let index = right.length - 1; index >= 0; index -= 1) c.lineTo(right[index].x, right[index].y);
+  c.closePath();
 }
 function drawNeonTrail(c: CanvasRenderingContext2D, left: readonly FluidCursorTrailEdgePoint[], right: readonly FluidCursorTrailEdgePoint[], scale: number): void {
   const pixelScale = Math.hypot(c.getTransform().a, c.getTransform().b);
@@ -405,10 +395,7 @@ function drawNeonTrail(c: CanvasRenderingContext2D, left: readonly FluidCursorTr
   }
   let headEnd = 1;
   while (headEnd < distances.length - 1 && distances[headEnd] < tipRadius + scale) headEnd += 1;
-  let tailStart = distances.length - 2;
-  while (tailStart > 0 && length - distances[tailStart] < tipRadius + scale) tailStart -= 1;
   strokeTip(headEnd, 0, -1);
-  strokeTip(tailStart, distances.length - 1, 1);
   c.restore();
 }
 function drawFluidCursorTrail(c: CanvasRenderingContext2D, scale: number): void {
