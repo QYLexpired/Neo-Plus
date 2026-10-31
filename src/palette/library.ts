@@ -329,11 +329,6 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#25b864', accent: '#008241', background: '#ffffff', surface: '#f6f8fa', onbackground: '#262626' },
     },
     {
-      key: 'feishu-light',
-      nameKey: 'libraryFeiShuLight',
-      colors: { base: '#1456f0', accent: '#007a91', background: '#ffffff', surface: '#f5f6f7', onbackground: '#1f2329' },
-    },
-    {
       key: 'apple-notes-light',
       nameKey: 'libraryAppleNotesLight',
       colors: { base: '#ffcc00', accent: '#cda300', background: '#ffffff', surface: '#f2f2f7', onbackground: '#1c1c1e' },
@@ -1494,11 +1489,6 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'craft-dark',
       nameKey: 'libraryCraftDark',
       colors: { base: '#8b87ff', accent: '#ff8a65', background: '#1c1c1e', surface: '#29292d', onbackground: '#f5f5f7' },
-    },
-    {
-      key: 'feishu-dark',
-      nameKey: 'libraryFeiShuDark',
-      colors: { base: '#4e83fd', accent: '#38d6c4', background: '#0f121a', surface: '#171b27', onbackground: '#e5e6eb' },
     },
     {
       key: 'apple-notes-dark',
