@@ -312,12 +312,16 @@ export function getPresetMenuItems(i18n: Record<string, string>, onClose: () => 
     if (!groupPresets?.length) continue;
     const group = presetGroups[groupKey];
     if (group.separator) items.push({ type: 'separator' });
-    items.push({
+    const groupItem: MenuItem = {
       id: `neo-palette-group-${groupKey}-button`,
       icon: group.icon,
       label: i18n[group.nameKey],
       submenu: group.chunked ? makeSubmenu(groupPresets) : groupPresets.map(makeItem),
-    });
+    };
+    if (groupKey === 'library') {
+      groupItem.bind = element => element.style.setProperty('--b3-menu-items-max-height', '55vh');
+    }
+    items.push(groupItem);
   }
   return items;
 }
