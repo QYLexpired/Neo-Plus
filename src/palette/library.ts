@@ -849,36 +849,6 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#90cc6b', accent: '#2989d4', background: '#fcfdfc', surface: '#f7fedc', onbackground: '#3d462f' },
     },
     {
-      key: 'willemstad-golden-hour-light',
-      nameKey: 'libraryWillemstadGoldenHourLight',
-      colors: { base: '#0d5257', accent: '#0f848d', background: '#fffceb', surface: '#ffe6b9', onbackground: '#001300' },
-    },
-    {
-      key: 'willemstad-electric-lime-light',
-      nameKey: 'libraryWillemstadElectricLimeLight',
-      colors: { base: '#0d5257', accent: '#0d5257', background: '#ffffe5', surface: '#ffeea9', onbackground: '#002100' },
-    },
-    {
-      key: 'willemstad-spring-meadow-light',
-      nameKey: 'libraryWillemstadSpringMeadowLight',
-      colors: { base: '#0d5257', accent: '#0d848d', background: '#feffef', surface: '#eef4c2', onbackground: '#001200' },
-    },
-    {
-      key: 'willemstad-tropical-lagoon-light',
-      nameKey: 'libraryWillemstadTropicalLagoonLight',
-      colors: { base: '#0d5257', accent: '#9e530f', background: '#e6ffff', surface: '#acfff4', onbackground: '#000400' },
-    },
-    {
-      key: 'willemstad-turquoise-jewel-light',
-      nameKey: 'libraryWillemstadTurquoiseJewelLight',
-      colors: { base: '#0d5257', accent: '#0966cc', background: '#f1ffff', surface: '#c4fbf9', onbackground: '#000201' },
-    },
-    {
-      key: 'willemstad-solar-flare-light',
-      nameKey: 'libraryWillemstadSolarFlareLight',
-      colors: { base: '#0d5257', accent: '#057b83', background: '#ffe9cc', surface: '#ffe1bc', onbackground: '#02000e' },
-    },
-    {
       key: 'fancy-a-story-automn-light',
       nameKey: 'libraryFancyAStoryAutomnLight',
       colors: { base: '#ad691f', accent: '#8a5cf5', background: '#f1f1dc', surface: '#e3dfb1', onbackground: '#4b220b' },
@@ -917,6 +887,46 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'ultra-lobster-lobster-time-light',
       nameKey: 'libraryUltraLobsterLobsterTimeLight',
       colors: { base: '#339af0', accent: '#339af0', background: '#e0f2fe', surface: '#bae6fd', onbackground: '#0c4a6e' },
+    },
+    {
+      key: 'logseq-classic-light',
+      nameKey: 'libraryLogseqClassicLight',
+      colors: { base: '#0069b6', accent: '#106ba3', background: '#ffffff', surface: '#f7f7f7', onbackground: '#433f38' },
+    },
+    {
+      key: 'memos-light',
+      nameKey: 'libraryMemosLight',
+      colors: { base: '#305880', accent: '#3176bb', background: '#ffffff', surface: '#faf9f5', onbackground: '#242011' },
+    },
+    {
+      key: 'memos-paper',
+      nameKey: 'libraryMemosPaper',
+      colors: { base: '#7a462e', accent: '#b65529', background: '#fbf8f3', surface: '#f5ede4', onbackground: '#282018' },
+    },
+    {
+      key: 'bear-gandalf',
+      nameKey: 'libraryBearGandalf',
+      colors: { base: '#a04c6b', accent: '#9b2442', background: '#f0f0f0', surface: '#ebeaeb', onbackground: '#455260' },
+    },
+    {
+      key: 'bear-olive-dunk',
+      nameKey: 'libraryBearOliveDunk',
+      colors: { base: '#95afa3', accent: '#28816a', background: '#fbfaf0', surface: '#f6f6e9', onbackground: '#423f37' },
+    },
+    {
+      key: 'bear-d-boring',
+      nameKey: 'libraryBearDBoring',
+      colors: { base: '#7f7f7f', accent: '#216cac', background: '#fbfafc', surface: '#f1f2f4', onbackground: '#000000' },
+    },
+    {
+      key: 'bear-high-contrast',
+      nameKey: 'libraryBearHighContrast',
+      colors: { base: '#2478c5', accent: '#2376c2', background: '#f9f9f9', surface: '#eff1f2', onbackground: '#222222' },
+    },
+    {
+      key: 'joplin-light',
+      nameKey: 'libraryJoplinLight',
+      colors: { base: '#2d5be5', accent: '#155bda', background: '#ffffff', surface: '#f4f5f6', onbackground: '#32373f' },
     },
   ],
   dark: [
@@ -2051,191 +2061,6 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       colors: { base: '#ff6000', accent: '#ff6000', background: '#2e302d', surface: '#1e211f', onbackground: '#ebebeb' },
     },
     {
-      key: 'willemstad-blood-ruby-dark',
-      nameKey: 'libraryWillemstadBloodRubyDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#28000a', surface: '#360014', onbackground: '#fff5f8' },
-    },
-    {
-      key: 'willemstad-crimson-velvet-dark',
-      nameKey: 'libraryWillemstadCrimsonVelvetDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#2f0004', surface: '#3e000d', onbackground: '#fff3f6' },
-    },
-    {
-      key: 'willemstad-sunset-dark',
-      nameKey: 'libraryWillemstadSunsetDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#130304', surface: '#230b0f', onbackground: '#ffe8f7' },
-    },
-    {
-      key: 'willemstad-burnt-sienna-dark',
-      nameKey: 'libraryWillemstadBurntSiennaDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#340000', surface: '#430000', onbackground: '#fff2f0' },
-    },
-    {
-      key: 'willemstad-apricot-dream-dark',
-      nameKey: 'libraryWillemstadApricotDreamDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#230000', surface: '#310000', onbackground: '#fff5f0' },
-    },
-    {
-      key: 'willemstad-tangerine-burst-dark',
-      nameKey: 'libraryWillemstadTangerineBurstDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#400000', surface: '#500000', onbackground: '#fff2e5' },
-    },
-    {
-      key: 'willemstad-honeydew-breeze-dark',
-      nameKey: 'libraryWillemstadHoneydewBreezeDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#170100', surface: '#230e00', onbackground: '#fdf8ec' },
-    },
-    {
-      key: 'willemstad-terracotta-red-dark',
-      nameKey: 'libraryWillemstadTerracottaRedDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000c00', surface: '#1c1300', onbackground: '#fff6f4' },
-    },
-    {
-      key: 'willemstad-canyon-sunset-dark',
-      nameKey: 'libraryWillemstadCanyonSunsetDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#110400', surface: '#2a0700', onbackground: '#fff6f4' },
-    },
-    {
-      key: 'willemstad-spice-market-dark',
-      nameKey: 'libraryWillemstadSpiceMarketDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#001100', surface: '#021b00', onbackground: '#fff6f4' },
-    },
-    {
-      key: 'willemstad-cactus-desert-dark',
-      nameKey: 'libraryWillemstadCactusDesertDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000f1c', surface: '#002207', onbackground: '#fff6f4' },
-    },
-    {
-      key: 'willemstad-shipwreck-dark',
-      nameKey: 'libraryWillemstadShipwreckDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000e1b', surface: '#002116', onbackground: '#fff7eb' },
-    },
-    {
-      key: 'willemstad-equinox-dark',
-      nameKey: 'libraryWillemstadEquinoxDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000030', surface: '#001a36', onbackground: '#fff7eb' },
-    },
-    {
-      key: 'willemstad-emerald-range-dark',
-      nameKey: 'libraryWillemstadEmeraldRangeDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#001200', surface: '#002100', onbackground: '#f2fcf3' },
-    },
-    {
-      key: 'willemstad-new-growth-dark',
-      nameKey: 'libraryWillemstadNewGrowthDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000032', surface: '#001440', onbackground: '#f1fcf4' },
-    },
-    {
-      key: 'willemstad-old-oak-dark',
-      nameKey: 'libraryWillemstadOldOakDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#030902', surface: '#0e1709', onbackground: '#f7fdd7' },
-    },
-    {
-      key: 'willemstad-tropical-lagoon-dark',
-      nameKey: 'libraryWillemstadTropicalLagoonDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#001807', surface: '#002818', onbackground: '#dcfffc' },
-    },
-    {
-      key: 'willemstad-turquoise-jewel-dark',
-      nameKey: 'libraryWillemstadTurquoiseJewelDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#001415', surface: '#002324', onbackground: '#e6fefe' },
-    },
-    {
-      key: 'willemstad-viridian-sky-dark',
-      nameKey: 'libraryWillemstadViridianSkyDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#00062a', surface: '#001b34', onbackground: '#f1fcf4' },
-    },
-    {
-      key: 'willemstad-blueberries-dark',
-      nameKey: 'libraryWillemstadBlueberriesDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#1b001b', surface: '#1b0042', onbackground: '#f1fcf4' },
-    },
-    {
-      key: 'willemstad-borealis-dark',
-      nameKey: 'libraryWillemstadBorealisDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#080031', surface: '#000947', onbackground: '#f1fcf4' },
-    },
-    {
-      key: 'willemstad-sapphire-study-dark',
-      nameKey: 'libraryWillemstadSapphireStudyDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000048', surface: '#000b4e', onbackground: '#eefaff' },
-    },
-    {
-      key: 'willemstad-powder-blue-dark',
-      nameKey: 'libraryWillemstadPowderBlueDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000d1a', surface: '#001b25', onbackground: '#edfcfe' },
-    },
-    {
-      key: 'willemstad-midnight-ocean-dark',
-      nameKey: 'libraryWillemstadMidnightOceanDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000914', surface: '#001628', onbackground: '#f1fbfa' },
-    },
-    {
-      key: 'willemstad-deep-sea-dark',
-      nameKey: 'libraryWillemstadDeepSeaDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#200007', surface: '#2e0024', onbackground: '#f4f9ff' },
-    },
-    {
-      key: 'willemstad-indigo-dusk-dark',
-      nameKey: 'libraryWillemstadIndigoDuskDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#1a0017', surface: '#260032', onbackground: '#f4f9ff' },
-    },
-    {
-      key: 'willemstad-hagia-sophia-dark',
-      nameKey: 'libraryWillemstadHagiaSophiaDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#0a0415', surface: '#160e27', onbackground: '#e6f5ff' },
-    },
-    {
-      key: 'willemstad-mystic-plum-dark',
-      nameKey: 'libraryWillemstadMysticPlumDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#1a0048', surface: '#23004e', onbackground: '#fcf5ff' },
-    },
-    {
-      key: 'willemstad-lilac-silk-dark',
-      nameKey: 'libraryWillemstadLilacSilkDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#0a002a', surface: '#140934', onbackground: '#f7f7ff' },
-    },
-    {
-      key: 'willemstad-rose-quartz-dark',
-      nameKey: 'libraryWillemstadRoseQuartzDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#14001f', surface: '#20052a', onbackground: '#fdf5ff' },
-    },
-    {
-      key: 'willemstad-cherry-blossom-dark',
-      nameKey: 'libraryWillemstadCherryBlossomDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#190010', surface: '#26051c', onbackground: '#fff5fb' },
-    },
-    {
-      key: 'willemstad-electric-violet-dark',
-      nameKey: 'libraryWillemstadElectricVioletDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#28007e', surface: '#250081', onbackground: '#f5f5ff' },
-    },
-    {
-      key: 'willemstad-hokusai-dark',
-      nameKey: 'libraryWillemstadHokusaiDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000b0b', surface: '#001a22', onbackground: '#d2feff' },
-    },
-    {
-      key: 'willemstad-ellsworth-kelly-white-blue-blue-white-dark',
-      nameKey: 'libraryWillemstadEllsworthKellyWhiteBlueBlueWhiteDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#03003b', surface: '#01004f', onbackground: '#f8f8fa' },
-    },
-    {
-      key: 'willemstad-mark-rothko-s-rothko-chapel-dark',
-      nameKey: 'libraryWillemstadMarkRothkoSRothkoChapelDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#14002c', surface: '#230031', onbackground: '#fff5f8' },
-    },
-    {
-      key: 'willemstad-syldavia-dark',
-      nameKey: 'libraryWillemstadSyldaviaDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000920', surface: '#001833', onbackground: '#ffe9c5' },
-    },
-    {
-      key: 'willemstad-bioluminescent-grotto-dark',
-      nameKey: 'libraryWillemstadBioluminescentGrottoDark',
-      colors: { base: '#0d5257', accent: '#00bf6f', background: '#000427', surface: '#1f0924', onbackground: '#a9fffb' },
-    },
-    {
       key: 'fancy-a-story-arctic-dark',
       nameKey: 'libraryFancyAStoryArcticDark',
       colors: { base: '#52cce0', accent: '#a68af9', background: '#021e22', surface: '#1d393d', onbackground: '#caf0f7' },
@@ -2274,6 +2099,46 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'origami-default-dark',
       nameKey: 'libraryOrigamiDefaultDark',
       colors: { base: '#f74545', accent: '#f74545', background: '#202020', surface: '#555555', onbackground: '#b3b3b3' },
+    },
+    {
+      key: 'logseq-classic-dark',
+      nameKey: 'libraryLogseqClassicDark',
+      colors: { base: '#8ec2c2', accent: '#5fe0e0', background: '#002b36', surface: '#023643', onbackground: '#a4b5b6' },
+    },
+    {
+      key: 'memos-dark',
+      nameKey: 'libraryMemosDark',
+      colors: { base: '#5b97d3', accent: '#6eaeee', background: '#1d1f23', surface: '#25282c', onbackground: '#dbdee2' },
+    },
+    {
+      key: 'joplin-aritim-dark',
+      nameKey: 'libraryJoplinAritimDark',
+      colors: { base: '#2b5278', accent: '#6eafe5', background: '#10151a', surface: '#141a21', onbackground: '#d3dae3' },
+    },
+    {
+      key: 'joplin-oled-dark',
+      nameKey: 'libraryJoplinOledDark',
+      colors: { base: '#0f2051', accent: '#a6a6ff', background: '#000000', surface: '#181a1d', onbackground: '#dddddd' },
+    },
+    {
+      key: 'joplin-dark',
+      nameKey: 'libraryJoplinDark',
+      colors: { base: '#789fe9', accent: '#a6a6ff', background: '#1d2024', surface: '#181a1d', onbackground: '#dddddd' },
+    },
+    {
+      key: 'bear-academia',
+      nameKey: 'libraryBearAcademia',
+      colors: { base: '#c6ad75', accent: '#e6c987', background: '#5c4243', surface: '#513a3b', onbackground: '#c7b3a8' },
+    },
+    {
+      key: 'bear-shibuya-jazz',
+      nameKey: 'libraryBearShibuyaJazz',
+      colors: { base: '#d78c9c', accent: '#f3b2c0', background: '#000000', surface: '#232424', onbackground: '#d4d4d4' },
+    },
+    {
+      key: 'bear-shibuya-lo-fi',
+      nameKey: 'libraryBearShibuyaLoFi',
+      colors: { base: '#2fa288', accent: '#ffc75e', background: '#000000', surface: '#232424', onbackground: '#d4d4d4' },
     },
   ],
 };
