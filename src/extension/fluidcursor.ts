@@ -10,7 +10,7 @@ type WaveRefraction = {
   element: HTMLDivElement;
   filter: SVGFilterElement;
   image: SVGFEImageElement;
-  displacement: SVGFEDisplacementMapElement;
+  displacements: SVGFEDisplacementMapElement[];
   frame: number;
   isCurrent: () => boolean;
 };
@@ -70,6 +70,7 @@ const trailResetInterval = 200;
 const waveDuration = 1;
 const waveRadius = 36;
 const waveMapFrames = 30;
+const waveDispersion = 0.16;
 let trailOn = true;
 let trailColor: NonNullable<Config['fluidcursor-trail-color']> = 'aurora';
 let waveOn = true;
@@ -511,13 +512,43 @@ function createWaterRefraction(x: number, y: number, scale: number, isCurrent: (
   image.setAttribute('height', (radius * 2).toString());
   image.setAttribute('preserveAspectRatio', 'none');
   image.setAttribute('result', 'map');
-  const displacement = document.createElementNS(namespace, 'feDisplacementMap');
-  displacement.setAttribute('in', 'SourceGraphic');
-  displacement.setAttribute('in2', 'map');
-  displacement.setAttribute('scale', '0');
-  displacement.setAttribute('xChannelSelector', 'R');
-  displacement.setAttribute('yChannelSelector', 'G');
-  filter.append(image, displacement);
+  filter.appendChild(image);
+  const channelMatrices = [
+    '1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0',
+    '0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0',
+    '0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0',
+  ];
+  const displacements: SVGFEDisplacementMapElement[] = [];
+  const channelResults: string[] = [];
+  channelMatrices.forEach((matrix, index) => {
+    const displacement = document.createElementNS(namespace, 'feDisplacementMap');
+    const displacedResult = `displaced-${index}`;
+    const channelResult = `channel-${index}`;
+    displacement.setAttribute('in', 'SourceGraphic');
+    displacement.setAttribute('in2', 'map');
+    displacement.setAttribute('scale', '0');
+    displacement.setAttribute('xChannelSelector', 'R');
+    displacement.setAttribute('yChannelSelector', 'G');
+    displacement.setAttribute('result', displacedResult);
+    const isolation = document.createElementNS(namespace, 'feColorMatrix');
+    isolation.setAttribute('in', displacedResult);
+    isolation.setAttribute('type', 'matrix');
+    isolation.setAttribute('values', matrix);
+    isolation.setAttribute('result', channelResult);
+    filter.append(displacement, isolation);
+    displacements.push(displacement);
+    channelResults.push(channelResult);
+  });
+  const redGreen = document.createElementNS(namespace, 'feBlend');
+  redGreen.setAttribute('in', channelResults[0]);
+  redGreen.setAttribute('in2', channelResults[1]);
+  redGreen.setAttribute('mode', 'screen');
+  redGreen.setAttribute('result', 'red-green');
+  const combine = document.createElementNS(namespace, 'feBlend');
+  combine.setAttribute('in', 'red-green');
+  combine.setAttribute('in2', channelResults[2]);
+  combine.setAttribute('mode', 'screen');
+  filter.append(redGreen, combine);
   waveFilterDefinitions.appendChild(filter);
   const element = document.createElement('div');
   element.classList.add('neo-fluidcursor-refraction');
@@ -527,7 +558,7 @@ function createWaterRefraction(x: number, y: number, scale: number, isCurrent: (
   element.style.translate = `${x - radius}px ${y - radius}px`;
   element.style.backdropFilter = `url("#${filter.id}")`;
   canvas.before(element);
-  return { element, filter, image, displacement, frame: -1, isCurrent };
+  return { element, filter, image, displacements, frame: -1, isCurrent };
 }
 function removeWaterWave(wave: FluidCursorWave): void {
   wave.refraction?.element.remove();
@@ -551,7 +582,12 @@ function updateWaterRefraction(wave: FluidCursorWave, frame: number, map: WaveDi
   const apply = (): void => {
     if (!waveOn || !refraction.isCurrent() || !refraction.element.isConnected || !refraction.filter.isConnected || refraction.frame !== frame) return;
     refraction.image.setAttribute('href', map.url);
-    refraction.displacement.setAttribute('scale', (6 * scale * strength).toString());
+    const displacementScale = 6 * scale * strength;
+    const spread = waveDispersion;
+    const dispersionFactors = [1 - spread, 1, 1 + spread];
+    refraction.displacements.forEach((displacement, index) => {
+      displacement.setAttribute('scale', (displacementScale * dispersionFactors[index]).toFixed(2));
+    });
   };
   if (map.loaded) {
     apply();
