@@ -928,6 +928,31 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       nameKey: 'libraryJoplinLight',
       colors: { base: '#2d5be5', accent: '#155bda', background: '#ffffff', surface: '#f4f5f6', onbackground: '#32373f' },
     },
+    {
+      key: 'tana-light',
+      nameKey: 'libraryTanaLight',
+      colors: { base: '#9568bc', accent: '#905fc8', background: '#ffffff', surface: '#f5f4f6', onbackground: '#29272e' },
+    },
+    {
+      key: 'supernotes-hydrogen',
+      nameKey: 'librarySupernotesHydrogen',
+      colors: { base: '#56b99b', accent: '#257b64', background: '#ffffff', surface: '#f3f4f3', onbackground: '#292c2b' },
+    },
+    {
+      key: 'supernotes-deuterium',
+      nameKey: 'librarySupernotesDeuterium',
+      colors: { base: '#dc9173', accent: '#c26b40', background: '#f8f1eb', surface: '#ece0d8', onbackground: '#352d29' },
+    },
+    {
+      key: 'capacities-light-dimmed',
+      nameKey: 'libraryCapacitiesLightDimmed',
+      colors: { base: '#7771da', accent: '#b44b2f', background: '#f8f5ef', surface: '#eee9df', onbackground: '#393632' },
+    },
+    {
+      key: 'remnote-light',
+      nameKey: 'libraryRemNoteLight',
+      colors: { base: '#4b6bfb', accent: '#275db8', background: '#ffffff', surface: '#f4f3f8', onbackground: '#292b36' },
+    },
   ],
   dark: [
     {
@@ -2139,6 +2164,31 @@ export const paletteLibrary: Record<ThemeMode, readonly PaletteLibraryItem[]> = 
       key: 'bear-shibuya-lo-fi',
       nameKey: 'libraryBearShibuyaLoFi',
       colors: { base: '#2fa288', accent: '#ffc75e', background: '#000000', surface: '#232424', onbackground: '#d4d4d4' },
+    },
+    {
+      key: 'tana-dark',
+      nameKey: 'libraryTanaDark',
+      colors: { base: '#ab69cc', accent: '#c186e8', background: '#1b1b1e', surface: '#29282d', onbackground: '#e4e1e7' },
+    },
+    {
+      key: 'supernotes-zinc',
+      nameKey: 'librarySupernotesZinc',
+      colors: { base: '#79a9b8', accent: '#74bdd6', background: '#34373e', surface: '#454953', onbackground: '#e5e7eb' },
+    },
+    {
+      key: 'supernotes-carbon',
+      nameKey: 'librarySupernotesCarbon',
+      colors: { base: '#59ad94', accent: '#83d3bd', background: '#17191d', surface: '#262a30', onbackground: '#e4e6e9' },
+    },
+    {
+      key: 'capacities-dark-dimmed',
+      nameKey: 'libraryCapacitiesDarkDimmed',
+      colors: { base: '#8d85ff', accent: '#f0a46b', background: '#242321', surface: '#34312e', onbackground: '#ede9e3' },
+    },
+    {
+      key: 'remnote-dark',
+      nameKey: 'libraryRemNoteDark',
+      colors: { base: '#778fff', accent: '#a6bbff', background: '#20222a', surface: '#2d303b', onbackground: '#e9eaf0' },
     },
   ],
 };
