@@ -259,6 +259,10 @@ function releaseRainbowTrail(): void {
   rainbowColorSource = '';
   rainbowColors = [];
 }
+function getRainbowTrailColor(progress: number): string {
+  const endColor = `oklch(from ${cachedDisplayColor} l c calc(h + 120))`;
+  return `color-mix(in oklch increasing hue, ${cachedDisplayColor}, ${endColor} ${progress * 100}%)`;
+}
 function drawRainbowTrail(c: CanvasRenderingContext2D, centers: FluidCursorRainbowPoint[], scale: number): void {
   const length = centers[centers.length - 1]?.distance ?? 0;
   if (length < 0.0001) return;
@@ -284,11 +288,7 @@ function drawRainbowTrail(c: CanvasRenderingContext2D, centers: FluidCursorRainb
   if (rainbowSurface.height < capacityHeight) rainbowSurface.height = capacityHeight;
   if (rainbowColorSource !== cachedDisplayColor) {
     rainbowColorSource = cachedDisplayColor;
-    rainbowColors = Array.from({ length: 65 }, (_, index) => {
-      const progress = index / 64;
-      const hue = 90 * Math.sin(progress * Math.PI * 2) * Math.sin(progress * Math.PI);
-      return `oklch(from ${cachedDisplayColor} l c calc(h + ${hue}))`;
-    });
+    rainbowColors = Array.from({ length: 121 }, (_, index) => getRainbowTrailColor(index / 120));
   }
   const context = rainbowContext;
   context.setTransform(resolution, 0, 0, resolution, -left * resolution, -top * resolution);
@@ -301,9 +301,16 @@ function drawRainbowTrail(c: CanvasRenderingContext2D, centers: FluidCursorRainb
     const start = centers[index];
     const end = centers[index - 1];
     if (start.distance - end.distance < 0.0001) continue;
-    const gradient = context.createLinearGradient(start.x, start.y, end.x, end.y);
-    gradient.addColorStop(0, rainbowColors[Math.min(64, Math.round(start.distance / length * 64))]);
-    gradient.addColorStop(1, rainbowColors[Math.min(64, Math.round(end.distance / length * 64))]);
+    const startProgress = end.distance / length;
+    const endProgress = start.distance / length;
+    const colorSteps = rainbowColors.length - 1;
+    const gradient = context.createLinearGradient(end.x, end.y, start.x, start.y);
+    gradient.addColorStop(0, getRainbowTrailColor(startProgress));
+    for (let colorIndex = Math.floor(startProgress * colorSteps) + 1; colorIndex < endProgress * colorSteps; colorIndex += 1) {
+      const offset = (colorIndex / colorSteps - startProgress) / (endProgress - startProgress);
+      gradient.addColorStop(offset, rainbowColors[colorIndex]);
+    }
+    gradient.addColorStop(1, getRainbowTrailColor(endProgress));
     context.strokeStyle = gradient;
     context.beginPath();
     context.moveTo(start.x, start.y);
