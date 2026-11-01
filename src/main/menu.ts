@@ -12,7 +12,6 @@ import { onListBulletLineClick, showListBulletLineSettings } from '../extension/
 import { onFocusBlockIndicatorClick, showFocusBlockIndicatorSettings } from '../extension/focusblockindicator';
 import { onFrostedGlassClick, showFrostedGlassSettings } from '../interface/frostedglass';
 import { onIdeClick } from '../interface/ide';
-import { onColoredFoldersClick, showColoredFoldersSettings } from '../appearance/coloredfolders';
 import { onMulticolumnSlashMenuClick, showMulticolumnSlashMenuSettings } from '../appearance/multicolumnslashmenu';
 import { onCardSearchListClick } from '../appearance/cardsearchlist';
 import { showElementSettings } from '../appearance/element';
@@ -246,20 +245,6 @@ export function buildMenu(
     icon: 'iconNeoAppearance',
     label: i18n.appearance,
     submenu: [
-      {
-        id: 'neo-coloredfolders-button',
-        icon: 'iconFiles',
-        label: createSettingsMenuLabel(
-          'coloredFolders',
-          i18n.coloredFolders,
-          i18n.coloredFoldersSettings,
-          showColoredFoldersSettings,
-        ),
-        click: () => {
-          onColoredFoldersClick();
-          return true;
-        },
-      },
       ...(!isMobile() ? [
         {
           id: 'neo-multicolumnslashmenu-button',

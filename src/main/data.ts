@@ -77,11 +77,6 @@ export interface Config {
   'focusblockindicator-effect'?: 'vertical-line' | 'shadow' | 'outline' | 'background';
   'focusblockindicator-line-color'?: 'accent' | 'text';
   'focusblockindicator-disabled'?: Array<'table' | 'codeblock' | 'iframe' | 'htmlblock' | 'renderblock' | 'mindmap' | 'mathblock' | 'database' | 'widget' | 'videoblock' | 'audioblock' | 'customblock'>;
-  'coloredfolders'?: boolean;
-  'coloredfolders-layout'?: 'partition' | 'simple' | 'card';
-  'coloredfolders-colorstyle'?: 'soft' | 'default' | 'vivid';
-  'coloredfolders-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
-  'coloredfolders-initial-hue'?: number;
   'multicolumnslashmenu'?: boolean;
   'multicolumnslashmenu-arrowkeys'?: boolean;
   'cardsearchlist'?: boolean;

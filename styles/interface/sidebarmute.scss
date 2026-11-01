@@ -14,7 +14,7 @@
             }
         }
     }
-    &:not(.neo-palette-highcontrast.neo-mode-light):not(.neo-ide) {
+    &:not(.neo-palette-highcontrast.neo-mode-light) body:not(.body--toolbar-hide.neo-ide-body) {
         .layout__dockl,
         .layout__dockr,
         .layout__dockb {

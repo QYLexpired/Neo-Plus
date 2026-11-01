@@ -120,12 +120,22 @@ export function getCharWidthAtCursor(): number | null {
   if (rects.length > 0 && rects[0].width > 0) return rects[0].width;
   return null;
 }
-export function getScrollContainer(): HTMLElement | null {
+export interface SelectionScrollContainer {
+  element: HTMLElement;
+  clipX: boolean;
+  clipY: boolean;
+}
+export function getScrollContainers(): SelectionScrollContainer[] {
   const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0) return null;
-  const focusNode = sel.focusNode;
-  if (!focusNode) return null;
-  const element = focusNode instanceof HTMLElement ? focusNode : focusNode.parentElement;
-  if (!element) return null;
-  return element.closest('.protyle-content') as HTMLElement | null;
+  if (!sel || sel.rangeCount === 0 || !sel.focusNode) return [];
+  let element = sel.focusNode instanceof HTMLElement ? sel.focusNode : sel.focusNode.parentElement;
+  const containers: SelectionScrollContainer[] = [];
+  while (element) {
+    const style = window.getComputedStyle(element);
+    const clipX = style.overflowX !== 'visible';
+    const clipY = style.overflowY !== 'visible';
+    if (clipX || clipY) containers.push({ element, clipX, clipY });
+    element = element.parentElement;
+  }
+  return containers;
 }

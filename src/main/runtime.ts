@@ -11,7 +11,6 @@ import { initPerformanceTuning, destroyPerformanceTuning } from '../modules/perf
 import { initSvgFilter, destroySvgFilter } from '../modules/svgfilter';
 import { initPalette, destroyPalette } from '../palette/manager';
 import { initTexture, destroyTexture } from '../texture/manager';
-import { initColoredFolders, destroyColoredFolders } from '../appearance/coloredfolders';
 import { initMulticolumnSlashMenu, destroyMulticolumnSlashMenu } from '../appearance/multicolumnslashmenu';
 import { initCardSearchList, destroyCardSearchList } from '../appearance/cardsearchlist';
 import { initElement, destroyElement } from '../appearance/element';
@@ -71,7 +70,6 @@ const runtimeModules: readonly RuntimeModule[] = [
   { init: initSvgFilter, destroy: destroySvgFilter },
   { init: initPalette, destroy: destroyPalette },
   { init: initTexture, destroy: destroyTexture },
-  { init: initColoredFolders, destroy: destroyColoredFolders },
   { init: initMulticolumnSlashMenu, destroy: destroyMulticolumnSlashMenu },
   { init: initCardSearchList, destroy: destroyCardSearchList },
   { init: initElement, destroy: destroyElement },

@@ -1,6 +1,6 @@
 import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/context';
-import { getCursorRect, getTextColor, getScrollContainer, getCharWidthAtCursor, hasMeaningfulSelection } from '../modules/getselection';
+import { getCursorRect, getTextColor, getScrollContainers, getCharWidthAtCursor, hasMeaningfulSelection } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
@@ -15,8 +15,6 @@ let caretAnimationFrame: number | null = null;
 let trailAnimationFrame: number | null = null;
 let cachedZIndex = 0;
 let lastTargetElement: Element | null = null;
-let cachedScrollContainer: HTMLElement | null = null;
-let cachedFocusElement: Element | null = null;
 let smoothCaretMotion: NonNullable<Config['smoothcaret-motion']> = 'static';
 let smoothCaretEase: 'elegant' | 'shuttle' | 'drift' | 'spring' = 'elegant';
 let smoothCaretStyle: NonNullable<Config['smoothcaret-style']> = 'default';
@@ -277,21 +275,14 @@ function startSmoothCaret(): void {
     if (sel?.rangeCount && targetElement) {
       const rect = getCursorRect();
       if (rect) {
-        if (focusElement !== cachedFocusElement) {
-          cachedFocusElement = focusElement ?? null;
-          cachedScrollContainer = getScrollContainer();
-        }
-        if (cachedScrollContainer) {
-          const containerRect = cachedScrollContainer.getBoundingClientRect();
-          const isInScrollContainer =
-            rect.left >= containerRect.left &&
-            rect.top >= containerRect.top &&
-            rect.right <= containerRect.right &&
-            rect.bottom <= containerRect.bottom;
-          if (!isInScrollContainer) {
-            hideCaret();
-            return;
-          }
+        const outsideScrollContainer = getScrollContainers().some(({ element, clipX, clipY }) => {
+          const containerRect = element.getBoundingClientRect();
+          return (clipX && (rect.left < containerRect.left || rect.right > containerRect.right))
+            || (clipY && (rect.top < containerRect.top || rect.bottom > containerRect.bottom));
+        });
+        if (outsideScrollContainer) {
+          hideCaret();
+          return;
         }
         const needsCharWidth = smoothCaretStyle === 'block' || smoothCaretStyle === 'underline';
         const charWidth = needsCharWidth ? getCharWidthAtCursor() : null;
@@ -356,8 +347,8 @@ function startSmoothCaret(): void {
   smoothCaretEventHandler = handleCaretUpdateTrigger;
   document.addEventListener('selectionchange', handleCaretUpdateTrigger);
   document.addEventListener('scroll', handleCaretUpdateTrigger, scrollListenerOptions);
-  document.addEventListener('keyup', handleThrottledCaretUpdate);
-  document.addEventListener('mouseup', handleThrottledCaretUpdate);
+  document.addEventListener('keyup', handleThrottledCaretUpdate, true);
+  document.addEventListener('mouseup', handleThrottledCaretUpdate, true);
   updateCaretPosition();
 }
 function enableSmoothCaret(): void {
@@ -514,16 +505,14 @@ export function destroySmoothCaret(): void {
   }
   cachedZIndex = 0;
   lastTargetElement = null;
-  cachedScrollContainer = null;
-  cachedFocusElement = null;
   if (smoothCaretEventHandler) {
     document.removeEventListener('selectionchange', smoothCaretEventHandler);
     document.removeEventListener('scroll', smoothCaretEventHandler, scrollListenerOptions);
     smoothCaretEventHandler = null;
   }
   if (throttledCaretEventHandler) {
-    document.removeEventListener('keyup', throttledCaretEventHandler);
-    document.removeEventListener('mouseup', throttledCaretEventHandler);
+    document.removeEventListener('keyup', throttledCaretEventHandler, true);
+    document.removeEventListener('mouseup', throttledCaretEventHandler, true);
     throttledCaretEventHandler = null;
   }
 }

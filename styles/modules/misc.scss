@@ -21,12 +21,6 @@
     &[data-colorstyle="vivid"] {
         --_colored-hue-slider-c: 0.2;
     }
-    &--folders {
-        --_colored-hue-slider-c: 0.12;
-        &[data-colorstyle="soft"] {
-            --_colored-hue-slider-c: 0.08;
-        }
-    }
     &::-webkit-slider-runnable-track {
         background: linear-gradient(
             in oklch to right,
