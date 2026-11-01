@@ -1,6 +1,6 @@
 import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { getPlugin } from '../main/context';
-import { getCursorRect, getTextColor, getScrollContainers, getCharWidthAtCursor, hasMeaningfulSelection } from '../modules/getselection';
+import { getCursorRect, getTextColor, isCursorClipped, getCharWidthAtCursor, hasMeaningfulSelection } from '../modules/getselection';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
@@ -275,12 +275,7 @@ function startSmoothCaret(): void {
     if (sel?.rangeCount && targetElement) {
       const rect = getCursorRect();
       if (rect) {
-        const outsideScrollContainer = getScrollContainers().some(({ element, clipX, clipY }) => {
-          const containerRect = element.getBoundingClientRect();
-          return (clipX && (rect.left < containerRect.left || rect.right > containerRect.right))
-            || (clipY && (rect.top < containerRect.top || rect.bottom > containerRect.bottom));
-        });
-        if (outsideScrollContainer) {
+        if (isCursorClipped(rect, sel.focusNode)) {
           hideCaret();
           return;
         }

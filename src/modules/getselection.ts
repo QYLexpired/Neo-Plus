@@ -120,22 +120,20 @@ export function getCharWidthAtCursor(): number | null {
   if (rects.length > 0 && rects[0].width > 0) return rects[0].width;
   return null;
 }
-export interface SelectionScrollContainer {
-  element: HTMLElement;
-  clipX: boolean;
-  clipY: boolean;
-}
-export function getScrollContainers(): SelectionScrollContainer[] {
-  const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0 || !sel.focusNode) return [];
-  let element = sel.focusNode instanceof HTMLElement ? sel.focusNode : sel.focusNode.parentElement;
-  const containers: SelectionScrollContainer[] = [];
+export function isCursorClipped(rect: DOMRectReadOnly, focusNode: Node | null): boolean {
+  let element = focusNode instanceof HTMLElement ? focusNode : focusNode?.parentElement;
   while (element) {
     const style = window.getComputedStyle(element);
     const clipX = style.overflowX !== 'visible';
     const clipY = style.overflowY !== 'visible';
-    if (clipX || clipY) containers.push({ element, clipX, clipY });
+    if (clipX || clipY) {
+      const containerRect = element.getBoundingClientRect();
+      if ((clipX && (rect.left < containerRect.left || rect.right > containerRect.right))
+        || (clipY && (rect.top < containerRect.top || rect.bottom > containerRect.bottom))) {
+        return true;
+      }
+    }
     element = element.parentElement;
   }
-  return containers;
+  return false;
 }
