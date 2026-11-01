@@ -10,6 +10,7 @@ export interface LiquidGlassConfig {
   height?: number;
   borderRadius?: number;
   bezelWidth?: number;
+  refractionEdge?: 'all' | 'bottom';
   thickness?: number;
   strength?: number;
   dispersion?: number;
@@ -33,6 +34,7 @@ const defaultConfig = {
   height: 200,
   borderRadius: 75,
   bezelWidth: 20,
+  refractionEdge: 'all',
   thickness: 200,
   strength: 1,
   dispersion: 0,
@@ -106,7 +108,7 @@ export function computeDisplacementTable(config: LiquidGlassConfig): Displacemen
   return { table, maxDisplacementPx: Math.max(maxPhysDisp, 1) };
 }
 export function computeDisplacementMap(config: LiquidGlassConfig): DisplacementMapData {
-  const { width, height, borderRadius, bezelWidth, dpr } = resolveConfig(config);
+  const { width, height, borderRadius, bezelWidth, refractionEdge, dpr } = resolveConfig(config);
   const rw = Math.ceil(width * dpr);
   const rh = Math.ceil(height * dpr);
   const rBezel = bezelWidth * dpr;
@@ -114,7 +116,9 @@ export function computeDisplacementMap(config: LiquidGlassConfig): DisplacementM
   const data = new Uint8ClampedArray(rw * rh * 4);
   const { table, maxDisplacementPx } = computeDisplacementTable(config);
   const steps = table.length;
-  const sdf = (x: number, y: number) => roundedRectSDF(x, y, rw, rh, rRadius);
+  const sdf = (x: number, y: number) => refractionEdge === 'bottom'
+    ? y - rh
+    : roundedRectSDF(x, y, rw, rh, rRadius);
   for (let y = 0; y < rh; y++) {
     for (let x = 0; x < rw; x++) {
       const idx = (y * rw + x) * 4;
@@ -149,11 +153,12 @@ export function computeDisplacementMap(config: LiquidGlassConfig): DisplacementM
   }
   return { data, width: rw, height: rh, maxDisplacementPx };
 }
-export function buildFilterMarkup(config: LiquidGlassConfig, mapUrl: string, maxDisplacementPx: number): string {
+export function buildFilterMarkup(config: LiquidGlassConfig, mapUrl: string, maxDisplacementPx: number, repeatMap = false): string {
   const { width, height, dispersion, dpr, filterId } = resolveConfig(config);
   const baseScale = (2 * maxDisplacementPx) / dpr;
   const mapDef =
-    `<feImage href="${mapUrl}" x="0" y="0" width="${width}" height="${height}" result="mapSource" preserveAspectRatio="none" />`;
+    `<feImage href="${mapUrl}" x="0" y="0" width="${width}" height="${height}" result="${repeatMap ? 'mapTile' : 'mapSource'}" preserveAspectRatio="none" />`
+    + (repeatMap ? '\n      <feTile in="mapTile" result="mapSource" />' : '');
   let filterLogic = '';
   if (dispersion <= 0.001) {
     filterLogic = `<feDisplacementMap in="SourceGraphic" in2="mapSource" scale="${baseScale}" xChannelSelector="R" yChannelSelector="G" result="refracted" />`;
@@ -244,31 +249,36 @@ function encodePngDataUrl(rgba: Uint8ClampedArray, width: number, height: number
   }
   return 'data:image/png;base64,' + Buffer.from(out).toString('base64');
 }
-const presets: LiquidGlassConfig[] = [
-  {
-    width: 2000,
+const presets: LiquidGlassConfig[] = Array.from({ length: 10 }, (_, index) => {
+  const width = (index + 1) * 500;
+  return {
+    width,
     height: 80,
     borderRadius: 0,
     bezelWidth: 20,
-    thickness: 30,
-    strength: 1,
-    dispersion: 0,
+    refractionEdge: 'bottom',
+    thickness: 24,
+    strength: 1.3,
+    dispersion: 0.08,
     ior: 1.5,
     profileType: 'convex-round',
     dpr: 2,
-    filterId: 'neo-superfusion-liquidglass',
-  },
-];
+    filterId: `neo-superfusion-liquidglass-${width}`,
+  };
+});
 function escapeTemplate(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
 }
 function generate(): void {
-  const entries = presets.map((cfg) => {
+  const entries = presets.map((cfg, index) => {
     const config = resolveConfig(cfg);
-    const map = computeDisplacementMap(config);
+    const map = computeDisplacementMap({
+      ...config,
+      width: config.refractionEdge === 'bottom' ? 1 : config.width,
+    });
     const url = encodePngDataUrl(map.data, map.width, map.height);
-    const filter = buildFilterMarkup(config, url, map.maxDisplacementPx);
-    return { id: config.filterId, filter };
+    const filter = buildFilterMarkup(config, url, map.maxDisplacementPx, config.refractionEdge === 'bottom' && index === presets.length - 1);
+    return { id: config.filterId, width: config.width, filter };
   });
   const body = entries
     .map(({ id, filter }) => `  '${id}': \`${escapeTemplate(filter)}\`,`)

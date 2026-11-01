@@ -1,8 +1,133 @@
 export const liquidGlassFilters: Record<string, string> = {
-  'neo-superfusion-liquidglass': `
-    <filter id="neo-superfusion-liquidglass" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
-      <feImage href="data:image/png;base64,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AAAAAACAAF2ADgAAAAAAAAAAAAAAAAAAIEAXoAMAAAAAAAAAAAAAAAAAAAjQBegAAAAAAAAAAAAAAAAAAAACdAE6AAAAAAAAAAAAAAAAAACAAF2ADgAAAAAAAAAAAAAAAAAAIEAXoAMAAAAAAAAAAAAAAAAAAAjQBegAAAAAAAAAAAAAAAAAAAACdAE6AAAAAAAAAAAAAAAAAACAAF2ADgAAAAAAAAAAAAAAAAAAIEAXoAMAAAAAAAAAAAAAAAAAAAjQBegAAAAAAAAAAAAAAAAAAAACdAE6AAAAAAAAAAAAAAAAAACAAF2ADgAAAAAAAAAAAAAAAAAAIEAXoAMAAAAAAAAAAAAAAAAAAAjQBegAAAAAAAAAAAAAAAAAAAACdAE6AAAAAAAAAAAAAAAAAACAAF2ADgAAAAAAAAAAAAAAAAAAgAAdAAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIAuQAcAAAAAAAAAAAAAAAAAABCgC9ABAAAAAAAAAAAAAAAAAAAE6AJ0AAAAAAAAAAAAAAAAAAAAAboAHQAAAAAAAAAAAAAAAAAAQIDeqgD9ywNMAAAAAAAAAAAAAAAAAAAA8E1PBugWDwAAAAAAAAAAAAAAAAAA8FMTE70UoFs4AAAAAAAAAAAAAAAAAADAbyP01gfoX+LzcQAAAAAAAAAAAAAAAAAAAH5nOUJvZYAuPgcAAAAAAAAAAAAAAAAAAFh5hN66AH2yM9wYAAAAAAAAAAAAAAAAAAAAKzU+3qIAXXwOAAAAAAAAAAAAAAAAAACw+gi98QH6VGeYUQAAAAAAAAAAAAAAAAAAAFZrbKzBAfqX+HwEAAAAAAAAAAAAAAAAAACAtdKJ0BsXoE93CvphAAAAAAAAAAAAAAAAAAAA1troaIMC9JlOOT8EAAAAAAAAAAAAAAAAAADAehkZaUCA/iU+vwQAAAAAAAAAAAAAAAAAAMB660ToXRugz3a+ax8EAAAAAAAAAAAAAAAAAABgowwPd2GAPtf5pn0AAAAAAAAAAAAAAAAAAACAjTY01EUB+nynjL8AAAAAAAAAAAAAAAAAAADAZhkc7IIAfaFTxJ8HAAAAAAAAAAAAAAAAAABgsw0MbGKAfvViVJ4FAAAAAAAAAAAAAAAAAACgW1y8uAkB+vX+qDwNAAAAAAAAAAAAAAAAAABAt+nv38AA/ea5qDwJAAAAAAAAAAAAAAAAAABAtzp3bgMC9NtnovI4AAAAAAAAAAAAAAAAAAAA3e7MmXUM0BdPReVRAAAAAAAAAAAAAAAAAAAAmuLUqXUI0JdOROVhAAAAAAAAAAAAAAAAAAAAmubEiTUM0O8di8qDAAAAAAAAAAAAAAAAAAAANNWxY2sQoD84EpX7AQAAAAAAAAAAAAAAAAAAaLojR1YRoD86FJV7AQAAAAAAAAAAAAAAAAAAaItDh/4iQH9yICr3AAAAAAAAAAAAAAAAAAAA0DYHDqwgQH+2Lyp3AQAAAAAAAAAAAAAAAAAA0Fb79v1BgP6iLyp3AAAAAAAAAAAAAAAAAAAA0HZ9fb8I0F/tjsptAAAAAAAAAAAAAAAAAAAA9Irdu38SoL/ZGZVbAQAAAAAAAAAAAAAAAAAA6DU7d34XoL/bHpVbAAAAAAAAAAAAAAAAAAAA6FXbt0f9CwGtcGCnKPryAAAAAElFTkSuQmCC" x="0" y="0" width="2000" height="80" result="mapSource" preserveAspectRatio="none" />
-      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="64.75636497717348" xChannelSelector="R" yChannelSelector="G" result="refracted" />
+  'neo-superfusion-liquidglass-500': `
+    <filter id="neo-superfusion-liquidglass-500" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="500" height="80" result="mapSource" preserveAspectRatio="none" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
+      <feComposite in="refracted" in2="SourceGraphic" operator="in" />
+    </filter>`,
+  'neo-superfusion-liquidglass-1000': `
+    <filter id="neo-superfusion-liquidglass-1000" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="1000" height="80" result="mapSource" preserveAspectRatio="none" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
+      <feComposite in="refracted" in2="SourceGraphic" operator="in" />
+    </filter>`,
+  'neo-superfusion-liquidglass-1500': `
+    <filter id="neo-superfusion-liquidglass-1500" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="1500" height="80" result="mapSource" preserveAspectRatio="none" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
+      <feComposite in="refracted" in2="SourceGraphic" operator="in" />
+    </filter>`,
+  'neo-superfusion-liquidglass-2000': `
+    <filter id="neo-superfusion-liquidglass-2000" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="2000" height="80" result="mapSource" preserveAspectRatio="none" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
+      <feComposite in="refracted" in2="SourceGraphic" operator="in" />
+    </filter>`,
+  'neo-superfusion-liquidglass-2500': `
+    <filter id="neo-superfusion-liquidglass-2500" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="2500" height="80" result="mapSource" preserveAspectRatio="none" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
+      <feComposite in="refracted" in2="SourceGraphic" operator="in" />
+    </filter>`,
+  'neo-superfusion-liquidglass-3000': `
+    <filter id="neo-superfusion-liquidglass-3000" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="3000" height="80" result="mapSource" preserveAspectRatio="none" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
+      <feComposite in="refracted" in2="SourceGraphic" operator="in" />
+    </filter>`,
+  'neo-superfusion-liquidglass-3500': `
+    <filter id="neo-superfusion-liquidglass-3500" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="3500" height="80" result="mapSource" preserveAspectRatio="none" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
+      <feComposite in="refracted" in2="SourceGraphic" operator="in" />
+    </filter>`,
+  'neo-superfusion-liquidglass-4000': `
+    <filter id="neo-superfusion-liquidglass-4000" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="4000" height="80" result="mapSource" preserveAspectRatio="none" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
+      <feComposite in="refracted" in2="SourceGraphic" operator="in" />
+    </filter>`,
+  'neo-superfusion-liquidglass-4500': `
+    <filter id="neo-superfusion-liquidglass-4500" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="4500" height="80" result="mapSource" preserveAspectRatio="none" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
+      <feComposite in="refracted" in2="SourceGraphic" operator="in" />
+    </filter>`,
+  'neo-superfusion-liquidglass-5000': `
+    <filter id="neo-superfusion-liquidglass-5000" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feImage href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAACgCAYAAAAmYr3BAAAAdElEQVR42u3GKwpCAQBE0bsP1+AKzEabyWIwCIKIiOLf2fmVaS9ZLS8cOCRYjBkzZszf8sH6mTfWIC+sQZ5YgzywyB2L3LDIFYtcsMgZi5ywyBGLHLDIHovssMgWi2ywyBqLrLDIEosssMgci8ywyBSLTLC+Ext5gTojh4cAAAAASUVORK5CYII=" x="0" y="0" width="5000" height="80" result="mapTile" preserveAspectRatio="none" />
+      <feTile in="mapTile" result="mapSource" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="61.42130957895092" xChannelSelector="R" yChannelSelector="G" result="dispR" />
+      <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="R" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="66.76229302059882" xChannelSelector="R" yChannelSelector="G" result="dispG" />
+      <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="G" />
+      <feDisplacementMap in="SourceGraphic" in2="mapSource" scale="72.10327646224673" xChannelSelector="R" yChannelSelector="G" result="dispB" />
+      <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="B" />
+      <feBlend in="R" in2="G" mode="screen" result="RG" />
+      <feBlend in="RG" in2="B" mode="screen" result="refracted" />
       <feComposite in="refracted" in2="SourceGraphic" operator="in" />
     </filter>`,
 };
