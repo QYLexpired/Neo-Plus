@@ -2,7 +2,6 @@ import { saveConfig, loadConfig, getConfig, type Config } from '../main/data';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
 import { Dialog } from '../modules/dialog';
-import { isMobile } from '../modules/env';
 import { getPlugin } from '../main/context';
 import { withViewTransition } from '../modules/viewtransition';
 import { createNeoLifecycleGuard } from '../main/lifecycle';
@@ -59,7 +58,6 @@ function buildSettingsHTML(i18n: Record<string, string>): string {
   </div>`;
 }
 export async function showFrostedGlassSettings(): Promise<void> {
-  if (isMobile()) return;
   const plugin = getPlugin();
   if (!plugin) return;
   const isCurrent = createNeoLifecycleGuard();
@@ -103,8 +101,7 @@ export async function showFrostedGlassSettings(): Promise<void> {
     dialog.destroy();
   });
 }
-export function initFrostedGlass(): Promise<void> | void {
-  if (isMobile()) return;
+export function initFrostedGlass(): Promise<void> {
   const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
   return loadConfig().then(() => {
@@ -120,7 +117,6 @@ export function initFrostedGlass(): Promise<void> | void {
   });
 }
 export function onFrostedGlassClick(): void {
-  if (isMobile()) return;
   configRevision += 1;
   const revision = ++actionRevision;
   const shouldEnable = !neoFeatureActive;
