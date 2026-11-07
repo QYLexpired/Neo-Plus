@@ -161,12 +161,12 @@ export function buildMenu(
     },
   });
   menu.addSeparator();
-  menu.addItem({
-    id: 'neo-interface-button',
-    icon: 'iconNeoInterface',
-    label: i18n.interface,
-    submenu: [
-      ...(!isMobile() ? [
+  if (!isMobile()) {
+    menu.addItem({
+      id: 'neo-interface-button',
+      icon: 'iconNeoInterface',
+      label: i18n.interface,
+      submenu: [
         {
           id: 'neo-ide-button',
           icon: 'iconNeoIde',
@@ -223,23 +223,23 @@ export function buildMenu(
             return true;
           },
         },
-      ] : []),
-      {
-        id: 'neo-frostedglass-button',
-        icon: 'iconNeoFrostedGlass',
-        label: createSettingsMenuLabel(
-          'frostedGlass',
-          i18n.frostedGlass,
-          i18n.frostedGlassSettings,
-          showFrostedGlassSettings,
-        ),
-        click: () => {
-          onFrostedGlassClick();
-          return true;
+        {
+          id: 'neo-frostedglass-button',
+          icon: 'iconNeoFrostedGlass',
+          label: createSettingsMenuLabel(
+            'frostedGlass',
+            i18n.frostedGlass,
+            i18n.frostedGlassSettings,
+            showFrostedGlassSettings,
+          ),
+          click: () => {
+            onFrostedGlassClick();
+            return true;
+          },
         },
-      },
-    ],
-  });
+      ],
+    });
+  }
   menu.addItem({
     id: 'neo-appearance-button',
     icon: 'iconNeoAppearance',
