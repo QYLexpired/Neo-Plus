@@ -260,16 +260,16 @@ export function buildMenu(
             return true;
           },
         },
-      ] : []),
-      {
-        id: 'neo-cardsearchlist-button',
-        icon: 'iconSearch',
-        label: i18n.cardSearchList,
-        click: () => {
-          onCardSearchListClick();
-          return true;
+        {
+          id: 'neo-cardsearchlist-button',
+          icon: 'iconSearch',
+          label: i18n.cardSearchList,
+          click: () => {
+            onCardSearchListClick();
+            return true;
+          },
         },
-      },
+      ] : []),
       {
         id: 'neo-element-button',
         type: 'readonly',

@@ -1,3 +1,4 @@
+import { isMobile } from '../modules/env';
 import { fetchListener } from '../modules/fetchmonitor';
 import { ensureCss, removeCss } from '../modules/cssloader';
 import { featureCss } from '../modules/csschunks';
@@ -75,7 +76,8 @@ function enableCardSearchList(): void {
   fetchMonitor.attach();
   onSearchActivity();
 }
-export function initCardSearchList(): Promise<void> {
+export function initCardSearchList(): Promise<void> | void {
+  if (isMobile()) return;
   const revision = ++configRevision;
   const isCurrent = createNeoLifecycleGuard();
   return loadConfig().then((config) => {
@@ -86,6 +88,7 @@ export function initCardSearchList(): Promise<void> {
   });
 }
 export function onCardSearchListClick(): void {
+  if (isMobile()) return;
   configRevision += 1;
   if (neoFeatureActive) {
     destroyCardSearchList();
