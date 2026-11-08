@@ -27,7 +27,7 @@ const neoEasePresets = {
   drift: { duration: 150, timing: 'var(--neo-ease-in-3, ease-in)' },
   spring: { duration: 450, timing: 'var(--neo-ease-spring-2, ease-out)' },
 };
-const easeNames = [...Object.keys(neoEasePresets), 'linear', 'custom'] as SmoothCaretEase[];
+const easeNames = [...Object.keys(neoEasePresets), 'custom'] as SmoothCaretEase[];
 const curveAxes = [
   { name: 'x1', min: 0, max: 1 },
   { name: 'y1', min: -1, max: 2 },
@@ -64,8 +64,7 @@ function normalizeSmoothCaretEase(value: unknown): typeof smoothCaretEase {
 }
 function getEaseTiming(ease: SmoothCaretEase, duration: number, curve: EaseCurve): { duration: number; timing: string } {
   if (ease === 'custom') return { duration, timing: formatEaseCurve(curve) };
-  if (ease === 'elegant' || ease === 'shuttle' || ease === 'drift' || ease === 'spring') return neoEasePresets[ease];
-  return { duration: defaultEaseDuration, timing: ease };
+  return neoEasePresets[ease];
 }
 function normalizeEaseDuration(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value)
