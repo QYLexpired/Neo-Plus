@@ -434,7 +434,7 @@ function buildEaseCurveEditorHTML(i18n: Record<string, string>): string {
     <div class="neo-smoothcaret-curve-presets" role="group" aria-label="${i18n.smoothCaretEasePresets}" style="display:grid;align-content:space-evenly;gap:4px;">${presets}</div>
     <div class="neo-smoothcaret-curve-main">
       <svg class="neo-smoothcaret-curve-plot" width="${curvePlotWidth}" height="${curvePlotHeight}" viewBox="0 0 ${curvePlotWidth} ${curvePlotHeight}" aria-hidden="true"
-        style="display:block;width:auto;height:auto;max-width:100%;max-height:calc(90vh - 208px);background-color:var(--b3-list-hover);">
+        style="display:block;width:auto;height:auto;max-width:100%;max-height:calc(90vh - 208px);background-color:var(--b3-list-hover);touch-action:none;user-select:none;">
         <rect class="neo-smoothcaret-curve-grid" fill="none" stroke-opacity="0.35" style="stroke:var(--b3-theme-on-surface);" />
         <line class="neo-smoothcaret-curve-baseline" stroke-opacity="0.35" style="stroke:var(--b3-theme-on-surface);" />
         <path class="neo-smoothcaret-curve-path" style="fill:none;stroke:var(--b3-theme-accent);stroke-width:2px;" />
@@ -442,9 +442,11 @@ function buildEaseCurveEditorHTML(i18n: Record<string, string>): string {
           <line class="neo-smoothcaret-curve-guide" />
           <line class="neo-smoothcaret-curve-guide" />
         </g>
-        <g style="fill:var(--b3-theme-accent);stroke:var(--b3-theme-surface);cursor:grab;touch-action:none;">
-          <circle class="neo-smoothcaret-curve-handle" r="8" />
-          <circle class="neo-smoothcaret-curve-handle" r="8" />
+        <g style="fill:var(--b3-theme-accent);stroke:var(--b3-theme-surface);cursor:grab;">
+          ${[0, 1].map(() => `<g class="neo-smoothcaret-curve-handle">
+            <circle r="18" style="fill:transparent;stroke:none;pointer-events:all;" />
+            <circle r="8" />
+          </g>`).join('')}
         </g>
       </svg>
     </div>
@@ -456,7 +458,7 @@ function bindEaseCurveEditor(editor: HTMLElement, initialCurve: EaseCurve, onCha
   const path = plot.querySelector('path')!;
   const baseline = plot.querySelector<SVGLineElement>('.neo-smoothcaret-curve-baseline')!;
   const guides = Array.from(plot.querySelectorAll<SVGLineElement>('.neo-smoothcaret-curve-guide'));
-  const handles = Array.from(plot.querySelectorAll('circle'));
+  const handles = Array.from(plot.querySelectorAll<SVGGElement>('.neo-smoothcaret-curve-handle'));
   const presets = Array.from(editor.querySelectorAll<HTMLButtonElement>('.neo-smoothcaret-curve-preset'));
   let curve: EaseCurve = [...initialCurve];
   const maxY = curveAxes[1].max;
@@ -488,8 +490,7 @@ function bindEaseCurveEditor(editor: HTMLElement, initialCurve: EaseCurve, onCha
     path.setAttribute('d', `M ${startX} ${startY} C ${firstX} ${firstY} ${secondX} ${secondY} ${endX} ${endY}`);
     const points = [[firstX, firstY], [secondX, secondY]];
     points.forEach(([x, y], index) => {
-      handles[index].setAttribute('cx', String(x));
-      handles[index].setAttribute('cy', String(y));
+      handles[index].setAttribute('transform', `translate(${x} ${y})`);
       guides[index].setAttribute('x2', String(x));
       guides[index].setAttribute('y2', String(y));
     });
@@ -598,30 +599,49 @@ function showEaseCurveDialog(i18n: Record<string, string>, curve: EaseCurve, dur
   return dialog;
 }
 function bindEasePreview(cursor: HTMLElement) {
+  const text = cursor.parentElement!;
+  const content = text.querySelector<HTMLElement>('.neo-smoothcaret-ease-content')!;
   let animation: Animation | null = null;
+  let movement = defaultEaseDuration;
+  let easing = 'linear';
+  const render = (restart: boolean): void => {
+    const range = document.createRange();
+    range.selectNodeContents(content);
+    const lines = Array.from(range.getClientRects()).filter(rect => rect.width > 0);
+    if (lines.length === 0) return;
+    const bounds = text.getBoundingClientRect();
+    const lead = 180;
+    const cycle = lead + movement + 320;
+    const position = (rect: DOMRect, x: number): string => `translate(${x - bounds.left}px, ${rect.top - bounds.top + rect.height / 2}px)`;
+    const start = position(lines[0], lines[0].left);
+    const lastLine = lines[lines.length - 1];
+    const end = position(lastLine, lastLine.right);
+    const keyframes: Keyframe[] = [
+      { transform: start, offset: 0 },
+      { transform: start, offset: lead / cycle, easing },
+      { transform: end, offset: (lead + movement) / cycle },
+      { transform: end, offset: 1 },
+    ];
+    const effect = animation?.effect as KeyframeEffect | null | undefined;
+    if (effect && animation) {
+      effect.setKeyframes(keyframes);
+      effect.updateTiming({ duration: cycle });
+      if (restart) animation.currentTime = 0;
+    } else {
+      animation = cursor.animate(keyframes, { duration: cycle, iterations: Infinity });
+    }
+  };
+  const resizeObserver = new ResizeObserver(() => render(false));
+  resizeObserver.observe(text);
   return {
     update(duration: number, timing: string, restart: boolean): void {
-      const movement = Math.max(1, duration);
-      const lead = 180;
-      const cycle = lead + movement + 320;
+      movement = Math.max(1, duration);
       cursor.style.animationTimingFunction = timing;
-      const easing = duration === 0 ? 'steps(1, end)' : getComputedStyle(cursor).animationTimingFunction;
-      const keyframes: Keyframe[] = [
-        { transform: 'translateX(0%)', offset: 0 },
-        { transform: 'translateX(0%)', offset: lead / cycle, easing },
-        { transform: 'translateX(100%)', offset: (lead + movement) / cycle },
-        { transform: 'translateX(100%)', offset: 1 },
-      ];
-      const effect = animation?.effect as KeyframeEffect | null | undefined;
-      if (effect && animation) {
-        effect.setKeyframes(keyframes);
-        effect.updateTiming({ duration: cycle });
-        if (restart) animation.currentTime = 0;
-      } else {
-        animation = cursor.animate(keyframes, { duration: cycle, iterations: Infinity });
-      }
+      easing = duration === 0 ? 'steps(1, end)' : getComputedStyle(cursor).animationTimingFunction;
+      render(restart);
     },
     stop(): void {
+      resizeObserver.disconnect();
       animation?.cancel();
       animation = null;
     },
@@ -632,10 +652,10 @@ function buildEasePreviewHTML(i18n: Record<string, string>): string {
   const previewStart = 'Ne'.length;
   const previewEnd = previewText.length - 'es.'.length;
   return `<div class="config-name">${i18n.smoothCaretEasePreview}</div>
-    <div class="neo-smoothcaret-ease-preview" aria-hidden="true" style="display:grid;grid-template-columns:minmax(0,1fr);place-items:center;container-type:inline-size;height:38px;margin-top:8px;padding-inline:clamp(24px,15%,72px);overflow:hidden;border-radius:6px;background-color:var(--b3-list-hover);">
-      <span dir="ltr" style="display:block;width:max-content;white-space:nowrap;font-size:1em;line-height:22px;color:var(--b3-theme-on-surface);">${previewText.slice(0, previewStart)}<span style="position:relative;display:inline-block;">${previewText.slice(previewStart, previewEnd)}<span class="neo-smoothcaret-ease-track" style="position:absolute;inset:0;pointer-events:none;">
-        <span class="neo-smoothcaret-ease-cursor" style="position:absolute;left:-1px;top:50%;translate:0 -50%;width:2px;height:1em;border-radius:1px;background-color:var(--b3-theme-accent);"></span>
-      </span></span>${previewText.slice(previewEnd)}</span>
+    <div class="neo-smoothcaret-ease-preview" aria-hidden="true" style="display:grid;grid-template-columns:minmax(0,1fr);place-items:center;container-type:inline-size;min-height:38px;box-sizing:border-box;margin-top:8px;padding:8px clamp(24px,15%,72px);overflow:hidden;border-radius:6px;background-color:var(--b3-list-hover);">
+      <span dir="ltr" style="position:relative;display:block;width:max-content;max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:1em;line-height:22px;color:var(--b3-theme-on-surface);">${previewText.slice(0, previewStart)}<span class="neo-smoothcaret-ease-content">${previewText.slice(previewStart, previewEnd)}</span>${previewText.slice(previewEnd)}<span class="neo-smoothcaret-ease-track" style="position:absolute;left:0;top:0;pointer-events:none;">
+        <span class="neo-smoothcaret-ease-cursor" style="position:absolute;left:-1px;top:0;translate:0 -50%;width:2px;height:1em;border-radius:1px;background-color:var(--b3-theme-accent);"></span>
+      </span></span>
     </div>`;
 }
 function buildSettingsHTML(i18n: Record<string, string>): string {
