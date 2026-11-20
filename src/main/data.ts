@@ -29,7 +29,32 @@ export type PresetTextureSettings = Record<string, PresetTextureSettingValue>;
 export type PresetTextureSettingsMap = Record<string, PresetTextureSettings>;
 export type CoreColorKey = 'base' | 'accent' | 'background' | 'surface' | 'onbackground';
 export type CoreColors = Partial<Record<CoreColorKey, string>>;
-export interface Config {
+const booleanConfigKeys = [
+  'invert-light',
+  'invert-dark',
+  'highcontrast-light',
+  'highcontrast-dark',
+  'smoothcaret',
+  'fluidcursor',
+  'fluidcursor-trail',
+  'fluidcursor-wave',
+  'listbulletline',
+  'listbulletline-draw',
+  'focusblockindicator',
+  'multicolumnslashmenu',
+  'multicolumnslashmenu-arrowkeys',
+  'cardsearchlist',
+  'element-heading-colored',
+  'element-heading-colored-outline',
+  'element-heading-level',
+  'frostedglass',
+  'frostedglass-luminous',
+  'verticaltabs',
+  'superfusion',
+  'sidebarmute',
+  'ide',
+] as const;
+export interface Config extends Partial<Record<(typeof booleanConfigKeys)[number], boolean>> {
   'basefollowbanner-colorstyle'?: 'default' | 'vivid';
   'basecustom-color-light'?: string;
   'basecustom-color-dark'?: string;
@@ -37,10 +62,6 @@ export interface Config {
   'saturation-dark'?: number;
   'brightness-light'?: number;
   'brightness-dark'?: number;
-  'invert-light'?: boolean;
-  'invert-dark'?: boolean;
-  'highcontrast-light'?: boolean;
-  'highcontrast-dark'?: boolean;
   'free-presets-light'?: Record<string, CoreColors>;
   'free-presets-dark'?: Record<string, CoreColors>;
   'free-preset-current-light'?: string;
@@ -63,47 +84,29 @@ export interface Config {
   'customimage-presets-dark'?: Record<string, CustomImageSource>;
   'customimage-preset-current-light'?: string;
   'customimage-preset-current-dark'?: string;
-  'smoothcaret'?: boolean;
   'smoothcaret-motion'?: 'static' | 'breathing' | 'stretch' | 'trail';
   'smoothcaret-ease'?: 'elegant' | 'shuttle' | 'drift' | 'spring' | 'custom';
   'smoothcaret-ease-duration'?: number;
   'smoothcaret-ease-curve'?: [number, number, number, number];
   'smoothcaret-shape'?: 'bar' | 'block' | 'underline';
   'smoothcaret-style'?: 'default' | 'neon' | 'rainbow' | 'gilded';
-  'fluidcursor'?: boolean;
-  'fluidcursor-trail'?: boolean;
   'fluidcursor-trail-color'?: 'aurora' | 'ink' | 'rainbow' | 'neon' | 'gilded';
-  'fluidcursor-wave'?: boolean;
-  'listbulletline'?: boolean;
-  'listbulletline-draw'?: boolean;
-  'focusblockindicator'?: boolean;
   'focusblockindicator-effect'?: 'vertical-line' | 'shadow' | 'outline' | 'background';
   'focusblockindicator-line-color'?: 'accent' | 'text';
   'focusblockindicator-disabled'?: Array<'table' | 'codeblock' | 'iframe' | 'htmlblock' | 'renderblock' | 'mindmap' | 'mathblock' | 'database' | 'widget' | 'videoblock' | 'audioblock' | 'customblock'>;
-  'multicolumnslashmenu'?: boolean;
-  'multicolumnslashmenu-arrowkeys'?: boolean;
-  'cardsearchlist'?: boolean;
   'element-link-style'?: 'icon' | 'underline';
-  'element-heading-colored'?: 'off' | 'on';
-  'element-heading-colored-outline'?: 'off' | 'on';
   'element-heading-colored-color-style'?: 'soft' | 'default' | 'vivid';
   'element-heading-colored-initial-hue-rule'?: 'theme' | 'fixed' | 'accent';
   'element-heading-colored-initial-hue'?: number;
-  'element-heading-level'?: 'off' | 'on';
-  'frostedglass'?: boolean;
   'frostedglass-scope'?: 'light' | 'global';
-  'frostedglass-luminous'?: boolean;
-  'verticaltabs'?: boolean;
   'verticaltabs-mode'?: 'topLeftOnly' | 'all';
   'verticaltabs-width'?: number;
-  'superfusion'?: boolean;
   'superfusion-mode'?: 'blur' | 'frostedGlass' | 'liquidGlass';
-  'sidebarmute'?: boolean;
-  'ide'?: boolean;
 }
 export type ConfigSaveResult = 'saved' | 'temporary' | false;
 let configCache: Config = {};
 let configFileContent: string | null = null;
+let configFileNeedsMigration = false;
 const configKeyRevisions = new Map<keyof Config, number>();
 let pendingLoadConfig: Promise<Config> | null = null;
 let configLoaded = false;
@@ -152,6 +155,7 @@ async function flushConfigSaves(): Promise<void> {
         if (!plugin) throw new Error();
         await plugin.saveData(configKey, snapshot);
         configFileContent = content;
+        configFileNeedsMigration = false;
         persistedConfigRevision = revision;
         for (const [key, changedAt] of configKeyRevisions) {
           if (changedAt <= revision) configKeyRevisions.delete(key);
@@ -209,20 +213,40 @@ export async function saveConfigIfUnchanged(patch: Partial<Config>, expected: Pa
 export function getConfig(): Config {
   return configCache;
 }
+function scheduleConfigMigration(plugin: Plugin): void {
+  if (configFileNeedsMigration && configSaveWaiters.length === 0) {
+    void enqueueConfigSave(plugin, []);
+  }
+}
 function readConfig(): Promise<Config> {
   if (pendingLoadConfig) return pendingLoadConfig;
   const plugin = getPluginOrNull();
   if (!plugin) return Promise.reject(new Error());
-  pendingLoadConfig = plugin.loadData(configKey).then((data: Config | null) => {
-    const loaded = { ...(data || {}) };
+  pendingLoadConfig = plugin.loadData<Record<string, unknown> | null>(configKey).then(data => {
+    const loaded: Config = { ...data };
     const content = serializeConfig(loaded);
-    if (configFileContent === content) return configCache;
+    if (configFileContent === content) {
+      scheduleConfigMigration(plugin);
+      return configCache;
+    }
     if (configFileContent !== null) {
       configKeyRevisions.clear();
       persistedConfigRevision = configRevision;
       resolveConfigSaveWaiters(configRevision, false);
     }
     configFileContent = content;
+    configFileNeedsMigration = false;
+    for (const key of booleanConfigKeys) {
+      const value = data?.[key];
+      if (typeof value === 'boolean') continue;
+      const legacyValue = typeof value === 'string' ? value.toLowerCase() : undefined;
+      if (legacyValue === 'on' || legacyValue === 'off') {
+        loaded[key] = legacyValue === 'on';
+        configFileNeedsMigration = true;
+      } else {
+        delete loaded[key];
+      }
+    }
     for (const key of Object.keys(loaded) as Array<keyof Config>) {
       if (serializeConfig(loaded[key]) === serializeConfig(configCache[key])) {
         Object.assign(loaded, { [key]: configCache[key] });
@@ -237,6 +261,7 @@ function readConfig(): Promise<Config> {
     }
     configCache = loaded;
     configLoaded = true;
+    scheduleConfigMigration(plugin);
     return configCache;
   }).finally(() => { pendingLoadConfig = null; });
   return pendingLoadConfig;

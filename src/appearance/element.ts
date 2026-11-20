@@ -44,9 +44,9 @@ function readHeadingSettings(config: Config): HeadingSettings {
   const rule = config['element-heading-colored-initial-hue-rule'];
   const hue = Number(config['element-heading-colored-initial-hue']);
   return {
-    enabled: config['element-heading-colored'] === 'on',
-    outline: config['element-heading-colored-outline'] !== 'off',
-    level: config['element-heading-level'] === 'on',
+    enabled: config['element-heading-colored'] === true,
+    outline: (config['element-heading-colored-outline'] ?? true) === true,
+    level: config['element-heading-level'] === true,
     colorStyle: colorStyle === 'soft' || colorStyle === 'vivid' ? colorStyle : 'default',
     initialHueRule: rule === 'fixed' || rule === 'accent' ? rule : 'theme',
     initialHue: Number.isFinite(hue) ? Math.min(360, Math.max(0, Math.round(hue))) : 0,
@@ -56,9 +56,9 @@ export function normalizeElementConfig(config: Config): ElementConfig {
   const heading = readHeadingSettings(config);
   return {
     'element-link-style': config['element-link-style'] === 'icon' ? 'icon' : 'underline',
-    'element-heading-colored': heading.enabled ? 'on' : 'off',
-    'element-heading-colored-outline': heading.outline ? 'on' : 'off',
-    'element-heading-level': heading.level ? 'on' : 'off',
+    'element-heading-colored': heading.enabled,
+    'element-heading-colored-outline': heading.outline,
+    'element-heading-level': heading.level,
     'element-heading-colored-color-style': heading.colorStyle,
     'element-heading-colored-initial-hue-rule': heading.initialHueRule,
     'element-heading-colored-initial-hue': heading.initialHue,
@@ -120,10 +120,7 @@ function buildSettingsHTML(i18n: Record<string, string>, heading: HeadingSetting
               <div class="b3-label__text">${i18n.elementHeadingColoredTip}</div>
             </div>
             <span class="fn__space"></span>
-            <select class="b3-select fn__flex-center fn__size200" id="neo-element-heading-colored">
-              <option value="off">${i18n.off}</option>
-              <option value="on">${i18n.on}</option>
-            </select>
+            <input class="b3-switch fn__flex-center" id="neo-element-heading-colored" type="checkbox">
           </label>
           <label class="fn__flex b3-label config-item fn__none">
             <div class="fn__flex-1 config-item__main">
@@ -200,7 +197,7 @@ export async function showElementSettings(): Promise<void> {
   });
   dialog.element.classList.add('neo-settings-dialog');
   const linkStyleSelect = dialog.element.querySelector<HTMLSelectElement>('#neo-element-link-style')!;
-  const headingSelect = dialog.element.querySelector<HTMLSelectElement>('#neo-element-heading-colored')!;
+  const headingSwitch = dialog.element.querySelector<HTMLInputElement>('#neo-element-heading-colored')!;
   const ruleSelect = dialog.element.querySelector<HTMLSelectElement>('#neo-element-heading-colored-initial-hue-rule')!;
   const colorStyleSelect = dialog.element.querySelector<HTMLSelectElement>('#neo-element-heading-colored-color-style')!;
   const outlineSwitch = dialog.element.querySelector<HTMLInputElement>('#neo-element-heading-colored-outline')!;
@@ -209,19 +206,19 @@ export async function showElementSettings(): Promise<void> {
   const hueSlider = dialog.element.querySelector<HTMLInputElement>('#neo-element-heading-colored-initial-hue')!;
   const hueTooltip = dialog.element.querySelector<HTMLElement>('#neo-element-heading-colored-initial-hue-tooltip')!;
   linkStyleSelect.value = config['element-link-style'] === 'icon' ? 'icon' : 'underline';
-  headingSelect.value = heading.enabled ? 'on' : 'off';
+  headingSwitch.checked = heading.enabled;
   ruleSelect.value = heading.initialHueRule;
   colorStyleSelect.value = heading.colorStyle;
   outlineSwitch.checked = heading.outline;
   levelSwitch.checked = heading.level;
   const updateVisibility = (): void => {
-    const enabled = headingSelect.value === 'on';
+    const enabled = headingSwitch.checked;
     ruleSelect.closest('.config-item')?.classList.toggle('fn__none', !enabled);
     colorStyleSelect.closest('.config-item')?.classList.toggle('fn__none', !enabled || ruleSelect.value === 'accent');
     outlineSwitch.closest('.config-item')?.classList.toggle('fn__none', !enabled);
     hueItem.classList.toggle('fn__none', !enabled || ruleSelect.value !== 'fixed');
   };
-  headingSelect.addEventListener('change', updateVisibility);
+  headingSwitch.addEventListener('change', updateVisibility);
   ruleSelect.addEventListener('change', updateVisibility);
   colorStyleSelect.addEventListener('change', () => {
     const value = colorStyleSelect.value;
@@ -234,7 +231,7 @@ export async function showElementSettings(): Promise<void> {
   dialog.element.querySelector('#neo-element-reset-default')?.addEventListener('click', () => {
     if (!isCurrent()) return;
     linkStyleSelect.value = 'underline';
-    headingSelect.value = 'off';
+    headingSwitch.checked = false;
     ruleSelect.value = 'theme';
     colorStyleSelect.value = 'default';
     outlineSwitch.checked = true;
@@ -253,11 +250,11 @@ export async function showElementSettings(): Promise<void> {
     const colorStyle = colorStyleSelect.value;
     const rule = ruleSelect.value;
     const hue = Number(hueSlider.value);
-    const settings: Partial<Config> = {
+    const settings: ElementConfig = {
       'element-link-style': linkStyleSelect.value === 'icon' ? 'icon' : 'underline',
-      'element-heading-colored': headingSelect.value === 'on' ? 'on' : 'off',
-      'element-heading-colored-outline': outlineSwitch.checked ? 'on' : 'off',
-      'element-heading-level': levelSwitch.checked ? 'on' : 'off',
+      'element-heading-colored': headingSwitch.checked,
+      'element-heading-colored-outline': outlineSwitch.checked,
+      'element-heading-level': levelSwitch.checked,
       'element-heading-colored-color-style': colorStyle === 'soft' || colorStyle === 'vivid' ? colorStyle : 'default',
       'element-heading-colored-initial-hue-rule': rule === 'fixed' || rule === 'accent' ? rule : 'theme',
       'element-heading-colored-initial-hue': Number.isFinite(hue) ? Math.min(360, Math.max(0, Math.round(hue))) : 0,

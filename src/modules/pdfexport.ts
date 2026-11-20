@@ -82,9 +82,13 @@ function collectPdfAppearance(config: Config): PdfAppearanceSnapshot {
   }
   const elementConfig = normalizeElementConfig(config);
   for (const [key, value] of Object.entries(elementConfig)) {
-    if (key.startsWith('element-') && typeof value === 'string') snapshot.classes.push(`neo-${key}-${value}`);
+    if (typeof value === 'boolean') {
+      snapshot.classes.push(`neo-${key}-${value ? 'on' : 'off'}`);
+    } else if (typeof value === 'string') {
+      snapshot.classes.push(`neo-${key}-${value}`);
+    }
   }
-  if (elementConfig['element-heading-colored'] === 'on' && elementConfig['element-heading-colored-initial-hue-rule'] === 'fixed') {
+  if (elementConfig['element-heading-colored'] === true && elementConfig['element-heading-colored-initial-hue-rule'] === 'fixed') {
     snapshot.variables.push({
       name: '--_element-heading-colored-initial-hue',
       value: String(elementConfig['element-heading-colored-initial-hue']),
